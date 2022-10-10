@@ -25,9 +25,11 @@ This creates a digits file named _"hmpiddigits.root"_ in the working folder.
 ### Clusterization
 
 Read from file:
+
     o2-hmpid-digits-to-clusters-workflow -b --read-from-file
     
 or stream:
+
     o2-sim-digitizer-workflow --onlyDet HMP -b || o2-hmpid-digits-to-clusters-workflow -b
 
 
