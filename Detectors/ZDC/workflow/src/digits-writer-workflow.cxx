@@ -9,37 +9,41 @@
 // granted to it by virtue of its status as an Intergovernmental Organization
 // or submit itself to any jurisdiction.
 
-#include "AODProducerWorkflow/AODMcProducerWorkflowSpec.h"
-#include "Framework/CallbacksPolicy.h"
-#include "Framework/CompletionPolicy.h"
-#include "DetectorsRaw/HBFUtilsInitializer.h"
-#include "DetectorsBase/DPLWorkflowUtils.h"
+#include "CommonUtils/ConfigurableParam.h"
+#include "Framework/ConfigParamSpec.h"
+#include "Framework/CompletionPolicyHelpers.h"
 
 using namespace o2::framework;
 
-void customize(std::vector<o2::framework::CallbacksPolicy>& policies)
-{
-  o2::raw::HBFUtilsInitializer::addNewTimeSliceCallback(policies);
-}
+// This program is o2-zdc-digits-writer and it is used to convert CTF data to digits
+// to allow manual inspection
+// In order to convert raw data to digits you should use o2-zdc-raw2digits
 
+// ------------------------------------------------------------------
+// we need to add workflow options before including Framework/runDataProcessing
 void customize(std::vector<ConfigParamSpec>& workflowOptions)
 {
   // option allowing to set parameters
-  std::vector<o2::framework::ConfigParamSpec> options{
-    {"disable-root-input", o2::framework::VariantType::Bool, false, {"disable root-files input reader"}},
-    {"disable-root-output", o2::framework::VariantType::Bool, false, {"disable root-files output writer"}},
+  std::vector<ConfigParamSpec> options{
     {"configKeyValues", VariantType::String, "", {"Semicolon separated key=value strings ..."}}};
-  o2::raw::HBFUtilsInitializer::addConfigOption(options);
   std::swap(workflowOptions, options);
 }
 
+void customize(std::vector<o2::framework::CompletionPolicy>& policies)
+{
+  // ordered policies for the writers
+  policies.push_back(CompletionPolicyHelpers::consumeWhenAllOrdered(".*(?:ZDC|zdc).*[W,w]riter.*"));
+}
+
+// ------------------------------------------------------------------
 #include "Framework/runDataProcessing.h"
+#include "Framework/WorkflowSpec.h"
+#include "ZDCWorkflow/ZDCDigitWriterDPLSpec.h"
 
 WorkflowSpec defineDataProcessing(ConfigContext const& configcontext)
 {
   o2::conf::ConfigurableParam::updateFromString(configcontext.options().get<std::string>("configKeyValues"));
-  WorkflowSpec wf;
-  wf.emplace_back(o2::aodmcproducer::getAODMcProducerWorkflowSpec());
-  o2::raw::HBFUtilsInitializer hbfIni(configcontext, wf);
-  return std::move(wf);
+  WorkflowSpec specs;
+  specs.emplace_back(o2::zdc::getZDCDigitWriterDPLSpec(false, false));
+  return std::move(specs);
 }

@@ -700,6 +700,34 @@ void AODProducerWorkflowDPL::addToFwdTracksTable(FwdTracksCursorType& fwdTracksC
   }
 }
 
+void dimensionMCKeepStore(std::vector<std::vector<std::unordered_map<int, int>*>>& store, int Nsources, int NEvents)
+{
+  store.resize(Nsources);
+  for (int s = 0; s < Nsources; ++s) {
+    store[s].resize(NEvents, nullptr);
+  }
+}
+
+void clearMCKeepStore(std::vector<std::vector<std::unordered_map<int, int>*>>& store)
+{
+  for (int s = 0; s < store.size(); ++s) {
+    for (int e = 0; e < store[s].size(); ++e) {
+      if (store[s][e]) {
+        store[s][e]->clear();
+      }
+    }
+  }
+}
+
+// helper function to add a particle/track to the MC keep store
+void keepMCParticle(std::vector<std::vector<std::unordered_map<int, int>*>>& store, int source, int event, int track, int value = 1)
+{
+  if (!store[source][event]) {
+    store[source][event] = new std::unordered_map<int, int>;
+  }
+  (*store[source][event])[track] = value;
+}
+
 template <typename MCParticlesCursorType>
 void AODProducerWorkflowDPL::fillMCParticlesTable(o2::steer::MCKinematicsReader& mcReader,
                                                   const MCParticlesCursorType& mcParticlesCursor,
@@ -708,14 +736,26 @@ void AODProducerWorkflowDPL::fillMCParticlesTable(o2::steer::MCKinematicsReader&
                                                   const o2::globaltracking::RecoContainer& data,
                                                   const std::map<std::pair<int, int>, int>& mcColToEvSrc)
 {
-  using o2::aodhelpers::Triplet_t;
+  int NSources = 0;
+  int NEvents = 0;
+  for (auto& p : mcColToEvSrc) {
+    NSources = std::max(p.first.second, NSources);
+    NEvents = std::max(p.first.first, NEvents);
+  }
+  NSources++; // 0 - indexed
+  NEvents++;
+  LOG(info) << " number of events " << NEvents;
+  LOG(info) << " number of sources " << NSources;
+  dimensionMCKeepStore(mToStore, NSources, NEvents);
+
+  std::vector<int> particleIDsToKeep;
 
   auto markMCTrackForSrc = [&](std::array<GID, GID::NSources>& contributorsGID, uint8_t src) {
     auto mcLabel = data.getTrackMCLabel(contributorsGID[src]);
     if (!mcLabel.isValid()) {
       return;
     }
-    mToStore[Triplet_t(mcLabel.getSourceID(), mcLabel.getEventID(), mcLabel.getTrackID())] = 1;
+    keepMCParticle(mToStore, mcLabel.getSourceID(), mcLabel.getEventID(), mcLabel.getTrackID());
   };
 
   // mark reconstructed MC particles to store them into the table
@@ -730,7 +770,7 @@ void AODProducerWorkflowDPL::fillMCParticlesTable(o2::steer::MCKinematicsReader&
           if (!mcTruth.isValid()) {
             continue;
           }
-          mToStore[Triplet_t(mcTruth.getSourceID(), mcTruth.getEventID(), mcTruth.getTrackID())] = 1;
+          keepMCParticle(mToStore, mcTruth.getSourceID(), mcTruth.getEventID(), mcTruth.getTrackID());
           // treating contributors of global tracks
           auto contributorsGID = data.getSingleDetectorRefs(trackIndex);
           if (contributorsGID[GIndex::Source::TPC].isIndexSet()) {
@@ -745,7 +785,7 @@ void AODProducerWorkflowDPL::fillMCParticlesTable(o2::steer::MCKinematicsReader&
               if (!mcLabel.isValid()) {
                 continue;
               }
-              mToStore[Triplet_t(mcLabel.getSourceID(), mcLabel.getEventID(), mcLabel.getTrackID())] = 1;
+              keepMCParticle(mToStore, mcLabel.getSourceID(), mcLabel.getEventID(), mcLabel.getTrackID());
             }
           }
         }
@@ -764,58 +804,60 @@ void AODProducerWorkflowDPL::fillMCParticlesTable(o2::steer::MCKinematicsReader&
       for (int particle = mcParticles.size() - 1; particle >= 0; particle--) {
         // we store all primary particles == particles put by generator
         if (mcParticles[particle].isPrimary()) {
-          mToStore[Triplet_t(source, event, particle)] = 1;
+          keepMCParticle(mToStore, source, event, particle);
         } else if (o2::mcutils::MCTrackNavigator::isPhysicalPrimary(mcParticles[particle], mcParticles)) {
-          mToStore[Triplet_t(source, event, particle)] = 1;
+          keepMCParticle(mToStore, source, event, particle);
         } else if (o2::mcutils::MCTrackNavigator::isKeepPhysics(mcParticles[particle], mcParticles)) {
-          mToStore[Triplet_t(source, event, particle)] = 1;
+          keepMCParticle(mToStore, source, event, particle);
         }
 
         // skip treatment if this particle has not been marked during reconstruction
         // or based on criteria just above
-        if (mToStore.find(Triplet_t(source, event, particle)) == mToStore.end()) {
+        if (mToStore[source][event] && mToStore[source][event]->find(particle) == mToStore[source][event]->end()) {
           continue;
         }
 
         int mother0 = mcParticles[particle].getMotherTrackId();
         // we store mothers and daughters of particles that are reconstructed
         if (mother0 != -1) {
-          mToStore[Triplet_t(source, event, mother0)] = 1;
+          keepMCParticle(mToStore, source, event, mother0);
         }
         int mother1 = mcParticles[particle].getSecondMotherTrackId();
         if (mother1 != -1) {
-          mToStore[Triplet_t(source, event, mother1)] = 1;
+          keepMCParticle(mToStore, source, event, mother1);
         }
         int daughter0 = mcParticles[particle].getFirstDaughterTrackId();
         if (daughter0 != -1) {
-          mToStore[Triplet_t(source, event, daughter0)] = 1;
+          keepMCParticle(mToStore, source, event, daughter0);
         }
         int daughterL = mcParticles[particle].getLastDaughterTrackId();
         if (daughterL != -1) {
-          mToStore[Triplet_t(source, event, daughterL)] = 1;
+          keepMCParticle(mToStore, source, event, daughterL);
         }
       }
-      // enumerate reconstructed mc particles and their relatives to get mother/daughter relations
-      for (int particle = 0; particle < mcParticles.size(); particle++) {
-        auto mapItem = mToStore.find(Triplet_t(source, event, particle));
-        if (mapItem != mToStore.end()) {
-          mapItem->second = tableIndex - 1;
-          tableIndex++;
-        }
+      LOG(info) << "The fraction of MC particles kept is " << mToStore[source][event]->size() / (1. * mcParticles.size()) << " for source " << source << " and event " << event;
+
+      particleIDsToKeep.clear();
+      for (auto& p : *mToStore[source][event]) {
+        particleIDsToKeep.push_back(p.first);
+      }
+      std::sort(particleIDsToKeep.begin(), particleIDsToKeep.end());
+      for (auto pid : particleIDsToKeep) {
+        (*mToStore[source][event])[pid] = tableIndex - 1;
+        tableIndex++;
       }
     } else {
       // if all mc particles are stored, all mc particles will be enumerated
+      particleIDsToKeep.clear();
       for (int particle = 0; particle < mcParticles.size(); particle++) {
-        mToStore[Triplet_t(source, event, particle)] = tableIndex - 1;
+        keepMCParticle(mToStore, source, event, particle, tableIndex - 1);
         tableIndex++;
+        particleIDsToKeep.push_back(particle);
       }
     }
 
     // second part: fill survived mc tracks into the AOD table
-    for (int particle = 0; particle < mcParticles.size(); particle++) {
-      if (mToStore.find(Triplet_t(source, event, particle)) == mToStore.end()) {
-        continue;
-      }
+    for (auto particle : particleIDsToKeep) {
       int statusCode = 0;
       uint8_t flags = 0;
       if (!mcParticles[particle].isPrimary()) {
@@ -833,24 +875,24 @@ void AODProducerWorkflowDPL::fillMCParticlesTable(o2::steer::MCKinematicsReader&
       float weight = mcParticles[particle].getWeight();
       std::vector<int> mothers;
       int mcMother0 = mcParticles[particle].getMotherTrackId();
-      auto item = mToStore.find(Triplet_t(source, event, mcMother0));
-      if (item != mToStore.end()) {
+      auto item = mToStore[source][event]->find(mcMother0);
+      if (item != mToStore[source][event]->end()) {
         mothers.push_back(item->second);
       }
       int mcMother1 = mcParticles[particle].getSecondMotherTrackId();
-      item = mToStore.find(Triplet_t(source, event, mcMother1));
-      if (item != mToStore.end()) {
+      item = mToStore[source][event]->find(mcMother1);
+      if (item != mToStore[source][event]->end()) {
         mothers.push_back(item->second);
       }
       int daughters[2] = {-1, -1}; // slice
       int mcDaughter0 = mcParticles[particle].getFirstDaughterTrackId();
-      item = mToStore.find(Triplet_t(source, event, mcDaughter0));
-      if (item != mToStore.end()) {
+      item = mToStore[source][event]->find(mcDaughter0);
+      if (item != mToStore[source][event]->end()) {
         daughters[0] = item->second;
       }
       int mcDaughterL = mcParticles[particle].getLastDaughterTrackId();
-      item = mToStore.find(Triplet_t(source, event, mcDaughterL));
-      if (item != mToStore.end()) {
+      item = mToStore[source][event]->find(mcDaughterL);
+      if (item != mToStore[source][event]->end()) {
         daughters[1] = item->second;
         if (daughters[0] < 0) {
           LOG(error) << "AOD problematic daughter case observed";
@@ -895,8 +937,6 @@ void AODProducerWorkflowDPL::fillMCTrackLabelsTable(const MCTrackLabelCursorType
                                                     const gsl::span<const GIndex>& primVerGIs,
                                                     const o2::globaltracking::RecoContainer& data)
 {
-  using o2::aodhelpers::Triplet_t;
-
   // labelMask (temporary) usage:
   //   bit 13 -- ITS/TPC or TPC/TOF labels are not equal
   //   bit 14 -- isNoise() == true
@@ -927,7 +967,7 @@ void AODProducerWorkflowDPL::fillMCTrackLabelsTable(const MCTrackLabelCursorType
             continue;
           }
           if (mcTruth.isValid()) { // if not set, -1 will be stored
-            labelHolder.labelID = mToStore.at(Triplet_t(mcTruth.getSourceID(), mcTruth.getEventID(), mcTruth.getTrackID()));
+            labelHolder.labelID = (*mToStore[mcTruth.getSourceID()][mcTruth.getEventID()])[mcTruth.getTrackID()];
           }
           if (mcTruth.isFake()) {
             labelHolder.fwdLabelMask |= (0x1 << 7);
@@ -949,7 +989,7 @@ void AODProducerWorkflowDPL::fillMCTrackLabelsTable(const MCTrackLabelCursorType
             continue;
           }
           if (mcTruth.isValid()) { // if not set, -1 will be stored
-            labelHolder.labelID = mToStore.at(Triplet_t(mcTruth.getSourceID(), mcTruth.getEventID(), mcTruth.getTrackID()));
+            labelHolder.labelID = (*mToStore[mcTruth.getSourceID()][mcTruth.getEventID()])[mcTruth.getTrackID()];
           }
           // treating possible mismatches and fakes for global tracks
           auto contributorsGID = data.getSingleDetectorRefs(trackIndex);
@@ -960,13 +1000,13 @@ void AODProducerWorkflowDPL::fillMCTrackLabelsTable(const MCTrackLabelCursorType
           if (isSetTPC && (isSetITS || isSetTOF)) {
             auto mcTruthTPC = data.getTrackMCLabel(contributorsGID[GIndex::Source::TPC]);
             if (mcTruthTPC.isValid()) {
-              labelHolder.labelTPC = mToStore.at(Triplet_t(mcTruthTPC.getSourceID(), mcTruthTPC.getEventID(), mcTruthTPC.getTrackID()));
+              labelHolder.labelTPC = (*mToStore[mcTruthTPC.getSourceID()][mcTruthTPC.getEventID()])[mcTruthTPC.getTrackID()];
               labelHolder.labelID = labelHolder.labelTPC;
             }
             if (isSetITS) {
               auto mcTruthITS = data.getTrackMCLabel(contributorsGID[GIndex::Source::ITS]);
               if (mcTruthITS.isValid()) {
-                labelHolder.labelITS = mToStore.at(Triplet_t(mcTruthITS.getSourceID(), mcTruthITS.getEventID(), mcTruthITS.getTrackID()));
+                labelHolder.labelITS = (*mToStore[mcTruthITS.getSourceID()][mcTruthITS.getEventID()])[mcTruthITS.getTrackID()];
               }
               if (labelHolder.labelITS != labelHolder.labelTPC) {
                 LOG(debug) << "ITS-TPC MCTruth: labelIDs do not match at " << trackIndex.getIndex() << ", src = " << src;
@@ -1282,34 +1322,6 @@ void AODProducerWorkflowDPL::init(InitContext& ic)
     mZDCEnergyMap[(string)ChannelName] = 0;
     mZDCTDCMap[(string)ChannelName] = 999;
   }
-
-  // writing metadata if it's not yet in AOD file
-  // note: `--aod-writer-resmode "UPDATE"` has to be used,
-  //       so that metadata is not overwritten
-  mResFile += ".root";
-  auto* fResFile = TFile::Open(mResFile, "UPDATE");
-  if (!fResFile) {
-    LOGF(fatal, "Could not open file %s", mResFile);
-  }
-  if (fResFile->FindObjectAny("metaData")) {
-    LOGF(warning, "Metadata: target file %s already has metadata, preserving it", mResFile);
-  } else {
-    // populating metadata map
-    TString dataType = mUseMC ? "MC" : "RAW";
-    mMetaData.Add(new TObjString("DataType"), new TObjString(dataType));
-    mMetaData.Add(new TObjString("Run"), new TObjString("3"));
-    TString O2Version = o2::fullVersion();
-    TString ROOTVersion = ROOT_RELEASE;
-    mMetaData.Add(new TObjString("O2Version"), new TObjString(O2Version));
-    mMetaData.Add(new TObjString("ROOTVersion"), new TObjString(ROOTVersion));
-    mMetaData.Add(new TObjString("RecoPassName"), new TObjString(mRecoPass));
-    mMetaData.Add(new TObjString("AnchorProduction"), new TObjString(mAnchorProd));
-    mMetaData.Add(new TObjString("AnchorPassName"), new TObjString(mAnchorPass));
-    mMetaData.Add(new TObjString("LPMProductionTag"), new TObjString(mLPMProdTag));
-    LOGF(info, "Metadata: writing into %s", mResFile);
-    fResFile->WriteObject(&mMetaData, "metaData", "Overwrite");
-  }
-  fResFile->Close();
 
   mTimer.Reset();
 }
@@ -1794,6 +1806,8 @@ void AODProducerWorkflowDPL::run(ProcessingContext& pc)
   bcsMap.clear();
 
   if (mUseMC) {
+    TStopwatch timer;
+    timer.Start();
     // filling mc particles table
     fillMCParticlesTable(*mcReader,
                          mcParticlesCursor,
@@ -1801,7 +1815,8 @@ void AODProducerWorkflowDPL::run(ProcessingContext& pc)
                          primVerGIs,
                          recoData,
                          mcColToEvSrc);
-
+    timer.Stop();
+    LOG(info) << "FILL MC took " << timer.RealTime() << " s";
     mcColToEvSrc.clear();
 
     // ------------------------------------------------------
@@ -1814,7 +1829,7 @@ void AODProducerWorkflowDPL::run(ProcessingContext& pc)
       fillMCTrackLabelsTable(mcTrackLabelCursor, mcMFTTrackLabelCursor, mcFwdTrackLabelCursor, trackRef, primVerGIs, recoData);
     }
   }
-  mToStore.clear();
+  clearMCKeepStore(mToStore);
   mGIDToTableID.clear();
   mTableTrID = 0;
   mGIDToTableFwdID.clear();
@@ -1832,6 +1847,18 @@ void AODProducerWorkflowDPL::run(ProcessingContext& pc)
   mIndexMFTID = 0;
 
   originCursor(0, tfNumber);
+
+  // sending metadata to writer
+  if (!mIsMDSent) {
+    TString dataType = mUseMC ? "MC" : "RAW";
+    TString O2Version = o2::fullVersion();
+    TString ROOTVersion = ROOT_RELEASE;
+    mMetaDataKeys = {"DataType", "Run", "O2Version", "ROOTVersion", "RecoPassName", "AnchorProduction", "AnchorPassName", "LPMProductionTag"};
+    mMetaDataVals = {dataType, "3", O2Version, ROOTVersion, mRecoPass, mAnchorProd, mAnchorPass, mLPMProdTag};
+    pc.outputs().snapshot(Output{"AMD", "AODMetadataKeys", 0, Lifetime::Timeframe}, mMetaDataKeys);
+    pc.outputs().snapshot(Output{"AMD", "AODMetadataVals", 0, Lifetime::Timeframe}, mMetaDataVals);
+    mIsMDSent = true;
+  }
 
   pc.outputs().snapshot(Output{"TFN", "TFNumber", 0, Lifetime::Timeframe}, tfNumber);
   pc.outputs().snapshot(Output{"TFF", "TFFilename", 0, Lifetime::Timeframe}, "");
@@ -2195,7 +2222,7 @@ void AODProducerWorkflowDPL::endOfStream(EndOfStreamContext& ec)
        mTimer.CpuTime(), mTimer.RealTime(), mTimer.Counter() - 1);
 }
 
-DataProcessorSpec getAODProducerWorkflowSpec(GID::mask_t src, bool enableSV, bool useMC, std::string resFile, bool CTPConfigPerRun)
+DataProcessorSpec getAODProducerWorkflowSpec(GID::mask_t src, bool enableSV, bool useMC, bool CTPConfigPerRun)
 {
   std::vector<OutputSpec> outputs;
   auto dataRequest = std::make_shared<DataRequest>();
@@ -2264,13 +2291,15 @@ DataProcessorSpec getAODProducerWorkflowSpec(GID::mask_t src, bool enableSV, boo
   outputs.emplace_back(OutputLabel{"O2origin"}, "AOD", "ORIGIN", 0, Lifetime::Timeframe);
   outputs.emplace_back(OutputSpec{"TFN", "TFNumber"});
   outputs.emplace_back(OutputSpec{"TFF", "TFFilename"});
+  outputs.emplace_back(OutputSpec{"AMD", "AODMetadataKeys"});
+  outputs.emplace_back(OutputSpec{"AMD", "AODMetadataVals"});
 
   LOGF(info, "Call for DataProcessorSPec aod-produce-workflow");
   return DataProcessorSpec{
     "aod-producer-workflow",
     dataRequest->inputs,
     outputs,
-    AlgorithmSpec{adaptFromTask<AODProducerWorkflowDPL>(src, dataRequest, ggRequest, enableSV, resFile, useMC)},
+    AlgorithmSpec{adaptFromTask<AODProducerWorkflowDPL>(src, dataRequest, ggRequest, enableSV, useMC)},
     Options{
       ConfigParamSpec{"run-number", VariantType::Int64, -1L, {"The run-number. If left default we try to get it from DPL header."}},
       ConfigParamSpec{"aod-timeframe-id", VariantType::Int64, -1L, {"Set timeframe number"}},
