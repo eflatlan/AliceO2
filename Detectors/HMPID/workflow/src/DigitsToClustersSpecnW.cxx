@@ -106,7 +106,6 @@ void DigitsToClustersTask::init(framework::InitContext& ic)
       ic.options().get<std::string>("hmpid-digit-infile"));
     initFileIn(filename);
   }
-
 }
 
 void DigitsToClustersTask::run(framework::ProcessingContext& pc)
@@ -162,7 +161,7 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
       mDigitsReceived += mDigitsFromFile->size();
     } // <end else of num entries>
   }   //===============  <end mReadFromFile>
-    //====================================================================================
+  //====================================================================================
 
   else { // =========  if readfromStream
          // =====================================================================================
@@ -227,7 +226,7 @@ void DigitsToClustersTask::initFileIn(const std::string& filename)
   mTree->Print("toponly");
 }
 
-o2::framework::DataProcessorSpec 
+o2::framework::DataProcessorSpec
   getDigitsToClustersSpec(std::string inputSpec, bool readFile)
 {
 

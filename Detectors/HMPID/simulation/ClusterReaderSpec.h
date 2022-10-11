@@ -42,33 +42,31 @@ class ClusterReaderTask : public framework::Task
  public:
   ClusterReaderTask() = default;
   ~ClusterReaderTask() override = default;
- 
-  void init(framework::InitContext& ic) final;
 
+  void init(framework::InitContext& ic) final;
 
   void run(framework::ProcessingContext& pc) final;
   void endOfStream(framework::EndOfStreamContext& ec) override;
 
  private:
   void initFileIn(const std::string& filename) final;
- // std::string mSigmaCutPar;
- // float mSigmaCut[7] = {4, 4, 4, 4, 4, 4, 4};
+  // std::string mSigmaCutPar;
+  // float mSigmaCut[7] = {4, 4, 4, 4, 4, 4, 4};
 
- // o2::hmpid::Clusterer* mRec;
- // long mDigitsReceived;
+  // o2::hmpid::Clusterer* mRec;
+  // long mDigitsReceived;
 
   ExecutionTimer mExTimer;
-  
-  std::unique_ptr<TFile> mFile = nullptr;                                   // root file with Clusters
-  TTree* mTree = nullptr;                                                   // tree inside the file
+
+  std::unique_ptr<TFile> mFile = nullptr; // root file with Clusters
+  TTree* mTree = nullptr;                 // tree inside the file
   //std::vector<o2::hmpid::Trigger> intrecords; //, *pintrecords= &intrecords; // pointer to InteractionRecords branch
   //std::vector<o2::hmpid::Cluster> clusters; //, *pclusters = &clusters; // pointer to HMPIDCluster branch
-  
+
   unsigned long mNumberOfEntries = 0; // number of entries from TTree
   unsigned long mCurrentEntry = 0;    // index of current entry
-  
+
   //void strToFloatsSplit(std::string s, std::string delimiter, float* res, int maxElem = 7);
- 
 };
 
 o2::framework::DataProcessorSpec getClusterReaderSpec();

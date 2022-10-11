@@ -46,7 +46,6 @@
 #include "DataFormatsHMP/Cluster.h"
 #include "HMPIDBase/Geo.h"
 
-
 #include "HMPIDWorkflow/ClustersReaderSpec.h"
 
 namespace o2
@@ -63,7 +62,7 @@ using RDH = o2::header::RDHAny;
 void ClusterReaderTask::init(framework::InitContext& ic)
 {
   LOG(info) << "[HMPID Cluster reader - init() ] ";
-     // open input file
+  // open input file
   auto mReadFile = ic.options().get<bool>("read-from-file");
 
   // specify location and filename for output in case of writing to file
@@ -74,14 +73,12 @@ void ClusterReaderTask::init(framework::InitContext& ic)
         ic.options().get<std::string>("input-dir")),
       ic.options().get<std::string>("hmpid-digit-infile"));
     initFileIn(filename);
-  
+
     int mTriggersFromFile, mDigitsReceived = 0;
   }
-
 }
-    
-    // return;
 
+// return;
 
 void ClusterReaderTask::run(framework::ProcessingContext& pc)
 {
@@ -108,23 +105,20 @@ void ClusterReaderTask::run(framework::ProcessingContext& pc)
       assert(entry < mTree->GetEntries());
       mTree->GetEntry(0);
 
-      pc.outputs().snapshot(Output{ "HMP", "CLUSTERS", 0, Lifetime::Timeframe }, mClustersFromFile);
-      pc.outputs().snapshot(Output{ "HMP", "INTRECORDS", 0, Lifetime::Timeframe },mClusterTriggersFromFile);
+      pc.outputs().snapshot(Output{"HMP", "CLUSTERS", 0, Lifetime::Timeframe}, mClustersFromFile);
+      pc.outputs().snapshot(Output{"HMP", "INTRECORDS", 0, Lifetime::Timeframe}, mClusterTriggersFromFile);
     }
   }
-
 
   else { // read from stream
     const auto triggers = pc.inputs().get<gsl::span<o2::hmpid::Trigger>>("intrecord");
     const auto clusters = pc.inputs().get<gsl::span<o2::hmpid::Trigger>>("CLUSTERS");
 
     // Output vectors
-    pc.outputs().snapshot(Output{ "HMP", "CLUSTERS", 0, Lifetime::Timeframe }, clusters);
-    pc.outputs().snapshot(Output{ "HMP", "INTRECORDS", 0, Lifetime::Timeframe }, triggers);
+    pc.outputs().snapshot(Output{"HMP", "CLUSTERS", 0, Lifetime::Timeframe}, clusters);
+    pc.outputs().snapshot(Output{"HMP", "INTRECORDS", 0, Lifetime::Timeframe}, triggers);
   }
 
-
-    
   mExTimer.elapseMes("# received Clusters = " + std::to_string(mCurrentEntry));
   return;
 }
@@ -160,7 +154,6 @@ void ClusterReaderTask::initFileIn(const std::string& filename)
 
 //_________________________________________________________________________________________________
 
-
 o2::framework::DataProcessorSpec getClusterReaderSpec(std::string inputSpec, bool readFile)
 {
   std::vector<o2::framework::InputSpec> inputs;
@@ -168,7 +161,6 @@ o2::framework::DataProcessorSpec getClusterReaderSpec(std::string inputSpec, boo
   inputs.emplace_back("clusters", o2::header::gDataOriginHMP, "CLUSTERS", 0, Lifetime::Timeframe);
   inputs.emplace_back("intrecord", o2::header::gDataOriginHMP, "INTRECORDS1", 0, Lifetime::Timeframe);
 
-    
   std::vector<o2::framework::OutputSpec> outputs;
   outputs.emplace_back("HMP", "CLUSTERS", 0, o2::framework::Lifetime::Timeframe);
   outputs.emplace_back("HMP", "INTRECORDS1", 0, o2::framework::Lifetime::Timeframe);
@@ -177,9 +169,9 @@ o2::framework::DataProcessorSpec getClusterReaderSpec(std::string inputSpec, boo
     "HMP-ClusterReader",
     inputs,
     outputs,
-    AlgorithmSpec{adaptFromTask<ClusterReaderTask>()}, 
-    Options{{"qc-hmpid-clusters", VariantType::String, "hmpidclusters.root", { "Name of the input file with clusters" }},
-    {"input-dir", VariantType::String, "./", { "Input directory" } } } };
+    AlgorithmSpec{adaptFromTask<ClusterReaderTask>()},
+    Options{{"qc-hmpid-clusters", VariantType::String, "hmpidclusters.root", {"Name of the input file with clusters"}},
+            {"input-dir", VariantType::String, "./", {"Input directory"}}}};
 }
 
 } // namespace hmpid

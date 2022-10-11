@@ -71,8 +71,8 @@ WorkflowSpec defineDataProcessing(const ConfigContext& configcontext)
 
   auto mFromFile = configcontext.options().get<bool>(
     "read-from-file"); // read upstream by default
-  
-  DataProcessorSpec consumer = o2::hmpid::getClusterReaderSpec("HMP/CLUSTERS",mFromFile);
+
+  DataProcessorSpec consumer = o2::hmpid::getClusterReaderSpec("HMP/CLUSTERS", mFromFile);
 
   specs.push_back(consumer);
   return specs;

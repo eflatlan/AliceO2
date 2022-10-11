@@ -40,41 +40,38 @@ namespace hmpid
 class ClusterReaderTask : public framework::Task
 {
  public:
-  ClusterReaderTask()= default;
+  ClusterReaderTask() = default;
   //  : mReadFile(readFile) {}
   ~ClusterReaderTask() override = default;
- 
-  void init(framework::InitContext& ic) final;
 
+  void init(framework::InitContext& ic) final;
 
   void run(framework::ProcessingContext& pc) final;
   void endOfStream(framework::EndOfStreamContext& ec) override;
 
  private:
   bool mReadFile = false;
-  void initFileIn(const std::string& filename) ;
- // std::string mSigmaCutPar;
- // float mSigmaCut[7] = {4, 4, 4, 4, 4, 4, 4};
+  void initFileIn(const std::string& filename);
+  // std::string mSigmaCutPar;
+  // float mSigmaCut[7] = {4, 4, 4, 4, 4, 4, 4};
 
- // o2::hmpid::Clusterer* mRec;
- // long mDigitsReceived;
+  // o2::hmpid::Clusterer* mRec;
+  // long mDigitsReceived;
 
   ExecutionTimer mExTimer;
-  
-  std::unique_ptr<TFile> mFile;                                   // root file with Clusters
-  std::unique_ptr<TTree> mTree;                                                   // tree inside the file
-  std::vector<o2::hmpid::Trigger> mClusterTriggersFromFile, *mClusterTriggersFromFilePtr =&mClusterTriggersFromFile; //, *pintrecords= &intrecords; // pointer to InteractionRecords branch
-  std::vector<o2::hmpid::Cluster> mClustersFromFile, *mClustersFromFilePtr =&mClustersFromFile; //, *pclusters = &clusters; // pointer to HMPIDCluster branch
-  
+
+  std::unique_ptr<TFile> mFile;                                                                                       // root file with Clusters
+  std::unique_ptr<TTree> mTree;                                                                                       // tree inside the file
+  std::vector<o2::hmpid::Trigger> mClusterTriggersFromFile, *mClusterTriggersFromFilePtr = &mClusterTriggersFromFile; //, *pintrecords= &intrecords; // pointer to InteractionRecords branch
+  std::vector<o2::hmpid::Cluster> mClustersFromFile, *mClustersFromFilePtr = &mClustersFromFile;                      //, *pclusters = &clusters; // pointer to HMPIDCluster branch
+
   unsigned long mNumberOfEntries = 0; // number of entries from TTree
   unsigned long mCurrentEntry = 0;    // index of current entry
 
-
   //void strToFloatsSplit(std::string s, std::string delimiter, float* res, int maxElem = 7);
- 
 };
 
-o2::framework::DataProcessorSpec getClusterReaderSpec(std::string inputSpec = "HMP/CLUSTERS",bool readFile = false);
+o2::framework::DataProcessorSpec getClusterReaderSpec(std::string inputSpec = "HMP/CLUSTERS", bool readFile = false);
 
 } // end namespace hmpid
 } // end namespace o2
