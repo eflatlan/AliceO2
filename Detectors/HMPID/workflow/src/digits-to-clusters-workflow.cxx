@@ -91,7 +91,6 @@ WorkflowSpec defineDataProcessing(const ConfigContext& configcontext)
   auto mToFile = configcontext.options().get<bool>(
     "write-to-file"); // write upstream by default
 
-
   DataProcessorSpec consumer =
     o2::hmpid::getDigitsToClustersSpec("HMP/DIGITS", mFromFile, mToFile);
   specs.push_back(consumer);

@@ -13,9 +13,7 @@ Changed from legacy physics classes TVector2 and TVector3 to Math/Vector3D
 Changed from legacy physics classes TRotaiton to Rotation 3D
 */
 
-#include <TNamed.h>                    //base class
-
-
+#include <TNamed.h> //base class
 
 // ef : change from TRotation legacy class
 #include <Math/GenVector/Rotation3D.h>
@@ -41,7 +39,6 @@ Changed from legacy physics classes TRotaiton to Rotation 3D
 class Param;
 #include "DataFormatsHMP/Cluster.h"
 #include "ReconstructionDataFormats/Track.h"
-
 
 using Polar3DVector = ROOT::Math::Polar3DVector;
 

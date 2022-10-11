@@ -20,9 +20,7 @@ namespace o2
 namespace hmpid
 {
 
-
-  o2::framework::DataProcessorSpec getClustersToRootWriter();
-
+o2::framework::DataProcessorSpec getClustersToRootWriter();
 
 } // end namespace hmpid
 } // end namespace o2

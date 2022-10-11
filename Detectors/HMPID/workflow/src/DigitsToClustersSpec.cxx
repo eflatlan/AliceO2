@@ -143,7 +143,6 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
       LOG(info) << "[HMPID DClusterization - run() ] curr entry =  " << mTree->GetReadEntry();
       LOG(info) << "[HMPID DClusterization - run() ] entries in tree =  " << mTree->GetEntries();
 
-      
       mTree->GetEntry(0);
       LOG(info) << "[HMPID DClusterization - run() ] 144 ";
       // =============== create clusters =====================
@@ -157,10 +156,10 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
           clusterTriggers.emplace_back(trig.getIr(), clStart,
                                        clusters.size() - clStart);
         }
-      } 
+      }
 
       LOG(info) << "[HMPID DClusterization - run() ] 158 ";
-     /* LOGP(info, "Received {} triggers with {} digits -> {} triggers with {} clusters",
+      /* LOGP(info, "Received {} triggers with {} digits -> {} triggers with {} clusters",
            mTriggersFromFilePtr->size(), mDigitsFromFilePtr->size(), clusterTriggers.size(),
            clusters.size());
       mDigitsReceived += mDigitsFromFilePtr->size(); */
@@ -185,19 +184,18 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
       }
     }
   } //========= <end readfromStream>
-  //=====================================================================================
-    
-    LOG(info) << "[HMPID DClusterization - run() ] 186 ";
+    //=====================================================================================
 
-    pc.outputs().snapshot(
+  LOG(info) << "[HMPID DClusterization - run() ] 186 ";
+
+  pc.outputs().snapshot(
     o2::framework::Output{"HMP", "CLUSTERS", 0,
                           o2::framework::Lifetime::Timeframe},
     clusters);
-    pc.outputs().snapshot(
+  pc.outputs().snapshot(
     o2::framework::Output{"HMP", "INTRECORDS1", 0,
                           o2::framework::Lifetime::Timeframe},
     clusterTriggers);
-
 
   mExTimer.elapseMes("Clusterization of Digits received = " +
                      std::to_string(mDigitsReceived));
@@ -252,13 +250,10 @@ o2::framework::DataProcessorSpec
   // option in digits-to-clusters-workflow.cxx is passed
   std::vector<o2::framework::OutputSpec> outputs;
 
-
-    outputs.emplace_back("HMP", "CLUSTERS", 0,
+  outputs.emplace_back("HMP", "CLUSTERS", 0,
                        o2::framework::Lifetime::Timeframe);
-    outputs.emplace_back("HMP", "INTRECORDS1", 0,
+  outputs.emplace_back("HMP", "INTRECORDS1", 0,
                        o2::framework::Lifetime::Timeframe);
-
-
 
   return DataProcessorSpec{
     "HMP-Clusterization", inputs, outputs,

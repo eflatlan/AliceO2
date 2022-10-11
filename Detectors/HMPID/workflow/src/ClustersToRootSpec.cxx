@@ -103,8 +103,8 @@ void ClustersToRootTask::run(framework::ProcessingContext& pc)
          LOG(info) << "[HMPIDWrite INTRECORDS1 try]";} 
 	catch(const std::exception& e) {LOG(info) << "Catched INTRECORDS1 exception";}
     */} else {
-        LOG(info) << "[HMPID Write Root File Did not find INTRECORDS1";
-      } /*
+      LOG(info) << "[HMPID Write Root File Did not find INTRECORDS1";
+    } /*
 
        if (DataRefUtils::match(ref, {"check", ConcreteDataTypeMatcher{header::gDataOriginHMP, "CLUSTERS"}})) {
          LOG(info) << "[HMPIDWrite CLUSTERS]";
@@ -119,19 +119,19 @@ void ClustersToRootTask::run(framework::ProcessingContext& pc)
          LOG(info) << "[HMPID Write Root File Did not find Clusterss";
        } */
 
-      LOG(info) << "[HMPIDWrite entering TriggerLOOP";
-      for (int i = 0; i < triggers.size(); i++) {
-        //    LOG(info) << "Trigger Event     Orbit = " << triggers[i].getOrbit() << "  BC = " << triggers[i].getBc();
-        int startClusterIndex = mClusters.size();
-        int numberOfClusters = 0;
-        LOG(info) << "[HMPIDWrite entering SECOND TriggerLOOP";
-        for (int j = triggers[i].getFirstEntry(); j <= triggers[i].getLastEntry(); j++) {
-          mClusters.push_back(clusters[j]); // append the cluster
-          numberOfClusters++;
-        }
-        mTriggers.push_back(triggers[i]);
-        mTriggers.back().setDataRange(startClusterIndex, numberOfClusters);
+    LOG(info) << "[HMPIDWrite entering TriggerLOOP";
+    for (int i = 0; i < triggers.size(); i++) {
+      //    LOG(info) << "Trigger Event     Orbit = " << triggers[i].getOrbit() << "  BC = " << triggers[i].getBc();
+      int startClusterIndex = mClusters.size();
+      int numberOfClusters = 0;
+      LOG(info) << "[HMPIDWrite entering SECOND TriggerLOOP";
+      for (int j = triggers[i].getFirstEntry(); j <= triggers[i].getLastEntry(); j++) {
+        mClusters.push_back(clusters[j]); // append the cluster
+        numberOfClusters++;
       }
+      mTriggers.push_back(triggers[i]);
+      mTriggers.back().setDataRange(startClusterIndex, numberOfClusters);
+    }
   }
   LOG(info) << "[HMPIDWrite L120 - run()]";
   mExTimer.stop();
