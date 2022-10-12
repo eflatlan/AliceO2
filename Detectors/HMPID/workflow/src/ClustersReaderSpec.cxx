@@ -71,10 +71,8 @@ void ClusterReaderTask::init(framework::InitContext& ic)
     const auto filename = o2::utils::Str::concat_string(
       o2::utils::Str::rectifyDirectory(
         ic.options().get<std::string>("input-dir")),
-      ic.options().get<std::string>("hmpid-digit-infile"));
+      ic.options().get<std::string>("hmpid-cluster-infile"));
     initFileIn(filename);
-
-    int mTriggersFromFile, mDigitsReceived = 0;
   }
 }
 
@@ -98,9 +96,6 @@ void ClusterReaderTask::run(framework::ProcessingContext& pc)
 
     // there are more entries in file
     else {
-      // =============== read digits and digit-triggers =====================
-      // iterate through TTree
-
       auto entry = mTree->GetReadEntry() + 1;
       assert(entry < mTree->GetEntries());
       mTree->GetEntry(entry);
@@ -144,7 +139,7 @@ void ClusterReaderTask::initFileIn(const std::string& filename)
       << filename.c_str();
     throw std::runtime_error(
       "HMPID ClusterReaderTask::init() : Did not find "
-      "o2sim file in digits tree");
+      "o2sim file in clusters tree");
   }
 
   mTree->SetBranchAddress("CLUSTERS", &mClustersFromFilePtr);

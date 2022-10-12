@@ -124,7 +124,7 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
     // check if more entries in tree
 
     if (mTree->GetReadEntry() + 1 >= mTree->GetEntries()) {
-      LOG(info) << "[HMPID DClusterization - run() ] 127 ";
+
       pc.services().get<ControlService>().endOfStream();
       pc.services().get<ControlService>().readyToQuit(QuitRequest::Me);
       mExTimer.stop();
@@ -134,16 +134,14 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
 
     // there are more entries in file
     else {
-      LOG(info) << "[HMPID DClusterization - run() ] 137 ";
+
       // =============== read digits and digit-triggers =====================
       // iterate through TTree
 
       auto entry = mTree->GetReadEntry() + 1;
       assert(entry < mTree->GetEntries());
-      LOG(info) << "[HMPID DClusterization - run() ] curr entry =  " << mTree->GetReadEntry();
-      LOG(info) << "[HMPID DClusterization - run() ] entries in tree =  " << mTree->GetEntries();
 
-      mTree->GetEntry(1);
+      mTree->GetEntry(entry);
 
       // =============== create clusters =====================
       for (const auto& trig : *mTriggersFromFilePtr) {
@@ -186,7 +184,7 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
   } //========= <end readfromStream>
     //=====================================================================================
 
-  LOG(info) << "[HMPID DClusterization - run() ] 186 ";
+
 
   pc.outputs().snapshot(
     o2::framework::Output{"HMP", "CLUSTERS", 0,
