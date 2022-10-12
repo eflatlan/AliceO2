@@ -1,6 +1,13 @@
-# DigitClusterWorkflow
+# QC : ClusterReaderWF
+#### Read Clusters from stream or file for QC. Write upstream
 
-## Allow to read from stream or file
+    o2-hmpid-clusters-reader-workflow --read-from-file
+    o2-hmpid-digits-to-clusters-workflow -b || o2-hmpid-clusters-reader-workflow -b
+
+# DigitClusterWorkflow
+Clusterization workflow; reading digits from file/stream, performing clusterization, and writing clusters to file/stream.
+
+#### Allow to read from stream or file
 
 ### Contents : 
 
