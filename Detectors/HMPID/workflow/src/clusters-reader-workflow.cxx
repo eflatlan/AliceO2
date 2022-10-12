@@ -49,11 +49,11 @@ void customize(std::vector<o2::framework::ConfigParamSpec>& workflowOptions)
   std::string keyvaluehelp("Semicolon separated key=value strings ...");
   workflowOptions.push_back(o2::framework::ConfigParamSpec{"configKeyValues", o2::framework::VariantType::String, "", {keyvaluehelp}});
 
-  workflowOptions.push_back(
+  /*workflowOptions.push_back(
     o2::framework::ConfigParamSpec{"read-from-file",
                                    o2::framework::VariantType::Bool,
                                    false,
-                                   {"read upstream by default"}});
+                                   {"read upstream by default"}}); */
 
   o2::raw::HBFUtilsInitializer::addConfigOption(workflowOptions);
 }
@@ -69,10 +69,10 @@ WorkflowSpec defineDataProcessing(const ConfigContext& configcontext)
   WorkflowSpec specs;
   o2::conf::ConfigurableParam::updateFromString(configcontext.options().get<std::string>("configKeyValues"));
 
-  auto mFromFile = configcontext.options().get<bool>(
-    "read-from-file"); // read upstream by default
+  //auto mFromFile = configcontext.options().get<bool>(
+  //  "read-from-file"); // read upstream by default
 
-  DataProcessorSpec consumer = o2::hmpid::getClusterReaderSpec("HMP/CLUSTERS", mFromFile);
+  DataProcessorSpec consumer = o2::hmpid::getClusterReaderSpec();
 
   specs.push_back(consumer);
   return specs;

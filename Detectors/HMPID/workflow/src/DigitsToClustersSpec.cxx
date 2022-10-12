@@ -93,7 +93,8 @@ void DigitsToClustersTask::init(framework::InitContext& ic)
     strToFloatsSplit(mSigmaCutPar, ",", mSigmaCut, 7);
   }
 
-  mDigitsReceived = 0;
+  mDigitsReceived, mClustersReceived = 0;
+
   mRec.reset(new o2::hmpid::Clusterer()); // ef: changed to smart-pointer
 
   mExTimer.start();
@@ -121,8 +122,9 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
   //===============mReadFromFile=============================================
   if (mReadFile) {
     LOG(info) << "[HMPID DClusterization - run() ] Entries  = " << mTree->GetEntries();
-    // check if more entries in tree
+    
 
+    // check if more entries in tree
     if (mTree->GetReadEntry() + 1 >= mTree->GetEntries()) {
 
       pc.services().get<ControlService>().endOfStream();
@@ -130,14 +132,7 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
       mExTimer.stop();
       mExTimer.logMes("End Clusterization !  digits = " +
                       std::to_string(mDigitsReceived));
-    }
-
-    // there are more entries in file
-    else {
-
-      // =============== read digits and digit-triggers =====================
-      // iterate through TTree
-
+    } else {
       auto entry = mTree->GetReadEntry() + 1;
       assert(entry < mTree->GetEntries());
 
@@ -156,11 +151,10 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
         }
       }
 
-
-      /* LOGP(info, "Received {} triggers with {} digits -> {} triggers with {} clusters",
+      LOGP(info, "Received {} triggers with {} digits -> {} triggers with {} clusters",
            mTriggersFromFilePtr->size(), mDigitsFromFilePtr->size(), clusterTriggers.size(),
            clusters.size());
-      mDigitsReceived += mDigitsFromFilePtr->size(); */
+      mDigitsReceived += mDigitsFromFilePtr->size();
     } // <end else of num entries>
   }   //===============  <end mReadFromFile>
 
@@ -169,7 +163,6 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
     auto triggers = pc.inputs().get<gsl::span<o2::hmpid::Trigger>>("intrecord");
     auto digits = pc.inputs().get<gsl::span<o2::hmpid::Digit>>("digits");
 
-    // =============== create clusters =====================
     for (const auto& trig : triggers) {
       if (trig.getNumberOfObjects()) {
         gsl::span<const o2::hmpid::Digit> trigDigits{
@@ -181,10 +174,15 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
                                      clusters.size() - clStart);
       }
     }
+    mDigitsReceived += digits.size();
+    /*LOGP(info, "Received {} triggers with {} digits -> {} triggers with {} clusters",
+         triggers.size(), digits.size(), clusterTriggers.size(),
+         clusters.size());
+       */
   } //========= <end readfromStream>
     //=====================================================================================
 
-
+  mClustersReceived += clusters.size();
 
   pc.outputs().snapshot(
     o2::framework::Output{"HMP", "CLUSTERS", 0,
@@ -196,6 +194,8 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
     clusterTriggers);
 
   mExTimer.elapseMes("Clusterization of Digits received = " +
+                     std::to_string(mDigitsReceived));
+  mExTimer.elapseMes("Clusterization of Clusters received = " +
                      std::to_string(mDigitsReceived));
 }
 

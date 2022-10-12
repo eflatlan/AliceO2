@@ -47,17 +47,13 @@ class ClusterReaderTask : public framework::Task
   void init(framework::InitContext& ic) final;
 
   void run(framework::ProcessingContext& pc) final;
-  void endOfStream(framework::EndOfStreamContext& ec) override;
+  //void endOfStream(framework::EndOfStreamContext& ec) override;
 
  private:
   bool mReadFile = false;
   void initFileIn(const std::string& filename);
-  // std::string mSigmaCutPar;
-  // float mSigmaCut[7] = {4, 4, 4, 4, 4, 4, 4};
-
-  // o2::hmpid::Clusterer* mRec;
-  // long mDigitsReceived;
-
+  
+  long mClustersReceived;
   ExecutionTimer mExTimer;
 
   std::unique_ptr<TFile> mFile;                                                                                       // root file with Clusters
@@ -71,7 +67,7 @@ class ClusterReaderTask : public framework::Task
   //void strToFloatsSplit(std::string s, std::string delimiter, float* res, int maxElem = 7);
 };
 
-o2::framework::DataProcessorSpec getClusterReaderSpec(std::string inputSpec = "HMP/CLUSTERS", bool readFile = false);
+o2::framework::DataProcessorSpec getClusterReaderSpec();
 
 } // end namespace hmpid
 } // end namespace o2
