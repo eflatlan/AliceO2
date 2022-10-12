@@ -14,7 +14,6 @@
 #ifndef O2_AODPRODUCER_WORKFLOW_SPEC
 #define O2_AODPRODUCER_WORKFLOW_SPEC
 
-#include "AODProducerHelpers.h"
 #include "CCDB/BasicCCDBManager.h"
 #include "DataFormatsFT0/RecPoints.h"
 #include "DataFormatsFDD/RecPoint.h"
@@ -42,9 +41,6 @@
 #include "TMap.h"
 #include "TStopwatch.h"
 
-#include <boost/functional/hash.hpp>
-#include <boost/tuple/tuple.hpp>
-#include <boost/unordered_map.hpp>
 #include <string>
 #include <vector>
 
@@ -207,7 +203,7 @@ class BunchCrossings
 class AODProducerWorkflowDPL : public Task
 {
  public:
-  AODProducerWorkflowDPL(GID::mask_t src, std::shared_ptr<DataRequest> dataRequest, std::shared_ptr<o2::base::GRPGeomRequest> gr, bool enableSV, std::string resFile, bool useMC = true) : mInputSources(src), mDataRequest(dataRequest), mGGCCDBRequest(gr), mEnableSV(enableSV), mResFile{resFile}, mUseMC(useMC) {}
+  AODProducerWorkflowDPL(GID::mask_t src, std::shared_ptr<DataRequest> dataRequest, std::shared_ptr<o2::base::GRPGeomRequest> gr, bool enableSV, bool useMC = true) : mInputSources(src), mDataRequest(dataRequest), mGGCCDBRequest(gr), mEnableSV(enableSV), mUseMC(useMC) {}
   ~AODProducerWorkflowDPL() override = default;
   void init(InitContext& ic) final;
   void run(ProcessingContext& pc) final;
@@ -237,7 +233,6 @@ class AODProducerWorkflowDPL : public Task
   int mTruncate{1};
   int mRecoOnly{0};
   o2::InteractionRecord mStartIR{}; // TF 1st IR
-  TString mResFile{"AO2D"};
   TString mLPMProdTag{""};
   TString mAnchorPass{""};
   TString mAnchorProd{""};
@@ -285,10 +280,16 @@ class AODProducerWorkflowDPL : public Task
   double mTimeMarginTrackTime = -1;         // safety margin in NS used for track-vertex matching (additive to track uncertainty)
   double mTPCBinNS = -1;                    // inverse TPC time-bin in ns
 
-  o2::aodhelpers::TripletsMap_t mToStore;
+  // Container used to mark MC particles to store/transfer to AOD.
+  // Mapping of eventID, sourceID, trackID to some integer.
+  // The first two indices are not sparse whereas the trackID index is sparse which explains
+  // the combination of vector and map
+  std::vector<std::vector<std::unordered_map<int, int>*>> mToStore;
 
-  // MC production metadata holder
-  TMap mMetaData;
+  // production metadata
+  std::vector<TString> mMetaDataKeys;
+  std::vector<TString> mMetaDataVals;
+  bool mIsMDSent{false};
 
   std::shared_ptr<DataRequest> mDataRequest;
   std::shared_ptr<o2::base::GRPGeomRequest> mGGCCDBRequest;
@@ -507,7 +508,7 @@ class AODProducerWorkflowDPL : public Task
 };
 
 /// create a processor spec
-framework::DataProcessorSpec getAODProducerWorkflowSpec(GID::mask_t src, bool enableSV, bool useMC, std::string resFile, bool CTPConfigPerRun);
+framework::DataProcessorSpec getAODProducerWorkflowSpec(GID::mask_t src, bool enableSV, bool useMC, bool CTPConfigPerRun);
 
 // helper interface for calo cells to "befriend" emcal and phos cells
 class CellHelper
