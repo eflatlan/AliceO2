@@ -15,8 +15,7 @@ o2_add_library(HMPIDWorkflow
                        src/DigitsToRawSpec.cxx
                        src/DigitsToClustersSpec.cxx
                        src/DigitsToRootSpec.cxx
-                       src/ClustersReaderSpec.cxx
-                       src/ClustersToRootSpec2.h
+                       src/ClustersReaderSpec.cxx 
                        src/ClustersWriterSpec.cxx
                        src/DumpDigitsSpec.cxx
                        src/PedestalsCalculationSpec.cxx
@@ -86,6 +85,7 @@ o2_add_executable(digits-to-root-workflow
               SOURCES src/digits-to-root-workflow.cxx
               PUBLIC_LINK_LIBRARIES O2::HMPIDWorkflow)
 
+# ef : should be removed:
 #o2_add_executable(clusters-to-root-workflow
 #              COMPONENT_NAME hmpid
 #              SOURCES src/clusters-to-root-workflow.cxx
