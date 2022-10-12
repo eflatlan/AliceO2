@@ -62,17 +62,13 @@ using RDH = o2::header::RDHAny;
 void ClusterReaderTask::init(framework::InitContext& ic)
 {
   LOG(info) << "[HMPID Cluster reader - init() ] ";
-
   mClustersReceived = 0;
-
  // Build the file name
  const auto filename = o2::utils::Str::concat_string(
     o2::utils::Str::rectifyDirectory(
       ic.options().get<std::string>("input-dir")),
       ic.options().get<std::string>("qc-hmpid-clusters"));
  initFileIn(filename);
-  LOG(info) << "[HMPID Cluster reader - init2() ] ";
-
 }
 
 // return;
@@ -111,15 +107,10 @@ void ClusterReaderTask::run(framework::ProcessingContext& pc)
 
 void ClusterReaderTask::initFileIn(const std::string& filename)
 {
-
-
-  LOG(info)<< "ClusterReaderTask::initfile1" ;
   // Create the TFIle
   mTree.reset(nullptr);
   mFile = std::make_unique<TFile>(filename.c_str(), "OLD");
-  LOG(info)<< "ClusterReaderTask::initfile2" ;
   assert(mFile && !mFile->IsZombie());
-  LOG(info)<< "ClusterReaderTask::initfile3" ;
   mTree.reset((TTree*)mFile->Get("o2sim"));
 
   if (!mTree) {
@@ -134,9 +125,6 @@ void ClusterReaderTask::initFileIn(const std::string& filename)
   mTree->SetBranchAddress("HMPIDclusters", &mClustersFromFilePtr);
   mTree->SetBranchAddress("InteractionRecords", &mClusterTriggersFromFilePtr);
   mTree->Print("toponly");
-
-
-     LOG(info)<< "ClusterReaderTask::initfile file and tree ok" ;
 }
 
 //_________________________________________________________________________________________________
