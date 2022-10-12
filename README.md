@@ -42,8 +42,16 @@ In the same folder where hits root file is, type the command:
     o2-sim-digitizer-workflow --onlyDet HMP
 
 This creates a digits file named _"hmpiddigits.root"_ in the working folder. 
+
 ### Clusterization
-    o2-hmpid-digits-to-clusters-workflow
+
+Read from file:
+
+    o2-hmpid-digits-to-clusters-workflow -b --read-from-file
+    
+or stream:
+
+    o2-sim-digitizer-workflow --onlyDet HMP -b || o2-hmpid-digits-to-clusters-workflow -b
     
 If reading from the digit-file made in previous step is desired, use the option `--read-from-file` .  
 Digits will by default be written upstream, but can be written to a root-file by the `--write-to-file` option.
