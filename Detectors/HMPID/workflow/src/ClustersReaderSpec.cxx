@@ -103,7 +103,7 @@ void ClusterReaderTask::run(framework::ProcessingContext& pc)
 
       auto entry = mTree->GetReadEntry() + 1;
       assert(entry < mTree->GetEntries());
-      mTree->GetEntry(0);
+      mTree->GetEntry(entry);
 
       pc.outputs().snapshot(Output{"HMP", "CLUSTERS", 0, Lifetime::Timeframe}, mClustersFromFile);
       pc.outputs().snapshot(Output{"HMP", "INTRECORDS", 0, Lifetime::Timeframe}, mClusterTriggersFromFile);
@@ -147,8 +147,8 @@ void ClusterReaderTask::initFileIn(const std::string& filename)
       "o2sim file in digits tree");
   }
 
-  mTree->SetBranchAddress("CLUSTERS", &mClustersFromFile);
-  mTree->SetBranchAddress("INTRECORDS1", &mClusterTriggersFromFile);
+  mTree->SetBranchAddress("CLUSTERS", &mClustersFromFilePtr);
+  mTree->SetBranchAddress("INTRECORDS1", &mClusterTriggersFromFilePtr);
   mTree->Print("toponly");
 }
 

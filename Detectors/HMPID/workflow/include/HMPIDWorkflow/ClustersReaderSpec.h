@@ -62,8 +62,8 @@ class ClusterReaderTask : public framework::Task
 
   std::unique_ptr<TFile> mFile;                                                                                       // root file with Clusters
   std::unique_ptr<TTree> mTree;                                                                                       // tree inside the file
-  std::vector<o2::hmpid::Trigger> mClusterTriggersFromFile, *mClusterTriggersFromFilePtr = &mClusterTriggersFromFile; //, *pintrecords= &intrecords; // pointer to InteractionRecords branch
-  std::vector<o2::hmpid::Cluster> mClustersFromFile, *mClustersFromFilePtr = &mClustersFromFile;                      //, *pclusters = &clusters; // pointer to HMPIDCluster branch
+  std::vector<o2::hmpid::Trigger> mClusterTriggersFromFile, *mClusterTriggersFromFilePtr = &mClusterTriggersFromFile;
+  std::vector<o2::hmpid::Cluster> mClustersFromFile, *mClustersFromFilePtr = &mClustersFromFile;                     
 
   unsigned long mNumberOfEntries = 0; // number of entries from TTree
   unsigned long mCurrentEntry = 0;    // index of current entry

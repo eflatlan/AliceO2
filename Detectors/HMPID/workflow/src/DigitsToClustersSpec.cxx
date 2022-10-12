@@ -143,8 +143,8 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
       LOG(info) << "[HMPID DClusterization - run() ] curr entry =  " << mTree->GetReadEntry();
       LOG(info) << "[HMPID DClusterization - run() ] entries in tree =  " << mTree->GetEntries();
 
-      mTree->GetEntry(0);
-      LOG(info) << "[HMPID DClusterization - run() ] 144 ";
+      mTree->GetEntry(1);
+
       // =============== create clusters =====================
       for (const auto& trig : *mTriggersFromFilePtr) {
         if (trig.getNumberOfObjects()) {
@@ -158,7 +158,7 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
         }
       }
 
-      LOG(info) << "[HMPID DClusterization - run() ] 158 ";
+
       /* LOGP(info, "Received {} triggers with {} digits -> {} triggers with {} clusters",
            mTriggersFromFilePtr->size(), mDigitsFromFilePtr->size(), clusterTriggers.size(),
            clusters.size());
