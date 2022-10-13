@@ -20,6 +20,7 @@ Clusterization workflow; reading digits from file/stream, performing clusterizat
 
 #### Allow to read from stream or file
 
+
 ### Contents : 
 
 - include/HMPIDWorkflow
@@ -28,6 +29,7 @@ Clusterization workflow; reading digits from file/stream, performing clusterizat
 
 - src
   - _ClustersWriterSpec.cxx_ MakeRootTreeWriterSpec: writes cluster-out-file
+
   - _DigitsToClustersSpec.cxx_ : Spec for digits-to-cluster-Workflow
   - _digits-to-clusters-workflow.cxx_ : executable for digits-to-clusters
 
@@ -52,12 +54,13 @@ Read from file:
 or stream:
 
     o2-sim-digitizer-workflow --onlyDet HMP -b || o2-hmpid-digits-to-clusters-workflow -b
-    
+
 If reading from the digit-file made in previous step is desired, use the option `--read-from-file` .  
 Digits will by default be written upstream, but can be written to a root-file by the `--write-to-file` option.
 
 The default input-file is named _"hmpiddigits.root"_, and is defined in [HMPIDDigitWriterSpec.h](https://github.com/AliceO2Group/AliceO2/blob/dev/Steer/DigitizerWorkflow/src/HMPIDDigitWriterSpec.h)  
 The input-file can also be altered by passing the argument `--hmpid-digit-infile <fileName>.root`
+
 
 If the clusters are written to file, the default file-name is _"hmpidclusters.root"_  
 ~~The file-name can be altered by passing the argument `--out-file fileName.root`~~ : This is not done yet

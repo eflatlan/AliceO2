@@ -76,6 +76,7 @@ void customize(std::vector<o2::framework::ConfigParamSpec>& workflowOptions)
 #include "Framework/runDataProcessing.h"
 #include "HMPIDWorkflow/DigitsToClustersSpec.h"
 #include "HMPIDWorkflow/ClustersWriterSpec.h"
+
 //#include "HMPIDWorkflow/HMPIDDigitizerSpec.h"
 
 using namespace o2;
@@ -93,6 +94,7 @@ WorkflowSpec defineDataProcessing(const ConfigContext& configcontext)
 
   DataProcessorSpec consumer =
     o2::hmpid::getDigitsToClustersSpec("HMP/DIGITS", mFromFile, mToFile);
+
   specs.push_back(consumer);
 
   if (mToFile) { // Write to File

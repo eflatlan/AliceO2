@@ -1,4 +1,3 @@
-
 //  in h :
 // TVector3 posCkov(fTrkPos.X(), fTrkPos.Y(), zRad);
 
@@ -31,6 +30,3 @@ but input to refract ? (her er dir brukt)
   // dirTRS, dirLORS, dirCkov
 
   // in h :
-  //  dir.SetXYZ(-999, -999, -999);
-  //  dir.SetTheta(TMath::ASin(sinref));
-  // Theta, Phi, SetMagThetaPhi
