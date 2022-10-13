@@ -307,7 +307,7 @@ class MatchHMP
   TStopwatch mTimerMatchTPC;
   TStopwatch mTimerDBG;
 
-  ClassDef(MatchHMP, 1);
+  ClassDef(MatchHMP, 4); // was 1
 };
 } // namespace globaltracking
 } // namespace o2
