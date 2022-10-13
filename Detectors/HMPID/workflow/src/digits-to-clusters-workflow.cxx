@@ -75,9 +75,8 @@ void customize(std::vector<o2::framework::ConfigParamSpec>& workflowOptions)
 
 #include "Framework/runDataProcessing.h"
 #include "HMPIDWorkflow/DigitsToClustersSpec.h"
-//#include "HMPIDWorkflow/ClustersToRootSpec.h" ef :no longer used, choice of
-// 						    writing to root/stream is defined here
-#include "ClustersToRootSpec2.h"
+#include "HMPIDWorkflow/ClustersWriterSpec.h"
+
 //#include "HMPIDWorkflow/HMPIDDigitizerSpec.h"
 
 using namespace o2;
@@ -93,16 +92,9 @@ WorkflowSpec defineDataProcessing(const ConfigContext& configcontext)
   auto mToFile = configcontext.options().get<bool>(
     "write-to-file"); // write upstream by default
 
-  // HMPIDDigitizerSpec
-  /*
-  if(!mFromFile){
-    DataProcessorSpec consumerFromFile =
-      o2::hmpid::getHMPIDDigitizerSpec(36, true); // int channel, bool mctruth
-    specs.push_back(consumerFromFile);
-  } */
-
   DataProcessorSpec consumer =
-    o2::hmpid::getDigitsToClustersSpec("HMP/DIGITS", mFromFile);
+    o2::hmpid::getDigitsToClustersSpec("HMP/DIGITS", mFromFile, mToFile);
+
   specs.push_back(consumer);
 
   if (mToFile) { // Write to File

@@ -39,7 +39,7 @@ o2_add_library(GlobalTracking
                         O2::TOFBase
                         O2::TOFCalibration
                         O2::HMPIDBase
-                        #O2::HMPIDCalibration
+                        O2::HMPIDCalibration
                         O2::HMPIDWorkflow
                         O2::SimConfig
                         O2::DataFormatsFT0

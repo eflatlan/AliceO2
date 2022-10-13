@@ -15,8 +15,8 @@ o2_add_library(HMPIDWorkflow
                        src/DigitsToRawSpec.cxx
                        src/DigitsToClustersSpec.cxx
                        src/DigitsToRootSpec.cxx
-                       src/ClustersToRootSpec2.h # ef : use MakeTreeRootWriter
-                       #src/ClustersToRootSpec.cxx
+                       src/ClustersReaderSpec.cxx 
+                       src/ClustersWriterSpec.cxx
                        src/DumpDigitsSpec.cxx
                        src/PedestalsCalculationSpec.cxx
                        src/RawToDigitsSpec.cxx
@@ -34,6 +34,11 @@ o2_add_library(HMPIDWorkflow
                                      O2::DataFormatsDCS
                                      O2::HMPIDSimulation
                                      O2::HMPIDReconstruction)
+
+o2_add_executable(clusters-reader-workflow
+              COMPONENT_NAME hmpid
+              SOURCES src/clusters-reader-workflow.cxx
+              PUBLIC_LINK_LIBRARIES O2::HMPIDWorkflow)
 
 o2_add_executable(entropy-encoder-workflow
               COMPONENT_NAME hhmpid
@@ -80,8 +85,7 @@ o2_add_executable(digits-to-root-workflow
               SOURCES src/digits-to-root-workflow.cxx
               PUBLIC_LINK_LIBRARIES O2::HMPIDWorkflow)
 
-
-# ef : not used anymore, digits-to-cluster performs writing to file or stream
+# ef : should be removed:
 #o2_add_executable(clusters-to-root-workflow
 #              COMPONENT_NAME hmpid
 #              SOURCES src/clusters-to-root-workflow.cxx

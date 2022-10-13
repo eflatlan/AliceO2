@@ -248,7 +248,7 @@ bool MatchHMP::prepareHMPClusters()
     // cache work track index
     // mHMPClusSectIndexCache[cl.getSector()].push_back(mHMPClusWork.size() - 1); fix
   } //  ef: o2::hmpid::Cluster has no type getSector(); I changed cluster to hmpid::cluster instead of tof
-    //
+  
   // sort clusters in each sector according to their time (increasing in time)
   for (int sec = o2::constants::math::NSectors; sec--;) {
     auto& indexCache = mHMPClusSectIndexCache[sec];
