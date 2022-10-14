@@ -231,6 +231,7 @@ void DigitsToClustersTask::initFileIn(const std::string& filename)
 //_______________________________________________________________________________________________
 o2::framework::DataProcessorSpec
   getDigitsToClustersSpec(std::string inputSpec, bool readFile, bool writeFile)
+
 {
 
   // define inputs if reading from stream:
@@ -243,6 +244,7 @@ o2::framework::DataProcessorSpec
   }
 
   // define outputs
+
 
   // outputs are streamed, and optionally stored in a root-file if the --write-to-file
   // option in digits-to-clusters-workflow.cxx is passed
