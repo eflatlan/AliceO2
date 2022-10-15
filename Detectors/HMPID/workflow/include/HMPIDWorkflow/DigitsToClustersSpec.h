@@ -62,8 +62,6 @@ class DigitsToClustersTask : public framework::Task
 
   void initFileIn(const std::string& fileName);
 
-  void initFileIn(const std::string& fileName);
-
   ExecutionTimer mExTimer;
   void strToFloatsSplit(std::string s, std::string delimiter, float* res,
                         int maxElem = 7);
