@@ -55,7 +55,7 @@ class DigitsToClustersTask : public framework::Task
 
   std::vector<o2::hmpid::Digit> mDigitsFromFile, *mDigitsFromFilePtr = &mDigitsFromFile;
   std::vector<o2::hmpid::Trigger> mTriggersFromFile, *mTriggersFromFilePtr = &mTriggersFromFile;
-  
+
   std::unique_ptr<o2::hmpid::Clusterer> mRec; // ef: changed to smart-pointer
   long mDigitsReceived;
   long mClustersReceived;
@@ -71,7 +71,7 @@ class DigitsToClustersTask : public framework::Task
 o2::framework::DataProcessorSpec
   getDigitsToClustersSpec(std::string inputSpec = "HMP/DIGITS", bool readFile = false, bool writeFile = false);
 
-//o2::framework::DataProcessorSpec getClustersToRootWriter();
+// o2::framework::DataProcessorSpec getClustersToRootWriter();
 
 } // end namespace hmpid
 } // end namespace o2

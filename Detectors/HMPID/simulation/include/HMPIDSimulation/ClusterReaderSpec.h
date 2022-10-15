@@ -60,13 +60,13 @@ class ClusterReaderTask : public framework::Task
 
   std::unique_ptr<TFile> mFile = nullptr; // root file with Clusters
   TTree* mTree = nullptr;                 // tree inside the file
-  //std::vector<o2::hmpid::Trigger> intrecords; //, *pintrecords= &intrecords; // pointer to InteractionRecords branch
-  //std::vector<o2::hmpid::Cluster> clusters; //, *pclusters = &clusters; // pointer to HMPIDCluster branch
+  // std::vector<o2::hmpid::Trigger> intrecords; //, *pintrecords= &intrecords; // pointer to InteractionRecords branch
+  // std::vector<o2::hmpid::Cluster> clusters; //, *pclusters = &clusters; // pointer to HMPIDCluster branch
 
   unsigned long mNumberOfEntries = 0; // number of entries from TTree
   unsigned long mCurrentEntry = 0;    // index of current entry
 
-  //void strToFloatsSplit(std::string s, std::string delimiter, float* res, int maxElem = 7);
+  // void strToFloatsSplit(std::string s, std::string delimiter, float* res, int maxElem = 7);
 };
 
 o2::framework::DataProcessorSpec getClusterReaderSpec();
