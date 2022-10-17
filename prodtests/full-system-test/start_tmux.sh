@@ -12,6 +12,7 @@ if [[ -z "${WORKFLOW_PARAMETERS+x}" ]]; then
   else
     export WORKFLOW_PARAMETERS="${WORKFLOW_PARAMETERS},CALIB_PROXIES"
   fi
+  [[ -z $ARGS_EXTRA_PROCESS_o2_eve_export_workflow ]] && ARGS_EXTRA_PROCESS_o2_eve_export_workflow="--disable-write"
   if [[ -z "${GEN_TOPO_WORKDIR}" ]]; then
     mkdir -p gen_topo_tmp
     export GEN_TOPO_WORKDIR=`pwd`/gen_topo_tmp
@@ -108,7 +109,7 @@ fi
 
 if workflow_has_parameter CALIB_PROXIES; then
   CALIB_COMMAND="$MYDIR/aggregator-workflow.sh"
-  CALIB_TASKS="BARREL_TF BARREL_SPORADIC CALO_TF" # CALO_SPORADIC MUON_TF MUON_SPORADIC
+  CALIB_TASKS="BARREL_TF CALO_TF FORWARD_TF BARREL_SPORADIC" # CALO_SPORADIC MUON_TF MUON_SPORADIC
 else
   CALIB_TASKS=
 fi

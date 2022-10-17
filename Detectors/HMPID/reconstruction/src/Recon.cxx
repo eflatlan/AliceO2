@@ -145,8 +145,9 @@ void Recon::cKovAngle(TrackParCov trackParCov, const std::vector<o2::hmpid::Clus
       continue;
     }
     chId = cluster.ch();
-    if (cluster.q() > 2 * fParam->qCut())
-      continue;
+    if (cluster.q() > 2 * fParam->qCut()) { 
+      continue; 
+    }
     double thetaCer, phiCer;
     if (findPhotCkov(cluster.x(), cluster.y(), thetaCer, phiCer)) { // find ckov angle for this  photon candidate
       fPhotCkov[fPhotCnt] = thetaCer;                               // actual theta Cerenkov (in TRS)
@@ -169,17 +170,17 @@ void Recon::cKovAngle(TrackParCov trackParCov, const std::vector<o2::hmpid::Clus
   fMipPos.SetCoordinates(mipX, mipY); // ef: ok if Tvector2 can be used
 
   // PATTERN RECOGNITION STARTED:
-  if (fPhotCnt > fParam->multCut())
+  if (fPhotCnt > fParam->multCut()) { 
     fIsWEIGHT = kTRUE; // offset to take into account bkg in reconstruction
-  else
+  } else {
     fIsWEIGHT = kFALSE;
-
+  }
   int iNrec = flagPhot(houghResponse(), clusters, trackParCov); // flag photons according to individual theta ckov with respect to most probable
 
   /* ef : commented out :
     // pTrk->SetHMPIDmip(mipX,mipY,mipQ,iNrec);                                                  //store mip info
   */
-  if (iNrec < nMinPhotAcc) { // ef:ok
+  if (iNrec < nMinPhotAcc) { 
     /* ef : commented out :
         // pTrk->SetHMPIDsignal(kNoPhotAccept);                                                    //no photon candidates are accepted
     */
@@ -196,7 +197,7 @@ void Recon::cKovAngle(TrackParCov trackParCov, const std::vector<o2::hmpid::Clus
       // pTrk->SetHMPIDchi2(fCkovSigma2);                                                          //store experimental ring angular resolution squared
   */
 
-  // deleteVars(); ef : in case of smart-pointers, should not be necessary?
+  // deleteVars(); ef : in case of smart-pointers, should not be necessary
 } // CkovAngle()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\
 
@@ -226,8 +227,9 @@ bool Recon::findPhotCkov(double cluX, double cluY, double& thetaCer, double& phi
   int iIterCnt = 0;
 
   while (1) {
-    if (iIterCnt >= 50)
+    if (iIterCnt >= 50) {
       return kFALSE;
+    }
     double ckov = 0.5 * (ckov1 + ckov2);
 
     // ef SetMagThetaPhi -> SetCoordinates
@@ -236,14 +238,15 @@ bool Recon::findPhotCkov(double cluX, double cluY, double& thetaCer, double& phi
     double dist = cluR - (posC - fTrkPos).Mag2();                  // get distance between trial point and cluster position // ef mod->Mag
     // .Mod() Tvector2
 
-    if (posC.X() == -999)
+    if (posC.X() == -999) {
       dist = -999; // total reflection problem
+    }
     iIterCnt++;    // counter step
-    if (dist > kTol)
+    if (dist > kTol) {
       ckov1 = ckov; // cluster @ larger ckov
-    else if (dist < -kTol)
+    } else if (dist < -kTol) {
       ckov2 = ckov; // cluster @ smaller ckov
-    else {          // precision achived: ckov in DRS found
+    } else {          // precision achived: ckov in DRS found
 
       // ef SetMagThetaPhi -> SetCoordinates
       dirCkov.SetCoordinates(1, ckov, phi); // SetMagThetaPhi in TVecto3
@@ -264,8 +267,9 @@ o2::math_utils::Vector2D<double> Recon::traceForward(Polar3DVector dirCkov) cons
 
   math_utils::Vector2D<double> pos(-999, -999);
   double thetaCer = dirCkov.Theta();
-  if (thetaCer > TMath::ASin(1. / fParam->getRefIdx()))
+  if (thetaCer > TMath::ASin(1. / fParam->getRefIdx())) {
     return pos;                                                       // total refraction on WIN-GAP boundary
+  }
   double zRad = -0.5 * fParam->radThick() - 0.5 * fParam->winThick(); // z position of middle of RAD
 
   // ef
@@ -356,9 +360,9 @@ void Recon::findRingGeom(double ckovAng, int level)
   for (int i = 0; i < kN; i++) {
     if (!first) {
       pos1 = tracePhot(ckovAng, double(TMath::TwoPi() * (i + 1) / kN)); // find a good trace for the first photon
-      if (pos1.X() == -999)
+      if (pos1.X() == -999) {
         continue; // no area: open ring
-
+      }
       if (!fParam->isInside(pos1.X(), pos1.Y(), 0)) {
         pos1 = intWithEdge(fMipPos, pos1); // find the very first intersection...
       } else {
@@ -369,13 +373,15 @@ void Recon::findRingGeom(double ckovAng, int level)
       continue;
     }
     math_utils::Vector2D<double> pos2 = tracePhot(ckovAng, double(TMath::TwoPi() * (i + 1) / kN)); // trace the next photon
-    if (pos2.X() == -999)
+    if (pos2.X() == -999) {
       continue; // no area: open ring
+    } 
     if (!fParam->isInside(pos2.X(), pos2.Y(), 0)) {
       pos2 = intWithEdge(fMipPos, pos2);
     } else {
-      if (!Param::isInDead(pos2.X(), pos2.Y()))
+      if (!Param::isInDead(pos2.X(), pos2.Y())) {
         nPoints++; // photon is accepted if not in dead zone
+      }
     }
 
     area += TMath::Abs((pos1 - fMipPos).X() * (pos2 - fMipPos).Y() - (pos1 - fMipPos).Y() * (pos2 - fMipPos).X()); // add area of the triangle...
@@ -412,20 +418,23 @@ const o2::math_utils::Vector2D<T> Recon::intWithEdge(o2::math_utils::Vector2D<T>
   pint.SetCoordinates((double)(p1.X() + (fParam->sizeAllY() - p1.Y()) / m), (double)(fParam->sizeAllY()));
   if (pint.X() >= 0 && pint.X() <= fParam->sizeAllX() &&
       pint.X() >= xmin && pint.X() <= xmax &&
-      pint.Y() >= ymin && pint.Y() <= ymax)
+      pint.Y() >= ymin && pint.Y() <= ymax) {
     return pint;
+  }
   // intersection with left Y
   pint.SetCoordinates(0., (double)(p1.Y() + m * (0 - p1.X())));
   if (pint.Y() >= 0 && pint.Y() <= fParam->sizeAllY() &&
       pint.Y() >= ymin && pint.Y() <= ymax &&
-      pint.X() >= xmin && pint.X() <= xmax)
+      pint.X() >= xmin && pint.X() <= xmax) {
     return pint;
+  }
   // intersection with righ Y
   pint.SetCoordinates((double)(fParam->sizeAllX()), (double)(p1.Y() + m * (fParam->sizeAllX() - p1.X()))); // ef: Set->SetCoordinates
   if (pint.Y() >= 0 && pint.Y() <= fParam->sizeAllY() &&
       pint.Y() >= ymin && pint.Y() <= ymax &&
-      pint.X() >= xmin && pint.X() <= xmax)
+      pint.X() >= xmin && pint.X() <= xmax) {
     return pint;
+  }
   return p1;
 } // IntWithEdge()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -444,10 +453,12 @@ double Recon::findRingCkov(int)
 
   for (int i = 0; i < fPhotCnt; i++) { // candidates loop
     if (fPhotFlag[i] == 2) {
-      if (fPhotCkov[i] < ckovMin)
+      if (fPhotCkov[i] < ckovMin) {
         ckovMin = fPhotCkov[i]; // find max and min Theta ckov from all candidates within probable window
-      if (fPhotCkov[i] > ckovMax)
+      }
+      if (fPhotCkov[i] > ckovMax) {
         ckovMax = fPhotCkov[i];
+      }
       weightThetaCerenkov += fPhotCkov[i] * fPhotWei[i];
       wei += fPhotWei[i]; // collect weight as sum of all candidate weghts
 
@@ -455,15 +466,16 @@ double Recon::findRingCkov(int)
     }
   } // candidates loop
 
-  if (sigma2 > 0)
+  if (sigma2 > 0) {
     fCkovSigma2 = 1. / sigma2;
-  else
-    fCkovSigma2 = 1e10;
-
-  if (wei != 0.)
+  } else {
+    fCkovSigma2 = 1e10; 
+  }
+  if (wei != 0.) {
     weightThetaCerenkov /= wei;
-  else
+  } else {
     weightThetaCerenkov = 0.;
+  }
   return weightThetaCerenkov;
 } // FindCkovRing()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -566,10 +578,11 @@ void Recon::refract(Polar3DVector& dir, double n1, double n2) const
   //   Returns: none
   //   On exit: dir is new direction
   double sinref = (n1 / n2) * TMath::Sin(dir.Theta());
-  if (TMath::Abs(sinref) > 1.)
-    dir.SetXYZ(-999, -999, -999); // dette er ok!
-  else
-    dir.SetTheta(TMath::ASin(sinref)); // dette er ok!
+  if (TMath::Abs(sinref) > 1.) {
+    dir.SetXYZ(-999, -999, -999);
+  } else {
+    dir.SetTheta(TMath::ASin(sinref));
+  }
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -597,8 +610,9 @@ double Recon::houghResponse()
 
   for (int i = 0; i < fPhotCnt; i++) { // photon cadidates loop
     double angle = fPhotCkov[i];
-    if (angle < 0 || angle > kThetaMax)
+    if (angle < 0 || angle > kThetaMax) {
       continue;
+    }
     phots->Fill(angle);
     int bin = (int)(0.5 + angle / (fDTheta));
     double weight = 1.;
@@ -610,8 +624,9 @@ double Recon::houghResponse()
       findRingGeom(upperlimit);
       double areaHigh = getRingArea();
       double diffArea = areaHigh - areaLow;
-      if (diffArea > 0)
-        weight = 1. / diffArea;
+      if (diffArea > 0) {
+        weight = 1. / diffArea; 
+      }
     }
     photsw->Fill(angle, weight);
     fPhotWei[i] = weight;
@@ -620,16 +635,20 @@ double Recon::houghResponse()
   for (int i = 1; i <= nBin; i++) {
     int bin1 = i - nCorrBand;
     int bin2 = i + nCorrBand;
-    if (bin1 < 1)
+    if (bin1 < 1) { 
       bin1 = 1;
-    if (bin2 > nBin)
+    }
+    if (bin2 > nBin) {
       bin2 = nBin;
+    }
     double sumPhots = phots->Integral(bin1, bin2);
-    if (sumPhots < 3)
+    if (sumPhots < 3) {
       continue; // if less then 3 photons don't trust to this ring
+    }
     double sumPhotsw = photsw->Integral(bin1, bin2);
-    if ((double)((i + 0.5) * fDTheta) > 0.7)
+    if ((double)((i + 0.5) * fDTheta) > 0.7) {
       continue;
+    }
     resultw->Fill((double)((i + 0.5) * fDTheta), sumPhotsw);
   }
   // evaluate the "BEST" theta ckov as the maximum value of histogramm
@@ -664,15 +683,18 @@ double Recon::findRingExt(double ckov, Int_t ch, double xPc, double yPc, double 
     for (int j = 0; j < nStep; j++) {
       math_utils::Vector2D<double> pos;
       pos = tracePhot(ckov, j * TMath::TwoPi() / (double)(nStep - 1));
-      if (Param::isInDead(pos.X(), pos.Y())) // ef : moved method from Param.cxx to h
-        continue;                            // ef
+      if (Param::isInDead(pos.X(), pos.Y())) {// ef : moved method from Param.cxx to h
+        continue;                            
+      }
       fParam->lors2Pad(pos.X(), pos.Y(), ipc, ipadx, ipady);
       ipadx += (ipc % 2) * fParam->kPadPcX;
       ipady += (ipc / 2) * fParam->kPadPcY;
-      if (ipadx < 0 || ipady > 160 || ipady < 0 || ipady > 144 || ch < 0 || ch > 6)
+      if (ipadx < 0 || ipady > 160 || ipady < 0 || ipady > 144 || ch < 0 || ch > 6) {
+        continue; 
+      }
+      if (Param::isDeadPad(ipadx, ipady, ch)) {// ef : moved method from Param.cxx to h
         continue;
-      if (Param::isDeadPad(ipadx, ipady, ch)) // ef : moved method from Param.cxx to h
-        continue;
+      }
       nPhi++;
     } // point loop
     return ((double)nPhi / (double)nStep);

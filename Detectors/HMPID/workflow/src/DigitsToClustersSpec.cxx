@@ -122,7 +122,6 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
   //===============mReadFromFile=============================================
   if (mReadFile) {
     LOG(info) << "[HMPID DClusterization - run() ] Entries  = " << mTree->GetEntries();
-    
 
     // check if more entries in tree
     if (mTree->GetReadEntry() + 1 >= mTree->GetEntries()) {
@@ -244,7 +243,6 @@ o2::framework::DataProcessorSpec
   }
 
   // define outputs
-
 
   // outputs are streamed, and optionally stored in a root-file if the --write-to-file
   // option in digits-to-clusters-workflow.cxx is passed

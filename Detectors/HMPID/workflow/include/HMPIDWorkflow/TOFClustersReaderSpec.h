@@ -54,7 +54,7 @@ class ClusterReader : public Task
 /// read simulated TOF digits from a root file
 framework::DataProcessorSpec getClusterReaderSpec(bool useMC);
 
-} // namespace tof
+} // namespace hmpid
 } // namespace o2
 
 #endif /* O2_TOF_CLUSTERREADER */

@@ -9,22 +9,22 @@
 // granted to it by virtue of its status as an Intergovernmental Organization
 // or submit itself to any jurisdiction.
 
-#ifndef O2_TPC_RESIDUAL_WRITER_H
-#define O2_TPC_RESIDUAL_WRITER_H
+/// \file CalibratorNoise.cxx
+/// \brief TRD pad calibration
 
-/// @file   TPCResidualWriterSpec.h
+#include "TRDCalibration/CalibratorNoise.h"
 
-#include "Framework/DataProcessorSpec.h"
-
-namespace o2
-{
-namespace tpc
+namespace o2::trd
 {
 
-/// create a processor spec
-framework::DataProcessorSpec getTPCResidualWriterSpec(bool writeUnfiltered, bool writeTrackData);
+using Slot = o2::calibration::TimeSlot<PadAdcInfo>;
 
-} // namespace tpc
-} // namespace o2
+Slot& CalibratorNoise::emplaceNewSlot(bool front, TFType tStart, TFType tEnd)
+{
+  auto& container = getSlots();
+  auto& slot = front ? container.emplace_front(tStart, tEnd) : container.emplace_back(tStart, tEnd);
+  slot.setContainer(std::make_unique<PadAdcInfo>());
+  return slot;
+}
 
-#endif
+} // namespace o2::trd
