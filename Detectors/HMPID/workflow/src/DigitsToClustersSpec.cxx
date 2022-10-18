@@ -1,6 +1,6 @@
 // Copyright 2019-2020 CERN and copyright holders of ALICE O2.
-// See https://alice-o2.web.cern.ch/copyright for details of the copyright
-// holders. All rights not expressly granted are reserved.
+// See https://alice-o2.web.cern.ch/copyright for details of the copyright holders.
+// All rights not expressly granted are reserved.
 //
 // This software is distributed under the terms of the GNU General Public
 // License v3 (GPL Version 3), copied verbatim in the file "COPYING".
@@ -9,12 +9,8 @@
 // granted to it by virtue of its status as an Intergovernmental Organization
 // or submit itself to any jurisdiction.
 
-/// \file   DigitsToRootSpec.cxx
-/// \author Antonio Franco - INFN Bari
-/// \version 1.0
-/// \date 01 feb 2021
-/// \brief Implementation of a data processor to Clusterize the Digits
-///
+/// \file DigitsToClustersSpec.cxx
+/// \brief Implementation of clusterization for HMPID; read upstream/from file write upstream/to file
 
 #include <array>
 #include <fstream>
