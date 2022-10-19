@@ -94,7 +94,7 @@ If the clusters are written to file, the default file-name is _"hmpidclusters.ro
 
 - GlobaltrackingWorkflow
   - _HMPMatcherSpec_ : Spec for track-matching
-  - _hmp-matcher-spec_ : executable for track-matching
+  - _hmp-matcher-spec_ : executable for track-matching   
 
 - HMPID/reconstruction
   - _Recon_ : class for Cherenkov angle reconstruction
