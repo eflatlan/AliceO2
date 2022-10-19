@@ -88,8 +88,8 @@ void DigitsReaderTask::run(framework::ProcessingContext& pc)
     assert(entry < mTree->GetEntries());
     mTree->GetEntry(entry);
     pc.outputs().snapshot(Output{"HMP", "DIGITS", 0, Lifetime::Timeframe}, mDigitsFromFile);
-    pc.outputs().snapshot(Output{"HMP", "INTRECORDS", 0, Lifetime::Timeframe}, mDigitsTriggerFromFile);
-    mClustersReceived += mDigitsFromFile.size();
+    pc.outputs().snapshot(Output{"HMP", "INTRECORDS", 0, Lifetime::Timeframe}, mDigitsTriggersFromFile);
+    mDigitsReceived += mDigitsFromFile.size();
     LOG(info) << "[HMPID DigitsReader - run() ] digits  = " << mDigitsFromFile.size();
   }
 
@@ -115,13 +115,13 @@ void DigitsReaderTask::initFileIn(const std::string& filename)
 
   if (!mTree) {
     LOG(error)
-      << "HMPID Digitstr();
+      << "HMPID DigitstReaderTask::init()";
     throw std::runtime_error(
       "HMPID DigitsReaderTask::init() : Did not find "
       "o2sim file in clusters tree");
   }
 
-  mTree->SetBranchAddress("HMPIDdigits", &mDigitsFromFilePtr);
+  mTree->SetBranchAddress("HMPDigit", &mDigitsFromFilePtr);
   mTree->SetBranchAddress("InteractionRecords", &mDigitsTriggersFromFilePtr);
   mTree->Print("toponly");
 }
@@ -139,7 +139,7 @@ o2::framework::DataProcessorSpec getDigitsReaderSpec()
     "HMP-DigitReader",
     Inputs{},
     outputs,
-    AlgorithmSpec{adaptFromTask<ClusterReaderTask>()},
+    AlgorithmSpec{adaptFromTask<DigitsReaderTask>()},
     Options{{"qc-hmpid-digits", VariantType::String, "hmpiddigits.root", {"Name of the input file with digits"}},
             {"input-dir", VariantType::String, "./", {"Input directory"}}}};
 }

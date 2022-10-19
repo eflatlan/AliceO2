@@ -26,10 +26,11 @@
 #include "Framework/DataProcessorSpec.h"
 #include "Framework/Task.h"
 
-#include "HMPIDBase/Common.h"0
+#include "HMPIDBase/Common.h"
 //#include "HMPIDReconstruction/Clusterer.h"
 //#include <DataFormatsHMP/Cluster.h>
-#include <DataFormatsHMP/Digits.h>
+#include <DataFormatsHMP/Digit.h>
+#include <DataFormatsHMP/Trigger.h>
 #include "Framework/WorkflowSpec.h"
 
 namespace o2
@@ -59,7 +60,7 @@ class DigitsReaderTask : public framework::Task
   std::unique_ptr<TFile> mFile; // root file with digits
   std::unique_ptr<TTree> mTree; // tree inside the file
   std::vector<o2::hmpid::Trigger> mDigitsTriggersFromFile, *mDigitsTriggersFromFilePtr = &mDigitsTriggersFromFile;
-  std::vector<o2::hmpid::Digits> mDigitsFromFile, *mDigitsFromFilePtr = &mDigitsFromFile;
+  std::vector<o2::hmpid::Digit> mDigitsFromFile, *mDigitsFromFilePtr = &mDigitsFromFile;
 
   unsigned long mNumberOfEntries = 0; // number of entries from TTree
   unsigned long mCurrentEntry = 0;    // index of current entry
