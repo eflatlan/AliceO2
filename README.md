@@ -1,9 +1,9 @@
-# QC : ClusterReaderWF
-#### Read Clusters from stream or file for QC. Write upstream
+# QC 
 
-    o2-hmpid-clusters-reader-workflow --read-from-file
-    o2-hmpid-digits-to-clusters-workflow -b || o2-hmpid-clusters-reader-workflow -b
+## Clusters
+#### Read Clusters ~~from stream or~~ file for QC. Write upstream
 
+    o2-hmpid-clusters-reader-workflow
 
 ### Contents : 
 
@@ -13,6 +13,23 @@
 - src
   - _ClustersReaderSpec.h_ : Spec for Cluster-reader
   - _clusters-reader-workflow.cxx_ : executable for Cluster-reader
+
+## Digits
+#### Read Digits ~~from stream or~~ file for QC. Write upstream
+
+    o2-hmpid-digits-reader-workflow
+
+
+### Contents : 
+
+- include/HMPIDWorkflow
+  - _DigitsReaderSpec.h_ : Spec for Digits-reader
+
+- src
+  - _DigitsReaderSpec.h_ : Spec for Digits-reader
+  - _digits-reader-workflow.cxx_ : executable for Digits-reader
+
+
 
 
 # DigitClusterWorkflow
@@ -64,6 +81,24 @@ The input-file can also be altered by passing the argument `--hmpid-digit-infile
 
 If the clusters are written to file, the default file-name is _"hmpidclusters.root"_  
 ~~The file-name can be altered by passing the argument `--out-file fileName.root`~~ : This is not done yet
+
+
+
+# Cherenkov angle reconstruction
+
+
+### Contents : 
+
+- Globaltracking
+  - _MatchHMP_ : Class for track-matching
+
+- GlobaltrackingWorkflow
+  - _HMPMatcherSpec_ : Spec for track-matching
+  - _hmp-matcher-spec_ : executable for track-matching   
+
+- HMPID/reconstruction
+  - _Recon_ : class for Cherenkov angle reconstruction
+
 
 
 # Change all Legacy Physics classes for HMPID
