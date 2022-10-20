@@ -180,7 +180,7 @@ void Recon::cKovAngle(TrackParCov trackParCov, const std::vector<o2::hmpid::Clus
     return;
   }
 
-  fMipPos.SetCoordinates(mipX, mipY); // ef: ok if Tvector2 can be used
+  fMipPos.SetCoordinates(mipX, mipY);
 
   // PATTERN RECOGNITION STARTED:
   if (fPhotCnt > fParam->multCut()) { 
@@ -210,7 +210,6 @@ void Recon::cKovAngle(TrackParCov trackParCov, const std::vector<o2::hmpid::Clus
       // pTrk->SetHMPIDchi2(fCkovSigma2);                                                          //store experimental ring angular resolution squared
   */
 
-  // deleteVars(); ef : in case of smart-pointers, should not be necessary
 } // CkovAngle()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\
 
@@ -221,11 +220,10 @@ bool Recon::findPhotCkov(double cluX, double cluY, double& thetaCer, double& phi
   // Arguments: cluX,cluY - position of cadidate's cluster
   // Returns: Cerenkov angle
 
-  Polar3DVector dirCkov; // ef : TVector3->Polar3D
+  Polar3DVector dirCkov;
 
   double zRad = -0.5 * fParam->radThick() - 0.5 * fParam->winThick(); // z position of middle of RAD
 
-  // ef : TVector3->XYZVector
   math_utils::Vector3D<double> rad(fTrkPos.X(), fTrkPos.Y(), zRad);                         // impact point at middle of RAD
   math_utils::Vector3D<double> pc(cluX, cluY, 0.5 * fParam->winThick() + fParam->gapIdx()); // mip at PC
 
@@ -245,11 +243,9 @@ bool Recon::findPhotCkov(double cluX, double cluY, double& thetaCer, double& phi
     }
     double ckov = 0.5 * (ckov1 + ckov2);
 
-    // ef SetMagThetaPhi -> SetCoordinates
     dirCkov.SetCoordinates(1, ckov, phi);
     o2::math_utils::Vector2D<double> posC = traceForward(dirCkov); // trace photon with actual angles
-    double dist = cluR - (posC - fTrkPos).Mag2();                  // get distance between trial point and cluster position // ef mod->Mag
-    // .Mod() Tvector2
+    double dist = cluR - (posC - fTrkPos).Mag2();                  // get distance between trial point and cluster position
 
     if (posC.X() == -999) {
       dist = -999; // total reflection problem
@@ -261,8 +257,7 @@ bool Recon::findPhotCkov(double cluX, double cluY, double& thetaCer, double& phi
       ckov2 = ckov; // cluster @ smaller ckov
     } else {          // precision achived: ckov in DRS found
 
-      // ef SetMagThetaPhi -> SetCoordinates
-      dirCkov.SetCoordinates(1, ckov, phi); // SetMagThetaPhi in TVecto3
+      dirCkov.SetCoordinates(1, ckov, phi); 
       lors2Trs(dirCkov, thetaCer, phiCer);  // find ckov (in TRS:the effective Cherenkov angle!)
       return kTRUE;
     }
@@ -270,7 +265,7 @@ bool Recon::findPhotCkov(double cluX, double cluY, double& thetaCer, double& phi
 } // FindPhotTheta()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-/*EF : COMMENTED  traceForward */
+
 template <typename T> // typename
 o2::math_utils::Vector2D<double> Recon::traceForward(Polar3DVector dirCkov) const
 {
@@ -285,9 +280,8 @@ o2::math_utils::Vector2D<double> Recon::traceForward(Polar3DVector dirCkov) cons
   }
   double zRad = -0.5 * fParam->radThick() - 0.5 * fParam->winThick(); // z position of middle of RAD
 
-  // ef
   math_utils::Vector3D<double> posCkov(fTrkPos.X(), fTrkPos.Y(), zRad);
-  // TVector3 posCkov(fTrkPos.X(), fTrkPos.Y(), zRad);                           // RAD: photon position is track position @ middle of RAD
+									      // RAD: photon position is track position @ middle of RAD
 
   propagate(dirCkov, posCkov, -0.5 * fParam->winThick());                     // go to RAD-WIN boundary
   refract(dirCkov, fParam->getRefIdx(), fParam->winIdx());                    // RAD-WIN refraction
@@ -308,19 +302,16 @@ void Recon::lors2Trs(Polar3DVector dirCkov, double& thetaCer, double& phiCer) co
   //  TVector3 dirTrk;
   //  dirTrk.SetMagThetaPhi(1,fTrkDir.Theta(),fTrkDir.Phi()); -> dirTrk.SetCoordinates(1,fTrkDir.Theta(),fTrkDir.Phi())
   //  double  thetaCer = TMath::ACos(dirCkov*dirTrk);
+  
+  ROOT::Math::Rotation3D mtheta(ROOT::Math::RotationY(-fTrkDir.Theta()));     // TRotation mtheta;  mtheta.RotateY(-fTrkDir.Theta());
 
-  // TRotation mtheta; // TRotation-> Rotaiton3D : matrix 3x3
-  // mtheta.RotateY(-fTrkDir.Theta()); ef : change to :
-  ROOT::Math::Rotation3D mtheta(ROOT::Math::RotationY(-fTrkDir.Theta()));
 
-  // math_utils::Rotation3D<float> mphi;
-  // mphi.RotateZ(-fTrkDir.Phi()); ef : change to :
+  
 
-  ROOT::Math::Rotation3D mphi(ROOT::Math::RotationZ(-fTrkDir.Phi()));
+  ROOT::Math::Rotation3D mphi(ROOT::Math::RotationZ(-fTrkDir.Phi()));         // mphi.RotateZ(-fTrkDir.Phi());
 
   ROOT::Math::Rotation3D mrot = mtheta * mphi;
 
-  // ef : TVector3->Polar3D
   math_utils::Vector3D<double> dirCkovTRS;
   dirCkovTRS = mrot * dirCkov;
   phiCer = dirCkovTRS.Phi();     // actual value of the phi of the photon
@@ -334,21 +325,15 @@ void Recon::trs2Lors(math_utils::Vector3D<double> dirCkov, double& thetaCer, dou
   //    Returns: thetaCer of photon in LORS
   //               phiCer of photon in LORS
 
-  // TRotation mtheta;
-  // mtheta.RotateY(fTrkDir.Theta()); ef : changed to :
 
-  ROOT::Math::Rotation3D mtheta(ROOT::Math::RotationY(fTrkDir.Theta()));
 
-  // TRotation mphi;
-  // mphi.RotateZ(fTrkDir.Phi()); ef : changed to :
+  ROOT::Math::Rotation3D mtheta(ROOT::Math::RotationY(fTrkDir.Theta()));      // TRotation mtheta; mtheta.RotateY(fTrkDir.Theta());
 
   ROOT::Math::Rotation3D mphi(ROOT::Math::RotationZ(fTrkDir.Phi()));
 
   ROOT::Math::Rotation3D mrot = mphi * mtheta;
 
-  // ef : TVector3->Polar3D
-  math_utils::Vector3D<double> dirCkovLORS;
-  dirCkovLORS = mrot * dirCkov;
+  math_utils::Vector3D<double> dirCkovLORS = mrot * dirCkov;
   phiCer = dirCkovLORS.Phi();     // actual value of the phi of the photon
   thetaCer = dirCkovLORS.Theta(); // actual value of thetaCerenkov of the photon
 }
@@ -366,8 +351,6 @@ void Recon::findRingGeom(double ckovAng, int level)
 
   bool first = kFALSE;
 
-  // this needs to be changed?
-  // TVector2
   math_utils::Vector2D<double> pos1;
 
   for (int i = 0; i < kN; i++) {
@@ -519,8 +502,7 @@ int Recon::flagPhot(double ckov, const std::vector<o2::hmpid::Cluster>& clusters
     fPhotFlag[i] = 0;
     if (fPhotCkov[i] >= tmin && fPhotCkov[i] <= tmax) {
       fPhotFlag[i] = 2;
-      // ef: comment
-      // addObjectToFriends(clusters, i, trackParCov);
+      // addObjectToFriends(clusters, i, trackParCov); ef : commented out
       iInsideCnt++;
     }
   }
@@ -554,11 +536,9 @@ o2::math_utils::Vector2D<T> Recon::tracePhot(double ckovThe, double ckovPhi) con
   //   Returns: distance between photon point on PC and track projection
 
   double theta, phi;
-  math_utils::Vector3D<double> dirTRS; // ef TVector3 -> Polar3D
-
+  math_utils::Vector3D<double> dirTRS;
   Polar3DVector dirLORS;
 
-  // ef SetMagThetaPhi->SetCoordinates
 
   dirTRS.SetCoordinates(1, ckovThe, ckovPhi); // photon in TRS
   trs2Lors(dirTRS, theta, phi);
