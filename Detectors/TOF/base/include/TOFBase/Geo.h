@@ -67,6 +67,7 @@ class Geo
   static void rotateToSector(Float_t* xyz, Int_t isector);
   static void rotateToStrip(Float_t* xyz, Int_t iplate, Int_t istrip, Int_t isector);
   static void antiRotateToSector(Float_t* xyz, Int_t isector);
+  static void antiRotateToStrip(Float_t* xyz, Int_t iplate, Int_t istrip, Int_t isector);
 
   static void antiRotate(Float_t* xyz, Double_t rotationAngles[6]);
   static void getDetID(Float_t* pos, Int_t* det);
@@ -139,6 +140,7 @@ class Geo
   static constexpr Float_t RMAX2 = RMAX * RMAX;
 
   static constexpr Float_t XPAD = 2.5;
+  static constexpr Float_t XHALFSTRIP = XPAD * NPADX * 0.5;
   static constexpr Float_t ZPAD = 3.5;
   static constexpr Float_t STRIPLENGTH = 122;
 
@@ -353,7 +355,14 @@ class Geo
   static Int_t getCHFromECH(int echan) { return ELCHAN_TO_CHAN[echan]; }
 
   static void Init();
+  static void InitIdeal();
   static void InitIndices();
+  static void getPosInSectorCoord(int ch, float* pos);
+  static void getPosInStripCoord(int ch, float* pos);
+  static void getPosInPadCoord(int ch, float* pos);
+  static void getPosInSectorCoord(const Int_t* detId, float* pos);
+  static void getPosInStripCoord(const Int_t* detId, float* pos);
+  static void getPosInPadCoord(const Int_t* detId, float* pos);
 
  private:
   static Int_t getSector(const Float_t* pos);
