@@ -36,9 +36,8 @@ class ServiceRegistryRef
   // cannot be accessed if the streamId is <= 0 and complain accordingly.
   // The dataProcessorId will be used to distinguish between different
   // data processors when
-  ServiceRegistryRef(ServiceRegistry& registry, short streamId = 0, short dataProcessorId = 0)
-    : mRegistry(registry),
-      mContext{streamId, dataProcessorId}
+  ServiceRegistryRef(ServiceRegistry& registry)
+    : mRegistry(registry)
   {
   }
 
@@ -46,7 +45,7 @@ class ServiceRegistryRef
   template <typename T>
   std::enable_if_t<std::is_const_v<T> == false, bool> active() const
   {
-    return mRegistry.active<T>();
+    return mRegistry.active<T>(ServiceRegistry::threadSalt());
   }
 
   /// Get a service for the given interface T. The returned reference exposed to
@@ -55,7 +54,7 @@ class ServiceRegistryRef
   template <typename T>
   T& get() const
   {
-    return mRegistry.get<T>();
+    return mRegistry.get<T>(ServiceRegistry::threadSalt());
   }
 
   /// Invoke before sending messages @a parts on a channel @a channelindex
@@ -66,7 +65,6 @@ class ServiceRegistryRef
 
  private:
   ServiceRegistry& mRegistry;
-  ServiceRegistry::Context mContext;
 };
 
 } // namespace o2::framework

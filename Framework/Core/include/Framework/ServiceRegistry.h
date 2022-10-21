@@ -112,6 +112,12 @@ struct ServiceRegistry {
   /// The mask to use to calculate the initial slot id.
   constexpr static uint32_t MAX_SERVICES_MASK = MAX_SERVICES - 1;
 
+  static Salt threadSalt() {
+    auto tid = std::this_thread::get_id();
+    std::hash<std::thread::id> hasher;
+    return Salt{Context{.streamId = (short)hasher(tid)}};
+  }
+
   constexpr InstanceId instanceFromTypeSalt(ServiceTypeHash type, Salt salt) const
   {
     return InstanceId{type.hash ^ salt.value};
@@ -288,10 +294,7 @@ struct ServiceRegistry {
   /// Register a service given an handle
   void registerService(ServiceHandle handle)
   {
-    auto tid = std::this_thread::get_id();
-    std::hash<std::thread::id> hasher;
-    Salt salt{Context{.streamId = (short)hasher(tid)}};
-    ServiceRegistry::registerService({handle.hash}, handle.instance, handle.kind, salt, handle.name.c_str());
+    ServiceRegistry::registerService({handle.hash}, handle.instance, handle.kind, ServiceRegistry::threadSalt(), handle.name.c_str());
   }
 
   mutable std::vector<ServiceSpec> mSpecs;
@@ -310,10 +313,7 @@ struct ServiceRegistry {
     static_assert(std::is_base_of<I, C>::value == true,
                   "Registered service is not derived from declared interface");
     constexpr ServiceTypeHash typeHash{TypeIdHelpers::uniqueId<I>()};
-    auto tid = std::this_thread::get_id();
-    std::hash<std::thread::id> hasher;
-    Salt salt = Salt{Context{.streamId = (short)hasher(tid)}};
-    ServiceRegistry::registerService(typeHash, reinterpret_cast<void*>(service), K, salt, typeid(C).name());
+    ServiceRegistry::registerService(typeHash, reinterpret_cast<void*>(service), K, ServiceRegistry::threadSalt(), typeid(C).name());
   }
 
   /// @deprecated old API to be substituted with the ServiceHandle one
@@ -326,23 +326,17 @@ struct ServiceRegistry {
     static_assert(std::is_base_of<I, C>::value == true,
                   "Registered service is not derived from declared interface");
     constexpr ServiceTypeHash typeHash{TypeIdHelpers::uniqueId<I const>()};
-    auto tid = std::this_thread::get_id();
-    std::hash<std::thread::id> hasher;
-    Salt salt = Salt{Context{.streamId = (short)hasher(tid)}};
-    this->registerService(typeHash, reinterpret_cast<void*>(const_cast<C*>(service)), K, salt, typeid(C).name());
+    this->registerService(typeHash, reinterpret_cast<void*>(const_cast<C*>(service)), K, ServiceRegistry::threadSalt(), typeid(C).name());
   }
 
   /// Check if service of type T is currently active.
   template <typename T>
-  std::enable_if_t<std::is_const_v<T> == false, bool> active() const
+  std::enable_if_t<std::is_const_v<T> == false, bool> active(Salt salt) const
   {
     constexpr ServiceTypeHash typeHash{TypeIdHelpers::uniqueId<T>()};
-    auto tid = std::this_thread::get_id();
-    std::hash<std::thread::id> hasher;
     if (this->getPos(typeHash, GLOBAL_CONTEXT_SALT) != -1) {
       return true;
     }
-    Salt salt = Salt{Context{.streamId = (short)hasher(tid)}};
     auto result = this->getPos(typeHash, salt) != -1;
     return result;
   }
@@ -351,12 +345,9 @@ struct ServiceRegistry {
   /// the user is actually of the last concrete type C registered, however this
   /// should not be a problem.
   template <typename T>
-  T& get() const
+  T& get(Salt salt) const
   {
     constexpr ServiceTypeHash typeHash{TypeIdHelpers::uniqueId<T>()};
-    auto tid = std::this_thread::get_id();
-    std::hash<std::thread::id> hasher;
-    Salt salt = Salt{Context{.streamId = (short)hasher(tid)}};
     auto ptr = this->get(typeHash, salt, ServiceKind::Serial, typeid(T).name());
     if (O2_BUILTIN_LIKELY(ptr != nullptr)) {
       if constexpr (std::is_const_v<T>) {

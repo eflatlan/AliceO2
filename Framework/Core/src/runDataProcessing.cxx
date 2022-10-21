@@ -73,7 +73,6 @@
 #include <Configuration/ConfigurationInterface.h>
 #include <Configuration/ConfigurationFactory.h>
 #include <Monitoring/MonitoringFactory.h>
-//#include <InfoLogger/InfoLogger.hxx>
 #include "ResourcesMonitoringHelper.h"
 
 #include <fairmq/Device.h>
@@ -146,7 +145,6 @@
 
 using namespace o2::monitoring;
 using namespace o2::configuration;
-//using namespace AliceO2::InfoLogger;
 
 using namespace o2::framework;
 namespace bpo = boost::program_options;
@@ -684,7 +682,7 @@ void handleChildrenStdio(uv_loop_t* loop,
   }
 }
 
-void handle_crash(int /* sig */)
+void handle_crash(int sig)
 {
   // dump demangled stack trace
   void* array[1024];
@@ -693,8 +691,20 @@ void handle_crash(int /* sig */)
 
   {
     char const* msg = "*** Program crashed (Segmentation fault, FPE, BUS, ABRT, KILL)\nBacktrace by DPL:\n";
-    int len = strlen(msg); /* the byte length of the string */
-    auto retVal = write(STDERR_FILENO, msg, len);
+    auto retVal = write(STDERR_FILENO, msg, strlen(msg));
+    msg = "UNKNOWN SIGNAL\n";
+    if (sig == SIGSEGV) {
+      msg = "SEGMENTATION FAULT\n";
+    } else if (sig == SIGABRT) {
+      msg = "ABRT\n";
+    } else if (sig == SIGBUS) {
+      msg = "BUS ERROR\n";
+    } else if (sig == SIGILL) {
+      msg = "ILLEGAL INSTRUCTION\n";
+    } else if (sig == SIGFPE) {
+      msg = "FLOATING POINT EXCEPTION\n";
+    }
+    retVal = write(STDERR_FILENO, msg, strlen(msg));
     (void)retVal;
   }
   demangled_backtrace_symbols(array, size, STDERR_FILENO);
@@ -717,7 +727,7 @@ void spawnDevice(DeviceRef ref,
                  std::vector<DeviceControl>&,
                  std::vector<DeviceExecution>& executions,
                  std::vector<DeviceInfo>& deviceInfos,
-                 ServiceRegistry& serviceRegistry,
+                 ServiceRegistryRef serviceRegistry,
                  boost::program_options::variables_map& varmap,
                  std::vector<DeviceStdioContext>& childFds,
                  unsigned parentCPU,
@@ -1005,14 +1015,14 @@ void doDPLException(RuntimeErrorRef& e, char const* processName)
   if (err.maxBacktrace != 0) {
     LOGP(fatal,
          "Unhandled o2::framework::runtime_error reached the top of main of {}, device shutting down."
-         "\n Reason: {}"
+         " Reason: {}"
          "\n Backtrace follow: \n",
          processName, err.what);
     demangled_backtrace_symbols(err.backtrace, err.maxBacktrace, STDERR_FILENO);
   } else {
     LOGP(fatal,
          "Unhandled o2::framework::runtime_error reached the top of main of {}, device shutting down."
-         "\n Reason: {}"
+         " Reason: {}"
          "\n Recompile with DPL_ENABLE_BACKTRACE=1 to get more information.",
          processName, err.what);
   }
@@ -1118,7 +1128,8 @@ int doChild(int argc, char** argv, ServiceRegistry& serviceRegistry,
     decltype(r.fDevice) device;
     device = make_matching<decltype(device), DataProcessingDevice>(ref, serviceRegistry, processingPolicies);
 
-    serviceRegistry.get<RawDeviceService>().setDevice(device.get());
+    ServiceRegistryRef ref{serviceRegistry};
+    ref.get<RawDeviceService>().setDevice(device.get());
     r.fDevice = std::move(device);
     fair::Logger::SetConsoleColor(false);
 
@@ -1128,7 +1139,7 @@ int doChild(int argc, char** argv, ServiceRegistry& serviceRegistry,
       serviceRegistry.declareService(service, *deviceState.get(), r.fConfig);
     }
     if (ResourcesMonitoringHelper::isResourcesMonitoringEnabled(spec.resourceMonitoringInterval)) {
-      serviceRegistry.get<Monitoring>().enableProcessMonitoring(spec.resourceMonitoringInterval /* ef: ,{ PmMeasurement::Cpu, PmMeasurement::Mem, PmMeasurement::Smaps}*/);
+      ref.get<Monitoring>().enableProcessMonitoring(spec.resourceMonitoringInterval/*, {PmMeasurement::Cpu, PmMeasurement::Mem, PmMeasurement::Smaps}*/);
     }
   };
 
