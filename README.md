@@ -1,3 +1,123 @@
+# QC 
+
+## Clusters
+#### Read Clusters ~~from stream or~~ file for QC. Write upstream
+
+    o2-hmpid-clusters-reader-workflow
+
+### Contents : 
+
+- include/HMPIDWorkflow
+  - _ClustersReaderSpec.h_ : Spec for Cluster-reader
+
+- src
+  - _ClustersReaderSpec.h_ : Spec for Cluster-reader
+  - _clusters-reader-workflow.cxx_ : executable for Cluster-reader
+
+
+## Digits
+#### Read Digits ~~from stream or~~ file for QC. Write upstream
+
+    o2-hmpid-digits-reader-workflow
+
+### Contents : 
+
+- include/HMPIDWorkflow
+  - _DigitsReaderSpec.h_ : Spec for Digits-reader
+
+- src
+  - _DigitsReaderSpec.h_ : Spec for Digits-reader
+  - _digits-reader-workflow.cxx_ : executable for Digits-reader
+
+
+
+# DigitClusterWorkflow
+Clusterization workflow; reading digits from file/stream, performing clusterization, and writing clusters to file/stream.
+
+#### Allow to read from stream or file
+
+
+### Contents : 
+
+- include/HMPIDWorkflow
+  - _DigitsToClustersSpec.h_ : Spec for digits-to-cluster-Workflow
+  - _ClustersWriterSpec.h_ MakeRootTreeWriterSpec: writes cluster-out-file
+
+- src
+  - _ClustersWriterSpec.cxx_ MakeRootTreeWriterSpec: writes cluster-out-file
+
+  - _DigitsToClustersSpec.cxx_ : Spec for digits-to-cluster-Workflow
+  - _digits-to-clusters-workflow.cxx_ : executable for digits-to-clusters
+
+
+#### Reads digitis upstream from real data by default.
+
+### Command to create digits:
+In the same folder where hits root file is, type the command:
+
+    o2-sim-digitizer-workflow --onlyDet HMP
+
+This creates a digits file named _"hmpiddigits.root"_ in the working folder. 
+
+### Clusterization
+
+Read from file:
+
+    o2-hmpid-digits-to-clusters-workflow -b --read-from-file
+    
+or stream:
+
+    o2-sim-digitizer-workflow --onlyDet HMP -b || o2-hmpid-digits-to-clusters-workflow -b
+
+If reading from the digit-file made in previous step is desired, use the option `--read-from-file` .  
+Digits will by default be written upstream, but can be written to a root-file by the `--write-to-file` option.
+
+The default input-file is named _"hmpiddigits.root"_, and is defined in [HMPIDDigitWriterSpec.h](https://github.com/AliceO2Group/AliceO2/blob/dev/Steer/DigitizerWorkflow/src/HMPIDDigitWriterSpec.h)  
+The input-file can also be altered by passing the argument `--hmpid-digit-infile <fileName>.root`
+
+
+If the clusters are written to file, the default file-name is _"hmpidclusters.root"_  
+~~The file-name can be altered by passing the argument `--out-file fileName.root`~~ : This is not done yet
+
+
+
+# Cherenkov angle reconstruction
+
+
+### Contents : 
+
+- Globaltracking
+  - _MatchHMP_ : Class for track-matching
+
+- GlobaltrackingWorkflow
+  - _HMPMatcherSpec_ : Spec for track-matching
+  - _hmp-matcher-spec_ : executable for track-matching   
+
+- HMPID/reconstruction
+  - _Recon_ : class for Cherenkov angle reconstruction
+
+
+
+# Change all Legacy Physics classes for HMPID
+https://root.cern.ch/doc/master/group__Physics.html
+
+### Change TVector2 -> Vector2D and TVector3 -> Vector3D in HMPID::Recon
+
+
+
+### [Trotation in HMPID-param](https://github.com/AliceO2Group/AliceO2/blob/03608ff899d444d52571dbed14a0106ae4616562/Detectors/HMPID/base/src/Param.cxx)
+  * Does not seem to be used?
+### [TLorentzVector in HMPID-detector](https://github.com/AliceO2Group/AliceO2/blob/54d91df6bd1f9008ed8caa748820cfc3b95535e4/Detectors/HMPID/simulation/src/Detector.cxx)
+  * [ROOT::Math::LorentzVector](https://github.com/eflatlan/AliceRecon/blob/1483a2302205717d9c97272287090a46daf4a338/Detectors/HMPID/simulation/src/Detector.cxx#L189)
+
+
+### [TVector3 in HMPID-param header](https://github.com/AliceO2Group/AliceO2/blob/03608ff899d444d52571dbed14a0106ae4616562/Detectors/HMPID/base/include/HMPIDBase/Param.h#L19)
+  1. lors2Mars [old](https://github.com/AliceO2Group/AliceO2/blob/03608ff899d444d52571dbed14a0106ae4616562/Detectors/HMPID/base/include/HMPIDBase/Param.h#L191-L196) -> [new](https://github.com/eflatlan/AliceRecon/blob/1483a2302205717d9c97272287090a46daf4a338/Detectors/HMPID/base/include/HMPIDBase/Param.h#L227-L235) 
+  2. norm [old](https://github.com/AliceO2Group/AliceO2/blob/03608ff899d444d52571dbed14a0106ae4616562/Detectors/HMPID/base/include/HMPIDBase/Param.h#L213-L218) -> [new](https://github.com/eflatlan/AliceRecon/blob/1483a2302205717d9c97272287090a46daf4a338/Detectors/HMPID/base/include/HMPIDBase/Param.h#L255-L260) 
+  
+### [TVector3 in HMPID-param src](https://github.com/AliceO2Group/AliceO2/blob/03608ff899d444d52571dbed14a0106ae4616562/Detectors/HMPID/base/src/Param.cxx#L289)
+  * sigma2 [old](https://github.com/AliceO2Group/AliceO2/blob/03608ff899d444d52571dbed14a0106ae4616562/Detectors/HMPID/base/src/Param.cxx#L289-L304) -> [new](https://github.com/eflatlan/AliceRecon/blob/1483a2302205717d9c97272287090a46daf4a338/Detectors/HMPID/base/src/Param.cxx#L300-L320)
+
 # ALICE O2 software {#mainpage}
 
 <!--  /// \cond EXCLUDE_FOR_DOXYGEN -->

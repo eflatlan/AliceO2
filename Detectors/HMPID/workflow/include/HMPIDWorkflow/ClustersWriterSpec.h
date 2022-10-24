@@ -9,8 +9,11 @@
 // granted to it by virtue of its status as an Intergovernmental Organization
 // or submit itself to any jurisdiction.
 
-#ifndef STEER_DIGITIZERWORKFLOW_HMPIDCLUSTERIZER_H_
-#define STEER_DIGITIZERWORKFLOW_HMPIDCLUSTERIZER_H_
+/// \file ClustersWriterSpec.h
+/// \brief Implementation of writing HMPID clusters to file
+
+#ifndef STEER_DIGITIZERWORKFLOW_SRC_HMPCLUSTERWRITERSPEC_H_
+#define STEER_DIGITIZERWORKFLOW_SRC_HMPCLUSTERWRITERSPEC_H_
 
 #include "Framework/DataProcessorSpec.h"
 
@@ -19,9 +22,9 @@ namespace o2
 namespace hmpid
 {
 
-o2::framework::DataProcessorSpec getHMPIDClusterizerSpec(bool useMC);
+o2::framework::DataProcessorSpec getClustersToRootWriter();
 
 } // end namespace hmpid
 } // end namespace o2
 
-#endif /* STEER_DIGITIZERWORKFLOW_HMPIDCLUSTERIZERSPEC_H_ */
+#endif /* STEER_DIGITIZERWORKFLOW_SRC_HMPIDDIGITWRITERSPEC_H_ */
