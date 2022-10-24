@@ -50,39 +50,41 @@ BOOST_AUTO_TEST_CASE(TestServiceRegistry)
   };
 
   ServiceRegistry registry;
+  ServiceRegistryRef ref{registry};
   ConcreteA serviceA;
   ConcreteB serviceB;
   ConcreteC const serviceC;
-  registry.registerService(ServiceRegistryHelpers::handleForService<InterfaceA>(&serviceA));
-  registry.registerService(ServiceRegistryHelpers::handleForService<InterfaceB>(&serviceB));
-  registry.registerService(ServiceRegistryHelpers::handleForService<InterfaceC const>(&serviceC));
-  BOOST_CHECK(registry.get<InterfaceA>(ServiceRegistry::threadSalt()).method() == true);
-  BOOST_CHECK(registry.get<InterfaceB>(ServiceRegistry::threadSalt()).method() == false);
-  BOOST_CHECK(registry.get<InterfaceC const>(ServiceRegistry::threadSalt()).method() == false);
-  BOOST_CHECK(registry.active<InterfaceA>(ServiceRegistry::threadSalt()) == true);
-  BOOST_CHECK(registry.active<InterfaceB>(ServiceRegistry::threadSalt()) == true);
-  BOOST_CHECK(registry.active<InterfaceC>(ServiceRegistry::threadSalt()) == false);
-  BOOST_CHECK_THROW(registry.get<InterfaceA const>(ServiceRegistry::threadSalt()), RuntimeErrorRef);
-  BOOST_CHECK_THROW(registry.get<InterfaceC>(ServiceRegistry::threadSalt()), RuntimeErrorRef);
+  ref.registerService(ServiceRegistryHelpers::handleForService<InterfaceA>(&serviceA));
+  ref.registerService(ServiceRegistryHelpers::handleForService<InterfaceB>(&serviceB));
+  ref.registerService(ServiceRegistryHelpers::handleForService<InterfaceC const>(&serviceC));
+  BOOST_CHECK(registry.get<InterfaceA>(ServiceRegistry::globalDeviceSalt()).method() == true);
+  BOOST_CHECK(registry.get<InterfaceB>(ServiceRegistry::globalDeviceSalt()).method() == false);
+  BOOST_CHECK(registry.get<InterfaceC const>(ServiceRegistry::globalDeviceSalt()).method() == false);
+  BOOST_CHECK(registry.active<InterfaceA>(ServiceRegistry::globalDeviceSalt()) == true);
+  BOOST_CHECK(registry.active<InterfaceB>(ServiceRegistry::globalDeviceSalt()) == true);
+  BOOST_CHECK(registry.active<InterfaceC>(ServiceRegistry::globalDeviceSalt()) == false);
+  BOOST_CHECK_THROW(registry.get<InterfaceA const>(ServiceRegistry::globalDeviceSalt()), RuntimeErrorRef);
+  BOOST_CHECK_THROW(registry.get<InterfaceC>(ServiceRegistry::globalDeviceSalt()), RuntimeErrorRef);
 }
 
 BOOST_AUTO_TEST_CASE(TestCallbackService)
 {
   using namespace o2::framework;
   ServiceRegistry registry;
+  ServiceRegistryRef ref{registry};
   auto service = std::make_unique<CallbackService>();
-  registry.registerService(ServiceRegistryHelpers::handleForService<CallbackService>(service.get()));
+  ref.registerService(ServiceRegistryHelpers::handleForService<CallbackService>(service.get()));
 
   // the callback simply sets the captured variable to indicated that it was called
   bool cbCalled = false;
   auto cb = [&]() { cbCalled = true; };
-  registry.get<CallbackService>(ServiceRegistry::threadSalt()).set(CallbackService::Id::Stop, cb);
+  registry.get<CallbackService>(ServiceRegistry::globalDeviceSalt()).set(CallbackService::Id::Stop, cb);
 
   // check to set with the wrong type
-  BOOST_CHECK_THROW(registry.get<CallbackService>(ServiceRegistry::threadSalt()).set(CallbackService::Id::Stop, [](int) {}), RuntimeErrorRef);
+  BOOST_CHECK_THROW(registry.get<CallbackService>(ServiceRegistry::globalDeviceSalt()).set(CallbackService::Id::Stop, [](int) {}), RuntimeErrorRef);
 
   // execute and check
-  registry.get<CallbackService>(ServiceRegistry::threadSalt())(CallbackService::Id::Stop);
+  registry.get<CallbackService>(ServiceRegistry::globalDeviceSalt())(CallbackService::Id::Stop);
   BOOST_CHECK(cbCalled);
 }
 
@@ -189,8 +191,8 @@ BOOST_AUTO_TEST_CASE(TestServiceDeclaration)
   options.SetProperty("configuration", "command-line");
 
   registry.declareService(CommonServices::callbacksSpec(), state, options);
-  BOOST_CHECK(registry.active<CallbackService>(ServiceRegistry::threadSalt()) == true);
-  BOOST_CHECK(registry.active<DummyService>(ServiceRegistry::threadSalt()) == false);
+  BOOST_CHECK(registry.active<CallbackService>(ServiceRegistry::globalDeviceSalt()) == true);
+  BOOST_CHECK(registry.active<DummyService>(ServiceRegistry::globalDeviceSalt()) == false);
 }
 
 BOOST_AUTO_TEST_CASE(TestServiceOverride)

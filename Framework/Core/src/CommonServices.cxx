@@ -35,6 +35,8 @@
 #include "Framework/Monitoring.h"
 #include "Framework/AsyncQueue.h"
 #include "Framework/Plugins.h"
+#include "Framework/DeviceContext.h"
+#include "Framework/DataProcessingContext.h"
 #include "TextDriverClient.h"
 #include "WSDriverClient.h"
 #include "HTTPParser.h"
@@ -207,7 +209,7 @@ o2::framework::ServiceSpec CommonServices::configurationSpec()
                            ConfigurationFactory::getConfiguration(backend).release()};
     },
     .configure = noConfiguration(),
-    .driverStartup = [](ServiceRegistry& registry, boost::program_options::variables_map const& vmap) {
+    .driverStartup = [](ServiceRegistryRef registry, boost::program_options::variables_map const& vmap) {
       if (vmap.count("configuration") == 0) {
         registry.registerService(ServiceHandle{0, nullptr});
         return;
@@ -753,10 +755,45 @@ o2::framework::ServiceSpec CommonServices::objectCache()
     .kind = ServiceKind::Serial};
 }
 
+o2::framework::ServiceSpec CommonServices::dataProcessorContextSpec()
+{
+  return ServiceSpec{
+    .name = "data-processing-context",
+    .init = [](ServiceRegistryRef, DeviceState&, fair::mq::ProgOptions&) -> ServiceHandle {
+      return ServiceHandle{TypeIdHelpers::uniqueId<DataProcessorContext>(), new DataProcessorContext()};
+    },
+    .configure = noConfiguration(),
+    .kind = ServiceKind::Serial};
+}
+
+o2::framework::ServiceSpec CommonServices::deviceContextSpec()
+{
+  return ServiceSpec{
+    .name = "device-context",
+    .init = [](ServiceRegistryRef, DeviceState&, fair::mq::ProgOptions&) -> ServiceHandle {
+      return ServiceHandle{TypeIdHelpers::uniqueId<DeviceContext>(), new DeviceContext()};
+    },
+    .configure = noConfiguration(),
+    .kind = ServiceKind::Serial};
+}
+
+o2::framework::ServiceSpec CommonServices::dataAllocatorSpec()
+{
+  return ServiceSpec{
+    .name = "data-allocator",
+    .init = [](ServiceRegistryRef ref, DeviceState&, fair::mq::ProgOptions&) -> ServiceHandle {
+      return ServiceHandle{TypeIdHelpers::uniqueId<DataAllocator>(), new DataAllocator(ref)};
+    },
+    .configure = noConfiguration(),
+    .kind = ServiceKind::Serial};
+}
+
 /// Split a string into a vector of strings using : as a separator.
 std::vector<ServiceSpec> CommonServices::defaultServices(int numThreads)
 {
   std::vector<ServiceSpec> specs{
+    dataProcessorContextSpec(),
+    dataAllocatorSpec(),
     asyncQueue(),
     timingInfoSpec(),
     timesliceIndex(),

@@ -51,6 +51,8 @@ struct CommonServices {
     return [](InitContext&, void* service) -> void* { return service; };
   }
 
+  static ServiceSpec deviceContextSpec();
+  static ServiceSpec dataProcessorContextSpec();
   static ServiceSpec driverClientSpec();
   static ServiceSpec monitoringSpec();
   static ServiceSpec datatakingContextSpec();
@@ -73,6 +75,7 @@ struct CommonServices {
   static ServiceSpec decongestionSpec();
   static ServiceSpec asyncQueue();
   static ServiceSpec guiMetricsSpec();
+  static ServiceSpec dataAllocatorSpec();
 
   static std::vector<ServiceSpec> defaultServices(int numWorkers = 0);
   static std::vector<ServiceSpec> requiredServices();

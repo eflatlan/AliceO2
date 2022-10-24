@@ -36,8 +36,9 @@ class ServiceRegistryRef
   // cannot be accessed if the streamId is <= 0 and complain accordingly.
   // The dataProcessorId will be used to distinguish between different
   // data processors when
-  ServiceRegistryRef(ServiceRegistry& registry)
-    : mRegistry(registry)
+  ServiceRegistryRef(ServiceRegistry& registry, ServiceRegistry::Salt salt = ServiceRegistry::globalDeviceSalt())
+    : mRegistry(registry),
+      mSalt(salt)
   {
   }
 
@@ -45,7 +46,7 @@ class ServiceRegistryRef
   template <typename T>
   std::enable_if_t<std::is_const_v<T> == false, bool> active() const
   {
-    return mRegistry.active<T>(ServiceRegistry::threadSalt());
+    return mRegistry.active<T>(mSalt);
   }
 
   /// Get a service for the given interface T. The returned reference exposed to
@@ -54,7 +55,7 @@ class ServiceRegistryRef
   template <typename T>
   T& get() const
   {
-    return mRegistry.get<T>(ServiceRegistry::threadSalt());
+    return mRegistry.get<T>(mSalt);
   }
 
   /// Invoke before sending messages @a parts on a channel @a channelindex
@@ -63,8 +64,23 @@ class ServiceRegistryRef
     mRegistry.preSendingMessagesCallbacks(mRegistry, parts, channelindex);
   }
 
+  void registerService(ServiceTypeHash typeHash, void* service, ServiceKind kind, char const* name = nullptr) const {
+    mRegistry.registerService(typeHash, service, kind, mSalt, name);
+  }
+
+  /// Register a service given an handle, notice how
+  /// the service will be created in the current salt, 
+  /// so that from a dataprocessor you cannot create a service 
+  /// globally, or in a stream you cannot create services for 
+  /// a dataprocessor.
+  void registerService(ServiceHandle handle)
+  {
+    mRegistry.registerService({handle.hash}, handle.instance, handle.kind, mSalt, handle.name.c_str());
+  }
+
  private:
   ServiceRegistry& mRegistry;
+  ServiceRegistry::Salt mSalt;
 };
 
 } // namespace o2::framework
