@@ -14,11 +14,11 @@
   - _ClustersReaderSpec.h_ : Spec for Cluster-reader
   - _clusters-reader-workflow.cxx_ : executable for Cluster-reader
 
+
 ## Digits
 #### Read Digits ~~from stream or~~ file for QC. Write upstream
 
     o2-hmpid-digits-reader-workflow
-
 
 ### Contents : 
 
@@ -28,7 +28,6 @@
 - src
   - _DigitsReaderSpec.h_ : Spec for Digits-reader
   - _digits-reader-workflow.cxx_ : executable for Digits-reader
-
 
 
 
@@ -52,8 +51,6 @@ Clusterization workflow; reading digits from file/stream, performing clusterizat
 
 
 #### Reads digitis upstream from real data by default.
-
-
 
 ### Command to create digits:
 In the same folder where hits root file is, type the command:
