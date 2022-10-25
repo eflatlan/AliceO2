@@ -26,16 +26,6 @@ if [[ -z $CTF_MAX_PER_FILE ]];         then CTF_MAX_PER_FILE="10000"; fi       #
 workflow_has_parameter CTF && export SAVECTF=1
 workflow_has_parameter GPU && { export GPUTYPE=HIP; export NGPUS=4; }
 
-[[ -z $NITSDECTHREADS ]] && NITSDECTHREADS=2
-[[ -z $NMFTDECTHREADS ]] && NMFTDECTHREADS=2
-
-[[ -z $SVERTEX_THREADS ]] && SVERTEX_THREADS=$(( $SYNCMODE == 1 ? 1 : 2 ))
-# FIXME: multithreading in the itsmft reconstruction does not work on macOS.
-if [[ $(uname) == "Darwin" ]]; then
-    NITSDECTHREADS=1
-    NMFTDECTHREADS=1
-fi
-
 # ---------------------------------------------------------------------------------------------------------------------
 # Set general arguments
 source $MYDIR/getCommonArgs.sh
@@ -53,6 +43,16 @@ if [[ -z $TIMEFRAME_RATE_LIMIT ]] && [[ $DIGITINPUT != 1 ]]; then
   ! has_detector TPC && TIMEFRAME_RATE_LIMIT=$(($TIMEFRAME_RATE_LIMIT * 4))
 fi
 [[ ! -z $TIMEFRAME_RATE_LIMIT ]] && [[ $TIMEFRAME_RATE_LIMIT != 0 ]] && ARGS_ALL+=" --timeframes-rate-limit $TIMEFRAME_RATE_LIMIT --timeframes-rate-limit-ipcid $NUMAID"
+if [[ $EPNSYNCMODE == 1 ]]; then
+  SYNCRAWMODE=1
+elif [[ -z $SYNCRAWMODE ]]; then
+  SYNCRAWMODE=0
+fi
+
+# ---------------------------------------------------------------------------------------------------------------------
+# Process multiplicities
+
+{ source $O2DPG_ROOT/DATA/production/workflow-multiplicities.sh; [[ $? != 0 ]] && exit 1; }
 
 # ---------------------------------------------------------------------------------------------------------------------
 # Set some individual workflow arguments depending on configuration
@@ -85,22 +85,27 @@ if [[ $SYNCMODE == 1 ]]; then
   if [[ $BEAMTYPE == "PbPb" ]]; then
     ITS_CONFIG_KEY+="fastMultConfig.cutMultClusLow=30;fastMultConfig.cutMultClusHigh=2000;fastMultConfig.cutMultVtxHigh=500;"
   elif [[ $BEAMTYPE == "pp" ]]; then
-    ITS_CONFIG_KEY+="fastMultConfig.cutMultClusLow=-1;fastMultConfig.cutMultClusHigh=-1;fastMultConfig.cutMultVtxHigh=-1;ITSVertexerParam.phiCut=0.5;ITSVertexerParam.clusterContributorsCut=3;ITSVertexerParam.tanLambdaCut=0.2;fastMultConfig.cutRandomFraction=0.9;"
+    ITS_CONFIG_KEY+="fastMultConfig.cutMultClusLow=-1;fastMultConfig.cutMultClusHigh=-1;fastMultConfig.cutMultVtxHigh=-1;ITSVertexerParam.phiCut=0.5;ITSVertexerParam.clusterContributorsCut=3;ITSVertexerParam.tanLambdaCut=0.2;"
+    if [[ "0$HIGH_RATE_PP" == "01" ]]; then
+      ITS_CONFIG_KEY+="fastMultConfig.cutRandomFraction=0.95;"
+    else
+      ITS_CONFIG_KEY+="fastMultConfig.cutRandomFraction=0.9;"
+    fi
   fi
 
   PVERTEXING_CONFIG_KEY+="pvertexer.meanVertexExtraErrConstraint=0.3;" # for calibration relax the constraint
-  if [[ $EPNSYNCMODE == 1 ]]; then # add extra tolerance in sync mode to account for eventual time misalignment
+  if [[ $SYNCRAWMODE == 1 ]]; then # add extra tolerance in sync mode to account for eventual time misalignment
     PVERTEXING_CONFIG_KEY+="pvertexer.timeMarginVertexTime=1.3;"
   fi
   GPU_CONFIG_KEY+="GPU_global.synchronousProcessing=1;GPU_proc.clearO2OutputFromGPU=1;"
   has_processing_step TPC_DEDX && GPU_CONFIG_KEY+="GPU_global.rundEdx=1;"
-  TRD_CONFIG_KEY+="GPU_proc.ompThreads=1;"
   has_detector ITS && TRD_FILTER_CONFIG+=" --filter-trigrec"
 else
   if [[ $BEAMTYPE == "pp" ]]; then
     ITS_CONFIG_KEY+="ITSVertexerParam.phiCut=0.5;ITSVertexerParam.clusterContributorsCut=3;ITSVertexerParam.tanLambdaCut=0.2;"
   fi
 fi
+[[ ! -z $NTRDTRKTHREADS ]] && TRD_CONFIG_KEY+="GPU_proc.ompThreads=$NTRDTRKTHREADS;"
 
 if [[ $BEAMTYPE == "PbPb" ]]; then
   PVERTEXING_CONFIG_KEY+="pvertexer.maxChi2TZDebris=2000;"
@@ -152,20 +157,22 @@ has_detector_flp_processing CPV && CPV_INPUT=digits
 if [[ $EPNSYNCMODE == 1 ]]; then
   EVE_CONFIG+=" --eve-dds-collection-index 0"
   MIDDEC_CONFIG+=" --feeId-config-file \"$MID_FEEID_MAP\""
+  if [[ $EXTINPUT == 1 ]] && [[ $GPUTYPE != "CPU" ]] && [[ -z "$GPU_NUM_MEM_REG_CALLBACKS" ]]; then GPU_NUM_MEM_REG_CALLBACKS=4; fi
+fi
+if [[ $SYNCRAWMODE == 1 ]]; then
   GPU_CONFIG_KEY+="GPU_proc.tpcIncreasedMinClustersPerRow=500000;GPU_proc.ignoreNonFatalGPUErrors=1;GPU_proc.throttleAlarms=1;GPU_proc.conservativeMemoryEstimate=1;"
   # option for avoinding masking problematic channels from previous calibrations
   TOF_CONFIG+=" --for-calib"
   # Options for decoding current TRD real raw data (not needed for data converted from MC)
   if [[ -z $TRD_DECODER_OPTIONS ]]; then TRD_DECODER_OPTIONS=" --tracklethcheader 2 "; fi
-  if [[ $EXTINPUT == 1 ]] && [[ $GPUTYPE != "CPU" ]] && [[ -z "$GPU_NUM_MEM_REG_CALLBACKS" ]]; then GPU_NUM_MEM_REG_CALLBACKS=4; fi
 fi
 
 if [[ $SYNCMODE == 1 && "0$ED_NO_ITS_ROF_FILTER" != "01" && $BEAMTYPE == "PbPb" ]] && has_detector ITS; then
   EVE_CONFIG+=" --filter-its-rof"
 fi
 
-if [[ $BEAMTYPE == "PbPb" ]]; then
-  EVE_CONFIG+=" --only-nth-event=2"
+if [[ ! -z $EVE_NTH_EVENT ]]; then
+  EVE_CONFIG+=" --only-nth-event=$EVE_NTH_EVENT"
 fi
 
 if [[ $GPUTYPE != "CPU" && $NUMAGPUIDS != 0 ]] && [[ -z $ROCR_VISIBLE_DEVICES || $ROCR_VISIBLE_DEVICES = "0,1,2,3,4,5,6,7" ]]; then
@@ -212,67 +219,6 @@ fi
 [[ $IS_SIMULATED_DATA == "1" ]] && EMCRAW2C_CONFIG+=" --no-mergeHGLG"
 
 # ---------------------------------------------------------------------------------------------------------------------
-# Process multiplicities
-
-# Helper function to apply scaling factors for process type (RAW/CTF/REST) and detector, or override multiplicity set for individual process externally.
-N_F_REST=$MULTIPLICITY_FACTOR_REST
-N_F_RAW=$MULTIPLICITY_FACTOR_RAWDECODERS
-N_F_CTF=$MULTIPLICITY_FACTOR_CTFENCODERS
-
-N_TPCTRK=$NGPUS
-if [[ $OPTIMIZED_PARALLEL_ASYNC != 0 ]]; then
-  # Tuned multiplicities for async Pb-Pb processing
-  if [[ $SYNCMODE == "1" ]]; then echo "Must not use OPTIMIZED_PARALLEL_ASYNC with GPU or SYNCMODE" 1>&2; exit 1; fi
-  if [[ $NUMAGPUIDS != 0 ]]; then N_NUMAFACTOR=1; else N_NUMAFACTOR=2; fi
-  GPU_CONFIG_KEY+="GPU_proc.ompThreads=6;"
-  TRD_CONFIG_KEY+="GPU_proc.ompThreads=2;"
-  if [[ $GPUTYPE == "CPU" ]]; then
-    N_TPCENTDEC=$((2 * $N_NUMAFACTOR))
-    N_MFTTRK=$((3 * $N_NUMAFACTOR))
-    N_ITSTRK=$((3 * $N_NUMAFACTOR))
-    N_TPCITS=$((2 * $N_NUMAFACTOR))
-    N_MCHTRK=$((1 * $N_NUMAFACTOR))
-    N_TOFMATCH=$((9 * $N_NUMAFACTOR))
-    N_TPCTRK=$((6 * $N_NUMAFACTOR))
-  else
-    N_TPCENTDEC=$(math_max $((3 * $NGPUS * $OPTIMIZED_PARALLEL_ASYNC * $N_NUMAFACTOR / 4)) 1)
-    N_MFTTRK=$(math_max $((6 * $NGPUS * $OPTIMIZED_PARALLEL_ASYNC * $N_NUMAFACTOR / 4)) 1)
-    N_ITSTRK=$(math_max $((6 * $NGPUS * $OPTIMIZED_PARALLEL_ASYNC * $N_NUMAFACTOR / 4)) 1)
-    N_TPCITS=$(math_max $((4 * $NGPUS * $OPTIMIZED_PARALLEL_ASYNC * $N_NUMAFACTOR / 4)) 1)
-    N_MCHTRK=$(math_max $((2 * $NGPUS * $OPTIMIZED_PARALLEL_ASYNC * $N_NUMAFACTOR / 4)) 1)
-    N_TOFMATCH=$(math_max $((20 * $NGPUS * $OPTIMIZED_PARALLEL_ASYNC * $N_NUMAFACTOR / 4)) 1)
-  fi
-elif [[ $EPNPIPELINES != 0 ]]; then
-  # Tuned multiplicities for sync Pb-Pb processing
-  N_TPCENT=$(math_max $((3 * $EPNPIPELINES * $NGPUS / 4)) 1)
-  N_TPCITS=$(math_max $((3 * $EPNPIPELINES * $NGPUS / 4)) 1)
-  if [[ $BEAMTYPE == "pp" ]]; then
-    N_ITSTRK=$(math_max $((6 * $EPNPIPELINES * $NGPUS / 4)) 1)
-  else
-    N_ITSTRK=$(math_max $((2 * $EPNPIPELINES * $NGPUS / 4)) 1)
-  fi
-  N_ITSRAWDEC=$(math_max $((3 * $EPNPIPELINES * $NGPUS / 4)) 1)
-  N_EMCREC=$(math_max $((3 * $EPNPIPELINES * $NGPUS / 4)) 1)
-  N_TRDENT=$(math_max $((3 * $EPNPIPELINES * $NGPUS / 4)) 1)
-  N_TRDTRK=$(math_max $((3 * $EPNPIPELINES * $NGPUS / 4)) 1)
-  N_TPCRAWDEC=$(math_max $((12 * $EPNPIPELINES * $NGPUS / 4)) 1)
-  if [[ $GPUTYPE == "CPU" ]]; then
-    N_TPCTRK=8
-    GPU_CONFIG_KEY+="GPU_proc.ompThreads=4;"
-  fi
-  # Scale some multiplicities with the number of nodes
-  RECO_NUM_NODES_WORKFLOW_CMP=$((($RECO_NUM_NODES_WORKFLOW > 15 ? $RECO_NUM_NODES_WORKFLOW : 15) * ($NUMAGPUIDS != 0 ? 2 : 1))) # Limit the lower scaling factor, multiply by 2 if we have 2 NUMA domains
-  N_ITSRAWDEC=$(math_max $((3 * 60 / $RECO_NUM_NODES_WORKFLOW_CMP)) ${N_ITSRAWDEC:-1}) # This means, if we have 60 EPN nodes, we need at least 3 ITS RAW decoders
-  N_MFTRAWDEC=$(math_max $((3 * 60 / $RECO_NUM_NODES_WORKFLOW_CMP)) ${N_MFTRAWDEC:-1})
-  N_ITSTRK=$(math_max $((1 * 200 / $RECO_NUM_NODES_WORKFLOW_CMP)) ${N_ITSTRK:-1})
-  N_MFTTRK=$(math_max $((1 * 60 / $RECO_NUM_NODES_WORKFLOW_CMP)) ${N_MFTTRK:-1})
-  N_CTPRAWDEC=$(math_max $((1 * 30 / $RECO_NUM_NODES_WORKFLOW_CMP)) ${N_CTPRAWDEC:-1})
-  N_TRDRAWDEC=$(math_max $((3 * 60 / $RECO_NUM_NODES_WORKFLOW_CMP)) ${N_TRDRAWDEC:-1})
-  N_GENERICRAWDEV=
-fi
-N_MCHCL=2
-
-# ---------------------------------------------------------------------------------------------------------------------
 # Temporary extra options
 
 if has_processing_step MUON_SYNC_RECO; then
@@ -289,8 +235,8 @@ if has_processing_step MUON_SYNC_RECO; then
   [[ $RUNTYPE == "COSMICS" ]] && [[ -z $CONFIG_EXTRA_PROCESS_o2_mft_reco_workflow ]] && CONFIG_EXTRA_PROCESS_o2_mft_reco_workflow="MFTTracking.LTFclsRCut=0.2;MFTTracking.forceZeroField=true;MFTTracking.FullClusterScan=true"
 fi
 [[ "0$ED_VERTEX_MODE" == "01" ]] && has_detectors_reco ITS && has_detector_matching PRIMVTX && [[ ! -z "$VERTEXING_SOURCES" ]] && EVE_CONFIG+=" --primary-vertex-mode"
-[[ $EPNSYNCMODE == 1 ]] && [[ -z $CONFIG_EXTRA_PROCESS_o2_trd_global_tracking ]] && CONFIG_EXTRA_PROCESS_o2_trd_global_tracking='GPU_rec_trd.maxChi2=25;GPU_rec_trd.penaltyChi2=20;GPU_rec_trd.extraRoadY=4;GPU_rec_trd.extraRoadZ=10;GPU_rec_trd.applyDeflectionCut=0;GPU_rec_trd.trkltResRPhiIdeal=1'
-[[ $EPNSYNCMODE == 1 ]] && [[ -z $ARGS_EXTRA_PROCESS_o2_phos_reco_workflow ]] && ARGS_EXTRA_PROCESS_o2_phos_reco_workflow='--presamples 2 --fitmethod semigaus'
+[[ $SYNCRAWMODE == 1 ]] && [[ -z $CONFIG_EXTRA_PROCESS_o2_trd_global_tracking ]] && CONFIG_EXTRA_PROCESS_o2_trd_global_tracking='GPU_rec_trd.maxChi2=25;GPU_rec_trd.penaltyChi2=20;GPU_rec_trd.extraRoadY=4;GPU_rec_trd.extraRoadZ=10;GPU_rec_trd.applyDeflectionCut=0;GPU_rec_trd.trkltResRPhiIdeal=1'
+[[ $SYNCRAWMODE == 1 ]] && [[ -z $ARGS_EXTRA_PROCESS_o2_phos_reco_workflow ]] && ARGS_EXTRA_PROCESS_o2_phos_reco_workflow='--presamples 2 --fitmethod semigaus'
 
 # ---------------------------------------------------------------------------------------------------------------------
 # Start of workflow command generation
@@ -392,7 +338,7 @@ if [[ $CTFINPUT == 0 && $DIGITINPUT == 0 ]]; then
   has_detector TRD && add_W o2-trd-datareader "$TRD_DECODER_OPTIONS $DISABLE_ROOT_OUTPUT --pipeline $(get_N trd-datareader TRD RAW 1 TRDRAWDEC)" "" 0
   has_detector ZDC && add_W o2-zdc-raw2digits "$DISABLE_ROOT_OUTPUT --pipeline $(get_N zdc-datareader-dpl ZDC RAW 1)"
   has_detector HMP && add_W o2-hmpid-raw-to-digits-stream-workflow "--pipeline $(get_N HMP-RawStreamDecoder HMP RAW 1)"
-  has_detector CTP && add_W o2-ctp-reco-workflow "$CTP_CONFIG --ntf-to-average 1 --pipeline $(get_N ctp-raw-decoder CTP RAW 1)"
+  has_detector CTP && add_W o2-ctp-reco-workflow "$DISABLE_ROOT_OUTPUT $CTP_CONFIG --ntf-to-average 1 --pipeline $(get_N ctp-raw-decoder CTP RAW 1)"
   has_detector PHS && ! has_detector_flp_processing PHS && add_W o2-phos-reco-workflow "--input-type raw --output-type cells $DISABLE_DIGIT_ROOT_INPUT $DISABLE_ROOT_OUTPUT --pipeline $(get_N PHOSRawToCellConverterSpec PHS REST 1) $DISABLE_MC"
   has_detector CPV && add_W o2-cpv-reco-workflow "--input-type $CPV_INPUT --output-type clusters $DISABLE_DIGIT_ROOT_INPUT $DISABLE_ROOT_OUTPUT --pipeline $(get_N CPVRawToDigitConverterSpec CPV REST 1),$(get_N CPVClusterizerSpec CPV REST 1) $DISABLE_MC"
   has_detector EMC && ! has_detector_flp_processing EMC && add_W o2-emcal-reco-workflow "--input-type raw --output-type cells $EMCRAW2C_CONFIG $DISABLE_ROOT_OUTPUT $DISABLE_MC --pipeline $(get_N EMCALRawToCellConverterSpec EMC REST 1 EMCREC)"
@@ -404,9 +350,9 @@ fi
 (has_detector_reco TOF || has_detector_ctf TOF) && add_W o2-tof-reco-workflow "$TOF_CONFIG --input-type $TOF_INPUT --output-type $TOF_OUTPUT $DISABLE_DIGIT_ROOT_INPUT $DISABLE_ROOT_OUTPUT $DISABLE_MC --pipeline $(get_N tof-compressed-decoder TOF RAW 1),$(get_N TOFClusterer TOF REST 1)"
 has_detector_reco ITS && add_W o2-its-reco-workflow "--trackerCA $ITS_CONFIG $DISABLE_MC $DISABLE_DIGIT_CLUSTER_INPUT $DISABLE_ROOT_OUTPUT --pipeline $(get_N its-tracker ITS REST 1 ITSTRK)" "$ITS_CONFIG_KEY;$ITSMFT_STROBES"
 has_detector_reco FT0 && add_W o2-ft0-reco-workflow "$DISABLE_DIGIT_ROOT_INPUT $DISABLE_ROOT_OUTPUT $DISABLE_MC --pipeline $(get_N ft0-reconstructor FT0 REST 1)"
-has_detector_reco TRD && add_W o2-trd-tracklet-transformer "$DISABLE_DIGIT_ROOT_INPUT $DISABLE_ROOT_OUTPUT $DISABLE_MC $TRD_FILTER_CONFIG --pipeline $(get_N TRDTRACKLETTRANSFORMER TRD REST 1 TRDTRK)"
+has_detector_reco TRD && add_W o2-trd-tracklet-transformer "$DISABLE_DIGIT_ROOT_INPUT $DISABLE_ROOT_OUTPUT $DISABLE_MC $TRD_FILTER_CONFIG --pipeline $(get_N TRDTRACKLETTRANSFORMER TRD REST 1 TRDTRKTRANS)"
 has_detectors_reco ITS TPC && has_detector_matching ITSTPC && add_W o2-tpcits-match-workflow "$DISABLE_DIGIT_ROOT_INPUT $DISABLE_ROOT_OUTPUT $DISABLE_MC $SEND_ITSTPC_DTGL --pipeline $(get_N itstpc-track-matcher MATCH REST 1 TPCITS)" "$ITSMFT_STROBES"
-has_detector_reco TRD && [[ ! -z "$TRD_SOURCES" ]] && add_W o2-trd-global-tracking "$DISABLE_DIGIT_ROOT_INPUT $DISABLE_ROOT_OUTPUT $DISABLE_MC $TRD_CONFIG $TRD_FILTER_CONFIG --track-sources $TRD_SOURCES --pipeline $(get_N trd-globaltracking_TPC_ITS-TPC_ TRD REST 1)" "$TRD_CONFIG_KEY;$ITSMFT_STROBES"
+has_detector_reco TRD && [[ ! -z "$TRD_SOURCES" ]] && add_W o2-trd-global-tracking "$DISABLE_DIGIT_ROOT_INPUT $DISABLE_ROOT_OUTPUT $DISABLE_MC $TRD_CONFIG $TRD_FILTER_CONFIG --track-sources $TRD_SOURCES --pipeline $(get_N trd-globaltracking_TPC_ITS-TPC_ TRD REST 1 TRDTRK)" "$TRD_CONFIG_KEY;$ITSMFT_STROBES"
 has_detector_reco TOF && [[ ! -z "$TOF_SOURCES" ]] && add_W o2-tof-matcher-workflow "$DISABLE_DIGIT_ROOT_INPUT $DISABLE_ROOT_OUTPUT $DISABLE_MC --track-sources $TOF_SOURCES --pipeline $(get_N tof-matcher TOF REST 1 TOFMATCH)" "$ITSMFT_STROBES"
 has_detectors TPC && [ -z "$DISABLE_ROOT_OUTPUT" ] && add_W o2-tpc-reco-workflow "--input-type pass-through --output-type clusters,tracks,send-clusters-per-sector $DISABLE_MC"
 # ---------------------------------------------------------------------------------------------------------------------
