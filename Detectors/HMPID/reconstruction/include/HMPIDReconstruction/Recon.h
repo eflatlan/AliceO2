@@ -25,21 +25,21 @@ Changed from legacy physics classes TVector2 and TVector3 to Math/Vector3D
 Changed from legacy physics classes TRotaiton to Rotation 3D
 */
 
+// ef : cartiesian Vector3D class XYZVector;     // dirCkovTRS, dirCkovLORS + pc, rad in findPhotCkov
+
+// ef : polar Vector3D class Polar3DVector;      // fTrkDir, dirTRS, dirLORS, dirCkov + refract -> dir
+
+
 #include <TNamed.h> //base class
 
 // ef : change from TRotation legacy class
 #include <Math/GenVector/Rotation3D.h>
-#include "Math/GenVector/RotationX.h"
-#include "Math/GenVector/RotationY.h"
-#include "Math/GenVector/RotationZ.h"
+#include <Math/GenVector/RotationX.h>
+#include <Math/GenVector/RotationY.h>
+#include <Math/GenVector/RotationZ.h>
 
 // ef : new includes to replace TVector2/3
 #include <Math/Vector3D.h>
-#include "Math/Vector3D.h"
-
-// ef : cartiesian Vector3D class XYZVector;     // dirCkovTRS, dirCkovLORS + pc, rad in findPhotCkov
-
-// ef : polar Vector3D class Polar3DVector; // fTrkDir, dirTRS, dirLORS, dirCkov + refract -> dir
 
 #include <vector>
 // ef: using vectors instead of TClonesArray
@@ -48,9 +48,10 @@ Changed from legacy physics classes TRotaiton to Rotation 3D
 // ef: what is eq in O2?
 
 #include "HMPIDBase/Param.h"
-class Param;
 #include "DataFormatsHMP/Cluster.h"
 #include "ReconstructionDataFormats/Track.h"
+class Param;
+
 
 using Polar3DVector = ROOT::Math::Polar3DVector;
 
@@ -173,13 +174,12 @@ class Recon : public TNamed
   int fPhotCnt; // counter of photons candidate
 
   //  ef : changed to smart-pointer arrays
+  // int *fPhotFlag;
   std::unique_ptr<int[]> fPhotFlag;      // flags of photon candidates
   std::unique_ptr<int[]> fPhotClusIndex; // cluster index of photon candidates
   std::unique_ptr<double[]> fPhotCkov;   // Ckov angles of photon candidates, [rad]
   std::unique_ptr<double[]> fPhotPhi;    // phis of photons candidates, [rad]
   std::unique_ptr<double[]> fPhotWei;    // weigths of photon candidates
-
-  // int    *fPhotClusIndex;                     // cluster index of photon candidates
 
   double fCkovSigma2; // sigma2 of the reconstructed ring
 

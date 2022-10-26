@@ -19,17 +19,15 @@
 // HMPID class to perfom pattern recognition based on Hough transfrom    //
 // for single chamber                                                   //
 //////////////////////////////////////////////////////////////////////////
-#include "HMPIDBase/Param.h"
 #include "HMPIDReconstruction/Recon.h" //class header
 
-#include <TRotation.h> //TracePhot()
 #include <TH1D.h>      //HoughResponse()
-//#include <TClonesArray.h> //CkovAngle() ef : changed to std::vector
 
-//#include <AliESDtrack.h>     //CkovAngle() ef:?
+
+//#include <AliESDtrack.h>           //CkovAngle() ef:?
 //#include <AliESDfriendTrack.h>     //CkovAngle() ef:?
 
-#include "ReconstructionDataFormats/Track.h"
+
 
 /* ef :
   Changed from TCloneArrays of Cluster-pointers to vectors of clusters
@@ -49,7 +47,6 @@
 // 	changed AliESDtrack to TrackParCov (not sure if valid)
 
 // commented out addObjectToFriends
-
 // commented out deleteVars; not necessary to delete smart-pointers
 
 using namespace o2::hmpid;
