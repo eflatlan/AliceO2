@@ -25,26 +25,26 @@ Changed from legacy physics classes TVector2 and TVector3 to Math/Vector3D
 Changed from legacy physics classes TRotaiton to Rotation 3D
 */
 
-// ef : cartiesian Vector3D class XYZVector;     // dirCkovTRS, dirCkovLORS + pc, rad in findPhotCkov
+// ef: cartiesian Vector3D class XYZVector;     // dirCkovTRS, dirCkovLORS + pc, rad in findPhotCkov
 
-// ef : polar Vector3D class Polar3DVector;      // fTrkDir, dirTRS, dirLORS, dirCkov + refract -> dir
+// ef: polar Vector3D class Polar3DVector;      // fTrkDir, dirTRS, dirLORS, dirCkov + refract -> dir
 
 
 #include <TNamed.h> //base class
 
-// ef : change from TRotation legacy class
+// ef: change from TRotation legacy class
 #include <Math/GenVector/Rotation3D.h>
 #include <Math/GenVector/RotationX.h>
 #include <Math/GenVector/RotationY.h>
 #include <Math/GenVector/RotationZ.h>
 
-// ef : new includes to replace TVector2/3
+// ef: new includes to replace TVector2/3
 #include <Math/Vector3D.h>
 
 #include <vector>
 // ef: using vectors instead of TClonesArray
 
-// class AliESDtrack;  //CkovAngle() ef : commented out
+// class AliESDtrack;  //CkovAngle() ef: commented out
 // ef: what is eq in O2?
 
 #include "HMPIDBase/Param.h"
@@ -64,10 +64,10 @@ class Recon : public TNamed
  public:
   using TrackParCov = o2::track::TrackParCov;
 
-  // ef : moved Recon(): ctor from .cxx file
+  // ef: moved Recon(): ctor from .cxx file
   //             Recon() = default;
 
-  Recon() : TNamed("RichRec", "RichPat"), // ef : moved from cxx
+  Recon() : TNamed("RichRec", "RichPat"), // ef: moved from cxx
             fPhotCnt(-1),
             fPhotFlag(0x0),
             fPhotClusIndex(0x0),
@@ -97,10 +97,10 @@ class Recon : public TNamed
   ~Recon() = default;
   // virtual ~Recon() {;} //dtor
 
-  // ef : methods in these classeS?
+  // ef: methods in these classeS?
   void initVars(int n); // init space for variables
 
-  // ef : commented out: no need to delete variables when smart-pointer
+  // ef: commented out: no need to delete variables when smart-pointer
   // void deleteVars() const; // delete variables
 
   // void     CkovAngle    (AliESDtrack *pTrk,TClonesArray *pCluLst,int index,double nmean,float xRa,float yRa );
@@ -128,7 +128,7 @@ class Recon : public TNamed
   template <typename T = double>
   o2::math_utils::Vector2D<T> tracePhot(double ckovTh, double ckovPh) const; // trace photon created by track to PC
 
-  // ef : commented out addObjectToFriends
+  // ef: commented out addObjectToFriends
   // void     addObjectToFriends(TClonesArray *pCluLst, int photonIndex, AliESDtrack *pTrk   );     // Add AliHMPIDCluster object to ESD friends
   template <typename T = double>
   o2::math_utils::Vector2D<double> traceForward(Polar3DVector dirCkov) const;                  // tracing forward a photon from (x,y) to PC
@@ -173,7 +173,7 @@ class Recon : public TNamed
  protected:
   int fPhotCnt; // counter of photons candidate
 
-  //  ef : changed to smart-pointer arrays
+  //  ef: changed to smart-pointer arrays
   // int *fPhotFlag;
   std::unique_ptr<int[]> fPhotFlag;      // flags of photon candidates
   std::unique_ptr<int[]> fPhotClusIndex; // cluster index of photon candidates

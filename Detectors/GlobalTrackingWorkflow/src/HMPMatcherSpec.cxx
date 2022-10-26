@@ -104,7 +104,7 @@ void HMPMatcherSpec::run(ProcessingContext& pc)
   recoData.collectData(pc, *mDataRequest.get());
   
   auto creationTime = pc.services().get<o2::framework::TimingInfo>().creation;
-  // ef, was : 
+  // ef: was : 
   // DataRefUtils::getHeader<DataProcessingHeader*>(pc.inputs().getFirstValid(true))->creation;
 
   LOG(debug) << "isTrackSourceLoaded: TPC -> " << recoData.isTrackSourceLoaded(o2::dataformats::GlobalTrackID::Source::TPC);
@@ -128,8 +128,8 @@ void HMPMatcherSpec::run(ProcessingContext& pc)
     pc.outputs().snapshot(Output{o2::header::gDataOriginTOF, "MTC_TPC", ss, Lifetime::Timeframe}, mMatcher.getMatchedTrackVector(o2::dataformats::MatchInfoTOFReco::TrackType::TPC));
     if (mUseMC) {
       pc.outputs().snapshot(Output{o2::header::gDataOriginTOF, "MCMTC_TPC", ss, Lifetime::Timeframe}, mMatcher.getMatchedHMPLabelsVector(o2::dataformats::MatchInfoTOFReco::TrackType::TPC));
-      // ef : what should the namescope of TrackType be?
-    } // ef changed to getMatchedHMPLabelsVector
+      // ef: what should the namescope of TrackType be?
+    } // ef: changed to getMatchedHMPLabelsVector
 
     auto nmatch = mMatcher.getMatchedTrackVector(o2::dataformats::MatchInfoTOFReco::TrackType::TPC).size();
     if (mDoTPCRefit) {

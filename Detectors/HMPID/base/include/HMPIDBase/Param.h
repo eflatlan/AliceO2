@@ -17,7 +17,7 @@
 #include <TNamed.h>      //base class
 #include <TGeoManager.h> //Instance()
 
-// ef : to use XYZVector
+// ef: to use XYZVector
 #include <Math/Vector3D.h> //fields
 #include "Math/Vector3D.h" //fields
 
@@ -116,7 +116,7 @@ class Param
 
   // is the point in dead area?
   static bool isInDead(float x, float y)
-  { // ef : moved function-definition from cxx
+  { // ef: moved function-definition from cxx
     // Check is the current point is outside of sensitive area or in dead zones
     // Arguments: x,y -position
     //   Returns: 1 if not in sensitive zone
@@ -128,7 +128,7 @@ class Param
     return kTRUE;
   }
 
-  static bool isDeadPad(Int_t padx, Int_t pady, Int_t ch) // ef : moved function-definition from cxx
+  static bool isDeadPad(Int_t padx, Int_t pady, Int_t ch) // ef: moved function-definition from cxx
   {
 
     // Check is the current pad is active or not

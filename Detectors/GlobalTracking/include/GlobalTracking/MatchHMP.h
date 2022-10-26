@@ -36,7 +36,6 @@
 #include "CommonConstants/GeomConstants.h"
 #include "DetectorsBase/GeometryManager.h"
 
-#include "DataFormatsHMP/Cluster.h"
 #include "GlobalTracking/MatchTPCITS.h"
 #include "DataFormatsTPC/TrackTPC.h"
 #include "DataFormatsTRD/TrackTRD.h"
@@ -91,7 +90,7 @@ class MatchHMP
 {
 
   using Geo = o2::hmpid::Geo;
-  using Cluster = o2::hmpid::Cluster; // ef: not hmp
+  using Cluster = o2::hmpid::Cluster;
   using evGIdx = o2::dataformats::EvIndex<int, o2::dataformats::GlobalTrackID>;
   using evIdx = o2::dataformats::EvIndex<int, int>;
   using timeEst = o2::dataformats::TimeStampWithError<float, float>;
@@ -99,8 +98,7 @@ class MatchHMP
   using trkType = o2::dataformats::MatchInfoTOFReco::TrackType;
 
  public:
-  //  MatchHMP() = default;
-  // ~MatchHMP() = default;
+
   ///< perform matching for provided input
   void run(const o2::globaltracking::RecoContainer& inp);
 
@@ -291,9 +289,9 @@ class MatchHMP
 
   std::vector<int> mMatchedTracksIndex[trkType::SIZE]; // vector of indexes of the tracks to be matched
 
-  // ef : move to cxx
+  // ef: move to cxx
   // int mNumOfClusters;                   // number of clusters to be matched
-  // std::unique_ptr<int[]> mMatchedClustersIndex; //[mNumOfClusters] ef : change to smart-pointer
+  // std::unique_ptr<int[]> mMatchedClustersIndex; //[mNumOfClusters] ef: change to smart-pointer
   // int* mMatchedClustersIndex = nullptr; //[mNumOfClusters]
 
   std::unique_ptr<o2::utils::TreeStreamRedirector> mDBGOut;

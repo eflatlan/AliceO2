@@ -29,21 +29,21 @@
 
 
 
-/* ef :
+/* ef:
   Changed from TCloneArrays of Cluster-pointers to vectors of clusters
   changed par-names of cluster-pointers from pClu to cluster (name of cluster-object)
   Changed name of clusters from pCluLst (TCloneArrays) to clusters  (vector)
 */
 
-// ef : moved isInDead and isDeadPad from Param.cxx to h
+// ef: moved isInDead and isDeadPad from Param.cxx to h
 //      because they are inline-static
 
-// ef : changed all functions to cammelcase convention per coding-guidelines
+// ef: changed all functions to cammelcase convention per coding-guidelines
 
 // changed to smart-pointers
 // not totally sure whether the initialization and deletion of the vars in initialize() and delete()-function is the best way to do it
 
-// ef : commented out all usage of AliESDtrack pTrk;
+// ef: commented out all usage of AliESDtrack pTrk;
 // 	changed AliESDtrack to TrackParCov (not sure if valid)
 
 // commented out addObjectToFriends
@@ -92,7 +92,7 @@ void Recon::initVars(int n)
     return;
   }
 
-  // ef : changed to smart-pointer Array
+  // ef: changed to smart-pointer Array
   // fPhotFlag = new int[n];
   fPhotFlag = std::unique_ptr<int[]>(new int[n]);
   fPhotClusIndex = std::unique_ptr<int[]>(new int[n]);
@@ -104,7 +104,7 @@ void Recon::initVars(int n)
 }
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-// ef : commented out: no need to delete variables when smart-pointer
+// ef: commented out: no need to delete variables when smart-pointer
 /*void Recon::deleteVars() const
 {
   // ef: should not be done using this method?
@@ -113,7 +113,7 @@ void Recon::initVars(int n)
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // void Recon::cKovAngle(AliESDtrack *pTrk,TClonesArray *pCluLst,int index,double  nmean,float xRa,float yRa)
-void Recon::cKovAngle(TrackParCov trackParCov, const std::vector<o2::hmpid::Cluster>& clusters, int index, double nmean, float xRa, float yRa) // ef : Cammelcase convention
+void Recon::cKovAngle(TrackParCov trackParCov, const std::vector<o2::hmpid::Cluster>& clusters, int index, double nmean, float xRa, float yRa) // ef: Cammelcase convention
 {
   // Pattern recognition method based on Hough transform
   // Arguments:   pTrk     - track for which Ckov angle is to be found
@@ -128,9 +128,9 @@ void Recon::cKovAngle(TrackParCov trackParCov, const std::vector<o2::hmpid::Clus
 
   float xPc, yPc, th, ph;
 
-  // ef : commented out:
+  // ef: commented out:
   // pTrk->GetHMPIDtrk(xPc,yPc,th,ph);        //initialize this track: th and ph angles at middle of RAD
-  //  ef : AliESDtrack::GetHMPIDtrk
+  //  ef: AliESDtrack::GetHMPIDtrk
 
   setTrack(xRa, yRa, th, ph);
 
@@ -171,7 +171,7 @@ void Recon::cKovAngle(TrackParCov trackParCov, const std::vector<o2::hmpid::Clus
   // pTrk->SetHMPIDcluIdx(chId,index+1000*sizeClu);                                              //set index of cluster
 
   if (fPhotCnt < nMinPhotAcc) { // no reconstruction with <=3 photon candidates
-    /* ef : commented out :
+    /* ef: commented out :
       // pTrk->SetHMPIDsignal(kNoPhotAccept);                                                      //set the appropriate flag
     */
     return;
@@ -187,11 +187,11 @@ void Recon::cKovAngle(TrackParCov trackParCov, const std::vector<o2::hmpid::Clus
   }
   int iNrec = flagPhot(houghResponse(), clusters, trackParCov); // flag photons according to individual theta ckov with respect to most probable
 
-  /* ef : commented out :
+  /* ef: commented out :
     // pTrk->SetHMPIDmip(mipX,mipY,mipQ,iNrec);                                                  //store mip info
   */
   if (iNrec < nMinPhotAcc) { 
-    /* ef : commented out :
+    /* ef: commented out :
         // pTrk->SetHMPIDsignal(kNoPhotAccept);                                                    //no photon candidates are accepted
     */
     return;
@@ -359,8 +359,8 @@ void Recon::findRingGeom(double ckovAng, int level)
       if (!fParam->isInside(pos1.X(), pos1.Y(), 0)) {
         pos1 = intWithEdge(fMipPos, pos1); // find the very first intersection...
       } else {
-        if (!Param::isInDead(1.0f, 1.0f)) {// ef : moved method from Param.cxx to h
-          nPoints++;                      // photon is accepted if not in dead zone
+        if (!Param::isInDead(1.0f, 1.0f)) {// ef: moved method from Param.cxx to h
+          nPoints++;                       // photon is accepted if not in dead zone
         }
       }
       first = kTRUE;
@@ -499,7 +499,7 @@ int Recon::flagPhot(double ckov, const std::vector<o2::hmpid::Cluster>& clusters
     fPhotFlag[i] = 0;
     if (fPhotCkov[i] >= tmin && fPhotCkov[i] <= tmax) {
       fPhotFlag[i] = 2;
-      // addObjectToFriends(clusters, i, trackParCov); ef : commented out
+      // addObjectToFriends(clusters, i, trackParCov); ef: commented out
       iInsideCnt++;
     }
   }
@@ -509,7 +509,7 @@ int Recon::flagPhot(double ckov, const std::vector<o2::hmpid::Cluster>& clusters
 } // FlagPhot()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-// ef : commented out addObjectToFriends
+// ef: commented out addObjectToFriends
 // void  Recon::addObjectToFriends(TClonesArray *pCluLst, int photonIndex, AliESDtrack *pTrk)
 /*
 {
@@ -519,7 +519,7 @@ int Recon::flagPhot(double ckov, const std::vector<o2::hmpid::Cluster>& clusters
 
   // o2::hmpid::Cluster *pClu=(o2::hmpid::Cluster*)pCluLst->UncheckedAt(fPhotClusIndex[photonIndex]);
 
-  // o2::hmpid::Cluster *pClus = new o2::hmpid::Cluster(*pClu); // ef : old
+  // o2::hmpid::Cluster *pClus = new o2::hmpid::Cluster(*pClu); // ef: old
   cluster.setChi2(fPhotCkov[photonIndex]);
   // pTrk->AddCalibObject(pClus);   // AliESDtrack
 } */
@@ -585,14 +585,14 @@ double Recon::houghResponse()
   double kThetaMax = 0.75;
   int nChannels = (int)(kThetaMax / fDTheta + 0.5);
 
-  // ef : change to smart-pointer
+  // ef: change to smart-pointer
 
   std::unique_ptr<TH1D> phots, photsw, resultw;
   phots.reset(new TH1D("Rphot", "phots", nChannels, 0, kThetaMax));
   photsw.reset(new TH1D("RphotWeighted", "photsw", nChannels, 0, kThetaMax));
   resultw.reset(new TH1D("resultw", "resultw", nChannels, 0, kThetaMax));
 
-  /* ef : changed from this:
+  /* ef: changed from this:
   // TH1D *resultw = new TH1D("resultw","resultw"       ,nChannels,0,kThetaMax);
   // TH1D *phots   = new TH1D("Rphot"  ,"phots"         ,nChannels,0,kThetaMax);
   // TH1D *photsw  = new TH1D("RphotWeighted" ,"photsw" ,nChannels,0,kThetaMax); */
@@ -645,7 +645,7 @@ double Recon::houghResponse()
   }
   // evaluate the "BEST" theta ckov as the maximum value of histogramm
 
-  // ef : get() method should not be used to create new pointers for raw-pointers from smart-pointers,
+  // ef: get() method should not be used to create new pointers for raw-pointers from smart-pointers,
   // does this apply to the GetArray-method too?
   double* pVec = resultw->GetArray();
   int locMax = TMath::LocMax(nBin, pVec);
@@ -675,7 +675,7 @@ double Recon::findRingExt(double ckov, Int_t ch, double xPc, double yPc, double 
     for (int j = 0; j < nStep; j++) {
       math_utils::Vector2D<double> pos;
       pos = tracePhot(ckov, j * TMath::TwoPi() / (double)(nStep - 1));
-      if (Param::isInDead(pos.X(), pos.Y())) {// ef : moved method from Param.cxx to h
+      if (Param::isInDead(pos.X(), pos.Y())) {// ef: moved method from Param.cxx to h
         continue;                            
       }
       fParam->lors2Pad(pos.X(), pos.Y(), ipc, ipadx, ipady);
@@ -684,7 +684,7 @@ double Recon::findRingExt(double ckov, Int_t ch, double xPc, double yPc, double 
       if (ipadx < 0 || ipady > 160 || ipady < 0 || ipady > 144 || ch < 0 || ch > 6) {
         continue; 
       }
-      if (Param::isDeadPad(ipadx, ipady, ch)) {// ef : moved method from Param.cxx to h
+      if (Param::isDeadPad(ipadx, ipady, ch)) {// ef: moved method from Param.cxx to h
         continue;
       }
       nPhi++;

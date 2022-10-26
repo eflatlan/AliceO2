@@ -8,13 +8,16 @@
 // In applying this license CERN does not waive the privileges and immunities
 // granted to it by virtue of its status as an Intergovernmental Organization
 // or submit itself to any jurisdiction.
+
+#include "GlobalTracking/MatchHMP.h"
+
 #include <TTree.h>
 #include <cassert>
 
 #include "FairLogger.h"
 #include "Field/MagneticField.h"
 #include "Field/MagFieldFast.h"
-#include "TOFBase/Geo.h"
+//#include "TOFBase/Geo.h"
 
 #include "SimulationDataFormat/MCTruthContainer.h"
 
@@ -35,7 +38,7 @@
 #include "ReconstructionDataFormats/PID.h"
 #include "ReconstructionDataFormats/TrackLTIntegral.h"
 
-#include "GlobalTracking/MatchHMP.h"
+
 
 #include "TPCBase/ParameterGas.h"
 #include "TPCBase/ParameterElectronics.h"
@@ -102,7 +105,7 @@ void MatchHMP::run(const o2::globaltracking::RecoContainer& inp)
 
   mTimerTot.Start();
 
-  // if (!prepareFITData()) { ef : removed in HMP.h
+  // if (!prepareFITData()) { ef: removed in HMP.h
   //   return;
   // }
 
@@ -121,12 +124,12 @@ void MatchHMP::run(const o2::globaltracking::RecoContainer& inp)
 
     /*if (mIsTPCused) {
       mTimerMatchTPC.Start(sec == o2::constants::math::NSectors - 1);
-      // doMatchingForTPC(sec); ef : removed in HMP.h
+      // doMatchingForTPC(sec); ef: removed in HMP.h
       mTimerMatchTPC.Stop();
     }*/
 
     LOG(debug) << "...done. Now check the best matches";
-    // selectBestMatches(); ef : removed in HMP
+    // selectBestMatches(); ef: removed in HMP
   }
 
   // re-arrange outputs from constrained/unconstrained to the 4 cases (TPC, ITS-TPC, TPC-TRD, ITS-TPC-TRD) to be implemented as soon as TPC-TRD and ITS-TPC-TRD tracks available
@@ -259,32 +262,21 @@ bool MatchHMP::prepareHMPClusters()
     std::sort(indexCache.begin(), indexCache.end(), [this](int a, int b) {
       auto& clA = mHMPClusWork[a];
       auto& clB = mHMPClusWork[b];
-      // return (clA.getTime() - clB.getTime()) < 0.; fix ef: original statement
-      return 0; //(clA.getTime() - clB.getTime()) < 0.; //fix ef: o2::hmpid::Cluster
-    });         //    has no type getTime()
+      // fix ef: original statement: 
+      // return (clA.getTime() - clB.getTime()) < 0.;
+      return 0;					        //fix ef: o2::hmpid::Cluster
+    });         					//    has no type getTime()
   }             // loop over TOF clusters of single sector
 
   std::unique_ptr<int[]> mMatchedClustersIndex;
   mMatchedClustersIndex.reset(new int[mNumOfClusters]);
+  std::fill_n(mMatchedClustersIndex.get(), mNumOfClusters, -1);
 
-  /* ef : changed to smart/pointer
+  /* ef: changed to smart/pointer; not necessary to delete
   if (mMatchedClustersIndex) {
-    mMatchedClustersIndex;
-  } */
-  //= std::unique_ptr<int[]>(new int[mNumOfClusters]);  // ef : change to smart-pointer
-  // std::fill_n(mMatchedClustersIndex, mNumOfClusters, -1); // initializing all to -1
-
-  // ef : want to avoid raw-pointers,
-  // are any of the following valid? :
-
-  /*
-  for(auto& f : mMatchedClustersIndex){
-    f = -1;
+    delete[] mMatchedClustersIndex;
   } */
 
-  for (int n = 0; n < mNumOfClusters; n++) {
-    mMatchedClustersIndex[n] = -1;
-  }
 
   return true;
 }
@@ -412,15 +404,15 @@ void MatchHMP::doMatching(int cham)
     // compare the times of the track and the TOF clusters - remember that they both are ordered in time!
     // Printf("trefTOF.getTime() = %f, maxTrkTime = %f, minTrkTime = %f", trefTOF.getTime(), maxTrkTime, minTrkTime);
 
-    /* //</> ef start comment if :no function getTime in hmp-clusters
+    /* //</> ef: start comment if :no function getTime in hmp-clusters
     if (trefTOF.getTime() < minTrkTime) { // this cluster has a time that is too small for the current track, we will get to the next one
       //Printf("In trefTOF.getTime() < minTrkTime");
       ihmp0 = ihmp + 1; // but for the next track that we will check, we will ignore this cluster (the time is anyway too small)
       continue;
     } */
-    //</> ef end comment if
+    //</> ef: end comment if
 
-    // ef no method getTime in hmpid:
+    // ef: no method getTime in hmpid:
     // if (trefTOF.getTime() > maxTrkTime) { // no more TOF clusters can be matched to this track
     // break;
     //}
@@ -439,7 +431,7 @@ void MatchHMP::doMatching(int cham)
     // ef: o2::hmpid::Cluster
     // has no type isBitSet
     /* ef: uncomment later
-    if (trefTOF.isBitSet(/*o2::tof::Cluster::*kLeft)) { // ef : temporary workaround bc
+    if (trefTOF.isBitSet(/*o2::tof::Cluster::*kLeft)) { // ef: temporary workaround bc
       posCorr[0] += Geo::XPAD, ndigits++;	       // hmpid does not have enum-type
     }						       // for bit
     if (trefTOF.isBitSet(kUpLeft)) {
@@ -463,7 +455,7 @@ void MatchHMP::doMatching(int cham)
     if (trefTOF.isBitSet(kDownRight)) {
       posCorr[0] -= Geo::XPAD, posCorr[2] += Geo::ZPAD, ndigits++;
     } */
-    // ef uncomment later
+    // ef: uncomment later
     //</> ef: o2::hmpid::Cluster has no type isBitSet //</>
 
     float ndifInv = 1. / ndigits;
@@ -502,7 +494,7 @@ void MatchHMP::doMatching(int cham)
         // set event indexes (to be checked)
         int eventIndexTOFCluster = mHMPClusSectIndexCache[indices[0]][ihmp];
 
-  // ef commented out next line, no method named getTime()
+  // ef: commented out next line, no method named getTime()
         //mMatchedTracksPairs.emplace_back(cacheTrk[itrk], eventIndexTOFCluster, mHMPClusWork[cacheHMP[ihmp]].getTime(), chi2, trkLTInt[iPropagation], mTrackGid[type][cacheTrk[itrk]], type, (trefTOF.getTime() - (minTrkTime + maxTrkTime) * 0.5) * 1E-6, 0., resX, resZ); // TODO: check if this is correct!
       }
     }

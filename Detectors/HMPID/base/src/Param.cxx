@@ -24,11 +24,11 @@
 #include <TF1.h> //ctor
 #include <iostream>
 
-// ef : rotations
-#include <Math/GenVector/Rotation3D.h> //ef
-#include "Math/GenVector/RotationX.h"  //ef
-#include "Math/GenVector/RotationY.h"  //ef
-#include "Math/GenVector/RotationZ.h"  //ef
+// ef: rotations
+#include <Math/GenVector/Rotation3D.h>
+#include "Math/GenVector/RotationX.h"
+#include "Math/GenVector/RotationY.h"
+#include "Math/GenVector/RotationZ.h"
 
 using namespace o2::hmpid;
 
@@ -295,7 +295,7 @@ double Param::sigma2(double trkTheta, double trkPhi, double ckovTh, double ckovP
   //            MIP beta
   //   Returns: absolute error on Cerenkov angle, [radians]
 
-  // TVector3 v(-999, -999, -999); : ef : changed to :
+  // TVector3 v(-999, -999, -999); : ef: changed to :
   XYZVector v(-999, -999, -999);
 
   double trkBeta = 1. / (TMath::Cos(ckovTh) * getRefIdx());
@@ -307,9 +307,9 @@ double Param::sigma2(double trkTheta, double trkPhi, double ckovTh, double ckovP
     trkBeta = 0.0001; //
   }
 
-  // ef : why not initialize directly to these values?  //math_utils::Vector3D<double> v(sigLoc, sigGeom, sigCrom);
+  // ef: why not initialize directly to these values?  //math_utils::Vector3D<double> v(sigLoc, sigGeom, sigCrom);
 
-  // ef : following methods are valid for DisplacementVector3D
+  // ef: following methods are valid for DisplacementVector3D
   v.SetX(sigLoc(trkTheta, trkPhi, ckovTh, ckovPh, trkBeta));
   v.SetY(sigGeom(trkTheta, trkPhi, ckovTh, ckovPh, trkBeta));
   v.SetZ(sigCrom(trkTheta, trkPhi, ckovTh, ckovPh, trkBeta));
@@ -469,8 +469,8 @@ Param* Param::instanceNoGeo()
 } // Instance()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-/* ef : moved to header
-inline bool Param::isInDead(float x, float y) // ef : bool -> inline bool
+/* ef: moved to header
+inline bool Param::isInDead(float x, float y) // ef: bool -> inline bool
 {
   // Check is the current point is outside of sensitive area or in dead zones
   // Arguments: x,y -position
@@ -485,8 +485,8 @@ inline bool Param::isInDead(float x, float y) // ef : bool -> inline bool
 } */
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-/*ef : moved to header
-inline bool Param::isDeadPad(Int_t padx, Int_t pady, Int_t ch) // ef : bool -> inline bool
+/*ef: moved to header
+inline bool Param::isDeadPad(Int_t padx, Int_t pady, Int_t ch) // ef: bool -> inline bool
 {
   // Check is the current pad is active or not
   // Arguments: padx,pady pad integer coord
