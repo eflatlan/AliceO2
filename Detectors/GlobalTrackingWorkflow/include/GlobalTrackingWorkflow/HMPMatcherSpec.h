@@ -9,12 +9,14 @@
 // granted to it by virtue of its status as an Intergovernmental Organization
 // or submit itself to any jurisdiction.
 
-/// @file   HMPMatcherSpec.h // ef ; change to hmp
+/// @file   HMPMatcherSpec.h //
 
 #ifndef O2_HMP_MATCHER_SPEC // hmp
 #define O2_HMP_MATCHER_SPEC //
 
 #include "Framework/DataProcessorSpec.h"
+
+// ef:include should be removed; but for now needed in cxx: MatchInfoTOFReco
 #include "ReconstructionDataFormats/MatchInfoTOFReco.h"
 
 using namespace o2::framework;

@@ -10,6 +10,7 @@
 // or submit itself to any jurisdiction.
 
 /// @file   HMPMatcherSpec.cxx
+#include "GlobalTrackingWorkflow/HMPMatcherSpec.h"
 
 #include <vector>
 #include <string>
@@ -36,7 +37,7 @@
 // from HMPID
 #include "DataFormatsHMP/Cluster.h"
 #include "GlobalTracking/MatchHMP.h"
-#include "GlobalTrackingWorkflow/HMPMatcherSpec.h"
+
 
 using namespace o2::framework;
 // using MCLabelsTr = gsl::span<const o2::MCCompLabel>;
@@ -101,8 +102,10 @@ void HMPMatcherSpec::run(ProcessingContext& pc)
 
   RecoContainer recoData;
   recoData.collectData(pc, *mDataRequest.get());
-
-  auto creationTime = DataRefUtils::getHeader<DataProcessingHeader*>(pc.inputs().getFirstValid(true))->creation;
+  
+  auto creationTime = pc.services().get<o2::framework::TimingInfo>().creation;
+  // ef, was : 
+  // DataRefUtils::getHeader<DataProcessingHeader*>(pc.inputs().getFirstValid(true))->creation;
 
   LOG(debug) << "isTrackSourceLoaded: TPC -> " << recoData.isTrackSourceLoaded(o2::dataformats::GlobalTrackID::Source::TPC);
   LOG(debug) << "isTrackSourceLoaded: ITSTPC -> " << recoData.isTrackSourceLoaded(o2::dataformats::GlobalTrackID::Source::ITSTPC);
