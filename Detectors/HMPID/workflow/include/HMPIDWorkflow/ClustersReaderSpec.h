@@ -25,12 +25,14 @@
 
 #include "Framework/DataProcessorSpec.h"
 #include "Framework/Task.h"
+#include "Framework/WorkflowSpec.h"
 
 #include "HMPIDBase/Common.h"
+#include "HMPIDBase/Geo.h"
 #include "HMPIDReconstruction/Clusterer.h"
-#include <DataFormatsHMP/Cluster.h>
-#include <DataFormatsHMP/Trigger.h>
-#include "Framework/WorkflowSpec.h"
+#include "DataFormatsHMP/Cluster.h"
+#include "DataFormatsHMP/Trigger.h"
+
 
 namespace o2
 {

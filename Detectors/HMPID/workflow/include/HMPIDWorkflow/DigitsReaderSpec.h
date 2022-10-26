@@ -27,10 +27,8 @@
 #include "Framework/Task.h"
 
 #include "HMPIDBase/Common.h"
-//#include "HMPIDReconstruction/Clusterer.h"
-//#include <DataFormatsHMP/Cluster.h>
-#include <DataFormatsHMP/Digit.h>
-#include <DataFormatsHMP/Trigger.h>
+#include "DataFormatsHMP/Digit.h"
+#include "DataFormatsHMP/Trigger.h"
 #include "Framework/WorkflowSpec.h"
 
 namespace o2

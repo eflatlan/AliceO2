@@ -12,6 +12,8 @@
 /// \file DigitsToClustersSpec.cxx
 /// \brief Implementation of clusterization for HMPID; read upstream/from file write upstream/to file
 
+#include "HMPIDWorkflow/DigitsToClustersSpec.h"
+
 #include <array>
 #include <fstream>
 #include <functional>
@@ -23,24 +25,15 @@
 #include "Framework/CallbackService.h"
 #include "Framework/ConfigParamRegistry.h"
 #include "Framework/ControlService.h"
-#include "Framework/DataProcessorSpec.h"
 #include "Framework/DataRefUtils.h"
 #include "Framework/InputRecordWalker.h"
 #include "Framework/Lifetime.h"
 #include "Framework/Logger.h"
 #include "Framework/Output.h"
-#include "Framework/Task.h"
-#include "Framework/WorkflowSpec.h"
-#include "HMPIDWorkflow/DigitsToClustersSpec.h"
 
 #include "DPLUtils/DPLRawParser.h"
 #include "DetectorsRaw/RDHUtils.h"
 #include "Headers/RAWDataHeader.h"
-
-#include "DataFormatsHMP/Cluster.h"
-#include "DataFormatsHMP/Digit.h"
-#include "DataFormatsHMP/Trigger.h"
-#include "HMPIDBase/Geo.h"
 
 #include "CommonUtils/NameConf.h" // ef : o2::utils::Str
 

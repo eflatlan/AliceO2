@@ -16,6 +16,8 @@
 /// \brief Implementation of a data processor to read Digits tree and provide the array for further usage
 ///
 
+#include "HMPIDWorkflow/DigitsReaderSpec.h"
+
 #include <random>
 #include <iostream>
 #include <fstream>
@@ -29,10 +31,8 @@
 #include "Framework/CallbackService.h"
 #include "Framework/ConfigParamRegistry.h"
 #include "Framework/ControlService.h"
-#include "Framework/DataProcessorSpec.h"
 #include "Framework/Lifetime.h"
 #include "Framework/Output.h"
-#include "Framework/Task.h"
 #include "Framework/WorkflowSpec.h"
 #include "Framework/Logger.h"
 #include "Framework/DataRefUtils.h"
@@ -42,11 +42,10 @@
 #include "DetectorsRaw/RDHUtils.h"
 #include "DPLUtils/DPLRawParser.h"
 
-//#include "DataFormatsHMP/Trigger.h"
-//#include "DataFormatsHMP/Digits.h"
+
 #include "HMPIDBase/Geo.h"
 
-#include "HMPIDWorkflow/DigitsReaderSpec.h"
+
 
 namespace o2
 {

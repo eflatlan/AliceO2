@@ -17,11 +17,14 @@
 
 #include "Framework/DataProcessorSpec.h"
 #include "Framework/Task.h"
-
 #include "Framework/WorkflowSpec.h"
+
 #include "HMPIDBase/Common.h"
 #include "HMPIDReconstruction/Clusterer.h"
+#include "DataFormatsHMP/Cluster.h"
+#include "DataFormatsHMP/Digit.h"
 #include "DataFormatsHMP/Trigger.h"
+#include "HMPIDBase/Geo.h"
 
 #include "TFile.h"
 #include "TTree.h"
