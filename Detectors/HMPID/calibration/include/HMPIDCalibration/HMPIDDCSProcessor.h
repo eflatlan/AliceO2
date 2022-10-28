@@ -224,10 +224,11 @@ class HMPIDDCSProcessor
         const char* strExpected = Form("HMP_QthreC%iS%i", iCh, iSec);
 
         if (strcmp(strCCDB, strExpected) != 0) {
-          arQthreFull = false;
+          arQthreFull = false; 
+          // ef: raise warning here? (in practice this should already be done in 
+          //                          .cxx in case of a nullptr)
           LOG(info) << "arQthre at " << 6 * iCh + iSec << "empty";
         }
-        // if(tf.Getr)
       }
     }
 
@@ -249,6 +250,8 @@ class HMPIDDCSProcessor
         }
         if (strcmp(strCcdbinOut, strExpectedOut) != 0) {
           arNmeanFull = false;
+          // ef: raise warning here? (in practice this should already be done in 
+          //                          .cxx in case of a nullptr)
           LOG(info) << "arNmean at " << 6 * iCh + 2 * iRad + 1 << " empty";
         }
       }
@@ -257,7 +260,9 @@ class HMPIDDCSProcessor
     if (strcmp((arrayNmean[42]).GetName(), "HMP_PhotEmean") != 0) {
       arNmeanFull = false;
     }
-
+    
+    // ef: can probably remove the following lines, and instead raise warning if there
+    // is any missing values ?
     if (arQthreFull && mVerbose) {
       LOG(info) << "arQthre Full Sized";
     }

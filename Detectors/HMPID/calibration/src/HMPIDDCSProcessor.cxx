@@ -68,8 +68,8 @@ void HMPIDDCSProcessor::process(const gsl::span<const DPCOM> dps)
       processTRANS(dp);
     } else if (detectorId == HMPID_ID) {
       processHMPID(dp);
-    } else {
-      LOG(debug) << "Unknown data point: " << alias;
+    } else { // ef: change to warn(?)
+      LOG(warn) << "Unknown data point: " << alias;
     }
   } // end for
 }
@@ -107,8 +107,8 @@ void HMPIDDCSProcessor::processHMPID(const DPCOM& dp)
       LOG(info) << "Chamber Pressure DP: " << alias;
     }
     fillChPressure(dp);
-  } else {
-    LOG(info) << "Unknown data point: " << alias;
+  } else { // ef: change to warn(?) 
+    LOG(warn) << "Unknown data point: " << alias;
   }
 }
 
@@ -307,10 +307,11 @@ double HMPIDDCSProcessor::procTrans()
     // ===== evaluate phototube current for argon reference
     // ==============================================================
     refArgon = dpVector2Double(argonRefVec[i], "ARGONREF", i);
-    if (refArgon == eMeanDefault) {
+    if (refArgon == eMeanDefault) { /*
       if (mVerbose) {  //ef: default mean value is used, should warning be raised?
         LOG(info) << "refArgon == defaultEMean()";
-      }
+      } */
+      LOG(warn) << "refArgon == defaultEMean()";
       return defaultEMean();
     }
 
@@ -380,16 +381,22 @@ double HMPIDDCSProcessor::procTrans()
 
   if (sProb > 0) {
     eMean = sEnergProb / sProb;
-  } else { 
-    if (mVerbose) {               // ef : remove mVerbose here? 
-      LOG(warn) << " sProb < 0 "; // (and change to warn)
-    }
+  } else {
+    
+    /* ef: was this:
+    if (mVerbose) {               
+      LOG(warn) << " sProb < 0 "; // 
+    }*/
+
+    // ef : remove mVerbose here? (and change to warn)
+    LOG(warn) << " sProb < 0 ";
     return defaultEMean();
   }
 
+  // ef: change to warn?
   if (eMean < o2::hmpid::Param::ePhotMin() ||
-      eMean > o2::hmpid::Param::ePhotMax()) { // ef: change to warn?
-    LOG(info) << " eMean out of range " << eMean;
+      eMean > o2::hmpid::Param::ePhotMax()) { 
+    LOG(warn) << " eMean out of range " << eMean;
     return defaultEMean();
   }
 
@@ -401,8 +408,9 @@ double HMPIDDCSProcessor::procTrans()
 
 double HMPIDDCSProcessor::defaultEMean()
 {
+  //ef: remove mVerbose, and use warn?
   if (mVerbose) {
-    LOG(info) << Form(" Mean energy photon calculated ---> %f eV ", eMeanDefault);
+    LOG(warn) << Form(" Mean energy photon calculated ---> %f eV ", eMeanDefault);
   }
   return eMeanDefault;
 }
@@ -592,7 +600,7 @@ std::unique_ptr<TF1> HMPIDDCSProcessor::finalizeChPressure(int iCh)
     }
     return pCh;
   }
-  LOG(warn) << Form("no entries in chPres for Pch%i", iCh);
+  LOG(warn) << Form("no entries in chamber-pressure for Pch%i", iCh);
 
   return pCh;
 }
@@ -632,7 +640,7 @@ void HMPIDDCSProcessor::finalizeTempOut(int iCh, int iRad)
       "Temp-Out Fit Chamber%i Radiator%i; Time [ms];Temp [C]", iCh, iRad));
     arNmean[6 * iCh + 2 * iRad + 1] = *(pTout.get());
   } else {
-    LOG(warn) << Form("No entries in temp-out for ch%irad%i", iCh, iRad);
+    LOG(warn) << Form("No entries in Temperature out for ch%irad%i", iCh, iRad);
   }
 }
 
@@ -673,7 +681,7 @@ void HMPIDDCSProcessor::finalizeTempIn(int iCh, int iRad)
     arNmean[6 * iCh + 2 * iRad] = *(pTin.get());
 
   } else {
-    LOG(warn) << Form("No entries in temp-in for ch%irad%i", iCh, iRad);
+    LOG(warn) << Form("No entries in Temperature In for ch%irad%i", iCh, iRad);
   }
 }
 
@@ -711,7 +719,7 @@ std::unique_ptr<TF1> HMPIDDCSProcessor::finalizeHv(int iCh, int iSec)
 
     return pHvTF;
   }
-  LOG(warn) << Form("No entries in HV for ch%isec%i", iCh, iSec);
+  LOG(warn) << Form("No entries in High Voltage for HVch%isec%i", iCh, iSec);
   return pHvTF;
 }
 
@@ -740,8 +748,8 @@ void HMPIDDCSProcessor::finalize()
 
       // only fill if envP, chamP and HV datapoints are all fetched
       LOGP(info, "Finalize ch={} sec={}, pEnv={} pChPres={} pHV={}", iCh, iSec, (void*)pEnv.get(), (void*)pChPres.get(), (void*)pHV.get());
-      if (pEnv != nullptr && pChPres != nullptr && pHV != nullptr) {
 
+      if (pEnv != nullptr && pChPres != nullptr && pHV != nullptr) {
         const char* hvChar = (pArrHv[3 * iCh + iSec]).GetName();
         const char* chChar = (pArrCh[iCh]).GetName();
         const char* envChar = (pEnv.get())->GetName();
@@ -768,10 +776,10 @@ void HMPIDDCSProcessor::finalize()
 	  LOG(warn) << "Missing entries for environment-pressure";
         }
         if(pChPres == nullptr){
-          LOGP(warn, "Missing entries for chamber-pressure ", iCh);
+          LOGP(warn, "Missing entries for chamber-pressure P{}", iCh, iCh);
         }
         if(pChPres == nullptr){
-          LOGP(warn, "Missing entries HV chamber{} sector{} ", iCh, iSec);
+          LOGP(warn, "Missing entries High Voltage HVch{}sec{}", iCh, iSec);
         }
       }
     }
