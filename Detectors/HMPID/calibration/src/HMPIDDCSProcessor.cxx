@@ -68,7 +68,7 @@ void HMPIDDCSProcessor::process(const gsl::span<const DPCOM> dps)
       processTRANS(dp);
     } else if (detectorId == HMPID_ID) {
       processHMPID(dp);
-    } else { // ef: changed to warn and      - unkown==>missing data point
+    } else { // ef: changed to warn and unkown DP==>missing DP
       LOG(warn) << "Missing data point: " << alias;
     }
   } // end for
@@ -107,7 +107,7 @@ void HMPIDDCSProcessor::processHMPID(const DPCOM& dp)
       LOG(info) << "Chamber Pressure DP: " << alias;
     }
     fillChPressure(dp);
-  } else { // ef: changed to warn and      - unkown==>missing data point
+  } else { // ef: changed to warn and unkown DP ==> missing data DP
     LOG(warn) << "Missing data point: " << alias;
   }
 }
@@ -165,12 +165,10 @@ void HMPIDDCSProcessor::processTRANS(const DPCOM& dp)
       if (mVerbose) {
         LOG(info) << "FREON_REF_ID DP: " << alias;
       }
-    } else {
-      if (mVerbose) {
-        LOG(info) << "Unknown data point: " << alias;
-      }
+    } else {  // ef: remove mVerbose, change to warn, and DP not found ==> Missing DP
+      LOG(warn) << "Missing Data point: " << alias;
     }
-  } else {  // ef:change to warn and DP not found ==> Missing Data-Point 
+  } else {  // ef:change to warn and DP not found ==> Missing DP
     LOG(warn) << "Missing Data point: " << alias;
   }
 }
@@ -311,10 +309,8 @@ double HMPIDDCSProcessor::procTrans()
     // not really necessary to raise exception here?
     refArgon = dpVector2Double(argonRefVec[i], "ARGONREF", i);
     if (refArgon == eMeanDefault) { 
-      /*
-      if (mVerbose) {  //ef: default mean value is used, should warning be raised?
-        LOG(info) << "refArgon == defaultEMean()";
-      } */
+      //ef: default mean value is used; removed mVerbose
+      //ef: changed to warn, but can be removed since the warning is done in dpVector2Double
       LOG(warn) << "refArgon == defaultEMean()";
       return defaultEMean();
     }
@@ -387,13 +383,7 @@ double HMPIDDCSProcessor::procTrans()
   if (sProb > 0) {
     eMean = sEnergProb / sProb;
   } else {
-    
-    /* ef: was this:
-    if (mVerbose) {               
-      LOG(warn) << " sProb < 0 "; // 
-    }*/
-    
-    // ef: change to: remove mVerbose and change to warn
+    // ef: removed mVerbose and changed to warn
     LOG(warn) << " sProb < 0 ";
     return defaultEMean();
   }
@@ -413,7 +403,8 @@ double HMPIDDCSProcessor::procTrans()
 
 double HMPIDDCSProcessor::defaultEMean()
 {
-  //ef: remove mVerbose, and use warn?
+  //ef: changed to warn, 
+  //    not removing mVerbose, as it could be called very often
   if (mVerbose) {
     LOG(warn) << Form(" Mean energy photon calculated ---> %f eV ", eMeanDefault);
   }
@@ -440,6 +431,8 @@ double HMPIDDCSProcessor::calculatePhotonEnergy(int i)
     return defaultEMean();
   }
 
+
+  // ef: can remove this?
   if (lambda < 150. || lambda > 230.) {
     LOG(warn) << Form("Wrong value for HMP_TRANPLANT_MEASURE_%i_WAVELENGTH --> Default E mean used!", i);
     return defaultEMean();
@@ -502,10 +495,8 @@ bool HMPIDDCSProcessor::evalCorrFactor(double dRefArgon, double dCellArgon,
     aTransRad = TMath::Power((dCellFreon / dRefFreon) /
                                (dCellArgon / dRefArgon) * aCorrFactor[i],
                              aConvFactor);
-  } else { 	     // ef: remove if mVerbose here?
-    if (mVerbose) {  // (throw the warning even w/o verbose option)
-      LOG(warn) << "dRefFreon*dRefArgon<0" << dRefFreon * dRefArgon;
-    }
+  } else { // ef: removed if mVerbose
+    LOG(warn) << "dRefFreon*dRefArgon<0" << dRefFreon * dRefArgon;    
     return false;
   }
 
@@ -555,7 +546,11 @@ std::unique_ptr<TF1> HMPIDDCSProcessor::finalizeEnvPressure()
     }
     // envPrLastTime -= envPrFirstTime;
     // envPrFirstTime = 0;
-    if (cntEnvPressure == 1) {
+ 
+    // pEnv should not be checked for if nullptr yet, because it will only be defined if the else if or else in the following block is executed:
+    if(pGrPenv != nullptr || cntEnvPressure <= 0){
+      LOGP(warn, "NullPtr in Environment Pressure");
+    } else if (cntEnvPressure == 1) {
       pGrPenv->GetPoint(0, xP, yP);
       pEnv.reset(
         new TF1("Penv", Form("%f", yP), envPrFirstTime, envPrLastTime));
@@ -565,6 +560,10 @@ std::unique_ptr<TF1> HMPIDDCSProcessor::finalizeEnvPressure()
       pEnv.reset(new TF1("Penv", "1000+x*[0]", envPrFirstTime, envPrLastTime));
       pGrPenv->Fit("Penv", "Q");
     }
+    
+    // ef: returning nullptr is fine! because,
+    // it is checked for in the finalize()
+     
     return pEnv;
   }
   LOG(warn) << Form("No entries in environment pressure");
@@ -592,16 +591,38 @@ std::unique_ptr<TF1> HMPIDDCSProcessor::finalizeChPressure(int iCh)
     }
     // chPrLastTime -= chPrFirstTime;
     // chPrFirstTime = 0;
-    if (cntChPressure == 1) {
+    
+    // ef: can we instead of using the smart-pointer arrays, simply call the functions and return the smart-pointer for each iteration?
+    
+
+    // ef: would this lead to problems based on the 
+    if(pGrP == nullptr || cntChPressure <= 0){
+      LOG(warn) << Form("nullptr in chamber-pressure for Pch%i", iCh);
+      
+    } else if (cntChPressure == 1) {
       pGrP->GetPoint(0, xP, yP);
       (pCh).reset(new TF1(Form("P%i", iCh), Form("%f", yP), chPrFirstTime,
                           chPrLastTime));
-      pArrCh[iCh] = *(pCh.get());
+      // ef: have to  check for nullptr, because we not can dereference nullptr
+      //  (so not equivalent to the environment-pressure)
+      if(pCh != nullptr){
+        pArrCh[iCh] = *(pCh.get());
+      } else{
+        LOG(warn) << Form("nullptr in chamber-pressure for Pch%i", iCh);
+      }
+
     } else {
       (pCh).reset(new TF1(Form("P%i", iCh), "[0] + x*[1]", chPrFirstTime,
                           chPrLastTime));
       pGrP->Fit(Form("P%i", iCh), "Q");
-      pArrCh[iCh] = *(pCh.get());
+
+      // ef: have to  check for nullptr, because we not can dereference nullptr
+      //  (so not equivalent to the environment-pressure)
+      if(pCh != nullptr){
+        pArrCh[iCh] = *(pCh.get());
+      } else{
+        LOG(warn) << Form("nullptr in chamber-pressure for Pch%i", iCh);
+      }
     }
     return pCh;
   }
@@ -621,7 +642,7 @@ void HMPIDDCSProcessor::finalizeTempOut(int iCh, int iRad)
 
     std::unique_ptr<TGraph> pGrTOut;
     pGrTOut.reset(new TGraph);
-
+    
     for (DPCOM dp : dpVecTempOut[3 * iCh + iRad]) {
       auto dpVal = o2::dcs::getValue<double>(dp);
       auto time = dp.data.get_epoch_time(); // -minTime
@@ -633,17 +654,28 @@ void HMPIDDCSProcessor::finalizeTempOut(int iCh, int iRad)
     pTout.reset(
       new TF1(Form("Tout%i%i", iCh, iRad), "[0]+[1]*x", minTime, maxTime));
 
-    if (cntTOut == 1) {
+    // ef: here CCDB-entry will be nullptr if if-case is true
+    // this is ok, because on the receiving side of the object, we will check
+    // if the entry is nullptr, and in that case use a default value 
+    if(pTout == nullptr || pGrTOut == nullptr || cntTOut <=0 ){
+      LOGP(warn, "NullPtr in Temperature out Tout{}", iCh);
+    } else if (cntTOut == 1) {
       pGrTOut->GetPoint(0, xP, yP);
       pTout->SetParameter(0, yP);
       pTout->SetParameter(1, 0);
-
-    } else {
+    } else { // EF: return nullptr if no entreis in 
       pGrTOut->Fit(Form("Tout%i%i", iCh, iRad), "R");
     }
-    pTout->SetTitle(Form(
-      "Temp-Out Fit Chamber%i Radiator%i; Time [ms];Temp [C]", iCh, iRad));
-    arNmean[6 * iCh + 2 * iRad + 1] = *(pTout.get());
+
+    //ef: in this case everything is ok, and we can set title and put entry in CCDB:
+    // have to check all for nullptr, because pTout is defined before if/else block,
+    // and thus will not be nullptr no matter the outcome of the if/else block 
+    if(pTout != nullptr && pGrTOut != nullptr && cntTOut > 0 ){
+      pTout->SetTitle(Form("Temp-Out Fit Chamber%i Radiator%i; Time [ms];Temp [C]", iCh, iRad));
+      arNmean[6 * iCh + 2 * iRad + 1] = *(pTout.get());
+    }
+    
+    
   } else {
     LOG(warn) << Form("No entries in Temperature out for ch%irad%i", iCh, iRad);
   }
@@ -673,7 +705,9 @@ void HMPIDDCSProcessor::finalizeTempIn(int iCh, int iRad)
     pTin.reset(
       new TF1(Form("Tin%i%i", iCh, iRad), "[0]+[1]*x", minTime, maxTime));
 
-    if (cntTin == 1) {
+    if(pTin == nullptr || pGrTIn == nullptr || cntTin <=0 ){
+      LOGP(warn, "NullPtr in Temperature out Tout{}", iCh);
+    } else if (cntTin == 1) {
       pGrTIn->GetPoint(0, xP, yP);
       pTin->SetParameter(0, yP);
       pTin->SetParameter(1, 0);
@@ -681,9 +715,11 @@ void HMPIDDCSProcessor::finalizeTempIn(int iCh, int iRad)
       pGrTIn->Fit(Form("Tin%i%i", iCh, iRad), "Q");
     }
 
-    pTin->SetTitle(Form("Temp-In Fit Chamber%i Radiator%i; Time [ms]; Temp [C]",
+    if(pTin != nullptr && pGrTIn != nullptr && cntTin > 0 ){
+      pTin->SetTitle(Form("Temp-In Fit Chamber%i Radiator%i; Time [ms]; Temp [C]",
                         iCh, iRad));
-    arNmean[6 * iCh + 2 * iRad] = *(pTin.get());
+      arNmean[6 * iCh + 2 * iRad] = *(pTin.get());
+    }
 
   } else {
     LOG(warn) << Form("No entries in Temperature In for ch%irad%i", iCh, iRad);
@@ -710,16 +746,34 @@ std::unique_ptr<TF1> HMPIDDCSProcessor::finalizeHv(int iCh, int iSec)
     }
     // hvLastTime -= hvFirstTime;
     // hvFirstTime = 0;
-    if (cntHV == 1) {
+    
+
+    // ef: can not check pHvTF for nullptr, because it is defined based on the 
+    // the outcome of the following if-block
+    if(pGrHV == nullptr || cntHV <= 0){
+      LOG(warn) << Form("nullptr in High Voltage for HVch%isec%i", iCh, iSec);
+    } else if (cntHV == 1) {
       pGrHV->GetPoint(0, xP, yP);
+
+
       (pHvTF).reset(new TF1(Form("HV%i_%i", iCh, iSec), Form("%f", yP),
                             hvFirstTime, hvLastTime));
-      pArrHv[3 * iCh + iSec] = *(pHvTF.get());
+      if(pHvTF!=nullptr){
+        pArrHv[3 * iCh + iSec] = *(pHvTF.get());
+      } else{
+        LOG(warn) << Form("nullptr in High Voltage for HVch%isec%i", iCh, iSec);
+      }
+
     } else {
       (pHvTF).reset(new TF1(Form("HV%i_%i", iCh, iSec), "[0]+x*[1]",
                             hvFirstTime, hvLastTime));
-      pGrHV->Fit(Form("HV%i_%i", iCh, iSec), "Q");
-      pArrHv[3 * iCh + iSec] = *(pHvTF.get());
+
+      if(pHvTF!=nullptr){
+        pGrHV->Fit(Form("HV%i_%i", iCh, iSec), "Q");
+        pArrHv[3 * iCh + iSec] = *(pHvTF.get());
+      } else{
+        LOG(warn) << Form("nullptr in High Voltage for HVch%isec%i", iCh, iSec);
+      }
     }
 
     return pHvTF;
@@ -756,8 +810,8 @@ void HMPIDDCSProcessor::finalize()
 
       // only fill if envP, chamP and HV datapoints are all fetched
       if (pEnv != nullptr && pChPres != nullptr && pHV != nullptr) {
-        const char* hvChar = (pArrHv[3 * iCh + iSec]).GetName();
-        const char* chChar = (pArrCh[iCh]).GetName();
+        const char* hvChar = (pHV.get())->GetName();     // pArrHv[3 * iCh + iSec]
+        const char* chChar = (pChPres.get())->GetName(); //pArrCh[iCh]
         const char* envChar = (pEnv.get())->GetName();
         const char* fFormula =
           "3*10^(3.01e-3*%s - 4.72)+170745848*exp(-(%s+%s)*0.0162012)";
