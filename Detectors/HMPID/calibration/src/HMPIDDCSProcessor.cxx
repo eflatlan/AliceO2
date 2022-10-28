@@ -170,7 +170,7 @@ void HMPIDDCSProcessor::processTRANS(const DPCOM& dp)
         LOG(info) << "Unknown data point: " << alias;
       }
     }
-  } else {
+  } else {  // ef:change to warning?
     LOG(info) << "Datapoint not found: " << alias;
   }
 }
@@ -308,7 +308,7 @@ double HMPIDDCSProcessor::procTrans()
     // ==============================================================
     refArgon = dpVector2Double(argonRefVec[i], "ARGONREF", i);
     if (refArgon == eMeanDefault) {
-      if (mVerbose) {
+      if (mVerbose) {  //ef: default mean value is used, should warning be raised?
         LOG(info) << "refArgon == defaultEMean()";
       }
       return defaultEMean();
@@ -318,7 +318,7 @@ double HMPIDDCSProcessor::procTrans()
     //==================================================================
     cellArgon = dpVector2Double(argonCellVec[i], "ARGONCELL", i);
     if (cellArgon == eMeanDefault) {
-      if (mVerbose) {
+      if (mVerbose) {   //ef: default mean value is used, should warning be raised?
         LOG(info) << "cellArgon == defaultEMean()";
       }
       return defaultEMean();
@@ -328,7 +328,7 @@ double HMPIDDCSProcessor::procTrans()
     //================================================================
     refFreon = dpVector2Double(freonRefVec[i], "C6F14REFERENCE", i);
     if (refFreon == eMeanDefault) {
-      if (mVerbose) {
+      if (mVerbose) {   //ef: default mean value is used, should warning be raised?
         LOG(info) << "refFreon == defaultEMean()";
       }
       return defaultEMean();
@@ -338,7 +338,7 @@ double HMPIDDCSProcessor::procTrans()
     // ===================================================================
     cellFreon = dpVector2Double(freonCellVec[i], "C6F14CELL", i);
     if (cellFreon == eMeanDefault) {
-      if (mVerbose) {
+      if (mVerbose) {   //ef: default mean value is used, should warning be raised?
         LOG(info) << "cellFreon == defaultEMean()";
       }
       return defaultEMean();
@@ -380,15 +380,15 @@ double HMPIDDCSProcessor::procTrans()
 
   if (sProb > 0) {
     eMean = sEnergProb / sProb;
-  } else {
-    if (mVerbose) {
-      LOG(info) << " sProb < 0 ";
+  } else { 
+    if (mVerbose) {               // ef : remove mVerbose here? 
+      LOG(warn) << " sProb < 0 "; // (and change to warn)
     }
     return defaultEMean();
   }
 
   if (eMean < o2::hmpid::Param::ePhotMin() ||
-      eMean > o2::hmpid::Param::ePhotMax()) {
+      eMean > o2::hmpid::Param::ePhotMax()) { // ef: change to warn?
     LOG(info) << " eMean out of range " << eMean;
     return defaultEMean();
   }
@@ -444,7 +444,7 @@ double HMPIDDCSProcessor::dpVector2Double(const std::vector<DPCOM>& dpVec,
 
   double dpVal;
   if (dpVec.size() == 0) {
-    LOG(info) << Form(
+    LOG(warn) << Form(
       "No Data Point values for HMP_TRANPLANT_MEASURE_%s,%i  "
       "---> Default E mean used!",
       dpString, i);
@@ -456,7 +456,7 @@ double HMPIDDCSProcessor::dpVector2Double(const std::vector<DPCOM>& dpVec,
   if (dp.id.get_type() == DeliveryType::DPVAL_DOUBLE) {
     dpVal = o2::dcs::getValue<double>(dp);
   } else {
-    LOG(info) << Form(
+    LOG(warn) << Form(
       "Not correct datatype for HMP_TRANPLANT_MEASURE_%s,%i  "
       "-----> Default E mean used!",
       dpString, i);
@@ -489,9 +489,9 @@ bool HMPIDDCSProcessor::evalCorrFactor(double dRefArgon, double dCellArgon,
     aTransRad = TMath::Power((dCellFreon / dRefFreon) /
                                (dCellArgon / dRefArgon) * aCorrFactor[i],
                              aConvFactor);
-  } else {
-    if (mVerbose) {
-      LOG(info) << "dRefFreon*dRefArgon<0" << dRefFreon * dRefArgon;
+  } else { 	     // ef: remove if mVerbose here?
+    if (mVerbose) {  // (throw the warning even w/o verbose option)
+      LOG(warn) << "dRefFreon*dRefArgon<0" << dRefFreon * dRefArgon;
     }
     return false;
   }
@@ -554,7 +554,7 @@ std::unique_ptr<TF1> HMPIDDCSProcessor::finalizeEnvPressure()
     }
     return pEnv;
   }
-  LOG(info) << Form("No entries in environment pressure");
+  LOG(warn) << Form("No entries in environment pressure");
   return pEnv;
 }
 
@@ -592,7 +592,7 @@ std::unique_ptr<TF1> HMPIDDCSProcessor::finalizeChPressure(int iCh)
     }
     return pCh;
   }
-  LOG(info) << Form("no entries in chPres for Pch%i", iCh);
+  LOG(warn) << Form("no entries in chPres for Pch%i", iCh);
 
   return pCh;
 }
@@ -632,7 +632,7 @@ void HMPIDDCSProcessor::finalizeTempOut(int iCh, int iRad)
       "Temp-Out Fit Chamber%i Radiator%i; Time [ms];Temp [C]", iCh, iRad));
     arNmean[6 * iCh + 2 * iRad + 1] = *(pTout.get());
   } else {
-    LOG(info) << Form("No entries in temp-out for ch%irad%i", iCh, iRad);
+    LOG(warn) << Form("No entries in temp-out for ch%irad%i", iCh, iRad);
   }
 }
 
@@ -673,7 +673,7 @@ void HMPIDDCSProcessor::finalizeTempIn(int iCh, int iRad)
     arNmean[6 * iCh + 2 * iRad] = *(pTin.get());
 
   } else {
-    LOG(info) << Form("No entries in temp-in for ch%irad%i", iCh, iRad);
+    LOG(warn) << Form("No entries in temp-in for ch%irad%i", iCh, iRad);
   }
 }
 
@@ -711,7 +711,7 @@ std::unique_ptr<TF1> HMPIDDCSProcessor::finalizeHv(int iCh, int iSec)
 
     return pHvTF;
   }
-  LOG(info) << Form("No entries in HV for ch%isec%i", iCh, iSec);
+  LOG(warn) << Form("No entries in HV for ch%isec%i", iCh, iSec);
   return pHvTF;
 }
 
@@ -761,7 +761,18 @@ void HMPIDDCSProcessor::finalize()
         arQthre[6 * iCh + iSec] = *(pQthre.get());
 
       } else {
-        LOG(info) << "Missing entries for HV, envPressure or chPressure";
+        LOGP(warn, "Missing entry in Charge-Threshold in chamber{} sector{} ", iCh, iSec);
+
+	// print which one is missing:
+        if(pEnv == nullptr){
+	  LOG(warn) << "Missing entries for environment-pressure";
+        }
+        if(pChPres == nullptr){
+          LOGP(warn, "Missing entries for chamber-pressure ", iCh);
+        }
+        if(pChPres == nullptr){
+          LOGP(warn, "Missing entries HV chamber{} sector{} ", iCh, iSec);
+        }
       }
     }
   }
