@@ -306,6 +306,9 @@ double HMPIDDCSProcessor::procTrans()
 
     // ===== evaluate phototube current for argon reference
     // ==============================================================
+ 
+    // ef:warning is already raised in dpVector2Double if default eMean is used, 
+    // not really necessary to raise exception here?
     refArgon = dpVector2Double(argonRefVec[i], "ARGONREF", i);
     if (refArgon == eMeanDefault) { /*
       if (mVerbose) {  //ef: default mean value is used, should warning be raised?
@@ -348,7 +351,8 @@ double HMPIDDCSProcessor::procTrans()
     // evaluate correction factor to calculate trasparency
     bool isEvalCorrOk = evalCorrFactor(refArgon, cellArgon, refFreon, cellFreon, photEn, i);
 
-    // Returns false if dRefFreon * dRefArgon < 0
+    // ef: Returns false if dRefFreon * dRefArgon < 0
+    // ef: not really necessary to raise exception, as it already should be done in evalCorrFactor
     if (!isEvalCorrOk) {
       return defaultEMean();
     }
@@ -387,8 +391,8 @@ double HMPIDDCSProcessor::procTrans()
     if (mVerbose) {               
       LOG(warn) << " sProb < 0 "; // 
     }*/
-
-    // ef : remove mVerbose here? (and change to warn)
+    
+    // ef: change to: remove mVerbose and change to warn
     LOG(warn) << " sProb < 0 ";
     return defaultEMean();
   }
@@ -746,9 +750,10 @@ void HMPIDDCSProcessor::finalize()
 
       std::unique_ptr<TF1> pHV = finalizeHv(iCh, iSec);
 
-      // only fill if envP, chamP and HV datapoints are all fetched
+      // print the pointers (to see if nullptr)
       LOGP(info, "Finalize ch={} sec={}, pEnv={} pChPres={} pHV={}", iCh, iSec, (void*)pEnv.get(), (void*)pChPres.get(), (void*)pHV.get());
 
+      // only fill if envP, chamP and HV datapoints are all fetched
       if (pEnv != nullptr && pChPres != nullptr && pHV != nullptr) {
         const char* hvChar = (pArrHv[3 * iCh + iSec]).GetName();
         const char* chChar = (pArrCh[iCh]).GetName();
