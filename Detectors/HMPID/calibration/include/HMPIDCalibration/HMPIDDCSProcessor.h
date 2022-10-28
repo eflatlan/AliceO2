@@ -258,6 +258,7 @@ class HMPIDDCSProcessor
     }
 
     if (strcmp((arrayNmean[42]).GetName(), "HMP_PhotEmean") != 0) {
+      LOG(warn) << "arNmean at " << 42 << " empty";
       arNmeanFull = false;
     }
   }

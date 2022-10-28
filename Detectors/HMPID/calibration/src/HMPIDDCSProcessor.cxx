@@ -663,13 +663,13 @@ void HMPIDDCSProcessor::finalizeTempOut(int iCh, int iRad)
       pGrTOut->GetPoint(0, xP, yP);
       pTout->SetParameter(0, yP);
       pTout->SetParameter(1, 0);
-    } else { // EF: return nullptr if no entreis in 
+    } else {
       pGrTOut->Fit(Form("Tout%i%i", iCh, iRad), "R");
     }
 
     //ef: in this case everything is ok, and we can set title and put entry in CCDB:
-    // have to check all for nullptr, because pTout is defined before if/else block,
-    // and thus will not be nullptr no matter the outcome of the if/else block 
+    //    have to check all for nullptr, because pTout is defined before if/else block,
+    //    and thus will not be nullptr no matter the outcome of the if/else block 
     if(pTout != nullptr && pGrTOut != nullptr && cntTOut > 0 ){
       pTout->SetTitle(Form("Temp-Out Fit Chamber%i Radiator%i; Time [ms];Temp [C]", iCh, iRad));
       arNmean[6 * iCh + 2 * iRad + 1] = *(pTout.get());
@@ -787,7 +787,6 @@ std::unique_ptr<TF1> HMPIDDCSProcessor::finalizeHv(int iCh, int iSec)
 // HMPIDDCSDataProcessorSpec::endOfStream() function
 void HMPIDDCSProcessor::finalize()
 {
-
   std::unique_ptr<TF1> pEnv = finalizeEnvPressure();
   for (int iCh = 0; iCh < 7; iCh++) {
 
@@ -839,7 +838,7 @@ void HMPIDDCSProcessor::finalize()
           LOGP(warn, "Missing entries for chamber-pressure P{}", iCh, iCh);
         }
         if(pChPres == nullptr){
-          LOGP(warn, "Missing entries High Voltage HVch{}sec{}", iCh, iSec);
+          LOGP(warn, "Missing entries for High Voltage HVch{}sec{}", iCh, iSec);
         }
       }
     }
@@ -855,7 +854,9 @@ void HMPIDDCSProcessor::finalize()
 
   pPhotMean->SetTitle(Form("HMP_PhotEmean; Time [mS]; Photon Energy [eV]"));
 
-  arNmean[42] = *(pPhotMean.get());
+  if(pPhotMean!=nullptr){
+    arNmean[42] = *(pPhotMean.get());
+  }
 
   // Check entries of CCDB-objects
   checkEntries(arQthre, arNmean);
