@@ -113,7 +113,7 @@ class HMPIDDCSProcessor
   bool evalCorrFactor(double dRefArgon, double dCellArgon, double dRefFreon,
                       double dCellFreon, double photEn, int i);
   double dpVector2Double(const std::vector<DPCOM>& dpVec, const char* dpString, int i);
-  double calculateWaveLength(int i);
+  double calculatePhotonEnergy(int i);
 
   //===== help-functions
   //================================================================================
@@ -227,7 +227,7 @@ class HMPIDDCSProcessor
           arQthreFull = false; 
           // ef: raise warning here? (in practice this should already be done in 
           //                          .cxx in case of a nullptr)
-          LOG(info) << "arQthre at " << 6 * iCh + iSec << "empty";
+          LOG(warn) << "arQthre at " << 6 * iCh + iSec << "empty";
         }
       }
     }
@@ -246,31 +246,19 @@ class HMPIDDCSProcessor
 
         if (strcmp(strCcdbin, strExpectedIn) != 0) {
           arNmeanFull = false;
-          LOG(info) << "arNmean at " << 6 * iCh + 2 * iRad << " empty";
+          LOG(warn) << "arNmean at " << 6 * iCh + 2 * iRad << " empty";
         }
         if (strcmp(strCcdbinOut, strExpectedOut) != 0) {
           arNmeanFull = false;
           // ef: raise warning here? (in practice this should already be done in 
           //                          .cxx in case of a nullptr)
-          LOG(info) << "arNmean at " << 6 * iCh + 2 * iRad + 1 << " empty";
+          LOG(warn) << "arNmean at " << 6 * iCh + 2 * iRad + 1 << " empty";
         }
       }
     }
 
     if (strcmp((arrayNmean[42]).GetName(), "HMP_PhotEmean") != 0) {
       arNmeanFull = false;
-    }
-    
-    // ef: can probably remove the following lines, and instead raise warning if there
-    // is any missing values ?
-    if (arQthreFull && mVerbose) {
-      LOG(info) << "arQthre Full Sized";
-    }
-    if (arNmeanFull && mVerbose) {
-      LOG(info) << "arNmean Full Sized";
-    }
-    if (arNmeanFull && arQthreFull && mVerbose) {
-      LOG(info) << "All entries of CCDB objects are filled";
     }
   }
 

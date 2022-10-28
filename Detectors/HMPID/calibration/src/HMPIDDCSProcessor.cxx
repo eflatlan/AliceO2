@@ -68,8 +68,8 @@ void HMPIDDCSProcessor::process(const gsl::span<const DPCOM> dps)
       processTRANS(dp);
     } else if (detectorId == HMPID_ID) {
       processHMPID(dp);
-    } else { // ef: change to warn(?)
-      LOG(warn) << "Unknown data point: " << alias;
+    } else { // ef: changed to warn and      - unkown==>missing data point
+      LOG(warn) << "Missing data point: " << alias;
     }
   } // end for
 }
@@ -107,8 +107,8 @@ void HMPIDDCSProcessor::processHMPID(const DPCOM& dp)
       LOG(info) << "Chamber Pressure DP: " << alias;
     }
     fillChPressure(dp);
-  } else { // ef: change to warn(?) 
-    LOG(warn) << "Unknown data point: " << alias;
+  } else { // ef: changed to warn and      - unkown==>missing data point
+    LOG(warn) << "Missing data point: " << alias;
   }
 }
 
@@ -170,8 +170,8 @@ void HMPIDDCSProcessor::processTRANS(const DPCOM& dp)
         LOG(info) << "Unknown data point: " << alias;
       }
     }
-  } else {  // ef:change to warning?
-    LOG(info) << "Datapoint not found: " << alias;
+  } else {  // ef:change to warn and DP not found ==> Missing Data-Point 
+    LOG(warn) << "Missing Data point: " << alias;
   }
 }
 
@@ -296,7 +296,7 @@ double HMPIDDCSProcessor::procTrans()
 {
   for (int i = 0; i < 30; i++) {
 
-    photEn = calculateWaveLength(i);
+    photEn = calculatePhotonEnergy(i);
 
     if (photEn < o2::hmpid::Param::ePhotMin() ||
         photEn > o2::hmpid::Param::ePhotMax()) {
@@ -310,7 +310,8 @@ double HMPIDDCSProcessor::procTrans()
     // ef:warning is already raised in dpVector2Double if default eMean is used, 
     // not really necessary to raise exception here?
     refArgon = dpVector2Double(argonRefVec[i], "ARGONREF", i);
-    if (refArgon == eMeanDefault) { /*
+    if (refArgon == eMeanDefault) { 
+      /*
       if (mVerbose) {  //ef: default mean value is used, should warning be raised?
         LOG(info) << "refArgon == defaultEMean()";
       } */
@@ -352,7 +353,7 @@ double HMPIDDCSProcessor::procTrans()
     bool isEvalCorrOk = evalCorrFactor(refArgon, cellArgon, refFreon, cellFreon, photEn, i);
 
     // ef: Returns false if dRefFreon * dRefArgon < 0
-    // ef: not really necessary to raise exception, as it already should be done in evalCorrFactor
+    // ef: not really necessary to raise exception, as it already is done in evalCorrFactor if it is not ok
     if (!isEvalCorrOk) {
       return defaultEMean();
     }
@@ -421,7 +422,7 @@ double HMPIDDCSProcessor::defaultEMean()
 
 //==== evaluate wavelenght
 //=======================================================
-double HMPIDDCSProcessor::calculateWaveLength(int i)
+double HMPIDDCSProcessor::calculatePhotonEnergy(int i)
 {
   // if there is no entries
   if (waveLenVec[i].size() == 0) {
