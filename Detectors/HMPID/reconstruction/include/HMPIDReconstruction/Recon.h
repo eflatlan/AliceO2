@@ -68,12 +68,12 @@ class Recon : public TNamed
   //             Recon() = default;
 
   Recon() : TNamed("RichRec", "RichPat"), // ef: moved from cxx
-            fPhotCnt(-1),
-            fPhotFlag(0x0),
-            fPhotClusIndex(0x0),
-            fPhotCkov(0x0),
-            fPhotPhi(0x0),
-            fPhotWei(0x0),
+            fPhotCnt(-1),           
+            fPhotFlag(nullptr),		  // ef: o2checkcode complains;
+            fPhotClusIndex(nullptr),	  // use nullptr
+            fPhotCkov(nullptr),	          //
+            fPhotPhi(nullptr),		  //
+            fPhotWei(nullptr),            // ef: 0x0==>nullptr
             fCkovSigma2(0),
             fIsWEIGHT(kFALSE),
             fDTheta(0.001),

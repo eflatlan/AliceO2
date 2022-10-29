@@ -673,6 +673,8 @@ void HMPIDDCSProcessor::finalizeTempOut(int iCh, int iRad)
     if(pTout != nullptr && pGrTOut != nullptr && cntTOut > 0 ){
       pTout->SetTitle(Form("Temp-Out Fit Chamber%i Radiator%i; Time [ms];Temp [C]", iCh, iRad));
       arNmean[6 * iCh + 2 * iRad + 1] = *(pTout.get());
+    } else{
+      arNmean[6 * iCh + 2 * iRad + 1] = TF1("error ex","1",0,1);
     }
     
     
