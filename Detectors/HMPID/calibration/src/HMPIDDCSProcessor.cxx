@@ -620,9 +620,6 @@ bool HMPIDDCSProcessor::finalizeTempOut(int iCh, int iRad)
     pTout.reset(
       new TF1(Form("Tout%i%i", iCh, iRad), "[0]+[1]*x", minTime, maxTime));
 
-    // ef: here CCDB-entry will be nullptr if if-case is true
-    // this is ok, because on the receiving side of the object, we will check
-    // if the entry is nullptr, and in that case use a default value 
     if(pTout == nullptr || pGrTOut == nullptr || cntTOut <= 0 ){
       LOGP(warn, "NullPtr in Temperature out Tout{}{}", iCh, iRad);
       return false;
@@ -670,18 +667,11 @@ bool HMPIDDCSProcessor::finalizeTempIn(int iCh, int iRad)
       auto time = dp.data.get_epoch_time(); //-minTime
       pGrTIn->SetPoint(cntTin++, time, dpVal);
     }
-    std::vector<DPCOM> a = dpVecTempIn[3 * iCh + iRad];
-    auto t = a[0].id;
-    LOGP(info, "Tin{}{} DP-name = {}", iCh, iRad,t.get_alias());
-    // maxTime -= minTime;
-    // minTime = 0;
+
     std::unique_ptr<TF1> pTin;
     pTin.reset(
       new TF1(Form("Tin%i%i", iCh, iRad), "[0]+[1]*x", minTime, maxTime));
-
-    // ef: here CCDB-entry will be nullptr if if-case is true
-    // this is ok, because on the receiving side of the object, we will check
-    // if the entry is nullptr, and in that case use a default value 
+ 
     if(pTin == nullptr || pGrTIn == nullptr || cntTin <= 0 ){
       LOGP(warn, "NullPtr in Temperature in Tin{}{}", iCh, iRad);
       return false;
@@ -694,7 +684,7 @@ bool HMPIDDCSProcessor::finalizeTempIn(int iCh, int iRad)
     }
 
     //ef: in this case everything is ok, and we can set title and put entry in CCDB:
-    //    have to check all for nullptr, because pTout is defined before if/else block,
+    //    have to check all for nullptr, because pTin is defined before if/else block,
     //    and thus will not be nullptr no matter the outcome of the if/else block 
     if(pTin != nullptr && pGrTIn != nullptr && cntTin > 0 ){
       pTin->SetTitle(Form("Temp-In Fit Chamber%i Radiator%i; Time [ms];Temp [C]", iCh, iRad));
@@ -847,10 +837,6 @@ void HMPIDDCSProcessor::finalize()
     }
   }
 
-  std::chrono::steady_clock::time_point e = std::chrono::steady_clock::now();
-//std::chrono::milliseconds diff = std::chrono::duration_cast<std::chrono::milliseconds>(e-t).count());
-  LOGP(info, "elapsed time {} ", std::chrono::duration_cast<std::chrono::milliseconds>(e-t).count());
-
   LOG(info) << "======================================== ";
 
   double eMean = procTrans();
@@ -865,6 +851,7 @@ void HMPIDDCSProcessor::finalize()
     arNmean[42] = *(pPhotMean.get());
   } else {
     std::unique_ptr<TF1> pPhotMeanDefault;
+    pPhotMeanDefault.reset(new TF1());
     setDefault(pPhotMeanDefault.get(), true);
     arNmean[42] = *(pPhotMeanDefault.get());
   }

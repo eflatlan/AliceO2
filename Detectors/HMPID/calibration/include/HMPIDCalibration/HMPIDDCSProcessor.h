@@ -241,46 +241,6 @@ class HMPIDDCSProcessor
       }
       cntN++;
     }
-    /*
-    for (int iCh = 0; iCh < 7; ++iCh) {
-      for (int iSec = 0; iSec < 6; ++iSec) {
-        auto tf = arQthresh[6 * iCh + iSec];
-        const char* strCCDB = tf.GetName();
-        const char* strExpected = Form("HMP_QthreC%iS%i", iCh, iSec);
-
-        if (isDefault(&tf)) {
-          arQthreFull = false; 
-          // ef: raise warning here? (in practice this should already be done in 
-          //                          .cxx in case of a nullptr)
-          LOG(warn) << "arQthre at " << 6 * iCh + iSec << "empty";
-        }
-      }
-    }
-
-    cnt = 0;
-
-    for (int iCh = 0; iCh < 7; ++iCh) {
-      for (int iRad = 0; iRad < 3; iRad += 1) {
-
-        const char* strCcdbin = (arrayNmean[6 * iCh + 2 * iRad]).GetName();
-        const char* strCcdbinOut =
-          (arrayNmean[6 * iCh + 2 * iRad + 1]).GetName();
-
-        const char* strExpectedIn = Form("Tin%i%i", iCh, iRad);
-        const char* strExpectedOut = Form("Tout%i%i", iCh, iRad);
-
-        if (strcmp(strCcdbin, strExpectedIn) != 0) {
-          arNmeanFull = false;
-          LOG(warn) << "arNmean at " << 6 * iCh + 2 * iRad << " empty";
-        }
-        if (strcmp(strCcdbinOut, strExpectedOut) != 0) {
-          arNmeanFull = false;
-          // ef: raise warning here? (in practice this should already be done in 
-          //                          .cxx in case of a nullptr)
-          LOG(warn) << "arNmean at " << 6 * iCh + 2 * iRad + 1 << " empty";
-        }
-      }
-    }*/
   } 
 
   void clearDPsInfo()
