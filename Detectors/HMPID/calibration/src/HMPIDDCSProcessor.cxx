@@ -540,7 +540,9 @@ std::unique_ptr<TF1> HMPIDDCSProcessor::finalizeEnvPressure()
     // envPrFirstTime = 0;
  
     // pEnv should not be checked for if nullptr yet, because it will only be defined if the else if or else in the following block is executed:
-    if(pGrPenv != nullptr || cntEnvPressure <= 0){
+    if(cntEnvPressure <= 0){
+      LOGP(warn, "No entries in Environment Pressure");
+    } else if(pGrPenv == nullptr){
       LOGP(warn, "NullPtr in Environment Pressure");
     } else if (cntEnvPressure == 1) {
       pGrPenv->GetPoint(0, xP, yP);

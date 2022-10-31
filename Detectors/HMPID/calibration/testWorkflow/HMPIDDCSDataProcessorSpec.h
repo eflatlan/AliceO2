@@ -64,11 +64,11 @@ class HMPIDDCSDataProcessor : public o2::framework::Task
     if (mLocalTest) {
       mCheckRunStartStop = false;
     }
-    LOGP(info, "mCheckRunStartStop {} ", mCheckRunStartStop);
+    LOGP(info, "Local test option = {} ", mLocalTest);
     std::vector<DPID> vect;
 
     bool useCCDBtoConfigure = ic.options().get<bool>("use-ccdb-to-configure");
-    LOGP(info, "useCCDBtoConfigure set {} ", useCCDBtoConfigure);
+    LOGP(info, "useCCDBtoConfigure option = {} ", useCCDBtoConfigure);
     if (useCCDBtoConfigure) {
       LOG(info) << "Configuring via CCDB";
       std::string ccdbpath = ic.options().get<std::string>("ccdb-path");
