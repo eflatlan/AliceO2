@@ -28,6 +28,7 @@
 #include <gsl/gsl>
 #include <memory>
 #include <string>
+#include <chrono>
 
 // O2 includes:
 #include "CCDB/CcdbApi.h"

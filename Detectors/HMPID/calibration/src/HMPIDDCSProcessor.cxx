@@ -539,7 +539,6 @@ std::unique_ptr<TF1> HMPIDDCSProcessor::finalizeEnvPressure()
     // envPrLastTime -= envPrFirstTime;
     // envPrFirstTime = 0;
  
-    // pEnv should not be checked for if nullptr yet, because it will only be defined if the else if or else in the following block is executed:
     if(cntEnvPressure <= 0){
       LOGP(warn, "No entries in Environment Pressure");
     } else if(pGrPenv == nullptr){
@@ -554,20 +553,15 @@ std::unique_ptr<TF1> HMPIDDCSProcessor::finalizeEnvPressure()
       pEnv.reset(new TF1("Penv", "1000+x*[0]", envPrFirstTime, envPrLastTime));
       pGrPenv->Fit("Penv", "Q");
     }
-    
-    // ef: returning nullptr is fine! because,
-    // it is checked for in the finalize()
-     
-    return pEnv;
+  } else {
+    LOG(warn) << Form("No entries in environment pressure Penv");
   }
-  LOG(warn) << Form("No entries in environment pressure Penv");
   return pEnv;
 }
 
 // returns nullptr if the element in array of DPCOM-vector has no entries
 std::unique_ptr<TF1> HMPIDDCSProcessor::finalizeChPressure(int iCh)
 {
-
   std::unique_ptr<TF1> pCh;
   if (dpVecCh[iCh].size() != 0) {
     cntChPressure = 0;
@@ -585,43 +579,21 @@ std::unique_ptr<TF1> HMPIDDCSProcessor::finalizeChPressure(int iCh)
     }
     // chPrLastTime -= chPrFirstTime;
     // chPrFirstTime = 0;
-    
-    // ef: can we instead of using the smart-pointer arrays, simply call the functions and return the smart-pointer for each iteration?
-    
 
-    // ef: would this lead to problems based on the 
     if(pGrP == nullptr || cntChPressure <= 0){
-      LOG(warn) << Form("nullptr in chamber-pressure for Pch%i", iCh);
-      
+      LOG(warn) << Form("nullptr in chamber-pressure for Pch%i", iCh);      
     } else if (cntChPressure == 1) {
       pGrP->GetPoint(0, xP, yP);
       (pCh).reset(new TF1(Form("P%i", iCh), Form("%f", yP), chPrFirstTime,
                           chPrLastTime));
-      // ef: have to  check for nullptr, because we not can dereference nullptr
-      //  (so not equivalent to the environment-pressure)
-      if(pCh != nullptr){
-        pArrCh[iCh] = *(pCh.get());
-      } else{
-        LOG(warn) << Form("nullptr in chamber-pressure for Pch%i", iCh);
-      }
-
     } else {
       (pCh).reset(new TF1(Form("P%i", iCh), "[0] + x*[1]", chPrFirstTime,
                           chPrLastTime));
       pGrP->Fit(Form("P%i", iCh), "Q");
-
-      // ef: have to  check for nullptr, because we not can dereference nullptr
-      //  (so not equivalent to the environment-pressure)
-      if(pCh != nullptr){
-        pArrCh[iCh] = *(pCh.get());
-      } else{
-        LOG(warn) << Form("nullptr in chamber-pressure for P%i", iCh);
-      }
     }
-    return pCh;
+  } else {
+    LOG(warn) << Form("no entries in chamber-pressure for P%i", iCh);
   }
-  LOG(warn) << Form("no entries in chamber-pressure for P%i", iCh);
-
   return pCh;
 }
 
@@ -726,7 +698,7 @@ bool HMPIDDCSProcessor::finalizeTempIn(int iCh, int iRad)
     //    and thus will not be nullptr no matter the outcome of the if/else block 
     if(pTin != nullptr && pGrTIn != nullptr && cntTin > 0 ){
       pTin->SetTitle(Form("Temp-In Fit Chamber%i Radiator%i; Time [ms];Temp [C]", iCh, iRad));
-      arNmean[6 * iCh + 2 * iRad + 1] = *(pTin.get());
+      arNmean[6 * iCh + 2 * iRad] = *(pTin.get());
       return true;
     } else{
       LOGP(warn, "NullPtr in Temperature in Tin{}{}", iCh, iRad);
@@ -759,37 +731,19 @@ std::unique_ptr<TF1> HMPIDDCSProcessor::finalizeHv(int iCh, int iSec)
     // hvLastTime -= hvFirstTime;
     // hvFirstTime = 0;
     
-
-    // ef: can not check pHvTF for nullptr, because it is defined based on the 
-    // the outcome of the following if-block
     if(pGrHV == nullptr || cntHV <= 0){
       LOG(warn) << Form("nullptr in High Voltage for HV%isec%i", iCh, iSec);
     } else if (cntHV == 1) {
       pGrHV->GetPoint(0, xP, yP);
-
-
       (pHvTF).reset(new TF1(Form("HV%i_%i", iCh, iSec), Form("%f", yP),
                             hvFirstTime, hvLastTime));
-      if(pHvTF!=nullptr){
-        pArrHv[3 * iCh + iSec] = *(pHvTF.get());
-      } else{
-        LOG(warn) << Form("nullptr in High Voltage for HV%i%i", iCh, iSec);
-      }
-
     } else {
       (pHvTF).reset(new TF1(Form("HV%i_%i", iCh, iSec), "[0]+x*[1]",
                             hvFirstTime, hvLastTime));
-
-      if(pHvTF!=nullptr){
-        pGrHV->Fit(Form("HV%i_%i", iCh, iSec), "Q");
-        pArrHv[3 * iCh + iSec] = *(pHvTF.get());
-      } else{
-        LOG(warn) << Form("nullptr in High Voltage for HV%i%i", iCh, iSec);
-      }
     }
-    return pHvTF;
+  } else{
+    LOG(warn) << Form("No entries in High Voltage for HV%i%i", iCh, iSec);
   }
-  LOG(warn) << Form("No entries in High Voltage for HV%i%i", iCh, iSec);
   return pHvTF;
 }
 
@@ -798,6 +752,7 @@ std::unique_ptr<TF1> HMPIDDCSProcessor::finalizeHv(int iCh, int iSec)
 // HMPIDDCSDataProcessorSpec::endOfStream() function
 void HMPIDDCSProcessor::finalize()
 {
+  std::chrono::steady_clock::time_point t = std::chrono::steady_clock::now();
   std::unique_ptr<TF1> pEnv = finalizeEnvPressure();
   for (int iCh = 0; iCh < 7; iCh++) {
 
@@ -891,6 +846,10 @@ void HMPIDDCSProcessor::finalize()
       }
     }
   }
+
+  std::chrono::steady_clock::time_point e = std::chrono::steady_clock::now();
+//std::chrono::milliseconds diff = std::chrono::duration_cast<std::chrono::milliseconds>(e-t).count());
+  LOGP(info, "elapsed time {} ", std::chrono::duration_cast<std::chrono::milliseconds>(e-t).count());
 
   LOG(info) << "======================================== ";
 
