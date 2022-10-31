@@ -215,18 +215,39 @@ class HMPIDDCSProcessor
                     const std::vector<TF1>& arrayNmean)
   {
     int cnt = 0;
-    bool arQthreFull = true;
+
     if (mVerbose) {
       LOG(info) << " checking if CCDB objects are filled : ";
     }
 
+    bool arQthreFull = true;
+    int cntQ = 0;
+    for(const auto& tf:arQthresh){ 
+      cntQ++;
+      if (isDefault(&tf)) {
+        arQthreFull = false;
+        LOGP(warn, "arQthre at {} empty ", cntQ);
+
+      }
+    }
+
+    bool arNmeanFull = true;
+    int cntN = 0;
+    for(const auto& tf:arrayNmean){
+      if (isDefault(&tf)) {
+        arNmeanFull = false;
+        LOGP(warn, "arrayNmean at {} empty ", cntN);
+      }
+      cntN++;
+    }
+    /*
     for (int iCh = 0; iCh < 7; ++iCh) {
       for (int iSec = 0; iSec < 6; ++iSec) {
         auto tf = arQthresh[6 * iCh + iSec];
         const char* strCCDB = tf.GetName();
         const char* strExpected = Form("HMP_QthreC%iS%i", iCh, iSec);
 
-        if (strcmp(strCCDB, strExpected) != 0) {
+        if (isDefault(&tf)) {
           arQthreFull = false; 
           // ef: raise warning here? (in practice this should already be done in 
           //                          .cxx in case of a nullptr)
@@ -236,9 +257,9 @@ class HMPIDDCSProcessor
     }
 
     cnt = 0;
-    bool arNmeanFull = true;
+
     for (int iCh = 0; iCh < 7; ++iCh) {
-      for (int iRad = 0; iRad < 3; iRad += 2) {
+      for (int iRad = 0; iRad < 3; iRad += 1) {
 
         const char* strCcdbin = (arrayNmean[6 * iCh + 2 * iRad]).GetName();
         const char* strCcdbinOut =
@@ -258,13 +279,8 @@ class HMPIDDCSProcessor
           LOG(warn) << "arNmean at " << 6 * iCh + 2 * iRad + 1 << " empty";
         }
       }
-    }
-
-    if (strcmp((arrayNmean[42]).GetName(), "HMP_PhotEmean") != 0) {
-      LOG(warn) << "arNmean at " << 42 << " empty";
-      arNmeanFull = false;
-    }
-  }
+    }*/
+  } 
 
   void clearDPsInfo()
   {

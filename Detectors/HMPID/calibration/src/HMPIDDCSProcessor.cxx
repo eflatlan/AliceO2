@@ -698,6 +698,9 @@ bool HMPIDDCSProcessor::finalizeTempIn(int iCh, int iRad)
       auto time = dp.data.get_epoch_time(); //-minTime
       pGrTIn->SetPoint(cntTin++, time, dpVal);
     }
+    std::vector<DPCOM> a = dpVecTempIn[3 * iCh + iRad];
+    auto t = a[0].id;
+    LOGP(info, "Tin{}{} DP-name = {}", iCh, iRad,t.get_alias());
     // maxTime -= minTime;
     // minTime = 0;
     std::unique_ptr<TF1> pTin;
@@ -707,7 +710,7 @@ bool HMPIDDCSProcessor::finalizeTempIn(int iCh, int iRad)
     // ef: here CCDB-entry will be nullptr if if-case is true
     // this is ok, because on the receiving side of the object, we will check
     // if the entry is nullptr, and in that case use a default value 
-    if(pTin == nullptr || pGrTIn == nullptr || cntTOut <= 0 ){
+    if(pTin == nullptr || pGrTIn == nullptr || cntTin <= 0 ){
       LOGP(warn, "NullPtr in Temperature in Tin{}{}", iCh, iRad);
       return false;
     } else if (cntTOut == 1) {
@@ -721,7 +724,7 @@ bool HMPIDDCSProcessor::finalizeTempIn(int iCh, int iRad)
     //ef: in this case everything is ok, and we can set title and put entry in CCDB:
     //    have to check all for nullptr, because pTout is defined before if/else block,
     //    and thus will not be nullptr no matter the outcome of the if/else block 
-    if(pTin != nullptr && pGrTIn != nullptr && cntTOut > 0 ){
+    if(pTin != nullptr && pGrTIn != nullptr && cntTin > 0 ){
       pTin->SetTitle(Form("Temp-In Fit Chamber%i Radiator%i; Time [ms];Temp [C]", iCh, iRad));
       arNmean[6 * iCh + 2 * iRad + 1] = *(pTin.get());
       return true;
@@ -842,7 +845,7 @@ void HMPIDDCSProcessor::finalize()
       std::unique_ptr<TF1> pHV = finalizeHv(iCh, iSec);
 
       // print the pointers (to see if nullptr)
-      LOGP(info, "Finalize ch={} sec={}, pEnv={} pChPres={} pHV={}", iCh, iSec, (void*)pEnv.get(), (void*)pChPres.get(), (void*)pHV.get());
+      //LOGP(info, "Finalize ch={} sec={}, pEnv={} pChPres={} pHV={}", iCh, iSec, (void*)pEnv.get(), (void*)pChPres.get(), (void*)pHV.get());
 
       // only fill if envP, chamP and HV datapoints are all fetched
       if (pEnv != nullptr && pChPres != nullptr && pHV != nullptr) {
