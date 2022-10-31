@@ -314,7 +314,7 @@ double HMPIDDCSProcessor::procTrans()
       //ef: default mean value is used; removed mVerbose
       //ef: changed to warn, but can be removed since the warning is done in dpVector2Double
       LOG(warn) << "refArgon == defaultEMean()";
-      return defaultEMean();
+      return eMeanDefault;
     }
 
     //===== evaluate phototube current for argon cell
@@ -324,7 +324,7 @@ double HMPIDDCSProcessor::procTrans()
       if (mVerbose) {   //ef: default mean value is used, should warning be raised?
         LOG(info) << "cellArgon == defaultEMean()";
       }
-      return defaultEMean();
+      return eMeanDefault;
     }
 
     //====evaluate phototube current for freon reference
@@ -334,7 +334,7 @@ double HMPIDDCSProcessor::procTrans()
       if (mVerbose) {   //ef: default mean value is used, should warning be raised?
         LOG(info) << "refFreon == defaultEMean()";
       }
-      return defaultEMean();
+      return eMeanDefault;
     }
 
     // ==== evaluate phototube current for freon cell
@@ -344,7 +344,7 @@ double HMPIDDCSProcessor::procTrans()
       if (mVerbose) {   //ef: default mean value is used, should warning be raised?
         LOG(info) << "cellFreon == defaultEMean()";
       }
-      return defaultEMean();
+      return eMeanDefault;
     }
 
     // evaluate correction factor to calculate trasparency
@@ -353,7 +353,7 @@ double HMPIDDCSProcessor::procTrans()
     // ef: Returns false if dRefFreon * dRefArgon < 0
     // ef: not really necessary to raise exception, as it already is done in evalCorrFactor if it is not ok
     if (!isEvalCorrOk) {
-      return defaultEMean();
+      return eMeanDefault;
     }
 
     // Evaluate timestamps :
@@ -387,14 +387,14 @@ double HMPIDDCSProcessor::procTrans()
   } else {
     // ef: removed mVerbose and changed to warn
     LOG(warn) << " sProb < 0 ";
-    return defaultEMean();
+    return eMeanDefault;
   }
 
   // ef: change to warn?
   if (eMean < o2::hmpid::Param::ePhotMin() ||
       eMean > o2::hmpid::Param::ePhotMax()) { 
     LOG(warn) << " eMean out of range " << eMean;
-    return defaultEMean();
+    return eMeanDefault;
   }
 
   return eMean;
@@ -403,6 +403,8 @@ double HMPIDDCSProcessor::procTrans()
 
 // ==== procTrans help-functions =============================
 
+//ef: do not use function-call; just return the value instead
+/*
 double HMPIDDCSProcessor::defaultEMean()
 {
   //ef: changed to warn, 
@@ -411,7 +413,7 @@ double HMPIDDCSProcessor::defaultEMean()
     LOG(warn) << Form(" Mean energy photon calculated ---> %f eV ", eMeanDefault);
   }
   return eMeanDefault;
-}
+} */
 
 //==== evaluate wavelenght
 //=======================================================
@@ -419,8 +421,8 @@ double HMPIDDCSProcessor::calculatePhotonEnergy(int i)
 {
   // if there is no entries
   if (waveLenVec[i].size() == 0) {
-    LOG(warn) << Form("No Data Point values for %i.waveLenght", i);
-    return defaultEMean(); // will break this entry in foor loop
+    LOG(warn) << Form("No Data Point values for %i.waveLenght --> Default E mean used!", i);
+    return eMeanDefault; // will break this entry in foor loop
   }
 
   DPCOM dp = (waveLenVec[i])[0];
@@ -430,14 +432,14 @@ double HMPIDDCSProcessor::calculatePhotonEnergy(int i)
     lambda = o2::dcs::getValue<double>(dp);
   } else {
     LOG(warn) << Form("Not correct datatype for HMP_TRANPLANT_MEASURE_%i_WAVELENGTH  --> Default E mean used!", i);
-    return defaultEMean();
+    return eMeanDefault;
   }
 
 
   // ef: can remove this?
   if (lambda < 150. || lambda > 230.) {
     LOG(warn) << Form("Wrong value for HMP_TRANPLANT_MEASURE_%i_WAVELENGTH --> Default E mean used!", i);
-    return defaultEMean();
+    return eMeanDefault;
   }
 
   // find photon energy E in eV from radiation wavelength λ in nm
@@ -456,7 +458,7 @@ double HMPIDDCSProcessor::dpVector2Double(const std::vector<DPCOM>& dpVec,
       "No Data Point values for HMP_TRANPLANT_MEASURE_%s,%i  "
       "---> Default E mean used!",
       dpString, i);
-    return defaultEMean();
+    return eMeanDefault;
   }
 
   DPCOM dp = dpVec[0];
@@ -468,7 +470,7 @@ double HMPIDDCSProcessor::dpVector2Double(const std::vector<DPCOM>& dpVec,
       "Not correct datatype for HMP_TRANPLANT_MEASURE_%s,%i  "
       "-----> Default E mean used!",
       dpString, i);
-    return defaultEMean();
+    return eMeanDefault;
   }
   return dpVal;
 }

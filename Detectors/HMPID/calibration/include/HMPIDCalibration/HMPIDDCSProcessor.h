@@ -105,8 +105,12 @@ class HMPIDDCSProcessor
 
   //===== procTrans
   //===================================================================================================
+  // ef: just return the value insted of using the function call
+  //     logging of problems is instead done where they occur
+  /*
   double defaultEMean(); // just set a refractive index for C6F14 at ephot=6.675
                          // eV @ T=25 C
+  */
 
   double procTrans();
 
@@ -331,7 +335,7 @@ class HMPIDDCSProcessor
 
   // procTrans variables
   // ======================================================================
-  const double eMeanDefault = 6.675; // Default mean photon energy if
+  static constexpr double eMeanDefault = 6.675; // Default mean photon energy if
   // DP is invalid or not fetched
 
   double sEnergProb = 0, sProb = 0; // energy probaility, probability
