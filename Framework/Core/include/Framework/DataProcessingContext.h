@@ -35,11 +35,13 @@ struct DataProcessorContext {
 
   // FIXME: move stuff here from the list below... ;-)
   ServiceRegistry* registry = nullptr;
-  std::vector<DataRelayer::RecordAction>* completed = nullptr;
-  std::vector<ExpirationHandler>* expirationHandlers = nullptr;
-  AlgorithmSpec::ProcessCallback* statefulProcess = nullptr;
-  AlgorithmSpec::ProcessCallback* statelessProcess = nullptr;
-  AlgorithmSpec::ErrorCallback* error = nullptr;
+  std::vector<DataRelayer::RecordAction> completed;
+  std::vector<ExpirationHandler> expirationHandlers;
+  AlgorithmSpec::InitCallback init;
+  AlgorithmSpec::ProcessCallback statefulProcess;
+  AlgorithmSpec::ProcessCallback statelessProcess;
+  AlgorithmSpec::ErrorCallback error = nullptr;
+
   DataProcessorSpec* spec = nullptr;
 
   /// Wether or not the associated DataProcessor can forward things early
@@ -47,7 +49,7 @@ struct DataProcessorContext {
   bool isSink = false;
   bool balancingInputs = true;
 
-  std::function<void(o2::framework::RuntimeErrorRef e, InputRecord& record)>* errorHandling = nullptr;
+  std::function<void(o2::framework::RuntimeErrorRef e, InputRecord& record)> errorHandling = nullptr;
 };
 
 } // namespace o2::framework

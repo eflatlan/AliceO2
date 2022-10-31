@@ -112,52 +112,18 @@ void on_communication_requested(uv_async_t* s)
   state->loopReason |= DeviceState::METRICS_MUST_FLUSH;
 }
 
+DeviceSpec const&getRunningDevice(RunningDeviceRef const& running, ServiceRegistryRef const& services)
+{
+  return services.get<o2::framework::RunningWorkflowInfo const>().devices[running.index];
+}
+
 DataProcessingDevice::DataProcessingDevice(RunningDeviceRef running, ServiceRegistry& registry, ProcessingPolicies& policies)
-  : mSpec{registry.get<RunningWorkflowInfo const>(ServiceRegistry::globalDeviceSalt()).devices[running.index]},
-    mInit{mSpec.algorithm.onInit},
-    mStatefulProcess{nullptr},
-    mStatelessProcess{mSpec.algorithm.onProcess},
-    mError{mSpec.algorithm.onError},
+  : mRunningDevice{running},
+    mSpec{registry.get<RunningWorkflowInfo const>(ServiceRegistry::globalDeviceSalt()).devices[running.index]},
     mConfigRegistry{nullptr},
     mServiceRegistry{registry},
     mProcessingPolicies{policies}
 {
-
-  /// FIXME: move erro handling to a service?
-  if (mError != nullptr) {
-    mErrorHandling = [&errorCallback = mError,
-                      &serviceRegistry = mServiceRegistry](RuntimeErrorRef e, InputRecord& record) {
-      ZoneScopedN("Error handling");
-      /// FIXME: we should pass the salt in, so that the message
-      ///        can access information which were stored in the stream.
-      ServiceRegistryRef ref{serviceRegistry, ServiceRegistry::globalDeviceSalt()};
-      auto& err = error_from_ref(e);
-      LOGP(error, "Exception caught: {} ", err.what);
-      demangled_backtrace_symbols(err.backtrace, err.maxBacktrace, STDERR_FILENO);
-      ref.get<DataProcessingStats>().exceptionCount++;
-      ErrorContext errorContext{record, ref, e};
-      errorCallback(errorContext);
-    };
-  } else {
-    mErrorHandling = [&errorPolicy = mProcessingPolicies.error,
-                      &serviceRegistry = mServiceRegistry](RuntimeErrorRef e, InputRecord& record) {
-      ZoneScopedN("Error handling");
-      auto& err = error_from_ref(e);
-      /// FIXME: we should pass the salt in, so that the message
-      ///        can access information which were stored in the stream.
-      LOGP(error, "Exception caught: {} ", err.what);
-      ServiceRegistryRef ref{serviceRegistry, ServiceRegistry::globalDeviceSalt()};
-      demangled_backtrace_symbols(err.backtrace, err.maxBacktrace, STDERR_FILENO);
-      ref.get<DataProcessingStats>().exceptionCount++;
-      switch (errorPolicy) {
-        case TerminationPolicy::QUIT:
-          throw e;
-        default:
-          break;
-      }
-    };
-  }
-
   std::function<void(const fair::mq::State)> stateWatcher = [this, &registry = mServiceRegistry](const fair::mq::State state) -> void {
     auto ref = ServiceRegistryRef{registry, ServiceRegistry::globalDeviceSalt()};
     auto& deviceState = ref.get<DeviceState>();
@@ -179,8 +145,8 @@ DataProcessingDevice::DataProcessingDevice(RunningDeviceRef running, ServiceRegi
   mStreams.resize(1);
   mHandles.resize(1);
 
+  ServiceRegistryRef ref{mServiceRegistry};
   mAwakeHandle = (uv_async_t*)malloc(sizeof(uv_async_t));
-  auto ref = ServiceRegistryRef{registry, ServiceRegistry::globalDeviceSalt()};
   auto &state = ref.get<DeviceState>();
   assert(state.loop);
   int res = uv_async_init(state.loop, mAwakeHandle, on_communication_requested);
@@ -337,6 +303,12 @@ void on_out_of_band_polled(uv_poll_t* poller, int status, int events)
 /// * Invoke the actual init callback, which returns the processing callback.
 void DataProcessingDevice::Init()
 {
+  auto ref = ServiceRegistryRef{mServiceRegistry};
+  auto& context = ref.get<DataProcessorContext>();
+  auto& spec = getRunningDevice(mRunningDevice, ref);
+  context.statelessProcess = spec.algorithm.onProcess;
+  context.statefulProcess = nullptr;
+  context.error = spec.algorithm.onError;
   TracyAppInfo(mSpec.name.data(), mSpec.name.size());
   ZoneScopedN("DataProcessingDevice::Init");
 
@@ -368,13 +340,12 @@ void DataProcessingDevice::Init()
 
   mConfigRegistry = std::make_unique<ConfigParamRegistry>(std::move(configStore));
 
-  mExpirationHandlers.clear();
-
-  if (mInit) {
+  context.expirationHandlers.clear();
+  context.init = spec.algorithm.onInit;
+  if (context.init) {
     InitContext initContext{*mConfigRegistry, mServiceRegistry};
-    mStatefulProcess = mInit(initContext);
+    context.statefulProcess = context.init(initContext);
   }
-  auto ref = ServiceRegistryRef{mServiceRegistry};
   auto& state= ref.get<DeviceState>();
   state.inputChannelInfos.resize(mSpec.inputChannels.size());
   /// Internal channels which will never create an actual message
@@ -632,10 +603,11 @@ void DataProcessingDevice::initPollers()
 {
   auto ref = ServiceRegistryRef{mServiceRegistry};
   auto& deviceContext = ref.get<DeviceContext>();
+  auto& context = ref.get<DataProcessorContext>();
   auto& spec = ref.get<DeviceSpec const>();
   auto& state = ref.get<DeviceState>();
   // We add a timer only in case a channel poller is not there.
-  if ((mStatefulProcess != nullptr) || (mStatelessProcess != nullptr)) {
+  if ((context.statefulProcess != nullptr) || (context.statelessProcess != nullptr)) {
     for (auto& [channelName, channel] : fChannels) {
       InputChannelInfo* channelInfo;
       for (size_t ci = 0; ci < spec.inputChannels.size(); ++ci) {
@@ -805,6 +777,7 @@ void DataProcessingDevice::InitTask()
 {
   auto ref = ServiceRegistryRef{mServiceRegistry};
   auto& deviceContext = ref.get<DeviceContext>();
+  auto& context = ref.get<DataProcessorContext>();
   auto distinct = DataRelayerHelpers::createDistinctRouteIndex(mSpec.inputs);
   auto& state = ref.get<DeviceState>();
   int i = 0;
@@ -821,7 +794,7 @@ void DataProcessingDevice::InitTask()
       .creator = route.configurator->creatorConfigurator(state, mServiceRegistry, *mConfigRegistry),
       .checker = route.configurator->danglingConfigurator(state, *mConfigRegistry),
       .handler = route.configurator->expirationConfigurator(state, *mConfigRegistry)};
-    mExpirationHandlers.emplace_back(std::move(handler));
+    context.expirationHandlers.emplace_back(std::move(handler));
   }
 
   if (state.awakeMainThread == nullptr) {
@@ -917,13 +890,41 @@ void DataProcessingDevice::fillContext(DataProcessorContext& context, DeviceCont
   }
 
   context.registry = &mServiceRegistry;
-  context.completed = &mCompleted;
-  context.expirationHandlers = &mExpirationHandlers;
-  context.statefulProcess = &mStatefulProcess;
-  context.statelessProcess = &mStatelessProcess;
-  context.error = &mError;
   /// Callback for the error handling
-  context.errorHandling = &mErrorHandling;
+  /// FIXME: move erro handling to a service?
+  if (context.error != nullptr) {
+    context.errorHandling = [&errorCallback = context.error,
+                      &serviceRegistry = mServiceRegistry](RuntimeErrorRef e, InputRecord& record) {
+      ZoneScopedN("Error handling");
+      /// FIXME: we should pass the salt in, so that the message
+      ///        can access information which were stored in the stream.
+      ServiceRegistryRef ref{serviceRegistry, ServiceRegistry::globalDeviceSalt()};
+      auto& err = error_from_ref(e);
+      LOGP(error, "Exception caught: {} ", err.what);
+      demangled_backtrace_symbols(err.backtrace, err.maxBacktrace, STDERR_FILENO);
+      ref.get<DataProcessingStats>().exceptionCount++;
+      ErrorContext errorContext{record, ref, e};
+      errorCallback(errorContext);
+    };
+  } else {
+    context.errorHandling = [&errorPolicy = mProcessingPolicies.error,
+                      &serviceRegistry = mServiceRegistry](RuntimeErrorRef e, InputRecord& record) {
+      ZoneScopedN("Error handling");
+      auto& err = error_from_ref(e);
+      /// FIXME: we should pass the salt in, so that the message
+      ///        can access information which were stored in the stream.
+      LOGP(error, "Exception caught: {} ", err.what);
+      ServiceRegistryRef ref{serviceRegistry, ServiceRegistry::globalDeviceSalt()};
+      demangled_backtrace_symbols(err.backtrace, err.maxBacktrace, STDERR_FILENO);
+      ref.get<DataProcessingStats>().exceptionCount++;
+      switch (errorPolicy) {
+        case TerminationPolicy::QUIT:
+          throw e;
+        default:
+          break;
+      }
+    };
+  }
   /// We must make sure there is no optional
   /// if we want to optimize the forwarding
   context.canForwardEarly = (mSpec.forwards.empty() == false) && mProcessingPolicies.earlyForward != EarlyForwardPolicy::NEVER;
@@ -1337,9 +1338,9 @@ void DataProcessingDevice::doRun(DataProcessorContext& context)
     return;
   }
 
-  context.completed->clear();
-  context.completed->reserve(16);
-  *context.wasActive |= DataProcessingDevice::tryDispatchComputation(context, *context.completed);
+  context.completed.clear();
+  context.completed.reserve(16);
+  *context.wasActive |= DataProcessingDevice::tryDispatchComputation(context, context.completed);
   DanglingContext danglingContext{*context.registry};
 
   context.registry->preDanglingCallbacks(danglingContext);
@@ -1347,11 +1348,11 @@ void DataProcessingDevice::doRun(DataProcessorContext& context)
     ServiceRegistryRef ref{*context.registry};
     ref.get<CallbackService>()(CallbackService::Id::Idle);
   }
-  auto activity = ref.get<DataRelayer>().processDanglingInputs(*context.expirationHandlers, *context.registry, true);
+  auto activity = ref.get<DataRelayer>().processDanglingInputs(context.expirationHandlers, *context.registry, true);
   *context.wasActive |= activity.expiredSlots > 0;
 
-  context.completed->clear();
-  *context.wasActive |= DataProcessingDevice::tryDispatchComputation(context, *context.completed);
+  context.completed.clear();
+  *context.wasActive |= DataProcessingDevice::tryDispatchComputation(context, context.completed);
 
   context.registry->postDanglingCallbacks(danglingContext);
 
@@ -1375,8 +1376,8 @@ void DataProcessingDevice::doRun(DataProcessorContext& context)
     /// timers as they do not need to be further processed.
     bool hasOnlyGenerated = (spec.inputChannels.size() == 1) && (spec.inputs[0].matcher.lifetime == Lifetime::Timer || spec.inputs[0].matcher.lifetime == Lifetime::Enumeration);
     auto &relayer = ref.get<DataRelayer>();
-    while (DataProcessingDevice::tryDispatchComputation(context, *context.completed) && hasOnlyGenerated == false) {
-      relayer.processDanglingInputs(*context.expirationHandlers, *context.registry, false);
+    while (DataProcessingDevice::tryDispatchComputation(context, context.completed) && hasOnlyGenerated == false) {
+      relayer.processDanglingInputs(context.expirationHandlers, *context.registry, false);
     }
     EndOfStreamContext eosContext{*context.registry, ref.get<DataAllocator>()};
 
@@ -2002,12 +2003,12 @@ bool DataProcessingDevice::tryDispatchComputation(DataProcessorContext& context,
           // Callbacks from users
           ref.get<CallbackService>()(CallbackService::Id::PreProcessing, ServiceRegistryRef{*(context.registry)}, (int)action.op);
         }
-        if (*context.statefulProcess) {
+        if (context.statefulProcess) {
           ZoneScopedN("statefull process");
-          (*context.statefulProcess)(processContext);
-        } else if (*context.statelessProcess) {
+          (context.statefulProcess)(processContext);
+        } else if (context.statelessProcess) {
           ZoneScopedN("stateless process");
-          (*context.statelessProcess)(processContext);
+          (context.statelessProcess)(processContext);
         } else {
           state.streaming = StreamingState::Idle;
         }
@@ -2035,7 +2036,7 @@ bool DataProcessingDevice::tryDispatchComputation(DataProcessorContext& context,
         runNoCatch(action);
       } catch (o2::framework::RuntimeErrorRef e) {
         ZoneScopedN("error handling");
-        (*context.errorHandling)(e, record);
+        (context.errorHandling)(e, record);
       }
     } else {
       try {
@@ -2046,10 +2047,10 @@ bool DataProcessingDevice::tryDispatchComputation(DataProcessorContext& context,
         /// Notice how this will lose the backtrace information
         /// and report the exception coming from here.
         auto e = runtime_error(ex.what());
-        (*context.errorHandling)(e, record);
+        (context.errorHandling)(e, record);
       } catch (o2::framework::RuntimeErrorRef e) {
         ZoneScopedN("error handling");
-        (*context.errorHandling)(e, record);
+        (context.errorHandling)(e, record);
       }
     }
     if (state.severityStack.empty() == false) {
