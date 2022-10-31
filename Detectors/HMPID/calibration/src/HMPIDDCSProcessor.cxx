@@ -136,12 +136,12 @@ void HMPIDDCSProcessor::processTRANS(const DPCOM& dp)
   }
 
   if (alias.substr(alias.length() - 10) == WAVE_LEN_ID) {
-    waveLenVec[num].push_back(dp);
+    waveLenVec[num].emplace_back(dp);
     if (mVerbose) {
       LOG(info) << "WAVE_LEN_ID DP: " << alias;
     }
   } else if (transparencyString == FREON_CELL_ID) {
-    freonCellVec[num].push_back(dp);
+    freonCellVec[num].emplace_back(dp);
     if (mVerbose) {
       LOG(info) << "FREON_CELL_ID DP: " << alias;
     }
@@ -149,15 +149,15 @@ void HMPIDDCSProcessor::processTRANS(const DPCOM& dp)
     if (mVerbose) {
       LOG(info) << "ARGON_CELL_ID DP: " << alias;
     }
-    argonCellVec[num].push_back(dp);
+    argonCellVec[num].emplace_back(dp);
   } else if (transparencyString == REF_ID) {
     if (alias.substr(alias.length() - 14) == ARGON_REF_ID) {
       if (mVerbose) {
         LOG(info) << "ARGON_REF_ID DP: " << alias;
       }
-      argonRefVec[num].push_back(dp);
+      argonRefVec[num].emplace_back(dp);
     } else if (alias.substr(alias.length() - 14) == FREON_REF_ID) {
-      freonRefVec[num].push_back(dp);
+      freonRefVec[num].emplace_back(dp);
       if (mVerbose) {
         LOG(info) << "FREON_REF_ID DP: " << alias;
       }
@@ -180,9 +180,10 @@ void HMPIDDCSProcessor::fillEnvPressure(const DPCOM& dpcom)
 
   // check if datatype is as expected
   if (type == DeliveryType::DPVAL_DOUBLE) {
-    dpVecEnv.push_back(dpcom);
+    dpVecEnv.emplace_back(dpcom);
   } else {
     LOG(warn) << "Invalid Datatype for Env Pressure";
+    LOG(warn) << "Env Pressure string: " << dpid;
   }
 }
 
@@ -198,9 +199,13 @@ void HMPIDDCSProcessor::fillChPressure(const DPCOM& dpcom)
     // find chamber number:
     auto chNum = aliasStringToInt(dpid, indexChPr);
     if (chNum < 7 && chNum >= 0) {
-      dpVecCh[chNum].push_back(dpcom);
+      dpVecCh[chNum].emplace_back(dpcom);
     } else {
       LOG(warn) << "Chamber Number out of range for Pressure : " << chNum;
+      const std::string inputString(dpid.get_alias());
+      char stringPos = inputString[indexChPr];
+      LOG(warn) << "Chamber Pressure string: " << inputString;
+      LOG(warn) << "Chamber Pressure extracted num: " << stringPos;
     }
   } else {
     LOG(warn) << "Not correct datatype for Pressure : ";
@@ -224,7 +229,7 @@ void HMPIDDCSProcessor::fillHV(const DPCOM& dpcom)
     } */
     if (chNum < 7 && chNum >= 0) {
       if (secNum < 6 && secNum >= 0) {
-        dpVecHV[6 * chNum + secNum].push_back(dpcom);
+        dpVecHV[6 * chNum + secNum].emplace_back(dpcom);
       } else {
         LOG(warn) << "Sector Number out of range for HV : " << secNum;
       }
@@ -249,7 +254,7 @@ void HMPIDDCSProcessor::fillTempIn(const DPCOM& dpcom)
     // verify chamber- and raiator-numbers
     if (chNum < 7 && chNum >= 0) {
       if (radNum < 3 && radNum >= 0) {
-        dpVecTempIn[3 * chNum + radNum].push_back(dpcom);
+        dpVecTempIn[3 * chNum + radNum].emplace_back(dpcom);
       } else {
         LOG(warn) << "Radiator Number out of range for TempIn :" << radNum;
       }
@@ -274,7 +279,7 @@ void HMPIDDCSProcessor::fillTempOut(const DPCOM& dpcom)
     // verify chamber- and raiator-numbers
     if (chNum < 7 && chNum >= 0) {
       if (radNum < 3 && radNum >= 0) {
-        dpVecTempOut[3 * chNum + radNum].push_back(dpcom);
+        dpVecTempOut[3 * chNum + radNum].emplace_back(dpcom);
 
       } else {
         LOG(warn) << "Radiator Number out of range for TempOut DP : " << radNum;
@@ -753,7 +758,7 @@ std::unique_ptr<TF1> HMPIDDCSProcessor::finalizeHv(int iCh, int iSec)
     // ef: can not check pHvTF for nullptr, because it is defined based on the 
     // the outcome of the following if-block
     if(pGrHV == nullptr || cntHV <= 0){
-      LOG(warn) << Form("nullptr in High Voltage for HVch%isec%i", iCh, iSec);
+      LOG(warn) << Form("nullptr in High Voltage for HV%isec%i", iCh, iSec);
     } else if (cntHV == 1) {
       pGrHV->GetPoint(0, xP, yP);
 
@@ -800,10 +805,12 @@ void HMPIDDCSProcessor::finalize()
       bool isTempInValid = finalizeTempIn(iCh, iRad);
 
       if(isTempInValid == false){
+        LOGP(warn, "Tin{}{} not valid! Setting default TF1!", iCh, iRad);
         // this means that the entry was not valid, and thus the vector is not filled
 	std::unique_ptr<TF1> pTinDefault;
+	pTinDefault.reset(new TF1());
         setDefault(pTinDefault.get(), true);
-        
+
         // ef: set flag in invalid object, such that it can be read in receiving
  	// side (Ckov reconstruction) as invalid and thus use default value
         arNmean[6 * iCh + 2 * iRad] = *(pTinDefault.get());
@@ -814,8 +821,10 @@ void HMPIDDCSProcessor::finalize()
       bool isTempOutValid = finalizeTempOut(iCh, iRad);
 
       if(isTempOutValid == false){
+        LOGP(warn, "Tout{}{} not valid! Setting default TF1!", iCh, iRad);
         // this means that the entry was not valid, and thus the vector is not filled
         std::unique_ptr<TF1> pToutDefault;
+	pToutDefault.reset(new TF1());
         setDefault(pToutDefault.get(), true);
         
         // ef: set flag in invalid object, such that it can be read in receiving
@@ -855,6 +864,7 @@ void HMPIDDCSProcessor::finalize()
 
       } else {
         std::unique_ptr<TF1> pQthreDefault;
+	pQthreDefault.reset(new TF1());
         setDefault(pQthreDefault.get(), true);
         //setDefault(TF1* f, bool v)// const {f->SetBit(kDefault, v);}
         
@@ -870,7 +880,7 @@ void HMPIDDCSProcessor::finalize()
         if(pChPres == nullptr){
           LOGP(warn, "Missing entries for chamber-pressure P{}", iCh, iCh);
         }
-        if(pChPres == nullptr){
+        if(pHV == nullptr){
           LOGP(warn, "Missing entries for High Voltage HV{}{}", iCh, iSec);
         }
       }

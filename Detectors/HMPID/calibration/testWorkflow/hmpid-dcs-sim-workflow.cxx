@@ -58,12 +58,12 @@ o2::framework::WorkflowSpec defineDataProcessing(ConfigContext const& config)
   dphints.emplace_back(o2::dcs::test::DataPointHint<double>{"HMP_ENV_PENV", 1003., 1023.});
 
   // ==|(CH4) Chamber Pressures  (mBar) |=================================
-  dphints.emplace_back(o2::dcs::test::DataPointHint<double>{"HMP_MP[0..6]_GAS_PMWPC", 3., 5.});
+  dphints.emplace_back(o2::dcs::test::DataPointHint<double>{"HMP_MP_[0..6]_GAS_PMWPC", 3., 5.});
 
   //==| Temperature C6F14 IN/OUT / RADIATORS  (C) |=================================
 
-  dphints.emplace_back(o2::dcs::test::DataPointHint<double>{"HMP_MP[0..6]_LIQ_LOOP_RAD_[0..2]_IN_TEMP", 21.5, 22.5});
-  dphints.emplace_back(o2::dcs::test::DataPointHint<double>{"HMP_MP[0..6]_LIQ_LOOP_RAD_[0..2]_OUT_TEMP", 24.5, 25.5});
+  dphints.emplace_back(o2::dcs::test::DataPointHint<double>{"HMP_MP_[0..6]_LIQ_LOOP_RAD_[0..2]_IN_TEMP", 21.5, 22.5});
+  dphints.emplace_back(o2::dcs::test::DataPointHint<double>{"HMP_MP_[0..6]_LIQ_LOOP_RAD_[0..2]_OUT_TEMP", 24.5, 25.5});
 
   // ===| HV / SECTORS (V) |=========================================================
   dphints.emplace_back(o2::dcs::test::DataPointHint<double>{"HMP_MP_[0..6]_SEC_[0..5]_HV_VMON", 2049.5, 2050.5});
