@@ -301,49 +301,30 @@ double HMPIDDCSProcessor::procTrans()
       continue; // if photon energy is out of range
     }
 
-    // ===== evaluate phototube current for argon reference
-    // ==============================================================
- 
-    // ef:warning is already raised in dpVector2Double if default eMean is used, 
-    // not really necessary to raise exception here?
-
-    // ef: can change here to returning eMeanDefault
-    // instead of the function call..
+    // ===== evaluate phototube current for argon reference ============================
     refArgon = dpVector2Double(argonRefVec[i], "ARGONREF", i);
     if (refArgon == eMeanDefault) { 
-      //ef: default mean value is used; removed mVerbose
-      //ef: changed to warn, but can be removed since the warning is done in dpVector2Double
-      LOG(warn) << "refArgon == defaultEMean()";
+      // ef: removed warn here, since it is done in the dpVector2double
+      /*LOG(warn) << "refArgon == defaultEMean()"; */
+      // ef: simply return eMeanDefault; replacing defaultEMean() function-call
       return eMeanDefault;
     }
 
-    //===== evaluate phototube current for argon cell
-    //==================================================================
+    //===== evaluate phototube current for argon cell===================================
     cellArgon = dpVector2Double(argonCellVec[i], "ARGONCELL", i);
     if (cellArgon == eMeanDefault) {
-      if (mVerbose) {   //ef: default mean value is used, should warning be raised?
-        LOG(info) << "cellArgon == defaultEMean()";
-      }
       return eMeanDefault;
     }
 
-    //====evaluate phototube current for freon reference
-    //================================================================
+    //==== evaluate phototube current for freon reference ==============================
     refFreon = dpVector2Double(freonRefVec[i], "C6F14REFERENCE", i);
     if (refFreon == eMeanDefault) {
-      if (mVerbose) {   //ef: default mean value is used, should warning be raised?
-        LOG(info) << "refFreon == defaultEMean()";
-      }
       return eMeanDefault;
     }
 
-    // ==== evaluate phototube current for freon cell
-    // ===================================================================
+    // ==== evaluate phototube current for freon cell ==================================
     cellFreon = dpVector2Double(freonCellVec[i], "C6F14CELL", i);
     if (cellFreon == eMeanDefault) {
-      if (mVerbose) {   //ef: default mean value is used, should warning be raised?
-        LOG(info) << "cellFreon == defaultEMean()";
-      }
       return eMeanDefault;
     }
 
@@ -351,10 +332,10 @@ double HMPIDDCSProcessor::procTrans()
     bool isEvalCorrOk = evalCorrFactor(refArgon, cellArgon, refFreon, cellFreon, photEn, i);
 
     // ef: Returns false if dRefFreon * dRefArgon < 0
-    // ef: not really necessary to raise exception, as it already is done in evalCorrFactor if it is not ok
     if (!isEvalCorrOk) {
       return eMeanDefault;
     }
+
 
     // Evaluate timestamps :
 
@@ -382,18 +363,20 @@ double HMPIDDCSProcessor::procTrans()
 
   } // end for
 
+
+  // evaluate total energy --> mean photon energy
   if (sProb > 0) {
     eMean = sEnergProb / sProb;
   } else {
     // ef: removed mVerbose and changed to warn
-    LOG(warn) << " sProb < 0 : Default ";
+    LOGP(warn, " sProb < 0 --> Default E mean used! ");
     return eMeanDefault;
   }
 
-  // ef: change to warn?
+  // ef: changed to warn
   if (eMean < o2::hmpid::Param::ePhotMin() ||
       eMean > o2::hmpid::Param::ePhotMax()) { 
-    LOG(warn) << " eMean out of range " << eMean;
+    LOGP(warn, "eMean out of range  ({}) --> Default E mean used! ", eMean);
     return eMeanDefault;
   }
 
@@ -570,7 +553,7 @@ std::unique_ptr<TF1> HMPIDDCSProcessor::finalizeEnvPressure()
      
     return pEnv;
   }
-  LOG(warn) << Form("No entries in environment pressure");
+  LOG(warn) << Form("No entries in environment pressure Penv");
   return pEnv;
 }
 
@@ -625,12 +608,12 @@ std::unique_ptr<TF1> HMPIDDCSProcessor::finalizeChPressure(int iCh)
       if(pCh != nullptr){
         pArrCh[iCh] = *(pCh.get());
       } else{
-        LOG(warn) << Form("nullptr in chamber-pressure for Pch%i", iCh);
+        LOG(warn) << Form("nullptr in chamber-pressure for P%i", iCh);
       }
     }
     return pCh;
   }
-  LOG(warn) << Form("no entries in chamber-pressure for Pch%i", iCh);
+  LOG(warn) << Form("no entries in chamber-pressure for P%i", iCh);
 
   return pCh;
 }
@@ -684,7 +667,7 @@ bool HMPIDDCSProcessor::finalizeTempOut(int iCh, int iRad)
       return false;
     }    
   } else {
-    LOG(warn) << Form("No entries in Temperature out for ch%irad%i", iCh, iRad);
+    LOGP(warn, "No entries in Temperature out Tout{}{}", iCh, iRad);
     return false;
   }
 }
@@ -740,7 +723,7 @@ bool HMPIDDCSProcessor::finalizeTempIn(int iCh, int iRad)
       return false;
     }    
   } else {
-    LOG(warn) << Form("No entries in Temperature in for ch%irad%i", iCh, iRad);
+    LOGP(warn, "No entries in Temperature in Tin{}{}", iCh, iRad);
     return false;
   }
 }
@@ -780,7 +763,7 @@ std::unique_ptr<TF1> HMPIDDCSProcessor::finalizeHv(int iCh, int iSec)
       if(pHvTF!=nullptr){
         pArrHv[3 * iCh + iSec] = *(pHvTF.get());
       } else{
-        LOG(warn) << Form("nullptr in High Voltage for HVch%isec%i", iCh, iSec);
+        LOG(warn) << Form("nullptr in High Voltage for HV%i%i", iCh, iSec);
       }
 
     } else {
@@ -791,12 +774,12 @@ std::unique_ptr<TF1> HMPIDDCSProcessor::finalizeHv(int iCh, int iSec)
         pGrHV->Fit(Form("HV%i_%i", iCh, iSec), "Q");
         pArrHv[3 * iCh + iSec] = *(pHvTF.get());
       } else{
-        LOG(warn) << Form("nullptr in High Voltage for HVch%isec%i", iCh, iSec);
+        LOG(warn) << Form("nullptr in High Voltage for HV%i%i", iCh, iSec);
       }
     }
     return pHvTF;
   }
-  LOG(warn) << Form("No entries in High Voltage for HVch%isec%i", iCh, iSec);
+  LOG(warn) << Form("No entries in High Voltage for HV%i%i", iCh, iSec);
   return pHvTF;
 }
 
@@ -878,17 +861,17 @@ void HMPIDDCSProcessor::finalize()
         // ef: set flag in invalid object, such that it can be read in receiving
  	// side (Ckov reconstruction) as invalid and thus use default value
         arQthre[6 * iCh + iSec] = *(pQthreDefault.get());
-        LOGP(warn, "Missing entry in Charge-Threshold in chamber{} sector{} ", iCh, iSec);
+        LOGP(warn, "Missing entry in Charge-Threshold arQthre{} in chamber{} sector{} ", 6 * iCh + iSec, iCh, iSec);
 
 	// print which one is missing:
         if(pEnv == nullptr){
-	  LOG(warn) << "Missing entries for environment-pressure";
+	  LOG(warn) << "Missing entries for environment-pressure Penv";
         }
         if(pChPres == nullptr){
           LOGP(warn, "Missing entries for chamber-pressure P{}", iCh, iCh);
         }
         if(pChPres == nullptr){
-          LOGP(warn, "Missing entries for High Voltage HVch{}sec{}", iCh, iSec);
+          LOGP(warn, "Missing entries for High Voltage HV{}{}", iCh, iSec);
         }
       }
     }
