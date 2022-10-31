@@ -815,24 +815,25 @@ void HMPIDDCSProcessor::finalize()
       
       // 6*iCh + 2*iRad 
       bool isTempInValid = finalizeTempIn(iCh, iRad);
-      // this means that the entry was not valid, and thus the vector is not filled
+
       if(isTempInValid == false){
+        // this means that the entry was not valid, and thus the vector is not filled
 	std::unique_ptr<TF1> pTinDefault;
         setDefault(pTinDefault.get(), true);
-        //setDefault(TF1* f, bool v)// const {f->SetBit(kDefault, v);}
         
         // ef: set flag in invalid object, such that it can be read in receiving
  	// side (Ckov reconstruction) as invalid and thus use default value
         arNmean[6 * iCh + 2 * iRad] = *(pTinDefault.get());
       }
 
+
       // 6*iCh + 2*iRad + 1
       bool isTempOutValid = finalizeTempOut(iCh, iRad);
-      // this means that the entry was not valid, and thus the vector is not filled
+
       if(isTempOutValid == false){
+        // this means that the entry was not valid, and thus the vector is not filled
         std::unique_ptr<TF1> pToutDefault;
         setDefault(pToutDefault.get(), true);
-        //setDefault(TF1* f, bool v)// const {f->SetBit(kDefault, v);}
         
         // ef: set flag in invalid object, such that it can be read in receiving
  	// side (Ckov reconstruction) as invalid and thus use default value
@@ -874,7 +875,6 @@ void HMPIDDCSProcessor::finalize()
         setDefault(pQthreDefault.get(), true);
         //setDefault(TF1* f, bool v)// const {f->SetBit(kDefault, v);}
         
-
         // ef: set flag in invalid object, such that it can be read in receiving
  	// side (Ckov reconstruction) as invalid and thus use default value
         arQthre[6 * iCh + iSec] = *(pQthreDefault.get());
@@ -904,8 +904,12 @@ void HMPIDDCSProcessor::finalize()
 
   pPhotMean->SetTitle(Form("HMP_PhotEmean; Time [mS]; Photon Energy [eV]"));
 
-  if(pPhotMean!=nullptr){
+  if(pPhotMean != nullptr){
     arNmean[42] = *(pPhotMean.get());
+  } else {
+    std::unique_ptr<TF1> pPhotMeanDefault;
+    setDefault(pPhotMeanDefault.get(), true);
+    arNmean[42] = *(pPhotMeanDefault.get());
   }
 
   // Check entries of CCDB-objects
@@ -914,12 +918,12 @@ void HMPIDDCSProcessor::finalize()
   // prepare CCDB: =============================================================
 
   std::map<std::string, std::string> md;
-  md["responsible"] = "CHANGE RESPONSIBLE";
-  //    o2::ccdb::CcdbObjectInfo::INFINITE_TIMESTAMP
+  md["responsible"] = "Erlend Flatland";
+
   // Refractive index (T_out, T_in, mean photon energy);
   o2::calibration::Utils::prepareCCDBobjectInfo(
     arNmean, mccdbRefInfo, "HMP/Calib/RefIndex", md, mStartValidity, mStartValidity + 3 * o2::ccdb::CcdbObjectInfo::DAY);
-  LOG(info) << "mStartValidity = " << mStartValidity;
+
   // charge threshold;
   o2::calibration::Utils::prepareCCDBobjectInfo(
     arQthre, mccdbChargeInfo, "HMP/Calib/ChargeCut", md, mStartValidity, mStartValidity + 3 * o2::ccdb::CcdbObjectInfo::DAY);
