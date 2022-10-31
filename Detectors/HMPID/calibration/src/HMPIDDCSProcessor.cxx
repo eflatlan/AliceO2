@@ -68,7 +68,7 @@ void HMPIDDCSProcessor::process(const gsl::span<const DPCOM> dps)
       processTRANS(dp);
     } else if (detectorId == HMPID_ID) {
       processHMPID(dp);
-    } else { // ef: changed to warn and unkown DP==>missing DP
+    } else { // ef: changed to warn and "unkown DP" ==> "missing DP"
       LOG(warn) << "Missing data point: " << alias;
     }
   } // end for
@@ -120,10 +120,6 @@ void HMPIDDCSProcessor::processTRANS(const DPCOM& dp)
   const std::string alias(dpid.get_alias());
   const auto transparencyString = alias.substr(alias.length() - 9);
 
-  // exeptions have to be caught:
-  // const auto stringNum = alias.substr(22,2);
-  // const int num = stoi(stringNum);
-
   // Get index [0..29] of Transparency-measurement
   const int dig1 = aliasStringToInt(dpid, 22);
   const int dig2 = aliasStringToInt(dpid, 23);
@@ -165,10 +161,10 @@ void HMPIDDCSProcessor::processTRANS(const DPCOM& dp)
       if (mVerbose) {
         LOG(info) << "FREON_REF_ID DP: " << alias;
       }
-    } else {  // ef: remove mVerbose, change to warn, and DP not found ==> Missing DP
+    } else {  // ef: remove mVerbose, change to warn, and "DP not found" ==> "Missing DP"
       LOG(warn) << "Missing Data point: " << alias;
     }
-  } else {  // ef:change to warn and DP not found ==> Missing DP
+  } else {  // ef:change to warn and "DP not found" ==> "Missing DP"
     LOG(warn) << "Missing Data point: " << alias;
   }
 }
@@ -220,9 +216,12 @@ void HMPIDDCSProcessor::fillHV(const DPCOM& dpcom)
   if (type == DeliveryType::DPVAL_DOUBLE) {
     const auto chNum = aliasStringToInt(dpid, indexChHv);
     const auto secNum = aliasStringToInt(dpid, indexSecHv);
+
+    // ef: can remove this now, since the problem with the strings is fixed:
+    /* 
     if (mVerbose) {
       LOGP(info, "HV ch:{} sec:{} val: {}", chNum, secNum, o2::dcs::getValue<double>(dpcom));
-    }
+    } */
     if (chNum < 7 && chNum >= 0) {
       if (secNum < 6 && secNum >= 0) {
         dpVecHV[6 * chNum + secNum].push_back(dpcom);
@@ -307,6 +306,9 @@ double HMPIDDCSProcessor::procTrans()
  
     // ef:warning is already raised in dpVector2Double if default eMean is used, 
     // not really necessary to raise exception here?
+
+    // ef: can change here to returning eMeanDefault
+    // instead of the function call..
     refArgon = dpVector2Double(argonRefVec[i], "ARGONREF", i);
     if (refArgon == eMeanDefault) { 
       //ef: default mean value is used; removed mVerbose
