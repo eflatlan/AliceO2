@@ -306,7 +306,7 @@ class HMPIDDCSProcessor
 
   //======= finalize() and fill() private variables
   //============================================================
-  Double_t xP, yP;
+  double xP, yP;
 
   // env pressure
   int cntEnvPressure = 0;      // cnt Environment-pressure entries
