@@ -64,8 +64,7 @@ class HMPIDDCSProcessor
   ~HMPIDDCSProcessor() = default;
 
   // Process Datapoints:
-  // ========================================================================================================
-
+  // ====================================================================
   // process span of DPs:
   // process DPs, fetch IDs and call processIR or processHMPID
   void init(const std::vector<DPID>& pids);
@@ -95,8 +94,8 @@ class HMPIDDCSProcessor
   std::unique_ptr<TF1> finalizeEnvPressure();
   std::unique_ptr<TF1> finalizeChPressure(int iCh);
   std::unique_ptr<TF1> finalizeHv(int iCh, int iSec);
-  void finalizeTempOut(int iCh, int iRad);
-  void finalizeTempIn(int iCh, int iRad);
+  bool finalizeTempOut(int iCh, int iRad);
+  bool finalizeTempIn(int iCh, int iRad);
 
   // called from HMPIDDCSDataProcessorSpec,
   // loops over all the arrays of DPCOM-vectors, and calls the relevant
@@ -281,7 +280,13 @@ class HMPIDDCSProcessor
   {
     mRunNumberFromGRP = rn;
   } // ef : just using the same as for emcal
+
+
  private:
+  const UInt_t kDefault = BIT(14);
+  bool isDefault(const TF1* f) const {return f->TestBit(kDefault);}
+  void setDefault(TF1* f, bool v) {f->SetBit(kDefault, v);}
+
   std::unordered_map<DPID, bool> mPids;
 
   int mRunNumberFromGRP = -2; // ef : just using the same as for emcal

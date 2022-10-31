@@ -386,7 +386,7 @@ double HMPIDDCSProcessor::procTrans()
     eMean = sEnergProb / sProb;
   } else {
     // ef: removed mVerbose and changed to warn
-    LOG(warn) << " sProb < 0 ";
+    LOG(warn) << " sProb < 0 : Default ";
     return eMeanDefault;
   }
 
@@ -500,7 +500,7 @@ bool HMPIDDCSProcessor::evalCorrFactor(double dRefArgon, double dCellArgon,
                                (dCellArgon / dRefArgon) * aCorrFactor[i],
                              aConvFactor);
   } else { // ef: removed if mVerbose
-    LOG(warn) << "dRefFreon*dRefArgon<0" << dRefFreon * dRefArgon;    
+    LOGP(warn, "dRefFreon*dRefArgon<0 --> Default E mean used! dRefFreon = {} | dRefArgon = {}", dRefFreon, dRefArgon);    
     return false;
   }
 
@@ -636,7 +636,7 @@ std::unique_ptr<TF1> HMPIDDCSProcessor::finalizeChPressure(int iCh)
 }
 
 // process Tempout
-void HMPIDDCSProcessor::finalizeTempOut(int iCh, int iRad)
+bool HMPIDDCSProcessor::finalizeTempOut(int iCh, int iRad)
 {
   if (dpVecTempOut[3 * iCh + iRad].size() != 0) {
     cntTOut = 0;
@@ -661,8 +661,9 @@ void HMPIDDCSProcessor::finalizeTempOut(int iCh, int iRad)
     // ef: here CCDB-entry will be nullptr if if-case is true
     // this is ok, because on the receiving side of the object, we will check
     // if the entry is nullptr, and in that case use a default value 
-    if(pTout == nullptr || pGrTOut == nullptr || cntTOut <=0 ){
-      LOGP(warn, "NullPtr in Temperature out Tout{}", iCh);
+    if(pTout == nullptr || pGrTOut == nullptr || cntTOut <= 0 ){
+      LOGP(warn, "NullPtr in Temperature out Tout{}{}", iCh, iRad);
+      return false;
     } else if (cntTOut == 1) {
       pGrTOut->GetPoint(0, xP, yP);
       pTout->SetParameter(0, yP);
@@ -677,20 +678,22 @@ void HMPIDDCSProcessor::finalizeTempOut(int iCh, int iRad)
     if(pTout != nullptr && pGrTOut != nullptr && cntTOut > 0 ){
       pTout->SetTitle(Form("Temp-Out Fit Chamber%i Radiator%i; Time [ms];Temp [C]", iCh, iRad));
       arNmean[6 * iCh + 2 * iRad + 1] = *(pTout.get());
+      return true;
     } else{
-      arNmean[6 * iCh + 2 * iRad + 1] = TF1("error ex","1",0,1);
-    }
-    
-    
+      LOGP(warn, "NullPtr in Temperature out Tout{}{}", iCh, iRad);
+      return false;
+    }    
   } else {
     LOG(warn) << Form("No entries in Temperature out for ch%irad%i", iCh, iRad);
+    return false;
   }
 }
 
-// process Tempin
-void HMPIDDCSProcessor::finalizeTempIn(int iCh, int iRad)
-{
 
+
+// process Tempin
+bool HMPIDDCSProcessor::finalizeTempIn(int iCh, int iRad)
+{
   if (dpVecTempIn[3 * iCh + iRad].size() != 0) {
     cntTin = 0;
 
@@ -711,24 +714,34 @@ void HMPIDDCSProcessor::finalizeTempIn(int iCh, int iRad)
     pTin.reset(
       new TF1(Form("Tin%i%i", iCh, iRad), "[0]+[1]*x", minTime, maxTime));
 
-    if(pTin == nullptr || pGrTIn == nullptr || cntTin <=0 ){
-      LOGP(warn, "NullPtr in Temperature out Tout{}", iCh);
-    } else if (cntTin == 1) {
+    // ef: here CCDB-entry will be nullptr if if-case is true
+    // this is ok, because on the receiving side of the object, we will check
+    // if the entry is nullptr, and in that case use a default value 
+    if(pTin == nullptr || pGrTIn == nullptr || cntTOut <= 0 ){
+      LOGP(warn, "NullPtr in Temperature in Tin{}{}", iCh, iRad);
+      return false;
+    } else if (cntTOut == 1) {
       pGrTIn->GetPoint(0, xP, yP);
       pTin->SetParameter(0, yP);
       pTin->SetParameter(1, 0);
     } else {
-      pGrTIn->Fit(Form("Tin%i%i", iCh, iRad), "Q");
+      pGrTIn->Fit(Form("Tin%i%i", iCh, iRad), "R");
     }
 
-    if(pTin != nullptr && pGrTIn != nullptr && cntTin > 0 ){
-      pTin->SetTitle(Form("Temp-In Fit Chamber%i Radiator%i; Time [ms]; Temp [C]",
-                        iCh, iRad));
-      arNmean[6 * iCh + 2 * iRad] = *(pTin.get());
-    }
-
+    //ef: in this case everything is ok, and we can set title and put entry in CCDB:
+    //    have to check all for nullptr, because pTout is defined before if/else block,
+    //    and thus will not be nullptr no matter the outcome of the if/else block 
+    if(pTin != nullptr && pGrTIn != nullptr && cntTOut > 0 ){
+      pTin->SetTitle(Form("Temp-In Fit Chamber%i Radiator%i; Time [ms];Temp [C]", iCh, iRad));
+      arNmean[6 * iCh + 2 * iRad + 1] = *(pTin.get());
+      return true;
+    } else{
+      LOGP(warn, "NullPtr in Temperature in Tin{}{}", iCh, iRad);
+      return false;
+    }    
   } else {
-    LOG(warn) << Form("No entries in Temperature In for ch%irad%i", iCh, iRad);
+    LOG(warn) << Form("No entries in Temperature in for ch%irad%i", iCh, iRad);
+    return false;
   }
 }
 
@@ -781,7 +794,6 @@ std::unique_ptr<TF1> HMPIDDCSProcessor::finalizeHv(int iCh, int iSec)
         LOG(warn) << Form("nullptr in High Voltage for HVch%isec%i", iCh, iSec);
       }
     }
-
     return pHvTF;
   }
   LOG(warn) << Form("No entries in High Voltage for HVch%isec%i", iCh, iSec);
@@ -800,9 +812,33 @@ void HMPIDDCSProcessor::finalize()
 
     // fills up entries 0..41 of arNmean
     for (int iRad = 0; iRad < 3; iRad++) {
+      
+      // 6*iCh + 2*iRad 
+      bool isTempInValid = finalizeTempIn(iCh, iRad);
+      // this means that the entry was not valid, and thus the vector is not filled
+      if(isTempInValid == false){
+	std::unique_ptr<TF1> pTinDefault;
+        setDefault(pTinDefault.get(), true);
+        //setDefault(TF1* f, bool v)// const {f->SetBit(kDefault, v);}
+        
+        // ef: set flag in invalid object, such that it can be read in receiving
+ 	// side (Ckov reconstruction) as invalid and thus use default value
+        arNmean[6 * iCh + 2 * iRad] = *(pTinDefault.get());
+      }
 
-      finalizeTempIn(iCh, iRad);  // 6*iCh + 2*iRad
-      finalizeTempOut(iCh, iRad); // 6*iCh + 2*iRad + 1
+      // 6*iCh + 2*iRad + 1
+      bool isTempOutValid = finalizeTempOut(iCh, iRad);
+      // this means that the entry was not valid, and thus the vector is not filled
+      if(isTempOutValid == false){
+        std::unique_ptr<TF1> pToutDefault;
+        setDefault(pToutDefault.get(), true);
+        //setDefault(TF1* f, bool v)// const {f->SetBit(kDefault, v);}
+        
+        // ef: set flag in invalid object, such that it can be read in receiving
+ 	// side (Ckov reconstruction) as invalid and thus use default value
+        arNmean[6 * iCh + 2 * iRad + 1] = *(pToutDefault.get());
+      }
+
     }
 
     // Fill entries in arQthre
@@ -834,6 +870,14 @@ void HMPIDDCSProcessor::finalize()
         arQthre[6 * iCh + iSec] = *(pQthre.get());
 
       } else {
+        std::unique_ptr<TF1> pQthreDefault;
+        setDefault(pQthreDefault.get(), true);
+        //setDefault(TF1* f, bool v)// const {f->SetBit(kDefault, v);}
+        
+
+        // ef: set flag in invalid object, such that it can be read in receiving
+ 	// side (Ckov reconstruction) as invalid and thus use default value
+        arQthre[6 * iCh + iSec] = *(pQthreDefault.get());
         LOGP(warn, "Missing entry in Charge-Threshold in chamber{} sector{} ", iCh, iSec);
 
 	// print which one is missing:
