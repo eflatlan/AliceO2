@@ -245,9 +245,9 @@ class HMPIDDCSDataProcessor : public o2::framework::Task
 
   std::vector<std::string> aliases = {
     "HMP_ENV_PENV",
-    "HMP_MP[0..6]_GAS_PMWPC",
-    "HMP_MP[0..6]_LIQ_LOOP_RAD_[0..2]_IN_TEMP",
-    "HMP_MP[0..6]_LIQ_LOOP_RAD_[0..2]_OUT_TEMP",
+    "HMP_MP_[0..6]_GAS_PMWPC",
+    "HMP_MP_[0..6]_LIQ_LOOP_RAD_[0..2]_IN_TEMP",
+    "HMP_MP_[0..6]_LIQ_LOOP_RAD_[0..2]_OUT_TEMP",
     "HMP_MP_[0..6]_SEC_[0..5]_HV_VMON",
     "HMP_TRANPLANT_MEASURE_[0..29]_WAVELENGHT",
     "HMP_TRANPLANT_MEASURE_[0..29]_ARGONREFERENCE",
