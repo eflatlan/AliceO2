@@ -28,7 +28,6 @@
 #include <gsl/gsl>
 #include <memory>
 #include <string>
-#include <chrono>
 
 // O2 includes:
 #include "CCDB/CcdbApi.h"
@@ -197,6 +196,7 @@ class HMPIDDCSProcessor
     }
     return firstTime;
   }
+
   // return timestamp of last fetched datapoint for a given ID (Tin/Tout,
   // Environment pressure, HV, chamber pressure)
   TimeStampType getMaxTime(const std::vector<DPCOM>& dps)
@@ -215,8 +215,6 @@ class HMPIDDCSProcessor
   void checkEntries(const std::vector<TF1>& arQthresh,
                     const std::vector<TF1>& arrayNmean)
   {
-    int cnt = 0;
-
     if (mVerbose) {
       LOG(info) << " checking if CCDB objects are filled : ";
     }
@@ -228,7 +226,6 @@ class HMPIDDCSProcessor
       if (isDefault(&tf)) {
         arQthreFull = false;
         LOGP(warn, "arQthre at {} empty ", cntQ);
-
       }
     }
 

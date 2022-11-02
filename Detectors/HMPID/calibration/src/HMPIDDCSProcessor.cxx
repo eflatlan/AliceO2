@@ -183,7 +183,6 @@ void HMPIDDCSProcessor::fillEnvPressure(const DPCOM& dpcom)
     dpVecEnv.emplace_back(dpcom);
   } else {
     LOG(warn) << "Invalid Datatype for Env Pressure";
-    LOG(warn) << "Env Pressure string: " << dpid;
   }
 }
 
@@ -204,8 +203,6 @@ void HMPIDDCSProcessor::fillChPressure(const DPCOM& dpcom)
       LOG(warn) << "Chamber Number out of range for Pressure : " << chNum;
       const std::string inputString(dpid.get_alias());
       char stringPos = inputString[indexChPr];
-      LOG(warn) << "Chamber Pressure string: " << inputString;
-      LOG(warn) << "Chamber Pressure extracted num: " << stringPos;
     }
   } else {
     LOG(warn) << "Not correct datatype for Pressure : ";
@@ -310,7 +307,6 @@ double HMPIDDCSProcessor::procTrans()
     refArgon = dpVector2Double(argonRefVec[i], "ARGONREF", i);
     if (refArgon == eMeanDefault) { 
       // ef: removed warn here, since it is done in the dpVector2double
-      /*LOG(warn) << "refArgon == defaultEMean()"; */
       // ef: simply return eMeanDefault; replacing defaultEMean() function-call
       return eMeanDefault;
     }
@@ -742,7 +738,6 @@ std::unique_ptr<TF1> HMPIDDCSProcessor::finalizeHv(int iCh, int iSec)
 // HMPIDDCSDataProcessorSpec::endOfStream() function
 void HMPIDDCSProcessor::finalize()
 {
-  std::chrono::steady_clock::time_point t = std::chrono::steady_clock::now();
   std::unique_ptr<TF1> pEnv = finalizeEnvPressure();
   for (int iCh = 0; iCh < 7; iCh++) {
 
@@ -788,9 +783,6 @@ void HMPIDDCSProcessor::finalize()
     for (int iSec = 0; iSec < 6; iSec++) {
 
       std::unique_ptr<TF1> pHV = finalizeHv(iCh, iSec);
-
-      // print the pointers (to see if nullptr)
-      //LOGP(info, "Finalize ch={} sec={}, pEnv={} pChPres={} pHV={}", iCh, iSec, (void*)pEnv.get(), (void*)pChPres.get(), (void*)pHV.get());
 
       // only fill if envP, chamP and HV datapoints are all fetched
       if (pEnv != nullptr && pChPres != nullptr && pHV != nullptr) {
