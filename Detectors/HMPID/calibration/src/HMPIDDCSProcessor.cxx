@@ -414,8 +414,10 @@ double HMPIDDCSProcessor::calculatePhotonEnergy(int i)
 {
   // if there is no entries
   if (waveLenVec[i].size() == 0) {
-    LOGP(warn, "No Data Point values for HMP_TRANPLANT_MEASURE_{i}_WAVELENGTH --> Default E mean used for iteration procTrans{}", i, i); // ef: here there is some ambiguity! This will return eMeanDefault, but only "locally" to the current entry i[0..29] in procTrans()
-    return eMeanDefault; // will break this entry in foor loop
+    LOGP(warn, "No Data Point values for HMP_TRANPLANT_MEASURE_{i}_WAVELENGTH --> Default wavelength used for iteration procTrans{}", i, i);
+    // return lambda/
+    lambda = arrWaveLenDefault[i];
+    return nm2eV / lambda; 
   }
 
   DPCOM dp = (waveLenVec[i])[0];
@@ -425,15 +427,16 @@ double HMPIDDCSProcessor::calculatePhotonEnergy(int i)
     lambda = o2::dcs::getValue<double>(dp);
   } else {
     LOGP(warn, "DP type is {}", dp.id.get_type());
-    LOGP(warn, "Not correct datatype for HMP_TRANPLANT_MEASURE_{i}_WAVELENGTH --> Default E mean used for iteration procTrans{}", i, i);
-    return eMeanDefault;
+    LOGP(warn, "Not correct datatype for HMP_TRANPLANT_MEASURE_{i}_WAVELENGTH --> Default wavelength used for iteration procTrans{}", i, i);
+    lambda = arrWaveLenDefault[i];
+    return nm2eV / lambda; 
   }
 
 
   // ef: can remove this?
   if (lambda < 150. || lambda > 230.) {
-    LOGP(warn, "Wrong value for (lambda out of range) HMP_TRANPLANT_MEASURE_{i}_WAVELENGTH --> Default E mean used for iteration procTrans{}", i, i);
-    return eMeanDefault;
+    LOGP(warn, "Wrong value for (lambda out of range) HMP_TRANPLANT_MEASURE_{i}_WAVELENGTH --> wavelength used for iteration procTrans{}", i, i);
+    lambda = arrWaveLenDefault[i];
   }
 
   // find photon energy E in eV from radiation wavelength λ in nm
@@ -487,9 +490,9 @@ bool HMPIDDCSProcessor::evalCorrFactor(const double& dRefArgon, const double& dC
 
   // evaluate 15 mm of thickness C6F14 Trans
 
-  // ef: check if all are unequal to 0?
-  if(dRefArgon*dCellArgon*dRefFreon*dRefFreon == 0){
-    LOGP(warn, " One of the Phototube-currents == 0 --> Default E mean used! dRefFreon = {} | dRefArgon = {}");
+  // ef: check if all are not nullpointers
+  if(dRefArgon == nullptr  || dCellArgon == nullptr  || dRefFreon == nullptr  ||dRefFreon == nullptr){
+    LOGP(warn, " One of the Phototube-currents was not assigned --> Default E mean used! dRefFreon = {} | dRefArgon = {}");
     return false;
   }
   aConvFactor = 1.0 - 0.3 / 1.8;

@@ -340,7 +340,9 @@ class HMPIDDCSProcessor
     0.945191552, 0.945469097, 0.945737533, 0.945996945, 0.946247412,
     0.946489015, 0.94672183, 0.946945933, 0.947161396, 0.947368291};
 
-  static constexpr double arrPhotEnDefault[30] = 1239.842609*{
+
+  // ef: hardcoded default wavelengths
+  static constexpr double arrWaveLenDefault[30] = {
     162, 164, 166, 168, 170, 172, 174, 176, 178, 180,
     182, 184, 186, 188, 190, 192, 194, 196, 198, 200,
     202, 204, 206, 208, 210, 212, 214, 216, 218, 220};
