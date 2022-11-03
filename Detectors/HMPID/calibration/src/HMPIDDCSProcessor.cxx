@@ -429,7 +429,6 @@ double HMPIDDCSProcessor::calculatePhotonEnergy(int i)
     LOGP(warn, "DP type is {}", dp.id.get_type());
     LOGP(warn, "Not correct datatype for HMP_TRANPLANT_MEASURE_{i}_WAVELENGTH --> Default wavelength used for iteration procTrans{}", i, i);
     lambda = arrWaveLenDefault[i];
-    return nm2eV / lambda; 
   }
 
 
