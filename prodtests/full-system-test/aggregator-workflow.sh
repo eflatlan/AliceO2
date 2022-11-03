@@ -54,10 +54,12 @@ if [[ "0$GEN_TOPO_VERBOSE" == "01" ]]; then
   echo "CALIB_TPC_SAC = $CALIB_TPC_SAC" 1>&2
   echo "CALIB_CPV_GAIN = $CALIB_CPV_GAIN" 1>&2
   echo "CALIB_ZDC_TDC = $CALIB_ZDC_TDC" 1>&2
+  echo "CALIB_FT0_TIMEOFFSET = $CALIB_FT0_TIMEOFFSET" 1>&2
 fi
 
 # beamtype dependent settings
 LHCPHASE_TF_PER_SLOT=26400
+FT0_TIMEOFFSET_TF_PER_SLOT=26400
 TOF_CHANNELOFFSETS_UPDATE=300000
 TOF_CHANNELOFFSETS_DELTA_UPDATE=50000
 
@@ -69,7 +71,7 @@ fi
 
 # special settings for aggregator workflows
 if [[ "0$CALIB_TPC_SCDCALIB_SENDTRKDATA" == "01" ]]; then ENABLE_TRACK_INPUT="--enable-track-input"; fi
-if [[ -z "$RESIDUAL_AGGREGATOR_AUTOSAVE" ]];   then RESIDUAL_AGGREGATOR_AUTOSAVE=0; fi
+if [[ -z "$RESIDUAL_AGGREGATOR_AUTOSAVE" ]]; then RESIDUAL_AGGREGATOR_AUTOSAVE=0; fi
 
 # Calibration workflows
 if ! workflow_has_parameter CALIB_LOCAL_INTEGRATED_AGGREGATOR; then
@@ -156,7 +158,7 @@ if workflow_has_parameter CALIB_PROXIES; then
     fi
   elif [[ $AGGREGATOR_TASKS == FORWARD_TF ]]; then
     if [[ ! -z $CALIBDATASPEC_FORWARD_TF ]]; then
-      add_W o2-dpl-raw-proxy "--dataspec \"$CALIBDATASPEC_FORWARD_TF\" $(get_proxy_connection zdc_tf input)" "" 0
+      add_W o2-dpl-raw-proxy "--dataspec \"$CALIBDATASPEC_FORWARD_TF\" $(get_proxy_connection fwd_tf input)" "" 0
     fi
   fi
 fi
@@ -219,11 +221,14 @@ fi
 lanesFactorize=6
 nTFs=1000
 nTFs_SAC=1000
+IDC_DELTA="--disable-IDCDelta true" # off by default
+# we switch on deltas if explicitly requested; in PbPb it is on by default, unless we switch it off;
+if [[ "0$ENABLE_IDC_DELTA" == "01" ]] || [[ $BEAMTYPE == "PbPb" && "0$ENABLE_IDC_DELTA" != "00" ]]; then IDC_DELTA=""; fi
 
 if ! workflow_has_parameter CALIB_LOCAL_INTEGRATED_AGGREGATOR; then
   if [[ $CALIB_TPC_IDC == 1 ]] && [[ $AGGREGATOR_TASKS == TPCIDC_A || $AGGREGATOR_TASKS == TPCIDC_C || $AGGREGATOR_TASKS == TPC_IDCBOTH_SAC || $AGGREGATOR_TASKS == ALL ]]; then
     add_W o2-tpc-idc-distribute "--crus ${crus} --timeframes ${nTFs} --output-lanes ${lanesFactorize} --send-precise-timestamp true --condition-tf-per-query ${nTFs}"
-    add_W o2-tpc-idc-factorize "--input-lanes ${lanesFactorize} --crus ${crus} --timeframes ${nTFs} --nthreads-grouping 8 --nthreads-IDC-factorization 8 --sendOutputFFT true --enable-CCDB-output true --enablePadStatusMap true --use-precise-timestamp true --add-offset-for-CCDB-timestamp true" "TPCIDCGroupParam.groupPadsSectorEdges=32211"
+    add_W o2-tpc-idc-factorize "--input-lanes ${lanesFactorize} --crus ${crus} --timeframes ${nTFs} --nthreads-grouping 8 --nthreads-IDC-factorization 8 --sendOutputFFT true --enable-CCDB-output true --enablePadStatusMap true --use-precise-timestamp true --add-offset-for-CCDB-timestamp true $IDC_DELTA" "TPCIDCGroupParam.groupPadsSectorEdges=32211"
     add_W o2-tpc-idc-ft-aggregator "--rangeIDC 200 --inputLanes ${lanesFactorize} --nFourierCoeff 40 --nthreads 8"
   fi
   if [[ $CALIB_TPC_SAC == 1 ]] && [[ $AGGREGATOR_TASKS == TPC_IDCBOTH_SAC || $AGGREGATOR_TASKS == ALL ]]; then
@@ -269,6 +274,9 @@ if [[ $AGGREGATOR_TASKS == FORWARD_TF || $AGGREGATOR_TASKS == ALL ]]; then
   # ZDC
   if [[ $CALIB_ZDC_TDC == 1 ]]; then
     add_W o2-zdc-tdccalib-workflow
+  fi
+  if [[ $CALIB_FT0_TIMEOFFSET == 1 ]]; then
+    add_W o2-calibration-ft0-time-offset-calib "--tf-per-slot $FT0_TIMEOFFSET_TF_PER_SLOT --max-delay 0" "FT0CalibParam.mNExtraSlots=0;FT0CalibParam.mRebinFactorPerChID[180]=4;"
   fi
 fi
 
