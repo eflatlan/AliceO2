@@ -283,18 +283,27 @@ void HMPIDDCSProcessor::fillTempOut(const DPCOM& dpcom)
 }
 
 //==== Calculate mean photon energy=============================================
-
+// ef: if eMeanDefault is returned, this means eMeanDefault will be sent to the CCDB 
+//     in the last entry in the vector arNmean[42] (pPhotMean;)
 double HMPIDDCSProcessor::procTrans()
 {
   for (int i = 0; i < 30; i++) {
+
+    // ef: if calculatePhotonEnergy returns eMeanDefault, it simply means that 
+    // there were something wrong in calculating the photon-energy for the given
+    // wavelength (i.e., the current entry i in the waveLenVec holding the DPs 
+    //  of wavelenghts)
 
     photEn = calculatePhotonEnergy(i);
 
     if (photEn < o2::hmpid::Param::ePhotMin() ||
         photEn > o2::hmpid::Param::ePhotMax()) {
       LOG(warn) << "photon energy out of range" << photEn;
-      continue; // if photon energy is out of range
+      continue; // ef: if photon energy is out of range; skip to next iteration
     }
+
+    // ef: if any of the vectors fof DP-currents (argonRef, cellArgon..) are invalid, 
+    // the function returns eMeanDefault, which subsequently will be directly sent to the CCDB
 
     // ===== evaluate phototube current for argon reference ============================
     TransparencyDpInfo refArgonDP = dpVector2Double(argonRefVec[i], "ARGONREF", i);
@@ -388,25 +397,20 @@ double HMPIDDCSProcessor::procTrans()
 
 // ==== procTrans help-functions =============================
 
-//ef: do not use function-call; just return the value instead
-/*
-double HMPIDDCSProcessor::defaultEMean()
-{
-  //ef: changed to warn, 
-  //    not removing mVerbose, as it could be called very often
-  if (mVerbose) {
-    LOG(warn) << Form(" Mean energy photon calculated ---> %f eV ", eMeanDefault);
-  }
-  return eMeanDefault;
-} */
-
-//==== evaluate wavelenght
+//==== evaluate photon energy
 //=======================================================
+
+// ef: if calculatePhotonEnergy returns eMeanDefault, it simply means that 
+// there were something wrong in calculating the photon-energy for the given
+// wavelength (i.e., the current entry i in the waveLenVec holding the DPs 
+//  of wavelenghts)]
+// the value will not directly be sent to the CCDB
+
 double HMPIDDCSProcessor::calculatePhotonEnergy(int i)
 {
   // if there is no entries
   if (waveLenVec[i].size() == 0) {
-    LOG(warn) << Form("No Data Point values for %i.waveLenght --> Default E mean used!", i);
+    LOGP(warn, "No Data Point values for HMP_TRANPLANT_MEASURE_{i}_WAVELENGTH --> Default E mean used for iteration procTrans{}", i, i); // ef: here there is some ambiguity! This will return eMeanDefault, but only "locally" to the current entry i[0..29] in procTrans()
     return eMeanDefault; // will break this entry in foor loop
   }
 
@@ -416,14 +420,15 @@ double HMPIDDCSProcessor::calculatePhotonEnergy(int i)
   if (dp.id.get_type() == DeliveryType::DPVAL_DOUBLE) {
     lambda = o2::dcs::getValue<double>(dp);
   } else {
-    LOG(warn) << Form("Not correct datatype for HMP_TRANPLANT_MEASURE_%i_WAVELENGTH  --> Default E mean used!", i);
+    LOGP(warn, "DP type is {}", dp.id.get_type());
+    LOGP(warn, "Not correct datatype for HMP_TRANPLANT_MEASURE_{i}_WAVELENGTH --> Default E mean used for iteration procTrans{}", i, i);
     return eMeanDefault;
   }
 
 
   // ef: can remove this?
   if (lambda < 150. || lambda > 230.) {
-    LOG(warn) << Form("Wrong value for HMP_TRANPLANT_MEASURE_%i_WAVELENGTH --> Default E mean used!", i);
+    LOGP(warn, "Wrong value for (lambda out of range) HMP_TRANPLANT_MEASURE_{i}_WAVELENGTH --> Default E mean used for iteration procTrans{}", i, i);
     return eMeanDefault;
   }
 
