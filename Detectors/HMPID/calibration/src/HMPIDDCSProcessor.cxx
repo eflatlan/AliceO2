@@ -490,7 +490,7 @@ bool HMPIDDCSProcessor::evalCorrFactor(const double& dRefArgon, const double& dC
   // evaluate 15 mm of thickness C6F14 Trans
 
   // ef: check if all are not nullpointers
-  if(dRefArgon == nullptr  || dCellArgon == nullptr  || dRefFreon == nullptr  ||dRefFreon == nullptr){
+  if(&dRefArgon == nullptr  || &dCellArgon == nullptr  || &dRefFreon == nullptr  ||&dRefFreon == nullptr){
     LOGP(warn, " One of the Phototube-currents was not assigned --> Default E mean used! dRefFreon = {} | dRefArgon = {}");
     return false;
   }
