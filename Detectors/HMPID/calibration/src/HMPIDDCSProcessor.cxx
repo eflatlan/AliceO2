@@ -198,12 +198,12 @@ void HMPIDDCSProcessor::fillChPressure(const DPCOM& dpcom)
     if (chNum < 7 && chNum >= 0) {
       dpVecCh[chNum].emplace_back(dpcom);
     } else {
-      LOG(warn) << "Chamber Number out of range for Pressure : " << chNum;
+      LOGP(warn, "Chamber Number out of range for Pressure P{}: ", chNum);
       const std::string inputString(dpid.get_alias());
       char stringPos = inputString[indexChPr];
     }
   } else {
-    LOG(warn) << "Not correct datatype for Pressure : ";
+    LOGP(warn, "CNot correct datatype for Pressure P{}: ", chNum);
   }
 }
 
@@ -221,13 +221,13 @@ void HMPIDDCSProcessor::fillHV(const DPCOM& dpcom)
       if (secNum < 6 && secNum >= 0) {
         dpVecHV[6 * chNum + secNum].emplace_back(dpcom);
       } else {
-        LOG(warn) << "Sector Number out of range for HV : " << secNum;
+        LOGP(warn, "Sector Number out of range for High Voltage HV{}{}", chNum, secNum};
       }
     } else {
-      LOG(warn) << "Chamber Number out of range for HV : " << chNum;
+      LOGP(warn, "Chamber Number out of range for High Voltage HV{}{}", chNum, secNum};
     }
   } else {
-    LOG(warn) << "Not correct datatype for HV DP";
+    LOGP(warn, "Not correct datatype for High Voltage HV{}{}", chNum, secNum};
   }
 }
 
@@ -246,13 +246,13 @@ void HMPIDDCSProcessor::fillTempIn(const DPCOM& dpcom)
       if (radNum < 3 && radNum >= 0) {
         dpVecTempIn[3 * chNum + radNum].emplace_back(dpcom);
       } else {
-        LOG(warn) << "Radiator Number out of range for TempIn :" << radNum;
+        LOGP(warn, "Radiator Number out of range for TempIn Tin{}{}",chNum, radNum);
       }
     } else {
-      LOG(warn) << "Chamber Number out of range for TempIn DP :" << chNum;
+      LOGP(warn, "Chamber Number out of range for TempIn Tin{}{}",chNum, radNum);
     }
   } else {
-    LOG(warn) << "Not correct datatype for TempIn DP ";
+    LOGP(warn, "Not correct datatype for TempIn Tin{}{}",chNum, radNum);
   }
 }
 
@@ -272,13 +272,13 @@ void HMPIDDCSProcessor::fillTempOut(const DPCOM& dpcom)
         dpVecTempOut[3 * chNum + radNum].emplace_back(dpcom);
 
       } else {
-        LOG(warn) << "Radiator Number out of range for TempOut DP : " << radNum;
+        LOGP(warn, "Radiator Number out of range for TempOut Tout{}{}",chNum, radNum);
       }
     } else {
-      LOG(warn) << "Chamber Number out of range for TempOut DP : " << chNum;
+      LOGP(warn, "Chamber Number out of range for TempOut Tout{}{}",chNum, radNum);
     }
   } else {
-    LOG(warn) << "Not correct datatype for TempOut DP ";
+    LOGP(warn, "Not correct datatype for TempOut Tout{}{}",chNum, radNum);
   }
 }
 
@@ -434,7 +434,7 @@ double HMPIDDCSProcessor::calculatePhotonEnergy(int i)
 
   // ef: can remove this?
   if (lambda < 150. || lambda > 230.) {
-    LOGP(warn, "Wrong value for (lambda out of range) HMP_TRANPLANT_MEASURE_{i}_WAVELENGTH --> wavelength used for iteration procTrans{}", i, i);
+    LOGP(warn, "Wrong value for (lambda out of range) HMP_TRANPLANT_MEASURE_{i}_WAVELENGTH --> Default wavelength used for iteration procTrans{}", i, i);
     lambda = arrWaveLenDefault[i];
   }
 
@@ -491,10 +491,9 @@ bool HMPIDDCSProcessor::evalCorrFactor(const double& dRefArgon, const double& dC
 
   // ef: check if all are not nullpointers
   if(&dRefArgon == nullptr  || &dCellArgon == nullptr  || &dRefFreon == nullptr  ||&dRefFreon == nullptr){
-    LOGP(warn, " One of the Phototube-currents was not assigned --> Default E mean used! dRefFreon = {} | dRefArgon = {}");
+    LOGP(warn, " One of the Phototube-currents was not assigned --> Default E mean used!");
     return false;
   }
-  aConvFactor = 1.0 - 0.3 / 1.8;
 
   if (dRefFreon * dRefArgon > 0) {
     aTransRad = TMath::Power((dCellFreon / dRefFreon) /
@@ -592,7 +591,7 @@ std::unique_ptr<TF1> HMPIDDCSProcessor::finalizeChPressure(int iCh)
     // chPrFirstTime = 0;
 
     if(pGrP == nullptr || cntChPressure <= 0){
-      LOG(warn) << Form("nullptr in chamber-pressure for Pch%i", iCh);      
+      LOGP(warn, "nullptr in chamber-pressure for P{}", iCh);      
     } else if (cntChPressure == 1) {
       pGrP->GetPoint(0, xP, yP);
       (pCh).reset(new TF1(Form("P%i", iCh), Form("%f", yP), chPrFirstTime,
@@ -603,7 +602,7 @@ std::unique_ptr<TF1> HMPIDDCSProcessor::finalizeChPressure(int iCh)
       pGrP->Fit(Form("P%i", iCh), "Q");
     }
   } else {
-    LOG(warn) << Form("no entries in chamber-pressure for P%i", iCh);
+    LOGP(warn, "No entries in chamber-pressure for P{}", iCh);
   }
   return pCh;
 }
@@ -732,17 +731,17 @@ std::unique_ptr<TF1> HMPIDDCSProcessor::finalizeHv(int iCh, int iSec)
     // hvFirstTime = 0;
     
     if(pGrHV == nullptr || cntHV <= 0){
-      LOG(warn) << Form("nullptr in High Voltage for HV%isec%i", iCh, iSec);
+      LOGP(warn, "nullptr in High Voltage for HV{}{}", iCh, iSec);
     } else if (cntHV == 1) {
       pGrHV->GetPoint(0, xP, yP);
-      (pHvTF).reset(new TF1(Form("HV%i_%i", iCh, iSec), Form("%f", yP),
+      (pHvTF).reset(new TF1(Form("HV%i%i", iCh, iSec), Form("%f", yP),
                             hvFirstTime, hvLastTime));
     } else {
-      (pHvTF).reset(new TF1(Form("HV%i_%i", iCh, iSec), "[0]+x*[1]",
+      (pHvTF).reset(new TF1(Form("HV%i%i", iCh, iSec), "[0]+x*[1]",
                             hvFirstTime, hvLastTime));
     }
   } else{
-    LOG(warn) << Form("No entries in High Voltage for HV%i%i", iCh, iSec);
+    LOGP(warn, "No entries in High Voltage for HV{}{}", iCh, iSec);
   }
   return pHvTF;
 }

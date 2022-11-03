@@ -370,7 +370,9 @@ class HMPIDDCSProcessor
   double cellFreon;
   std::vector<DPCOM> freonCellVec[30];
 
-  double aTransRad, aConvFactor; // evaluate 15 mm of thickness C6F14 Trans
+
+  static constexpr double aConvFactor = 1.0 - 0.3 / 1.8;
+  double aTransRad; // evaluate 15 mm of thickness C6F14 Trans
   double aTransSiO2;             // evaluate 0.5 mm of thickness SiO2 Trans
   double aTransGap;              // evaluate 80 cm of thickness Gap (low density CH4)
                                  // transparency
