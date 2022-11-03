@@ -51,6 +51,11 @@ namespace o2::hmpid
 using namespace std::literals;
 using TimeStampType = uint64_t;
 
+struct TransparencyDpInfo {
+  bool isDpValid = false;
+  double dpVal = -999;
+};
+
 class HMPIDDCSProcessor
 {
 
@@ -67,54 +72,10 @@ class HMPIDDCSProcessor
 
   void process(const gsl::span<const DPCOM> dps);
 
-  void processTRANS(const DPCOM& dp);
-  void processHMPID(const DPCOM& dp);
-
-  // Fill entries of DPs==================================================
-  void fillChPressure(
-    const DPCOM& dpcom); // fill element[0-6] in chamber-pressure vector
-
-  void fillEnvPressure(const DPCOM& dpcom); // fill environment-pressure vector
-
-  // HV in each chamber_section = 7*3 --> will result in Q_thre
-  void fillHV(const DPCOM& dpcom); // fill element[0-20] in HV vector
-
-  // Temp in (T1) and out (T2), in each chamber_radiator = 7*3 :
-  void fillTempIn(const DPCOM& dpcom);  // fill element[0-20] in tempIn vector
-  void fillTempOut(const DPCOM& dpcom); // fill element[0-20] in tempOut vector
-
-  // =====finalize DPs, after run is finished
-  // ==================================================================================
-  // functions return nullptr if there is no entry in the array of DPCOM-vectors at
-  // the given element
-  std::unique_ptr<TF1> finalizeEnvPressure();
-  std::unique_ptr<TF1> finalizeChPressure(int iCh);
-  std::unique_ptr<TF1> finalizeHv(int iCh, int iSec);
-  bool finalizeTempOut(int iCh, int iRad);
-  bool finalizeTempIn(int iCh, int iRad);
-
   // called from HMPIDDCSDataProcessorSpec,
   // loops over all the arrays of DPCOM-vectors, and calls the relevant
   // fill()-methods above
   void finalize();
-
-  //===== procTrans
-  //===================================================================================================
-  // ef: just return the value insted of using the function call
-  //     logging of problems is instead done where they occur
-  /*
-  double defaultEMean(); // just set a refractive index for C6F14 at ephot=6.675
-                         // eV @ T=25 C
-  */
-
-  double procTrans();
-
-  // ef: could pass everything here as const-ref, but everything is done at EOR, 
-  // so maybe not so
-  bool evalCorrFactor(const double& dRefArgon, const double& dCellArgon, const double& dRefFreon,
-                      const double& dCellFreon, const double& dPhotEn, const & i);
-  double dpVector2Double(const std::vector<DPCOM>& dpVec, const char* dpString, int i);
-  double calculatePhotonEnergy(int i);
 
   //===== help-functions
   //================================================================================
@@ -178,37 +139,7 @@ class HMPIDDCSProcessor
     arNmean.clear();
   }
 
-  // get methods for time-ranges
-  // ===============================================================================
-  // const auto& getTimeQThresh() const { return mTimeQThresh; }
-  // const auto& getTimeArNmean() const { return mTimeArNmean; }
 
-  /// / return timestamp of first fetched datapoint for a given ID (Tin/Tout,
-  /// Environment pressure, HV, chamber pressure)
-  TimeStampType getMinTime(const std::vector<DPCOM>& dps)
-  {
-    TimeStampType firstTime = std::numeric_limits<uint64_t>::max();
-    for (const auto& dp : dps) {
-      const auto time = dp.data.get_epoch_time();
-      firstTime = std::min(firstTime, time);
-    }
-    return firstTime;
-  }
-
-  // return timestamp of last fetched datapoint for a given ID (Tin/Tout,
-  // Environment pressure, HV, chamber pressure)
-  TimeStampType getMaxTime(const std::vector<DPCOM>& dps)
-  {
-    TimeStampType lastTime = 0;
-    for (const auto& dp : dps) {
-
-      // check if tme of DP is greater (i.e. later) than previously latest
-      // fetched DP:
-      const auto time = dp.data.get_epoch_time();
-      lastTime = std::max(lastTime, time);
-    }
-    return lastTime;
-  }
 
   void checkEntries(const std::vector<TF1>& arQthresh,
                     const std::vector<TF1>& arrayNmean)
@@ -255,11 +186,82 @@ class HMPIDDCSProcessor
 
 
  private:
+  void processTRANS(const DPCOM& dp);
+  void processHMPID(const DPCOM& dp);
 
-  struct TransparencyDpInfo {
-    bool isDpValid = false;
-    double dpVal = -999;
-  };
+  // Fill entries of DPs==================================================
+  void fillChPressure(
+    const DPCOM& dpcom); // fill element[0-6] in chamber-pressure vector
+
+  void fillEnvPressure(const DPCOM& dpcom); // fill environment-pressure vector
+
+  // HV in each chamber_section = 7*3 --> will result in Q_thre
+  void fillHV(const DPCOM& dpcom); // fill element[0-20] in HV vector
+
+  // Temp in (T1) and out (T2), in each chamber_radiator = 7*3 :
+  void fillTempIn(const DPCOM& dpcom);  // fill element[0-20] in tempIn vector
+  void fillTempOut(const DPCOM& dpcom); // fill element[0-20] in tempOut vector
+
+  // =====finalize DPs, after run is finished
+  // ==================================================================================
+  // functions return nullptr if there is no entry in the array of DPCOM-vectors at
+  // the given element
+  std::unique_ptr<TF1> finalizeEnvPressure();
+  std::unique_ptr<TF1> finalizeChPressure(int iCh);
+  std::unique_ptr<TF1> finalizeHv(int iCh, int iSec);
+  bool finalizeTempOut(int iCh, int iRad);
+  bool finalizeTempIn(int iCh, int iRad);
+
+
+  //===== procTrans
+  //===================================================================================================
+  // ef: just return the value insted of using the function call
+  //     logging of problems is instead done where they occur
+  /*
+  double defaultEMean(); // just set a refractive index for C6F14 at ephot=6.675
+                         // eV @ T=25 C
+  */
+
+  double procTrans();
+
+  // ef: could pass everything here as const-ref, but everything is done at EOR, 
+  // so maybe not so
+  bool evalCorrFactor(const double& dRefArgon, const double& dCellArgon, const double& dRefFreon,
+                      const double& dCellFreon, const double& dPhotEn, const int& i);
+  TransparencyDpInfo dpVector2Double(const std::vector<DPCOM>& dpVec, const char* dpString, int i);
+  double calculatePhotonEnergy(int i);
+
+  // get methods for time-ranges
+  // ===============================================================================
+  // const auto& getTimeQThresh() const { return mTimeQThresh; }
+  // const auto& getTimeArNmean() const { return mTimeArNmean; }
+
+  /// / return timestamp of first fetched datapoint for a given ID (Tin/Tout,
+  /// Environment pressure, HV, chamber pressure)
+  TimeStampType getMinTime(const std::vector<DPCOM>& dps)
+  {
+    TimeStampType firstTime = std::numeric_limits<uint64_t>::max();
+    for (const auto& dp : dps) {
+      const auto time = dp.data.get_epoch_time();
+      firstTime = std::min(firstTime, time);
+    }
+    return firstTime;
+  }
+
+  // return timestamp of last fetched datapoint for a given ID (Tin/Tout,
+  // Environment pressure, HV, chamber pressure)
+  TimeStampType getMaxTime(const std::vector<DPCOM>& dps)
+  {
+    TimeStampType lastTime = 0;
+    for (const auto& dp : dps) {
+
+      // check if tme of DP is greater (i.e. later) than previously latest
+      // fetched DP:
+      const auto time = dp.data.get_epoch_time();
+      lastTime = std::max(lastTime, time);
+    }
+    return lastTime;
+  }
 
   struct TimeRange {
     uint64_t first = std::numeric_limits<uint64_t>::max();
@@ -394,6 +396,7 @@ class HMPIDDCSProcessor
   uint64_t timeToutFirst, timeToutLast;
 
   TimeRange mTimeEMean; // Timerange for mean photon energy(procTrans)
+
 
   //======= constExpression string-literals to assign DPs to the correct method:
   //====================================================

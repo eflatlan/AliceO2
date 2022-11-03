@@ -297,29 +297,37 @@ double HMPIDDCSProcessor::procTrans()
     }
 
     // ===== evaluate phototube current for argon reference ============================
-    refArgon = dpVector2Double(argonRefVec[i], "ARGONREF", i);
-    if (refArgon == eMeanDefault) { 
+    TransparencyDpInfo refArgonDP = dpVector2Double(argonRefVec[i], "ARGONREF", i);
+    if (refArgonDP.isDpValid == false) { 
       // ef: removed warn here, since it is done in the dpVector2double
       // ef: simply return eMeanDefault; replacing defaultEMean() function-call
       return eMeanDefault;
+    } else {
+      double refArgon = refArgonDP.dpVal;
     }
 
     //===== evaluate phototube current for argon cell===================================
-    cellArgon = dpVector2Double(argonCellVec[i], "ARGONCELL", i);
-    if (cellArgon == eMeanDefault) {
+    TransparencyDpInfo cellArgonDP = dpVector2Double(argonCellVec[i], "ARGONCELL", i);
+    if (cellArgonDP.isDpValid == false) {
       return eMeanDefault;
+    } else {
+      double cellArgon = cellArgonDP.dpVal;
     }
 
     //==== evaluate phototube current for freon reference ==============================
-    refFreon = dpVector2Double(freonRefVec[i], "C6F14REFERENCE", i);
-    if (refFreon == eMeanDefault) {
+    TransparencyDpInfo refFreonDP = dpVector2Double(freonRefVec[i], "C6F14REFERENCE", i);
+    if (refFreonDP.isDpValid == false) {
       return eMeanDefault;
+    } else {
+      double refFreon = refFreonDP.dpVal;
     }
 
     // ==== evaluate phototube current for freon cell ==================================
-    cellFreon = dpVector2Double(freonCellVec[i], "C6F14CELL", i);
-    if (cellFreon == eMeanDefault) {
+    TransparencyDpInfo cellFreonDP = dpVector2Double(freonCellVec[i], "C6F14CELL", i);
+    if (cellFreonDP.isDpValid == false) {
       return eMeanDefault;
+    } else {
+      double cellFreon = cellFreonDP.dpVal;
     }
 
     // evaluate correction factor to calculate trasparency
@@ -454,7 +462,7 @@ TransparencyDpInfo HMPIDDCSProcessor::dpVector2Double(const std::vector<DPCOM>& 
 }
 
 bool HMPIDDCSProcessor::evalCorrFactor(const double& dRefArgon, const double& dCellArgon, const double& dRefFreon,
-                      const double& dCellFreon, const double& dPhotEn, const &
+                      const double& dCellFreon, const double& dPhotEn, const int& i)
 {
   // evaluate correction factor to calculate trasparency (Ref. NIMA 486 (2002)
   // 590-609)
