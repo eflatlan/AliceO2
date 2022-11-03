@@ -312,15 +312,15 @@ double HMPIDDCSProcessor::procTrans()
       // ef: simply return eMeanDefault; replacing defaultEMean() function-call
       return eMeanDefault;
     } else {
-      double refArgon = refArgonDP.dpVal;
+      refArgon = refArgonDP.dpVal;
     }
 
     //===== evaluate phototube current for argon cell===================================
     TransparencyDpInfo cellArgonDP = dpVector2Double(argonCellVec[i], "ARGONCELL", i);
     if (cellArgonDP.isDpValid == false) {
-      return eMeanDefault;
+      eMeanDefault;
     } else {
-      double cellArgon = cellArgonDP.dpVal;
+      cellArgon = cellArgonDP.dpVal;
     }
 
     //==== evaluate phototube current for freon reference ==============================
@@ -328,7 +328,7 @@ double HMPIDDCSProcessor::procTrans()
     if (refFreonDP.isDpValid == false) {
       return eMeanDefault;
     } else {
-      double refFreon = refFreonDP.dpVal;
+      refFreon = refFreonDP.dpVal;
     }
 
     // ==== evaluate phototube current for freon cell ==================================
@@ -336,8 +336,12 @@ double HMPIDDCSProcessor::procTrans()
     if (cellFreonDP.isDpValid == false) {
       return eMeanDefault;
     } else {
-      double cellFreon = cellFreonDP.dpVal;
+      cellFreon = cellFreonDP.dpVal;
     }
+
+    // ef: in theory, the evalCorrFactor method should not be called with un-defined 
+    // refArgon etc, since the function would return eMeanDefault,
+    // but should they be initiated anyways?
 
     // evaluate correction factor to calculate trasparency
     bool isEvalCorrOk = evalCorrFactor(refArgon, cellArgon, refFreon, cellFreon, photEn, i);
@@ -433,7 +437,7 @@ double HMPIDDCSProcessor::calculatePhotonEnergy(int i)
   }
 
   // find photon energy E in eV from radiation wavelength λ in nm
-  nm2eV = 1239.842609;     // 1239.842609 from nm to eV
+  //nm2eV = 1239.842609;     // 1239.842609 from nm to eV
   photEn = nm2eV / lambda; // photon energy
   return photEn;
 }
@@ -483,6 +487,11 @@ bool HMPIDDCSProcessor::evalCorrFactor(const double& dRefArgon, const double& dC
 
   // evaluate 15 mm of thickness C6F14 Trans
 
+  // ef: check if all are unequal to 0?
+  if(dRefArgon*dCellArgon*dRefFreon*dRefFreon == 0){
+    LOGP(warn, " One of the Phototube-currents == 0 --> Default E mean used! dRefFreon = {} | dRefArgon = {}");
+    return false;
+  }
   aConvFactor = 1.0 - 0.3 / 1.8;
 
   if (dRefFreon * dRefArgon > 0) {
