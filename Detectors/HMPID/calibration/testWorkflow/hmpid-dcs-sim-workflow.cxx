@@ -109,7 +109,7 @@ o2::framework::WorkflowSpec defineDataProcessing(ConfigContext const& config)
   double argonCellMean, argonCellSD; // Argon Cell current (mA)
   double freonRefMean, freonRefSD;   // C6F14 Ref current (mA)
   double freonCellMean, freonCellSD; // C6F14 Cell current (mA)
-  const int iR = 162;
+  int iR = 162;
 
   for (int i = 0; i < 30; ++i) {
 

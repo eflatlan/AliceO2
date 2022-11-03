@@ -150,7 +150,7 @@ class HMPIDDCSProcessor
 
     bool arQthreFull = true;
     int cntQ = 0;
-    for(const auto& tf:arQthresh){ 
+    for(const auto& tf:arQthresh){
       cntQ++;
       if (isDefault(&tf)) {
         arQthreFull = false;
@@ -167,7 +167,7 @@ class HMPIDDCSProcessor
       }
       cntN++;
     }
-  } 
+  }
 
   void clearDPsInfo()
   {
@@ -224,7 +224,7 @@ class HMPIDDCSProcessor
 
   double procTrans();
 
-  // ef: could pass everything here as const-ref, but everything is done at EOR, 
+  // ef: could pass everything here as const-ref, but everything is done at EOR,
   // so maybe not so
   bool evalCorrFactor(const double& dRefArgon, const double& dCellArgon, const double& dRefFreon,
                       const double& dCellFreon, const double& dPhotEn, const int& i);

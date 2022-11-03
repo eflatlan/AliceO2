@@ -283,15 +283,15 @@ void HMPIDDCSProcessor::fillTempOut(const DPCOM& dpcom)
 }
 
 //==== Calculate mean photon energy=============================================
-// ef: if eMeanDefault is returned, this means eMeanDefault will be sent to the CCDB 
+// ef: if eMeanDefault is returned, this means eMeanDefault will be sent to the CCDB
 //     in the last entry in the vector arNmean[42] (pPhotMean;)
 double HMPIDDCSProcessor::procTrans()
 {
   for (int i = 0; i < 30; i++) {
 
-    // ef: if calculatePhotonEnergy returns eMeanDefault, it simply means that 
+    // ef: if calculatePhotonEnergy returns eMeanDefault, it simply means that
     // there were something wrong in calculating the photon-energy for the given
-    // wavelength (i.e., the current entry i in the waveLenVec holding the DPs 
+    // wavelength (i.e., the current entry i in the waveLenVec holding the DPs
     //  of wavelenghts)
 
     photEn = calculatePhotonEnergy(i);
@@ -302,12 +302,12 @@ double HMPIDDCSProcessor::procTrans()
       continue; // ef: if photon energy is out of range; skip to next iteration
     }
 
-    // ef: if any of the vectors fof DP-currents (argonRef, cellArgon..) are invalid, 
+    // ef: if any of the vectors fof DP-currents (argonRef, cellArgon..) are invalid,
     // the function returns eMeanDefault, which subsequently will be directly sent to the CCDB
 
     // ===== evaluate phototube current for argon reference ============================
     TransparencyDpInfo refArgonDP = dpVector2Double(argonRefVec[i], "ARGONREF", i);
-    if (refArgonDP.isDpValid == false) { 
+    if (refArgonDP.isDpValid == false) {
       // ef: removed warn here, since it is done in the dpVector2double
       // ef: simply return eMeanDefault; replacing defaultEMean() function-call
       return eMeanDefault;
@@ -339,7 +339,7 @@ double HMPIDDCSProcessor::procTrans()
       cellFreon = cellFreonDP.dpVal;
     }
 
-    // ef: in theory, the evalCorrFactor method should not be called with un-defined 
+    // ef: in theory, the evalCorrFactor method should not be called with un-defined
     // refArgon etc, since the function would return eMeanDefault,
     // but should they be initiated anyways?
 
@@ -390,7 +390,7 @@ double HMPIDDCSProcessor::procTrans()
 
   // ef: changed to warn
   if (eMean < o2::hmpid::Param::ePhotMin() ||
-      eMean > o2::hmpid::Param::ePhotMax()) { 
+      eMean > o2::hmpid::Param::ePhotMax()) {
     LOGP(warn, "eMean out of range  ({}) --> Default E mean used! ", eMean);
     return eMeanDefault;
   }
@@ -404,9 +404,9 @@ double HMPIDDCSProcessor::procTrans()
 //==== evaluate photon energy
 //=======================================================
 
-// ef: if calculatePhotonEnergy returns eMeanDefault, it simply means that 
+// ef: if calculatePhotonEnergy returns eMeanDefault, it simply means that
 // there were something wrong in calculating the photon-energy for the given
-// wavelength (i.e., the current entry i in the waveLenVec holding the DPs 
+// wavelength (i.e., the current entry i in the waveLenVec holding the DPs
 //  of wavelenghts)]
 // the value will not directly be sent to the CCDB
 
@@ -417,7 +417,7 @@ double HMPIDDCSProcessor::calculatePhotonEnergy(int i)
     LOGP(warn, "No Data Point values for HMP_TRANPLANT_MEASURE_{i}_WAVELENGTH --> Default wavelength used for iteration procTrans{}", i, i);
     // return lambda/
     lambda = arrWaveLenDefault[i];
-    return nm2eV / lambda; 
+    return nm2eV / lambda;
   }
 
   DPCOM dp = (waveLenVec[i])[0];
@@ -440,21 +440,22 @@ double HMPIDDCSProcessor::calculatePhotonEnergy(int i)
 
   // find photon energy E in eV from radiation wavelength λ in nm
   //nm2eV = 1239.842609;     // 1239.842609 from nm to eV
-  photEn = nm2eV / lambda; // photon energy
+  photEn = nm2eV / lambda;   // photon energy
   return photEn;
 }
 
+// TransparencyDpInfo default value is
+// bool isDpValid = False
+// double dpVal = -999
 TransparencyDpInfo HMPIDDCSProcessor::dpVector2Double(const std::vector<DPCOM>& dpVec,
                                           const char* dpString, int i)
 {
 
   TransparencyDpInfo transDpInfo;
   if (dpVec.size() == 0) {
-    LOG(warn) << Form(
-      "No Data Point values for HMP_TRANPLANT_MEASURE_%s,%i  "
-      "---> Default E mean used!",
+    LOGP(warn, "No Data Point values for HMP_TRANPLANT_MEASURE_{},{}---> Default E mean used!",
       dpString, i);
-    return transDpInfo;
+    return transDpInfo; // returns transDpInfo with default values
   }
 
   DPCOM dp = dpVec[0];
@@ -463,11 +464,9 @@ TransparencyDpInfo HMPIDDCSProcessor::dpVector2Double(const std::vector<DPCOM>& 
     transDpInfo.dpVal = o2::dcs::getValue<double>(dp);
     transDpInfo.isDpValid = true;
   } else {
-    LOG(warn) << Form(
-      "Not correct datatype for HMP_TRANPLANT_MEASURE_%s,%i  "
-      "-----> Default E mean used!",
+    LOGP(warn, "Not correct datatype for HMP_TRANPLANT_MEASURE_{},{} -----> Default E mean used!",
       dpString, i);
-    return transDpInfo;
+    return transDpInfo; // returns transDpInfo with default values
   }
   return transDpInfo;
 }
@@ -491,7 +490,7 @@ bool HMPIDDCSProcessor::evalCorrFactor(const double& dRefArgon, const double& dC
 
   // ef: check if all are not nullpointers
   if(&dRefArgon == nullptr  || &dCellArgon == nullptr  || &dRefFreon == nullptr  ||&dRefFreon == nullptr){
-    LOGP(warn, " One of the Phototube-currents was not assigned --> Default E mean used!");
+    LOGP(warn, "One of the Phototube-currents was not assigned --> Default E mean used!");
     return false;
   }
 
@@ -500,7 +499,7 @@ bool HMPIDDCSProcessor::evalCorrFactor(const double& dRefArgon, const double& dC
                                (dCellArgon / dRefArgon) * aCorrFactor[i],
                              aConvFactor);
   } else { // ef: removed if mVerbose
-    LOGP(warn, "dRefFreon*dRefArgon<0 --> Default E mean used! dRefFreon = {} | dRefArgon = {}", dRefFreon, dRefArgon);    
+    LOGP(warn, "dRefFreon*dRefArgon<0 --> Default E mean used! dRefFreon = {} | dRefArgon = {}", dRefFreon, dRefArgon);
     return false;
   }
 
@@ -550,7 +549,7 @@ std::unique_ptr<TF1> HMPIDDCSProcessor::finalizeEnvPressure()
     }
     // envPrLastTime -= envPrFirstTime;
     // envPrFirstTime = 0;
- 
+
     if(cntEnvPressure <= 0){
       LOGP(warn, "No entries in Environment Pressure");
     } else if(pGrPenv == nullptr){
@@ -591,7 +590,7 @@ std::unique_ptr<TF1> HMPIDDCSProcessor::finalizeChPressure(int iCh)
     // chPrFirstTime = 0;
 
     if(pGrP == nullptr || cntChPressure <= 0){
-      LOGP(warn, "nullptr in chamber-pressure for P{}", iCh);      
+      LOGP(warn, "nullptr in chamber-pressure for P{}", iCh);
     } else if (cntChPressure == 1) {
       pGrP->GetPoint(0, xP, yP);
       (pCh).reset(new TF1(Form("P%i", iCh), Form("%f", yP), chPrFirstTime,
@@ -618,7 +617,7 @@ bool HMPIDDCSProcessor::finalizeTempOut(int iCh, int iRad)
 
     std::unique_ptr<TGraph> pGrTOut;
     pGrTOut.reset(new TGraph);
-    
+
     for (DPCOM dp : dpVecTempOut[3 * iCh + iRad]) {
       auto dpVal = o2::dcs::getValue<double>(dp);
       auto time = dp.data.get_epoch_time();
@@ -642,7 +641,7 @@ bool HMPIDDCSProcessor::finalizeTempOut(int iCh, int iRad)
 
     //ef: in this case everything is ok, and we can set title and put entry in CCDB:
     //    have to check all for nullptr, because pTout is defined before if/else block,
-    //    and thus will not be nullptr no matter the outcome of the if/else block 
+    //    and thus will not be nullptr no matter the outcome of the if/else block
     if(pTout != nullptr && pGrTOut != nullptr && cntTOut > 0 ){
       pTout->SetTitle(Form("Temp-Out Fit Chamber%i Radiator%i; Time [ms];Temp [C]", iCh, iRad));
       arNmean[6 * iCh + 2 * iRad + 1] = *(pTout.get());
@@ -650,7 +649,7 @@ bool HMPIDDCSProcessor::finalizeTempOut(int iCh, int iRad)
     } else{
       LOGP(warn, "NullPtr in Temperature out Tout{}{}", iCh, iRad);
       return false;
-    }    
+    }
   } else {
     LOGP(warn, "No entries in Temperature out Tout{}{}", iCh, iRad);
     return false;
@@ -680,7 +679,7 @@ bool HMPIDDCSProcessor::finalizeTempIn(int iCh, int iRad)
     std::unique_ptr<TF1> pTin;
     pTin.reset(
       new TF1(Form("Tin%i%i", iCh, iRad), "[0]+[1]*x", minTime, maxTime));
- 
+
     if(pTin == nullptr || pGrTIn == nullptr || cntTin <= 0 ){
       LOGP(warn, "NullPtr in Temperature in Tin{}{}", iCh, iRad);
       return false;
@@ -694,7 +693,7 @@ bool HMPIDDCSProcessor::finalizeTempIn(int iCh, int iRad)
 
     //ef: in this case everything is ok, and we can set title and put entry in CCDB:
     //    have to check all for nullptr, because pTin is defined before if/else block,
-    //    and thus will not be nullptr no matter the outcome of the if/else block 
+    //    and thus will not be nullptr no matter the outcome of the if/else block
     if(pTin != nullptr && pGrTIn != nullptr && cntTin > 0 ){
       pTin->SetTitle(Form("Temp-In Fit Chamber%i Radiator%i; Time [ms];Temp [C]", iCh, iRad));
       arNmean[6 * iCh + 2 * iRad] = *(pTin.get());
@@ -702,7 +701,7 @@ bool HMPIDDCSProcessor::finalizeTempIn(int iCh, int iRad)
     } else{
       LOGP(warn, "NullPtr in Temperature in Tin{}{}", iCh, iRad);
       return false;
-    }    
+    }
   } else {
     LOGP(warn, "No entries in Temperature in Tin{}{}", iCh, iRad);
     return false;
@@ -729,7 +728,7 @@ std::unique_ptr<TF1> HMPIDDCSProcessor::finalizeHv(int iCh, int iSec)
     }
     // hvLastTime -= hvFirstTime;
     // hvFirstTime = 0;
-    
+
     if(pGrHV == nullptr || cntHV <= 0){
       LOGP(warn, "nullptr in High Voltage for HV{}{}", iCh, iSec);
     } else if (cntHV == 1) {
@@ -758,8 +757,8 @@ void HMPIDDCSProcessor::finalize()
 
     // fills up entries 0..41 of arNmean
     for (int iRad = 0; iRad < 3; iRad++) {
-      
-      // 6*iCh + 2*iRad 
+
+      // 6*iCh + 2*iRad
       bool isTempInValid = finalizeTempIn(iCh, iRad);
 
       if(isTempInValid == false){
@@ -784,7 +783,7 @@ void HMPIDDCSProcessor::finalize()
         std::unique_ptr<TF1> pToutDefault;
 	pToutDefault.reset(new TF1());
         setDefault(pToutDefault.get(), true);
-        
+
         // ef: set flag in invalid object, such that it can be read on receiving
  	// side (Ckov reconstruction) as invalid and thus use default value
         arNmean[6 * iCh + 2 * iRad + 1] = *(pToutDefault.get());
@@ -821,7 +820,7 @@ void HMPIDDCSProcessor::finalize()
 	pQthreDefault.reset(new TF1());
         setDefault(pQthreDefault.get(), true);
         //setDefault(TF1* f, bool v)// const {f->SetBit(kDefault, v);}
-        
+
         // ef: set flag in invalid object, such that it can be read on receiving
  	// side (Ckov reconstruction) as invalid and thus use default value
         arQthre[6 * iCh + iSec] = *(pQthreDefault.get());
