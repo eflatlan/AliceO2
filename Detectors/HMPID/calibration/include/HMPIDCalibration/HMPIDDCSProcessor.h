@@ -384,15 +384,15 @@ class HMPIDDCSProcessor
   // =======================================================================================
 
   // Chamber Pressures
-  static conxtexpr std::size_t indexChPr = 7;
+  static constexpr std::size_t indexChPr = 7;
 
   // High Voltage
-  static conxtexpr std::size_t indexChHv = 7;
-  static conxtexpr std::size_t indexSecHv = 13;
+  static constexpr std::size_t indexChHv = 7;
+  static constexpr std::size_t indexSecHv = 13;
 
   // Temperatures
-  static conxtexpr std::size_t indexChTemp = 7;
-  static conxtexpr std::size_t indexRadTemp = 22;
+  static constexpr std::size_t indexChTemp = 7;
+  static constexpr std::size_t indexRadTemp = 22;
 
   // Timestamps and TimeRanges
   // ======================================================================================

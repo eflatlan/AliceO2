@@ -203,7 +203,7 @@ void HMPIDDCSProcessor::fillChPressure(const DPCOM& dpcom)
       char stringPos = inputString[indexChPr];
     }
   } else {
-    LOGP(warn, "CNot correct datatype for Pressure P{}: ", chNum);
+    LOGP(warn, "Not correct datatype for Pressure");
   }
 }
 
@@ -221,13 +221,13 @@ void HMPIDDCSProcessor::fillHV(const DPCOM& dpcom)
       if (secNum < 6 && secNum >= 0) {
         dpVecHV[6 * chNum + secNum].emplace_back(dpcom);
       } else {
-        LOGP(warn, "Sector Number out of range for High Voltage HV{}{}", chNum, secNum};
+        LOGP(warn, "Sector Number out of range for High Voltage HV{}{}", chNum, secNum);
       }
     } else {
-      LOGP(warn, "Chamber Number out of range for High Voltage HV{}{}", chNum, secNum};
+      LOGP(warn, "Chamber Number out of range for High Voltage HV{}{}", chNum, secNum);
     }
   } else {
-    LOGP(warn, "Not correct datatype for High Voltage HV{}{}", chNum, secNum};
+    LOGP(warn, "Not correct datatype for High Voltage");
   }
 }
 
@@ -252,7 +252,7 @@ void HMPIDDCSProcessor::fillTempIn(const DPCOM& dpcom)
       LOGP(warn, "Chamber Number out of range for TempIn Tin{}{}",chNum, radNum);
     }
   } else {
-    LOGP(warn, "Not correct datatype for TempIn Tin{}{}",chNum, radNum);
+    LOGP(warn, "Not correct datatype for TempIn");
   }
 }
 
@@ -278,7 +278,7 @@ void HMPIDDCSProcessor::fillTempOut(const DPCOM& dpcom)
       LOGP(warn, "Chamber Number out of range for TempOut Tout{}{}",chNum, radNum);
     }
   } else {
-    LOGP(warn, "Not correct datatype for TempOut Tout{}{}",chNum, radNum);
+    LOGP(warn, "Not correct datatype for TempOut");
   }
 }
 
@@ -460,7 +460,7 @@ TransparencyDpInfo HMPIDDCSProcessor::dpVector2Double(const std::vector<DPCOM>& 
 
   DPCOM dp = dpVec[0];
 
-  if (dp.id.get_type() != DeliveryType::DPVAL_DOUBLE) {
+  if (dp.id.get_type() == DeliveryType::DPVAL_DOUBLE) {
     transDpInfo.dpVal = o2::dcs::getValue<double>(dp);
     transDpInfo.isDpValid = true;
   } else {
