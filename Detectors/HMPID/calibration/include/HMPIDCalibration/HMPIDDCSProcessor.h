@@ -55,10 +55,6 @@ class HMPIDDCSProcessor
 {
 
  public:
-  struct TimeRange {
-    uint64_t first = std::numeric_limits<uint64_t>::max();
-    uint64_t last = std::numeric_limits<uint64_t>::min();
-  };
 
   HMPIDDCSProcessor() = default;
   ~HMPIDDCSProcessor() = default;
@@ -113,8 +109,10 @@ class HMPIDDCSProcessor
 
   double procTrans();
 
-  bool evalCorrFactor(double dRefArgon, double dCellArgon, double dRefFreon,
-                      double dCellFreon, double photEn, int i);
+  // ef: could pass everything here as const-ref, but everything is done at EOR, 
+  // so maybe not so
+  bool evalCorrFactor(const double& dRefArgon, const double& dCellArgon, const double& dRefFreon,
+                      const double& dCellFreon, const double& dPhotEn, const & i);
   double dpVector2Double(const std::vector<DPCOM>& dpVec, const char* dpString, int i);
   double calculatePhotonEnergy(int i);
 
@@ -257,6 +255,18 @@ class HMPIDDCSProcessor
 
 
  private:
+
+  struct TransparencyDpInfo {
+    bool isDpValid = false;
+    double dpVal = -999;
+  };
+
+  struct TimeRange {
+    uint64_t first = std::numeric_limits<uint64_t>::max();
+    uint64_t last = std::numeric_limits<uint64_t>::min();
+  };
+
+
   const UInt_t kDefault = BIT(14);
   bool isDefault(const TF1* f) const {return f->TestBit(kDefault);}
   void setDefault(TF1* f, bool v) {f->SetBit(kDefault, v);}
@@ -371,7 +381,7 @@ class HMPIDDCSProcessor
 
   // Temperatures
   std::size_t indexChTemp = 7;
-  std::size_t indexRadTemp = 22; //+1
+  std::size_t indexRadTemp = 22;
 
   // Timestamps and TimeRanges
   // ======================================================================================

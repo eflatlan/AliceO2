@@ -78,7 +78,6 @@ void HMPIDDCSProcessor::process(const gsl::span<const DPCOM> dps)
 // but not the Transparency-specifier
 void HMPIDDCSProcessor::processHMPID(const DPCOM& dp)
 {
-
   const std::string alias(dp.id.get_alias());
   const auto hmpidString = alias.substr(alias.length() - 8);
 
@@ -189,7 +188,6 @@ void HMPIDDCSProcessor::fillEnvPressure(const DPCOM& dpcom)
 // fill entries in chamber-pressure DPCOM-vector
 void HMPIDDCSProcessor::fillChPressure(const DPCOM& dpcom)
 {
-
   auto& dpid = dpcom.id;
   const auto& type = dpid.get_type();
 
@@ -219,11 +217,6 @@ void HMPIDDCSProcessor::fillHV(const DPCOM& dpcom)
     const auto chNum = aliasStringToInt(dpid, indexChHv);
     const auto secNum = aliasStringToInt(dpid, indexSecHv);
 
-    // ef: can remove this now, since the problem with the strings is fixed:
-    /* 
-    if (mVerbose) {
-      LOGP(info, "HV ch:{} sec:{} val: {}", chNum, secNum, o2::dcs::getValue<double>(dpcom));
-    } */
     if (chNum < 7 && chNum >= 0) {
       if (secNum < 6 && secNum >= 0) {
         dpVecHV[6 * chNum + secNum].emplace_back(dpcom);
@@ -432,36 +425,36 @@ double HMPIDDCSProcessor::calculatePhotonEnergy(int i)
   return photEn;
 }
 
-double HMPIDDCSProcessor::dpVector2Double(const std::vector<DPCOM>& dpVec,
+TransparencyDpInfo HMPIDDCSProcessor::dpVector2Double(const std::vector<DPCOM>& dpVec,
                                           const char* dpString, int i)
 {
 
-  double dpVal;
+  TransparencyDpInfo transDpInfo;
   if (dpVec.size() == 0) {
     LOG(warn) << Form(
       "No Data Point values for HMP_TRANPLANT_MEASURE_%s,%i  "
       "---> Default E mean used!",
       dpString, i);
-    return eMeanDefault;
+    return transDpInfo;
   }
 
   DPCOM dp = dpVec[0];
 
-  if (dp.id.get_type() == DeliveryType::DPVAL_DOUBLE) {
-    dpVal = o2::dcs::getValue<double>(dp);
+  if (dp.id.get_type() != DeliveryType::DPVAL_DOUBLE) {
+    transDpInfo.dpVal = o2::dcs::getValue<double>(dp);
+    transDpInfo.isDpValid = true;
   } else {
     LOG(warn) << Form(
       "Not correct datatype for HMP_TRANPLANT_MEASURE_%s,%i  "
       "-----> Default E mean used!",
       dpString, i);
-    return eMeanDefault;
+    return transDpInfo;
   }
-  return dpVal;
+  return transDpInfo;
 }
 
-bool HMPIDDCSProcessor::evalCorrFactor(double dRefArgon, double dCellArgon,
-                                       double dRefFreon, double dCellFreon,
-                                       double dPhotEn, int i)
+bool HMPIDDCSProcessor::evalCorrFactor(const double& dRefArgon, const double& dCellArgon, const double& dRefFreon,
+                      const double& dCellFreon, const double& dPhotEn, const &
 {
   // evaluate correction factor to calculate trasparency (Ref. NIMA 486 (2002)
   // 590-609)
@@ -544,8 +537,6 @@ std::unique_ptr<TF1> HMPIDDCSProcessor::finalizeEnvPressure()
       pEnv.reset(
         new TF1("Penv", Form("%f", yP), envPrFirstTime, envPrLastTime));
     } else {
-      // envPrLastTime -= envPrFirstTime;
-      // envPrFirstTime = 0;
       pEnv.reset(new TF1("Penv", "1000+x*[0]", envPrFirstTime, envPrLastTime));
       pGrPenv->Fit("Penv", "Q");
     }
@@ -570,7 +561,7 @@ std::unique_ptr<TF1> HMPIDDCSProcessor::finalizeChPressure(int iCh)
 
     for (DPCOM dp : dpVecCh[iCh]) {
       auto dpVal = o2::dcs::getValue<double>(dp);
-      auto time = dp.data.get_epoch_time(); //- chPrFirstTime
+      auto time = dp.data.get_epoch_time();
       pGrP->SetPoint(cntChPressure++, time, dpVal);
     }
     // chPrLastTime -= chPrFirstTime;
@@ -607,11 +598,10 @@ bool HMPIDDCSProcessor::finalizeTempOut(int iCh, int iRad)
     
     for (DPCOM dp : dpVecTempOut[3 * iCh + iRad]) {
       auto dpVal = o2::dcs::getValue<double>(dp);
-      auto time = dp.data.get_epoch_time(); // -minTime
+      auto time = dp.data.get_epoch_time();
       pGrTOut->SetPoint(cntTOut++, time, dpVal);
     }
-    // maxTime -= minTime;
-    // minTime = 0;
+
     std::unique_ptr<TF1> pTout;
     pTout.reset(
       new TF1(Form("Tout%i%i", iCh, iRad), "[0]+[1]*x", minTime, maxTime));
@@ -660,7 +650,7 @@ bool HMPIDDCSProcessor::finalizeTempIn(int iCh, int iRad)
 
     for (DPCOM dp : dpVecTempIn[3 * iCh + iRad]) {
       auto dpVal = o2::dcs::getValue<double>(dp);
-      auto time = dp.data.get_epoch_time(); //-minTime
+      auto time = dp.data.get_epoch_time();
       pGrTIn->SetPoint(cntTin++, time, dpVal);
     }
 
@@ -711,7 +701,7 @@ std::unique_ptr<TF1> HMPIDDCSProcessor::finalizeHv(int iCh, int iSec)
 
     for (DPCOM dp : dpVecHV[3 * iCh + iSec]) {
       auto dpVal = o2::dcs::getValue<double>(dp);
-      auto time = dp.data.get_epoch_time(); //- hvFirstTime
+      auto time = dp.data.get_epoch_time();
       pGrHV->SetPoint(cntHV++, time, dpVal);
     }
     // hvLastTime -= hvFirstTime;
@@ -772,11 +762,10 @@ void HMPIDDCSProcessor::finalize()
 	pToutDefault.reset(new TF1());
         setDefault(pToutDefault.get(), true);
         
-        // ef: set flag in invalid object, such that it can be read in receiving
+        // ef: set flag in invalid object, such that it can be read on receiving
  	// side (Ckov reconstruction) as invalid and thus use default value
         arNmean[6 * iCh + 2 * iRad + 1] = *(pToutDefault.get());
       }
-
     }
 
     // Fill entries in arQthre
@@ -810,7 +799,7 @@ void HMPIDDCSProcessor::finalize()
         setDefault(pQthreDefault.get(), true);
         //setDefault(TF1* f, bool v)// const {f->SetBit(kDefault, v);}
         
-        // ef: set flag in invalid object, such that it can be read in receiving
+        // ef: set flag in invalid object, such that it can be read on receiving
  	// side (Ckov reconstruction) as invalid and thus use default value
         arQthre[6 * iCh + iSec] = *(pQthreDefault.get());
         LOGP(warn, "Missing entry in Charge-Threshold arQthre{} in chamber{} sector{} ", 6 * iCh + iSec, iCh, iSec);
