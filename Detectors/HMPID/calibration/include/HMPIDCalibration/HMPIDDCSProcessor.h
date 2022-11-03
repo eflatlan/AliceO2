@@ -150,7 +150,7 @@ class HMPIDDCSProcessor
 
     bool arQthreFull = true;
     int cntQ = 0;
-    for(const auto& tf:arQthresh){ 
+    for(const auto& tf:arQthresh){
       cntQ++;
       if (isDefault(&tf)) {
         arQthreFull = false;
@@ -167,7 +167,7 @@ class HMPIDDCSProcessor
       }
       cntN++;
     }
-  } 
+  }
 
   void clearDPsInfo()
   {
@@ -224,7 +224,7 @@ class HMPIDDCSProcessor
 
   double procTrans();
 
-  // ef: could pass everything here as const-ref, but everything is done at EOR, 
+  // ef: could pass everything here as const-ref, but everything is done at EOR,
   // so maybe not so
   bool evalCorrFactor(const double& dRefArgon, const double& dCellArgon, const double& dRefFreon,
                       const double& dCellFreon, const double& dPhotEn, const int& i);
@@ -332,7 +332,7 @@ class HMPIDDCSProcessor
   double sEnergProb = 0, sProb = 0; // energy probaility, probability
   double eMean = 0;                 // initialize eMean (Photon energy mean) to 0
 
-  double aCorrFactor[30] = {
+  static constexpr double aCorrFactor[30] = {
     0.937575212, 0.93805688, 0.938527113, 0.938986068, 0.939433897,
     0.939870746, 0.940296755, 0.94071206, 0.941116795, 0.941511085,
     0.941895054, 0.942268821, 0.942632502, 0.942986208, 0.943330047,
@@ -340,7 +340,14 @@ class HMPIDDCSProcessor
     0.945191552, 0.945469097, 0.945737533, 0.945996945, 0.946247412,
     0.946489015, 0.94672183, 0.946945933, 0.947161396, 0.947368291};
 
-  double nm2eV;  // conversion factor, nanometer to eV
+
+  // ef: hardcoded default wavelengths
+  static constexpr double arrWaveLenDefault[30] = {
+    162, 164, 166, 168, 170, 172, 174, 176, 178, 180,
+    182, 184, 186, 188, 190, 192, 194, 196, 198, 200,
+    202, 204, 206, 208, 210, 212, 214, 216, 218, 220};
+
+  static constexpr double nm2eV = 1239.842609;     // 1239.842609 from nm to eV
   double photEn; // photon energy
 
   // wavelength
@@ -363,7 +370,9 @@ class HMPIDDCSProcessor
   double cellFreon;
   std::vector<DPCOM> freonCellVec[30];
 
-  double aTransRad, aConvFactor; // evaluate 15 mm of thickness C6F14 Trans
+
+  static constexpr double aConvFactor = 1.0 - 0.3 / 1.8;
+  double aTransRad; // evaluate 15 mm of thickness C6F14 Trans
   double aTransSiO2;             // evaluate 0.5 mm of thickness SiO2 Trans
   double aTransGap;              // evaluate 80 cm of thickness Gap (low density CH4)
                                  // transparency
@@ -375,15 +384,15 @@ class HMPIDDCSProcessor
   // =======================================================================================
 
   // Chamber Pressures
-  std::size_t indexChPr = 7;
+  static conxtexpr std::size_t indexChPr = 7;
 
   // High Voltage
-  std::size_t indexChHv = 7;
-  std::size_t indexSecHv = 13;
+  static conxtexpr std::size_t indexChHv = 7;
+  static conxtexpr std::size_t indexSecHv = 13;
 
   // Temperatures
-  std::size_t indexChTemp = 7;
-  std::size_t indexRadTemp = 22;
+  static conxtexpr std::size_t indexChTemp = 7;
+  static conxtexpr std::size_t indexRadTemp = 22;
 
   // Timestamps and TimeRanges
   // ======================================================================================
