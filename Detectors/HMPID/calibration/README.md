@@ -9,7 +9,7 @@ o2-calibration-hmpid-dcs-workflow  -b --local-test|  o2-calibration-ccdb-populat
 
 `time-frames` specifies the timeframes before EOR  
 `local-test` specifies to use simulated DPs  
-`ccdb-path` localhost:8080 specifies to store CCDB objects locally  
+`ccdb-path localhost:8080` specifies to store CCDB objects locally  
 
 	
 
