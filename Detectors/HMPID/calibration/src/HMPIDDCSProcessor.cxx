@@ -289,17 +289,21 @@ double HMPIDDCSProcessor::procTrans()
 {
   for (int i = 0; i < 30; i++) {
 
-    // ef: if calculatePhotonEnergy returns eMeanDefault, it simply means that
-    // there were something wrong in calculating the photon-energy for the given
+
+    // ef: calculatePhotonEnergy(i):
+    // if there is something wrong in calculating the photon-energy for the given
     // wavelength (i.e., the current entry i in the waveLenVec holding the DPs
     //  of wavelenghts)
+    // then the default wavelength for the given iteration will be sent
 
     photEn = calculatePhotonEnergy(i);
 
     if (photEn < o2::hmpid::Param::ePhotMin() ||
         photEn > o2::hmpid::Param::ePhotMax()) {
       LOG(warn) << "photon energy out of range" << photEn;
-      continue; // ef: if photon energy is out of range; skip to next iteration
+      lambda = arrWaveLenDefault[i];
+      photEn = nm2eV / lambda;
+      //continue; // ef: if photon energy is out of range; skip to next iteration
     }
 
     // ef: if any of the vectors fof DP-currents (argonRef, cellArgon..) are invalid,
@@ -308,8 +312,6 @@ double HMPIDDCSProcessor::procTrans()
     // ===== evaluate phototube current for argon reference ============================
     TransparencyDpInfo refArgonDP = dpVector2Double(argonRefVec[i], "ARGONREF", i);
     if (refArgonDP.isDpValid == false) {
-      // ef: removed warn here, since it is done in the dpVector2double
-      // ef: simply return eMeanDefault; replacing defaultEMean() function-call
       return eMeanDefault;
     } else {
       refArgon = refArgonDP.dpVal;
@@ -338,10 +340,6 @@ double HMPIDDCSProcessor::procTrans()
     } else {
       cellFreon = cellFreonDP.dpVal;
     }
-
-    // ef: in theory, the evalCorrFactor method should not be called with un-defined
-    // refArgon etc, since the function would return eMeanDefault,
-    // but should they be initiated anyways?
 
     // evaluate correction factor to calculate trasparency
     bool isEvalCorrOk = evalCorrFactor(refArgon, cellArgon, refFreon, cellFreon, photEn, i);
@@ -414,7 +412,7 @@ double HMPIDDCSProcessor::calculatePhotonEnergy(int i)
 {
   // if there is no entries
   if (waveLenVec[i].size() == 0) {
-    LOGP(warn, "No Data Point values for HMP_TRANPLANT_MEASURE_{i}_WAVELENGTH --> Default wavelength used for iteration procTrans{}", i, i);
+    LOGP(warn, "No Data Point values for HMP_TRANPLANT_MEASURE_{}_WAVELENGTH --> Default wavelength used for iteration procTrans{}", i, i);
     // return lambda/
     lambda = arrWaveLenDefault[i];
     return nm2eV / lambda;
@@ -427,14 +425,14 @@ double HMPIDDCSProcessor::calculatePhotonEnergy(int i)
     lambda = o2::dcs::getValue<double>(dp);
   } else {
     LOGP(warn, "DP type is {}", dp.id.get_type());
-    LOGP(warn, "Not correct datatype for HMP_TRANPLANT_MEASURE_{i}_WAVELENGTH --> Default wavelength used for iteration procTrans{}", i, i);
+    LOGP(warn, "Not correct datatype for HMP_TRANPLANT_MEASURE_{}_WAVELENGTH --> Default wavelength used for iteration procTrans{}", i, i);
     lambda = arrWaveLenDefault[i];
   }
 
 
   // ef: can remove this?
   if (lambda < 150. || lambda > 230.) {
-    LOGP(warn, "Wrong value for (lambda out of range) HMP_TRANPLANT_MEASURE_{i}_WAVELENGTH --> Default wavelength used for iteration procTrans{}", i, i);
+    LOGP(warn, "Wrong value for (lambda out of range) HMP_TRANPLANT_MEASURE_{}_WAVELENGTH --> Default wavelength used for iteration procTrans{}", i, i);
     lambda = arrWaveLenDefault[i];
   }
 
@@ -453,7 +451,7 @@ TransparencyDpInfo HMPIDDCSProcessor::dpVector2Double(const std::vector<DPCOM>& 
 
   TransparencyDpInfo transDpInfo;
   if (dpVec.size() == 0) {
-    LOGP(warn, "No Data Point values for HMP_TRANPLANT_MEASURE_{},{}---> Default E mean used!",
+    LOGP(warn, "No Data Point values for HMP_TRANPLANT_MEASURE_{}_{}---> Default E mean used!",
       dpString, i);
     return transDpInfo; // returns transDpInfo with default values
   }
@@ -464,7 +462,7 @@ TransparencyDpInfo HMPIDDCSProcessor::dpVector2Double(const std::vector<DPCOM>& 
     transDpInfo.dpVal = o2::dcs::getValue<double>(dp);
     transDpInfo.isDpValid = true;
   } else {
-    LOGP(warn, "Not correct datatype for HMP_TRANPLANT_MEASURE_{},{} -----> Default E mean used!",
+    LOGP(warn, "Not correct datatype for HMP_TRANPLANT_MEASURE_{}_{} -----> Default E mean used!",
       dpString, i);
     return transDpInfo; // returns transDpInfo with default values
   }

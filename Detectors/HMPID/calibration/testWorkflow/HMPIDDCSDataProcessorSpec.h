@@ -123,12 +123,11 @@ class HMPIDDCSDataProcessor : public o2::framework::Task
 
     /* ef : only for local simulation to verify fits:
     // set startValidity if not set already, and mCheckRunStartStop (--follow-hmpid-run) is not used */
-    
+
     if(mProcessor->getStartValidity() == o2::ccdb::CcdbObjectInfo::INFINITE_TIMESTAMP && mLocalTest == true)
     {
       mProcessor->setStartValidity(dataTime);
     }
-    
 
     if (mCheckRunStartStop) {
       const auto* grp = mRunChecker.check(); // check if there is a run with HMP
