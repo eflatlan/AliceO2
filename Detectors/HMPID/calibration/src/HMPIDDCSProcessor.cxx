@@ -811,29 +811,27 @@ void HMPIDDCSProcessor::finalize()
         pQthre->SetTitle(Form(
           "Charge-Threshold Ch%iSec%i; Time [mS]; Threshold ", iCh, iSec));
 
-        arQthre[6 * iCh + iSec] = *(pQthre.get());
+        // ef: in theory this should not be necessary,; so no need for protection here?
+        if(pQthre != nullptr){
+          arQthre[6 * iCh + iSec] = *(pQthre.get());
+        } else {
+        std::unique_ptr<TF1> pQthreDefault;
+	pQthreDefault.reset(new TF1());
+        setDefault(pQthreDefault.get(), true);
+        //setDefault(TF1* f, bool v)// const {f->SetBit(kDefault, v);}
 
+        arQthre[6 * iCh + iSec] = *(pQthreDefault.get());
+        LOGP(warn, "Nullptr in Charge-Threshold arQthre{} in chamber{} sector{} ", 6 * iCh + iSec, iCh, iSec);
+        }
       } else {
         std::unique_ptr<TF1> pQthreDefault;
 	pQthreDefault.reset(new TF1());
         setDefault(pQthreDefault.get(), true);
         //setDefault(TF1* f, bool v)// const {f->SetBit(kDefault, v);}
 
-        // ef: set flag in invalid object, such that it can be read on receiving
- 	// side (Ckov reconstruction) as invalid and thus use default value
         arQthre[6 * iCh + iSec] = *(pQthreDefault.get());
         LOGP(warn, "Missing entry in Charge-Threshold arQthre{} in chamber{} sector{} ", 6 * iCh + iSec, iCh, iSec);
-
-	// print which one is missing:
-        if(pEnv == nullptr){
-	  LOG(warn) << "Missing entries for environment-pressure Penv";
-        }
-        if(pChPres == nullptr){
-          LOGP(warn, "Missing entries for chamber-pressure P{}", iCh, iCh);
-        }
-        if(pHV == nullptr){
-          LOGP(warn, "Missing entries for High Voltage HV{}{}", iCh, iSec);
-        }
+       // ef: not printing which one is missing as it is done already in the given function
       }
     }
   }

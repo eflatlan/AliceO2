@@ -272,6 +272,8 @@ class HMPIDDCSProcessor
   const UInt_t kDefault = BIT(14);
   bool isDefault(const TF1* f) const {return f->TestBit(kDefault);}
   void setDefault(TF1* f, bool v) {f->SetBit(kDefault, v);}
+  // ef: set flag in invalid object, such that it can be read on receiving
+  // side (Ckov reconstruction) as invalid and thus use default value
 
   std::unordered_map<DPID, bool> mPids;
 
