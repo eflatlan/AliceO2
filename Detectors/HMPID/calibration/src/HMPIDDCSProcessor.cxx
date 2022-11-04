@@ -320,7 +320,7 @@ double HMPIDDCSProcessor::procTrans()
     //===== evaluate phototube current for argon cell===================================
     TransparencyDpInfo cellArgonDP = dpVector2Double(argonCellVec[i], "ARGONCELL", i);
     if (cellArgonDP.isDpValid == false) {
-      eMeanDefault;
+      return eMeanDefault;
     } else {
       cellArgon = cellArgonDP.dpVal;
     }
