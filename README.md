@@ -5,12 +5,12 @@ Moved bool functions [PAram::isDeadPad and isInDead](https://github.com/eflatlan
 
 # QC 
 
-## Clusters
+### Clusters
 #### Read Clusters ~~from stream or~~ file for QC. Write upstream
 
     o2-hmpid-clusters-reader-workflow
 
-### Contents : 
+#### Contents : 
 
 - include/HMPIDWorkflow
   - _ClustersReaderSpec.h_ : Spec for Cluster-reader
@@ -20,12 +20,12 @@ Moved bool functions [PAram::isDeadPad and isInDead](https://github.com/eflatlan
   - _clusters-reader-workflow.cxx_ : executable for Cluster-reader  
 
 
-## Digits
+### Digits
 #### Read Digits ~~from stream or~~ file for QC. Write upstream
 
     o2-hmpid-digits-reader-workflow
 
-### Contents : 
+#### Contents : 
 
 - include/HMPIDWorkflow
   - _DigitsReaderSpec.h_ : Spec for Digits-reader
