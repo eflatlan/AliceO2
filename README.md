@@ -95,7 +95,7 @@ If the clusters are written to file, the default file-name is _"hmpidclusters.ro
 ### Contents : 
 
 - Globaltracking
-  - _[MatchHMP.cxx](https://github.com/eflatlan/AliceO2/blob/dev/Detectors/GlobalTracking/src/MatchHMP.cxx)_ _[MatchHMP.h](https://github.com/eflatlan/AliceO2/blob/dev/Detectors/GlobalTracking/include/GlobalTracking/MatchHMP.h_ ) : Class for track-matching
+  - _[MatchHMP.cxx](https://github.com/eflatlan/AliceO2/blob/dev/Detectors/GlobalTracking/src/MatchHMP.cxx)_ _[MatchHMP.h](https://github.com/eflatlan/AliceO2/blob/dev/Detectors/GlobalTracking/include/GlobalTracking/MatchHMP.h)_ : Class for track-matching
 
 - GlobaltrackingWorkflow
   - _[HMPMatcherSpec.cxx](https://github.com/eflatlan/AliceO2/blob/dev/Detectors/GlobalTrackingWorkflow/src/HMPMatcherSpec.cxx)_ _[HMPMatcherSpec.h](https://github.com/eflatlan/AliceO2/blob/dev/Detectors/GlobalTrackingWorkflow/include/GlobalTrackingWorkflow/HMPMatcherSpec.h)_ : Spec for track-matching
