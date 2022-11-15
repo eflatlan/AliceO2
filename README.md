@@ -3,6 +3,8 @@
 Moved bool functions [PAram::isDeadPad and isInDead](https://github.com/eflatlan/AliceO2/blob/a2b74a3d143515b97f15467f4508e908d3d8359e/Detectors/HMPID/base/src/Param.cxx#L470-L501) to [header-file](https://github.com/eflatlan/AliceO2/blob/a2b74a3d143515b97f15467f4508e908d3d8359e/Detectors/HMPID/base/include/HMPIDBase/Param.h#L118-L143) and removed inline keyword. 
 
 
+
+
 # QC 
 
 ### Clusters
@@ -13,11 +15,11 @@ Moved bool functions [PAram::isDeadPad and isInDead](https://github.com/eflatlan
 #### Contents : 
 
 - include/HMPIDWorkflow
-  - _ClustersReaderSpec.h_ : Spec for Cluster-reader
+  - _[ClustersReaderSpec.h](https://github.com/eflatlan/AliceO2/blob/dev/Detectors/HMPID/workflow/include/HMPIDWorkflow/ClustersReaderSpec.h)_ : Spec for Cluster-reader
 
 - src
-  - _ClustersReaderSpec.h_ : Spec for Cluster-reader
-  - _clusters-reader-workflow.cxx_ : executable for Cluster-reader  
+  - _[ClustersReaderSpec.cxx](https://github.com/eflatlan/AliceO2/blob/dev/Detectors/HMPID/workflow/src/ClustersReaderSpec.cxx)_ : Spec for Cluster-reader
+  - _[clusters-reader-workflow.cxx](https://github.com/eflatlan/AliceO2/blob/dev/Detectors/HMPID/workflow/src/clusters-reader-workflow.cxx)_executable for Cluster-reader  
 
 
 ### Digits
@@ -28,15 +30,16 @@ Moved bool functions [PAram::isDeadPad and isInDead](https://github.com/eflatlan
 #### Contents : 
 
 - include/HMPIDWorkflow
-  - _DigitsReaderSpec.h_ : Spec for Digits-reader
+  - _[DgitsReaderSpec.h](https://github.com/eflatlan/AliceO2/blob/dev/Detectors/HMPID/workflow/include/HMPIDWorkflow/DigitsReaderSpec.h)_Spec for Digits-reader
 
 - src
-  - _DigitsReaderSpec.h_ : Spec for Digits-reader
-  - _digits-reader-workflow.cxx_ : executable for Digits-reader  
+  - _[DigitsReaderSpec.cxx](https://github.com/eflatlan/AliceO2/blob/dev/Detectors/HMPID/workflow/src/DigitsReaderSpec.cxx)_ Spec for Digits-reader
+  - _[digits-reader-workflow.cxx](https://github.com/eflatlan/AliceO2/blob/dev/Detectors/HMPID/workflow/src/digits-reader-workflow.cxx)_ : executable for Digits-reader  
 
 
 
 # DigitClusterWorkflow  
+
 Clusterization workflow; reading digits from file/stream, performing clusterization, and writing clusters to file/stream.
 
 #### Allow to read from stream or file
@@ -45,14 +48,14 @@ Clusterization workflow; reading digits from file/stream, performing clusterizat
 ### Contents : 
 
 - include/HMPIDWorkflow
-  - _DigitsToClustersSpec.h_ : Spec for digits-to-cluster-Workflow
-  - _ClustersWriterSpec.h_ MakeRootTreeWriterSpec: writes cluster-out-file
+  - _[DigitsToClustersSpec.h](https://github.com/eflatlan/AliceO2/blob/dev/Detectors/HMPID/workflow/include/HMPIDWorkflow/DigitsToClustersSpec.h)_ : Spec for digits-to-cluster-Workflow
+  - _[ClustersWriterSpec.h](https://github.com/eflatlan/AliceO2/blob/dev/Detectors/HMPID/workflow/include/HMPIDWorkflow/ClustersWriterSpec.h)_ MakeRootTreeWriterSpec: writes cluster-out-file
 
 - src
-  - _ClustersWriterSpec.cxx_ MakeRootTreeWriterSpec: writes cluster-out-file
+  - _[ClustersWriterSpec.cxx](https://github.com/eflatlan/AliceO2/blob/dev/Detectors/HMPID/workflow/src/ClustersWriterSpec.cxx)_ MakeRootTreeWriterSpec: writes cluster-out-file
 
-  - _DigitsToClustersSpec.cxx_ : Spec for digits-to-cluster-Workflow
-  - _digits-to-clusters-workflow.cxx_ : executable for digits-to-clusters
+  - _[DigitsToClustersSpec.cxx](https://github.com/eflatlan/AliceO2/blob/dev/Detectors/HMPID/workflow/src/DigitsToClustersSpec.cxx)_ : Spec for digits-to-cluster-Workflow
+  - _[digits-to-clusters-workflow.cxx](https://github.com/eflatlan/AliceO2/blob/dev/Detectors/HMPID/workflow/src/digits-to-clusters-workflow.cxx)_ : executable for digits-to-clusters
 
 
 #### Reads digitis upstream from real data by default.
@@ -86,41 +89,42 @@ If the clusters are written to file, the default file-name is _"hmpidclusters.ro
 
 
 
-# Cherenkov angle reconstruction  
 
+# Cherenkov angle reconstruction  
 
 ### Contents : 
 
 - Globaltracking
-  - _MatchHMP_ : Class for track-matching
+  - _[MatchHMP.cxx](https://github.com/eflatlan/AliceO2/blob/dev/Detectors/GlobalTracking/src/MatchHMP.cxx)_ _[MatchHMP.h](https://github.com/eflatlan/AliceO2/blob/dev/Detectors/GlobalTracking/include/GlobalTracking/MatchHMP.h_ ) : Class for track-matching
 
 - GlobaltrackingWorkflow
-  - _HMPMatcherSpec_ : Spec for track-matching
-  - _hmp-matcher-spec_ : executable for track-matching   
+  - _[HMPMatcherSpec.cxx](https://github.com/eflatlan/AliceO2/blob/dev/Detectors/GlobalTrackingWorkflow/src/HMPMatcherSpec.cxx)_ _[HMPMatcherSpec.h](https://github.com/eflatlan/AliceO2/blob/dev/Detectors/GlobalTrackingWorkflow/include/GlobalTrackingWorkflow/HMPMatcherSpec.h)_ : Spec for track-matching
+  - _[hmp-matcher-workflow](https://github.com/eflatlan/AliceO2/blob/dev/Detectors/GlobalTrackingWorkflow/src/hmp-matcher-workflow.cxx)_ : executable for track-matching   
 
 - HMPID/reconstruction
-  - _Recon_ : class for Cherenkov angle reconstruction
+  - _[Recon.h](https://github.com/eflatlan/AliceO2/blob/dev/Detectors/HMPID/reconstruction/include/HMPIDReconstruction/Recon.h)_ [Recon.cxx](https://github.com/eflatlan/AliceO2/blob/dev/Detectors/HMPID/reconstruction/src/Recon.cxx) : class for Cherenkov angle reconstruction
 
 
 
 # Change all Legacy Physics classes for HMPID  
+
 [Legacy Physics Classes](https://root.cern.ch/doc/master/group__Physics.html)
 
-### Change TVector2 -> Vector2D and TVector3 -> Vector3D in HMPID::Recon
+#### Change TVector2 -> Vector2D and TVector3 -> Vector3D in HMPID::Recon
 
 
 
-### [Trotation in HMPID-param](https://github.com/AliceO2Group/AliceO2/blob/03608ff899d444d52571dbed14a0106ae4616562/Detectors/HMPID/base/src/Param.cxx)
+#### [Trotation in HMPID-param](https://github.com/AliceO2Group/AliceO2/blob/03608ff899d444d52571dbed14a0106ae4616562/Detectors/HMPID/base/src/Param.cxx)
   * Does not seem to be used?
-### [TLorentzVector in HMPID-detector](https://github.com/AliceO2Group/AliceO2/blob/54d91df6bd1f9008ed8caa748820cfc3b95535e4/Detectors/HMPID/simulation/src/Detector.cxx)
+#### [TLorentzVector in HMPID-detector](https://github.com/AliceO2Group/AliceO2/blob/54d91df6bd1f9008ed8caa748820cfc3b95535e4/Detectors/HMPID/simulation/src/Detector.cxx)
   * [ROOT::Math::LorentzVector](https://github.com/eflatlan/AliceRecon/blob/1483a2302205717d9c97272287090a46daf4a338/Detectors/HMPID/simulation/src/Detector.cxx#L189)
 
 
-### [TVector3 in HMPID-param header](https://github.com/AliceO2Group/AliceO2/blob/03608ff899d444d52571dbed14a0106ae4616562/Detectors/HMPID/base/include/HMPIDBase/Param.h#L19)
+#### [TVector3 in HMPID-param header](https://github.com/AliceO2Group/AliceO2/blob/03608ff899d444d52571dbed14a0106ae4616562/Detectors/HMPID/base/include/HMPIDBase/Param.h#L19)
   1. lors2Mars [old](https://github.com/AliceO2Group/AliceO2/blob/03608ff899d444d52571dbed14a0106ae4616562/Detectors/HMPID/base/include/HMPIDBase/Param.h#L191-L196) -> [new](https://github.com/eflatlan/AliceRecon/blob/1483a2302205717d9c97272287090a46daf4a338/Detectors/HMPID/base/include/HMPIDBase/Param.h#L227-L235) 
   2. norm [old](https://github.com/AliceO2Group/AliceO2/blob/03608ff899d444d52571dbed14a0106ae4616562/Detectors/HMPID/base/include/HMPIDBase/Param.h#L213-L218) -> [new](https://github.com/eflatlan/AliceRecon/blob/1483a2302205717d9c97272287090a46daf4a338/Detectors/HMPID/base/include/HMPIDBase/Param.h#L255-L260) 
   
-### [TVector3 in HMPID-param src](https://github.com/AliceO2Group/AliceO2/blob/03608ff899d444d52571dbed14a0106ae4616562/Detectors/HMPID/base/src/Param.cxx#L289)
+#### [TVector3 in HMPID-param src](https://github.com/AliceO2Group/AliceO2/blob/03608ff899d444d52571dbed14a0106ae4616562/Detectors/HMPID/base/src/Param.cxx#L289)
   * sigma2 [old](https://github.com/AliceO2Group/AliceO2/blob/03608ff899d444d52571dbed14a0106ae4616562/Detectors/HMPID/base/src/Param.cxx#L289-L304) -> [new](https://github.com/eflatlan/AliceRecon/blob/1483a2302205717d9c97272287090a46daf4a338/Detectors/HMPID/base/src/Param.cxx#L300-L320)
 
 # ALICE O2 software {#mainpage}
