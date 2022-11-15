@@ -1,3 +1,8 @@
+# HMPID Param Classes  
+
+Moved bool functions [PAram::isDeadPad and isInDead](https://github.com/eflatlan/AliceO2/blob/a2b74a3d143515b97f15467f4508e908d3d8359e/Detectors/HMPID/base/src/Param.cxx#L470-L501) to [header-file](https://github.com/eflatlan/AliceO2/blob/a2b74a3d143515b97f15467f4508e908d3d8359e/Detectors/HMPID/base/include/HMPIDBase/Param.h#L118-L143) and removed inline keyword. 
+
+
 # QC 
 
 ## Clusters
@@ -12,7 +17,7 @@
 
 - src
   - _ClustersReaderSpec.h_ : Spec for Cluster-reader
-  - _clusters-reader-workflow.cxx_ : executable for Cluster-reader
+  - _clusters-reader-workflow.cxx_ : executable for Cluster-reader  
 
 
 ## Digits
@@ -27,11 +32,11 @@
 
 - src
   - _DigitsReaderSpec.h_ : Spec for Digits-reader
-  - _digits-reader-workflow.cxx_ : executable for Digits-reader
+  - _digits-reader-workflow.cxx_ : executable for Digits-reader  
 
 
 
-# DigitClusterWorkflow
+# DigitClusterWorkflow  
 Clusterization workflow; reading digits from file/stream, performing clusterization, and writing clusters to file/stream.
 
 #### Allow to read from stream or file
@@ -81,7 +86,7 @@ If the clusters are written to file, the default file-name is _"hmpidclusters.ro
 
 
 
-# Cherenkov angle reconstruction
+# Cherenkov angle reconstruction  
 
 
 ### Contents : 
@@ -98,8 +103,8 @@ If the clusters are written to file, the default file-name is _"hmpidclusters.ro
 
 
 
-# Change all Legacy Physics classes for HMPID
-https://root.cern.ch/doc/master/group__Physics.html
+# Change all Legacy Physics classes for HMPID  
+[Legacy Physics Classes](https://root.cern.ch/doc/master/group__Physics.html)
 
 ### Change TVector2 -> Vector2D and TVector3 -> Vector3D in HMPID::Recon
 
