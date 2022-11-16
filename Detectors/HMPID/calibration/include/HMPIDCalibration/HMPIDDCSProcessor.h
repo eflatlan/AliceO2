@@ -60,7 +60,6 @@ class HMPIDDCSProcessor
 {
 
  public:
-
   HMPIDDCSProcessor() = default;
   ~HMPIDDCSProcessor() = default;
 
@@ -132,43 +131,12 @@ class HMPIDDCSProcessor
 
   CcdbObjectInfo& getHmpidChargeInfo() { return mccdbChargeInfo; }
   std::vector<TF1>& getChargeCutObj() { return arQthre; }
-
   void clearCCDBObjects()
   {
     arQthre.clear();
     arNmean.clear();
   }
-
-
-
-  void checkEntries(const std::vector<TF1>& arQthresh,
-                    const std::vector<TF1>& arrayNmean)
-  {
-    if (mVerbose) {
-      LOG(info) << " checking if CCDB objects are filled : ";
-    }
-
-    bool arQthreFull = true;
-    int cntQ = 0;
-    for(const auto& tf:arQthresh){
-      cntQ++;
-      if (isDefault(&tf)) {
-        arQthreFull = false;
-        LOGP(warn, "arQthre at {} empty ", cntQ);
-      }
-    }
-
-    bool arNmeanFull = true;
-    int cntN = 0;
-    for(const auto& tf:arrayNmean){
-      if (isDefault(&tf)) {
-        arNmeanFull = false;
-        LOGP(warn, "arrayNmean at {} empty ", cntN);
-      }
-      cntN++;
-    }
-  }
-
+  // ==========================================================================================================
   void clearDPsInfo()
   {
     mPids.clear();
@@ -183,7 +151,6 @@ class HMPIDDCSProcessor
   {
     mRunNumberFromGRP = rn;
   } // ef : just using the same as for emcal
-
 
  private:
   void processTRANS(const DPCOM& dp);
@@ -211,7 +178,6 @@ class HMPIDDCSProcessor
   std::unique_ptr<TF1> finalizeHv(int iCh, int iSec);
   bool finalizeTempOut(int iCh, int iRad);
   bool finalizeTempIn(int iCh, int iRad);
-
 
   //===== procTrans
   //===================================================================================================
@@ -268,10 +234,9 @@ class HMPIDDCSProcessor
     uint64_t last = std::numeric_limits<uint64_t>::min();
   };
 
-
   const UInt_t kDefault = BIT(14);
-  bool isDefault(const TF1* f) const {return f->TestBit(kDefault);}
-  void setDefault(TF1* f, bool v) {f->SetBit(kDefault, v);}
+  bool isDefault(const TF1* f) const { return f->TestBit(kDefault); }
+  void setDefault(TF1* f, bool v) { f->SetBit(kDefault, v); }
   // ef: set flag in invalid object, such that it can be read on receiving
   // side (Ckov reconstruction) as invalid and thus use default value
 
@@ -342,15 +307,14 @@ class HMPIDDCSProcessor
     0.945191552, 0.945469097, 0.945737533, 0.945996945, 0.946247412,
     0.946489015, 0.94672183, 0.946945933, 0.947161396, 0.947368291};
 
-
   // ef: hardcoded default wavelengths
   static constexpr double arrWaveLenDefault[30] = {
     162, 164, 166, 168, 170, 172, 174, 176, 178, 180,
     182, 184, 186, 188, 190, 192, 194, 196, 198, 200,
     202, 204, 206, 208, 210, 212, 214, 216, 218, 220};
 
-  static constexpr double nm2eV = 1239.842609;     // 1239.842609 from nm to eV
-  double photEn; // photon energy
+  static constexpr double nm2eV = 1239.842609; // 1239.842609 from nm to eV
+  double photEn;                               // photon energy
 
   // wavelength
   double lambda;
@@ -372,15 +336,14 @@ class HMPIDDCSProcessor
   double cellFreon;
   std::vector<DPCOM> freonCellVec[30];
 
-
   static constexpr double aConvFactor = 1.0 - 0.3 / 1.8;
-  double aTransRad; // evaluate 15 mm of thickness C6F14 Trans
-  double aTransSiO2;             // evaluate 0.5 mm of thickness SiO2 Trans
-  double aTransGap;              // evaluate 80 cm of thickness Gap (low density CH4)
-                                 // transparency
-  double aCsIQE;                 // evaluate CsI quantum efficiency
-  double aTotConvolution;        // evaluate total convolution of all material optical
-                                 // properties
+  double aTransRad;       // evaluate 15 mm of thickness C6F14 Trans
+  double aTransSiO2;      // evaluate 0.5 mm of thickness SiO2 Trans
+  double aTransGap;       // evaluate 80 cm of thickness Gap (low density CH4)
+                          // transparency
+  double aCsIQE;          // evaluate CsI quantum efficiency
+  double aTotConvolution; // evaluate total convolution of all material optical
+                          // properties
 
   // indexes for getting chamber-numbers etc
   // =======================================================================================
@@ -407,7 +370,6 @@ class HMPIDDCSProcessor
   uint64_t timeToutFirst, timeToutLast;
 
   TimeRange mTimeEMean; // Timerange for mean photon energy(procTrans)
-
 
   //======= constExpression string-literals to assign DPs to the correct method:
   //====================================================
