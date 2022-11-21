@@ -87,13 +87,15 @@ void EntropyEncoderSpec::init(o2::framework::InitContext& ic)
   mNThreads = ic.options().get<unsigned int>("nThreads-tpc-encoder");
   mMaxZ = ic.options().get<float>("irframe-clusters-maxz");
   mMaxEta = ic.options().get<float>("irframe-clusters-maxeta");
+
+  mEtaFactor = 1.f / (tanf(2 * atanf(expf(-mMaxEta))));
 }
 
 void EntropyEncoderSpec::run(ProcessingContext& pc)
 {
   if (mSelIR) {
     GRPGeomHelper::instance().checkUpdates(pc);
-    if (mConfParam->tpcTriggeredMode ^ !GRPGeomHelper::instance().getGRPECS()->isDetContinuousReadOut(o2::detectors::DetID::TPC)) {
+    if (GRPGeomHelper::instance().getGRPECS()->isDetReadOut(o2::detectors::DetID::TPC) && mConfParam->tpcTriggeredMode ^ !GRPGeomHelper::instance().getGRPECS()->isDetContinuousReadOut(o2::detectors::DetID::TPC)) {
       LOG(fatal) << "configKeyValue tpcTriggeredMode does not match GRP isDetContinuousReadOut(TPC) setting";
     }
 
@@ -212,9 +214,14 @@ void EntropyEncoderSpec::run(ProcessingContext& pc)
       int myThread = 0;
 #endif
       unsigned int count = 0;
-      auto checker = [i, j, firstIR, totalT, this, &preCl, &count, &outBuffer = tmpBuffer[myThread], &rejectHits, &clustersFiltered](const o2::tpc::ClusterNative& cl, unsigned int k) {
-        const auto chkVal = firstIR + (cl.getTime() * constants::LHCBCPERTIMEBIN);
-        const auto chkExt = totalT * constants::LHCBCPERTIMEBIN;
+      const float x = mParam->tpcGeometry.Row2X(j);
+      auto checker = [i, j, firstIR, totalT, x, this, &preCl, &count, &outBuffer = tmpBuffer[myThread], &rejectHits, &clustersFiltered](const o2::tpc::ClusterNative& cl, unsigned int k) {
+        const float y = mParam->tpcGeometry.LinearPad2Y(i, j, cl.getPad());
+        const float r = sqrtf(x * x + y * y);
+        const float maxz = r * mEtaFactor + mMaxZ;
+        const unsigned int deltaBC = std::max<float>(0.f, totalT - mFastTransform->convDeltaZtoDeltaTimeInTimeFrameAbs(maxz)) * constants::LHCBCPERTIMEBIN;
+        const auto chkVal = firstIR + (cl.getTime() * constants::LHCBCPERTIMEBIN) - deltaBC;
+        const auto chkExt = totalT * constants::LHCBCPERTIMEBIN - deltaBC;
         const bool reject = mCTFCoder.getIRFramesSelector().check(o2::dataformats::IRFrame(chkVal, chkVal + 1), chkExt, 0) < 0;
         if (reject) {
           rejectHits[k] = true;
