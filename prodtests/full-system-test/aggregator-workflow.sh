@@ -30,19 +30,22 @@ if [[ "0$GEN_TOPO_VERBOSE" == "01" ]]; then
   echo "CCDB_POPULATOR_UPLOAD_PATH = $CCDB_POPULATOR_UPLOAD_PATH" 1>&2
 fi
 
-# Additional settings for calibration workflows
-if [[ -z $CALIB_DIR ]]; then CALIB_DIR=$FILEWORKDIR; fi # Directory where to store output from calibration workflows
-
-# All meta files go into the same directory
-if [[ -z $CALIB_METAFILES_DIR ]]; then
-  if [[ ! -z $CTF_METAFILES_DIR ]]; then
-    CALIB_METAFILES_DIR=$CTF_METAFILES_DIR
+# Avoid writing calibration data for run types different than physics
+if [[ $RUNTYPE != "PHYSICS" ]] && [[ $CALIB_DIR == "/data/calibration" ]]; then
+  if [[ "0$FORCE_LOCAL_CALIBRATION_OUTPUT" != "01" ]]; then
+    export CALIB_DIR="/dev/null"
   else
-    CALIB_METAFILES_DIR="/dev/null"
+    # Special setting to allow for expert tests. In this case output is written to the current working directory
+    # Since in this case also a meta file would be written we need to disable that explicitly
+    export CALIB_DIR=$FILEWORKDIR
+    export EPN2EOS_METAFILES_DIR="/dev/null"
   fi
 fi
 
-if [[ $RUNTYPE == "SYNTHETIC" ]]; then DISABLE_CALIB_OUTPUT="--disable-root-output"; fi
+# FIXME: remove when O2DPG is updated, because then this is set in setenv.sh
+if [[ -z "$CALIB_DIR" ]];         then CALIB_DIR="/dev/null"; fi            # Directory where to store output from calibration workflows, /dev/null : skip their writing
+if [[ -z "$EPN2EOS_METAFILES_DIR" ]]; then EPN2EOS_METAFILES_DIR="/dev/null"; fi # Directory where to store epn2eos files metada, /dev/null : skip their writing
+
 
 
 # Adding calibrations
@@ -185,7 +188,7 @@ if [[ $AGGREGATOR_TASKS == BARREL_TF ]] || [[ $AGGREGATOR_TASKS == ALL ]]; then
   fi
   # TPC
   if [[ $CALIB_TPC_SCDCALIB == 1 ]]; then
-    add_W o2-calibration-residual-aggregator "--disable-root-input $DISABLE_CALIB_OUTPUT $ENABLE_TRACK_INPUT $CALIB_TPC_SCDCALIB_CTP_INPUT --output-dir $CALIB_DIR --meta-output-dir $CALIB_METAFILES_DIR --autosave-interval $RESIDUAL_AGGREGATOR_AUTOSAVE"
+    add_W o2-calibration-residual-aggregator "--disable-root-input $ENABLE_TRACK_INPUT $CALIB_TPC_SCDCALIB_CTP_INPUT --output-dir $CALIB_DIR --meta-output-dir $EPN2EOS_METAFILES_DIR --autosave-interval $RESIDUAL_AGGREGATOR_AUTOSAVE"
   fi
   if [[ $CALIB_TPC_VDRIFTTGL == 1 ]]; then
     # options available via ARGS_EXTRA_PROCESS_o2_tpc_vdrift_tgl_calibration_workflow="--nbins-tgl 20 --nbins-dtgl 50 --max-tgl-its 2. --max-dtgl-itstpc 0.15 --min-entries-per-slot 1000 --time-slot-seconds 600 <--vdtgl-histos-file-name name> "
@@ -244,7 +247,7 @@ if [[ $AGGREGATOR_TASKS == CALO_TF || $AGGREGATOR_TASKS == ALL ]]; then
 
   # PHS
   if [[ $CALIB_PHS_ENERGYCALIB == 1 ]]; then
-    add_W o2-phos-calib-workflow "--energy"
+    add_W o2-phos-calib-workflow "--energy --phoscalib-output-dir $CALIB_DIR --phoscalib-meta-output-dir $EPN2EOS_METAFILES_DIR"
   fi
   if [[ $CALIB_PHS_BADMAPCALIB == 1 ]]; then
     add_W o2-phos-calib-workflow "--badmap --mode 0"
@@ -253,7 +256,7 @@ if [[ $AGGREGATOR_TASKS == CALO_TF || $AGGREGATOR_TASKS == ALL ]]; then
     add_W o2-phos-calib-workflow "--turnon"
   fi
   if [[ $CALIB_PHS_RUNBYRUNCALIB == 1 ]]; then
-    add_W o2-phos-calib-workflow "--runbyrun"
+    add_W o2-phos-calib-workflow "--runbyrun --phoscalib-output-dir $CALIB_DIR --phoscalib-meta-output-dir $EPN2EOS_METAFILES_DIR"
   fi
   if [[ $CALIB_PHS_L1PHASE == 1 ]]; then
     add_W o2-phos-calib-workflow "--l1phase"
@@ -269,7 +272,7 @@ fi
 if [[ $AGGREGATOR_TASKS == FORWARD_TF || $AGGREGATOR_TASKS == ALL ]]; then
   # ZDC
   if [[ $CALIB_ZDC_TDC == 1 ]]; then
-    add_W o2-zdc-tdccalib-workflow
+    add_W o2-zdc-tdccalib-workflow "" "CalibParamZDC.outputDir=$CALIB_DIR;CalibParamZDC.metaFileDir=$EPN2EOS_METAFILES_DIR"
   fi
   if [[ $CALIB_FT0_TIMEOFFSET == 1 ]]; then
     add_W o2-calibration-ft0-time-offset-calib "--tf-per-slot $FT0_TIMEOFFSET_TF_PER_SLOT --max-delay 0" "FT0CalibParam.mNExtraSlots=0;FT0CalibParam.mRebinFactorPerChID[180]=4;"
