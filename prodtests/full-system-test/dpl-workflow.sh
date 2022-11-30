@@ -19,10 +19,6 @@ if [[ -z $CTF_DICT ]];                 then CTF_DICT="ctf_dictionary.root"; fi  
 if [[ -z $RECO_NUM_NODES_WORKFLOW ]];  then RECO_NUM_NODES_WORKFLOW=230; fi       # Number of EPNs running this workflow in parallel, to increase multiplicities if necessary, by default assume we are 1 out of 250 servers
 if [[ -z $CTF_MINSIZE ]];              then CTF_MINSIZE="2000000000"; fi          # accumulate CTFs until file size reached
 if [[ -z $CTF_MAX_PER_FILE ]];         then CTF_MAX_PER_FILE="10000"; fi          # but no more than given number of CTFs per file
-# FIXME: remove when O2DPG is updated, because then this is set in setenv.sh
-if [[ -z "$CTF_DIR" ]];              then CTF_DIR=$FILEWORKDIR; fi                # Directory where to store CTF data
-if [[ -z "$EPN2EOS_METAFILES_DIR" ]];  then EPN2EOS_METAFILES_DIR="/dev/null"; fi # Directory where to store epn2eos files metada, /dev/null : skip their writing
-
 
 workflow_has_parameter CTF && export SAVECTF=1
 workflow_has_parameter GPU && { export GPUTYPE=HIP; export NGPUS=4; }
@@ -264,14 +260,14 @@ if [[ $CTFINPUT == 1 ]]; then
   if [[ $NTIMEFRAMES == -1 ]]; then NTIMEFRAMES_CMD= ; else NTIMEFRAMES_CMD="--max-tf $NTIMEFRAMES"; fi
   CTF_EMC_SUBSPEC=
   workflow_has_parameter AOD && has_detector EMC && CTF_EMC_SUBSPEC="--emcal-decoded-subspec 1"
-  add_W o2-ctf-reader-workflow "--delay $TFDELAY --loop $TFLOOP $NTIMEFRAMES_CMD --ctf-input ${CTFName} ${INPUT_FILE_COPY_CMD+--copy-cmd} ${INPUT_FILE_COPY_CMD} --onlyDet $WORKFLOW_DETECTORS $CTF_EMC_SUBSPEC --pipeline $(get_N tpc-entropy-decoder TPC REST 1 TPCENTDEC)"
+  add_W o2-ctf-reader-workflow "--delay $TFDELAY --loop $TFLOOP $NTIMEFRAMES_CMD --ctf-input ${CTFName} ${INPUT_FILE_COPY_CMD+--copy-cmd} ${INPUT_FILE_COPY_CMD} --onlyDet $WORKFLOW_DETECTORS $CTF_EMC_SUBSPEC ${TIMEFRAME_SHM_LIMIT+--timeframes-shm-limit} $TIMEFRAME_SHM_LIMIT --pipeline $(get_N tpc-entropy-decoder TPC REST 1 TPCENTDEC)"
 elif [[ $RAWTFINPUT == 1 ]]; then
   TFName=`ls -t $RAWINPUTDIR/o2_*.tf 2> /dev/null | head -n1`
   [[ -z $TFName && $WORKFLOWMODE == "print" ]] && TFName='$TFName'
   [[ ! -z $INPUT_FILE_LIST ]] && TFName=$INPUT_FILE_LIST
   if [[ -z $TFName && $WORKFLOWMODE != "print" ]]; then echo "No raw file given!"; exit 1; fi
   if [[ $NTIMEFRAMES == -1 ]]; then NTIMEFRAMES_CMD= ; else NTIMEFRAMES_CMD="--max-tf $NTIMEFRAMES"; fi
-  add_W o2-raw-tf-reader-workflow "--delay $TFDELAY --loop $TFLOOP $NTIMEFRAMES_CMD --input-data ${TFName} ${INPUT_FILE_COPY_CMD+--copy-cmd} ${INPUT_FILE_COPY_CMD} --onlyDet $WORKFLOW_DETECTORS"
+  add_W o2-raw-tf-reader-workflow "--delay $TFDELAY --loop $TFLOOP $NTIMEFRAMES_CMD --input-data ${TFName} ${INPUT_FILE_COPY_CMD+--copy-cmd} ${INPUT_FILE_COPY_CMD} --onlyDet $WORKFLOW_DETECTORS ${TIMEFRAME_SHM_LIMIT+--timeframes-shm-limit} $TIMEFRAME_SHM_LIMIT"
 elif [[ $EXTINPUT == 1 ]]; then
   PROXY_CHANNEL="name=readout-proxy,type=pull,method=connect,address=ipc://${UDS_PREFIX}${INRAWCHANNAME},transport=shmem,rateLogging=$EPNSYNCMODE"
   PROXY_INSPEC="dd:FLP/DISTSUBTIMEFRAME/0"
@@ -319,7 +315,7 @@ elif [[ $DIGITINPUT == 1 ]]; then
 else
   if [[ $NTIMEFRAMES == -1 ]]; then NTIMEFRAMES_CMD= ; else NTIMEFRAMES_CMD="--loop $NTIMEFRAMES"; fi
   [[ ! -f $RAWINPUTDIR/rawAll.cfg ]] && { echo "rawAll.cfg missing" 1>&2; exit 1; }
-  add_W o2-raw-file-reader-workflow "--detect-tf0 --delay $TFDELAY $NTIMEFRAMES_CMD --max-tf 0 --input-conf $RAWINPUTDIR/rawAll.cfg" "HBFUtils.nHBFPerTF=$NHBPERTF"
+  add_W o2-raw-file-reader-workflow "--detect-tf0 --delay $TFDELAY $NTIMEFRAMES_CMD --max-tf 0 --input-conf $RAWINPUTDIR/rawAll.cfg ${TIMEFRAME_SHM_LIMIT+--timeframes-shm-limit} $TIMEFRAME_SHM_LIMIT" "HBFUtils.nHBFPerTF=$NHBPERTF"
 fi
 
 # if root output is requested, record info of processed TFs DataHeader for replay of root files
@@ -372,7 +368,7 @@ has_detector MFT && has_processing_step MFT_RECO && add_W o2-mft-reco-workflow "
 has_detector FDD && has_processing_step FDD_RECO && add_W o2-fdd-reco-workflow "$DISABLE_DIGIT_ROOT_INPUT $DISABLE_ROOT_OUTPUT $DISABLE_MC"
 has_detector FV0 && has_processing_step FV0_RECO && add_W o2-fv0-reco-workflow "$DISABLE_DIGIT_ROOT_INPUT $DISABLE_ROOT_OUTPUT $DISABLE_MC"
 has_detector ZDC && has_processing_step ZDC_RECO && add_W o2-zdc-digits-reco "$DISABLE_DIGIT_ROOT_INPUT $DISABLE_ROOT_OUTPUT $DISABLE_MC"
-has_detector HMP && has_processing_step HMP_RECO && add_W o2-hmpid-digits-to-clusters-workflow
+has_detector HMP && has_processing_step HMP_RECO && add_W o2-hmpid-digits-to-clusters-workflow "--pipeline $(get_N HMP-Clusterization HMP REST 1 HMPCLUS)"
 has_detectors_reco MCH MID && has_detector_matching MCHMID && add_W o2-muon-tracks-matcher-workflow "$DISABLE_DIGIT_ROOT_INPUT $DISABLE_MC $DISABLE_ROOT_OUTPUT --pipeline $(get_N muon-track-matcher MATCH REST 1)"
 has_detector_reco MID && has_detector_matching MCHMID && MFTMCHConf="FwdMatching.useMIDMatch=true;" || MFTMCHConf="FwdMatching.useMIDMatch=false;"
 has_detectors_reco MFT MCH && has_detector_matching MFTMCH && add_W o2-globalfwd-matcher-workflow "$DISABLE_DIGIT_ROOT_INPUT $DISABLE_ROOT_OUTPUT $DISABLE_MC --pipeline $(get_N globalfwd-track-matcher MATCH REST 1)" "$MFTMCHConf"
