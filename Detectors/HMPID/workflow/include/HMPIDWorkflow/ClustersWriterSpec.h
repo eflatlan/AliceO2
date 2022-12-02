@@ -22,7 +22,7 @@ namespace o2
 namespace hmpid
 {
 
-o2::framework::DataProcessorSpec getClustersToRootWriter();
+o2::framework::DataProcessorSpec getClustersToRootWriter(std::string outDir= "", std::string outFile = "hmpidclusters.root");
 
 } // end namespace hmpid
 } // end namespace o2

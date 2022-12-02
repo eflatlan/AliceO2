@@ -18,6 +18,12 @@
 #include "SimulationDataFormat/MCTruthContainer.h"
 #include "SimulationDataFormat/MCCompLabel.h"
 
+/*ef:comment
+#include <bits/stdc++.h>
+#include<sys/stat.h>
+#include<sys/types.h>
+*/ 
+
 namespace o2
 {
 namespace hmpid
@@ -26,13 +32,28 @@ namespace hmpid
 template <typename T>
 using BranchDefinition = framework::MakeRootTreeWriterSpec::BranchDefinition<T>;
 
-o2::framework::DataProcessorSpec getClustersToRootWriter()
+o2::framework::DataProcessorSpec getClustersToRootWriter(std::string outDir, std::string outFile)
 {
   using InputSpec = framework::InputSpec;
   using MakeRootTreeWriterSpec = framework::MakeRootTreeWriterSpec;
 
+  /*
+  LOGP(warn, "output loc and file = {}", outDir);
+  LOGP(warn, "output loc and file = {}", outFile);
+
+  LOGP(warn, "output loc and file c_str = {}", outDir.c_str());
+  LOGP(warn, "output loc and file c_str = {}", outFile.c_str()); */ 
+
+  //ef:comment 
+  auto check = mkdir(outDir.c_str(), 0777);
+  //LOGP(warn, "check dir = {check}");
+
+  auto output = "./" + outDir + "/" + outFile;
+  LOGP(warn, "output loc and file = {}", output);
+  LOGP(warn, "output loc and file c_str = {}", output.c_str());
+
   return MakeRootTreeWriterSpec("HMPClustersWriter",
-                                "hmpidclusters.root",
+                                outFile.c_str(),
                                 "o2sim",
                                 1,
                                 BranchDefinition<std::vector<o2::hmpid::Cluster>>{InputSpec{"hmpclusterinput", "HMP", "CLUSTERS"}, "HMPIDclusters"},
