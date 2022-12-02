@@ -56,9 +56,11 @@ o2::framework::DataProcessorSpec getClustersToRootWriter(std::string outDir, std
                                 outFile.c_str(),
                                 "o2sim",
                                 1,
-                                BranchDefinition<std::vector<o2::hmpid::Cluster>>{InputSpec{"hmpclusterinput", "HMP", "CLUSTERS"}, "HMPIDclusters"},
+                BranchDefinition<std::vector<o2::hmpid::Cluster>>{InputSpec{"hmpclusterinput", "HMP", "CLUSTERS"}, "HMPIDClusters"},
                                 BranchDefinition<std::vector<o2::hmpid::Trigger>>{InputSpec{"hmpinteractionrecords", "HMP", "INTRECORDS1"}, "InteractionRecords"})();
 }
+
+// ef: corrected misspelt branch-name HMPIDclusters --> HMPIDClusters
 
 } // end namespace hmpid
 } // end namespace o2
