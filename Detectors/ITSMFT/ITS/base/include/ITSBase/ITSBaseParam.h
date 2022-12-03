@@ -9,14 +9,28 @@
 // granted to it by virtue of its status as an Intergovernmental Organization
 // or submit itself to any jurisdiction.
 
-#ifdef __CLING__
+#ifndef ALICEO2_ITS_BASEPARAM_H_
+#define ALICEO2_ITS_BASEPARAM_H_
 
-#pragma link off all globals;
-#pragma link off all classes;
-#pragma link off all functions;
+#include "CommonUtils/ConfigurableParam.h"
+#include "CommonUtils/ConfigurableParamHelper.h"
 
-#pragma link C++ class o2::calibration::TimeSlot < o2::itsmft::CompClusterExt > +;
-#pragma link C++ class o2::calibration::TimeSlotCalibration < o2::itsmft::NoiseMap> + ;
-#pragma link C++ class o2::its::NoiseCalibrator + ;
+namespace o2
+{
+namespace its
+{
 
-#endif
+// **
+// ** Parameters for ITS base configuration
+// **
+struct ITSBaseParam : public o2::conf::ConfigurableParamHelper<ITSBaseParam> {
+  // Geometry Builder parameters
+  bool buildCYSSAssembly = true;
+  bool buildEndWheels = true;
+  O2ParamDef(ITSBaseParam, "ITSBase");
+};
+
+} // end namespace its
+} // end namespace o2
+
+#endif // ALICEO2_ITS_BASEPARAM_H_

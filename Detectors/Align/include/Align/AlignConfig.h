@@ -38,7 +38,7 @@ struct AlignConfig : public o2::conf::ConfigurableParamHelper<AlignConfig> {
   int minPoints[NTrackTypes] = {4, 10};
   int minDetAcc[NTrackTypes] = {1, 1};
 
-  float minX2X0Pt2Account = 0.5e-3;
+  float minScatteringAngleToAccount = 0.0001;
 
   int verbose = 0;
 
@@ -46,15 +46,18 @@ struct AlignConfig : public o2::conf::ConfigurableParamHelper<AlignConfig> {
   int vtxMaxCont = 99999; // require max number of contributors in Vtx
   int vtxMinContVC = 20;  // min number of contributors to use as constraint
 
-  int minPointTotal = 4; // total min number of alignment point to account track
+  int minPointTotal = 5; // total min number of alignment point to account track
   int minDetectors = 1;  // min number of detectors per track
+  int minITSClusters = 4;  // min ITS clusters to accept the track
+  int minTRDTracklets = 3; // min TRD tracklets to accept the track
 
   float maxDCAforVC[2] = {-1, -1}; // DCA cut in R,Z to allow track be subjected to vertex constraint
   float maxChi2forVC = -1;         // track-vertex chi2 cut to allow the track be subjected to vertex constraint
   float alignParamZero = 1e-13;    // assign 0 to final alignment parameter if its abs val is below this threshold
-  float controlFraction = 1.; // fraction for which control output is requested
+  float controlFraction = 1.;      // fraction for which control output is requested
+  float MPRecOutFraction = 1.;     // compact Millepede2Record fraction
+
   bool MilleOut = true;       // Mille output
-  bool MPRecOut = true;       // compact Millepede2Record
   bool KalmanResid = true;    // Kalman residuals
   bool MilleOutBin = true;    // text vs binary output for mille data
   bool GZipMilleOut = false;  // compress binary records
