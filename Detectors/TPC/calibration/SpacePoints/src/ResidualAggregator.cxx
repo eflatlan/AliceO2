@@ -67,6 +67,11 @@ ResidualsContainer::ResidualsContainer(ResidualsContainer&& rhs)
   tfOrbits = std::move(rhs.tfOrbits);
   sumOfResiduals = std::move(rhs.sumOfResiduals);
   lumi = std::move(rhs.lumi);
+  unbinnedRes = std::move(rhs.unbinnedRes);
+  trackInfo = std::move(rhs.trackInfo);
+  trkData = std::move(rhs.trkData);
+  firstSeenTF = rhs.firstSeenTF;
+  lastSeenTF = rhs.lastSeenTF;
 }
 
 void ResidualsContainer::init(const TrackResiduals* residualsEngine, std::string outputDir, bool wFile, bool wBinnedResid, bool wUnbinnedResid, bool wTrackData, int autosave, int compression)
@@ -112,6 +117,7 @@ void ResidualsContainer::init(const TrackResiduals* residualsEngine, std::string
       treeOutResiduals->Branch(Form("sec%d", iSec), &residualsPtr[iSec]);
       treeOutStats->Branch(Form("sec%d", iSec), &statsPtr[iSec]);
     }
+    treeOutResiduals->Branch("trackInfo", &trackInfoPtr);
     treeOutRecords->Branch("firstTForbit", &tfOrbitsPtr);
     treeOutRecords->Branch("sumOfResiduals", &sumOfResidualsPtr);
     treeOutRecords->Branch("lumi", &lumiPtr);
@@ -129,13 +135,19 @@ void ResidualsContainer::fillStatisticsBranches()
   }
 }
 
-void ResidualsContainer::fill(const o2::dataformats::TFIDInfo& ti, const std::pair<gsl::span<const o2::tpc::TrackData>, gsl::span<const UnbinnedResid>> data, const o2::ctp::LumiInfo* lumiInput)
+void ResidualsContainer::fill(const o2::dataformats::TFIDInfo& ti, const gsl::span<const UnbinnedResid> resid, const gsl::span<const o2::tpc::TrackDataCompact> trkRefsIn, const gsl::span<const o2::tpc::TrackData>* trkDataIn, const o2::ctp::LumiInfo* lumiInput)
 {
   // receives large vector of unbinned residuals and fills the sector-wise vectors
   // with binned residuals and statistics
-  LOG(debug) << "Filling ResidualsContainer with vector of size " << data.second.size();
+  LOG(debug) << "Filling ResidualsContainer with vector of size " << resid.size();
   uint32_t nResidualsInTF = 0;
-  for (const auto& residIn : data.second) {
+  if (ti.tfCounter > lastSeenTF) {
+    lastSeenTF = ti.tfCounter;
+  }
+  if (ti.tfCounter < firstSeenTF) {
+    firstSeenTF = ti.tfCounter;
+  }
+  for (const auto& residIn : resid) {
     bool counterIncremented = false;
     if (writeUnbinnedResiduals) {
       unbinnedRes.push_back(residIn);
@@ -172,15 +184,19 @@ void ResidualsContainer::fill(const o2::dataformats::TFIDInfo& ti, const std::pa
     }
     ++nResidualsInTF;
   }
+  for (const auto& trkRef : trkRefsIn) {
+    trackInfo.push_back(trkRef);
+  }
   if (writeBinnedResid) {
     treeOutResiduals->Fill();
+    trackInfo.clear();
     sumOfResiduals.push_back(nResidualsInTF);
   }
   for (auto& residVecOut : residuals) {
     residVecOut.clear();
   }
   if (writeTrackData) {
-    for (const auto& trkIn : data.first) {
+    for (const auto& trkIn : *trkDataIn) {
       trkData.push_back(trkIn);
     }
     treeOutTrackData->Fill();
@@ -299,6 +315,8 @@ void ResidualsContainer::merge(ResidualsContainer* prev)
   std::swap(prev->sumOfResiduals, sumOfResiduals);
   prev->lumi.insert(prev->lumi.end(), lumi.begin(), lumi.end());
   std::swap(prev->lumi, lumi);
+
+  firstSeenTF = prev->firstSeenTF;
 }
 
 void ResidualsContainer::print()
@@ -337,15 +355,18 @@ void ResidualAggregator::finalizeSlot(Slot& slot)
     return;
   }
   cont->writeToFile(true);
-  std::filesystem::rename(o2::utils::Str::concat_string(mOutputDir, cont->fileName, ".part"), mOutputDir + cont->fileName);
+
+  auto fileName = fmt::format("o2tpc_residuals_{}_{}_{}_{}.root", slot.getTFStart(), slot.getTFEnd(), cont->firstSeenTF, cont->lastSeenTF);
+  auto fileNameWithPath = mOutputDir + fileName;
+  std::filesystem::rename(o2::utils::Str::concat_string(mOutputDir, cont->fileName, ".part"), fileNameWithPath);
   if (mStoreMetaData) {
     o2::dataformats::FileMetaData fileMetaData; // object with information for meta data file
-    fileMetaData.fillFileData(mOutputDir + cont->fileName);
+    fileMetaData.fillFileData(fileNameWithPath);
     fileMetaData.setDataTakingContext(mDataTakingContext);
     fileMetaData.type = "calib";
     fileMetaData.priority = "high";
-    auto metaFileNameTmp = fmt::format("{}{}.tmp", mMetaOutputDir, cont->fileName);
-    auto metaFileName = fmt::format("{}{}.done", mMetaOutputDir, cont->fileName);
+    auto metaFileNameTmp = fmt::format("{}{}.tmp", mMetaOutputDir, fileName);
+    auto metaFileName = fmt::format("{}{}.done", mMetaOutputDir, fileName);
     try {
       std::ofstream metaFileOut(metaFileNameTmp);
       metaFileOut << fileMetaData;

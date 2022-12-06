@@ -111,6 +111,8 @@ class ResidualAggregatorDevice : public o2::framework::Task
     std::chrono::duration<double, std::milli> ccdbUpdateTime = std::chrono::high_resolution_clock::now() - runStartTime;
 
     auto residualsData = pc.inputs().get<gsl::span<o2::tpc::UnbinnedResid>>("unbinnedRes");
+    auto trackRefs = pc.inputs().get<gsl::span<o2::tpc::TrackDataCompact>>("trackRefs");
+
     // track data input is optional
     const gsl::span<const o2::tpc::TrackData>* trkDataPtr = nullptr;
     using trkDataType = std::decay_t<decltype(pc.inputs().get<gsl::span<o2::tpc::TrackData>>(""))>;
@@ -129,10 +131,9 @@ class ResidualAggregatorDevice : public o2::framework::Task
       lumi = &lumiInput.value();
     }
 
-    auto data = std::make_pair<gsl::span<const o2::tpc::TrackData>, gsl::span<const o2::tpc::UnbinnedResid>>(std::move(*trkData), std::move(residualsData));
     o2::base::TFIDInfoHelper::fillTFIDInfo(pc, mAggregator->getCurrentTFInfo());
     LOG(info) << "Processing TF " << mAggregator->getCurrentTFInfo().tfCounter << " with " << trkData->size() << " tracks and " << residualsData.size() << " unbinned residuals associated to them";
-    mAggregator->process(data, lumi);
+    mAggregator->process(residualsData, trackRefs, trkDataPtr, lumi);
     std::chrono::duration<double, std::milli> runDuration = std::chrono::high_resolution_clock::now() - runStartTime;
     LOGP(info, "Duration for run method: {} ms. From this taken for time dependent param update: {} ms",
          std::chrono::duration_cast<std::chrono::milliseconds>(runDuration).count(),
@@ -142,7 +143,7 @@ class ResidualAggregatorDevice : public o2::framework::Task
   void endOfStream(o2::framework::EndOfStreamContext& ec) final
   {
     LOG(info) << "Finalizing calibration for end of stream";
-    mAggregator->checkSlotsToFinalize(o2::calibration::INFINITE_TF);
+    mAggregator->checkSlotsToFinalize();
     mAggregator.reset(); // must invoke destructor manually here, otherwise we get a segfault
   }
 
@@ -179,6 +180,7 @@ DataProcessorSpec getTPCResidualAggregatorSpec(bool trackInput, bool ctpInput, b
   }
   auto& inputs = dataRequest->inputs;
   inputs.emplace_back("unbinnedRes", "GLO", "UNBINNEDRES");
+  inputs.emplace_back("trackRefs", "GLO", "TRKREFS");
   if (trackInput) {
     inputs.emplace_back("trkData", "GLO", "TRKDATA");
   }
@@ -195,7 +197,7 @@ DataProcessorSpec getTPCResidualAggregatorSpec(bool trackInput, bool ctpInput, b
     Outputs{},
     AlgorithmSpec{adaptFromTask<o2::calibration::ResidualAggregatorDevice>(ccdbRequest, trackInput, ctpInput, writeUnbinnedResiduals, writeBinnedResiduals, writeTrackData, dataRequest)},
     Options{
-      {"sec-per-slot", VariantType::UInt32, 60u, {"number of seconds per calibration time slot (put 0 for infinite slot length)"}},
+      {"sec-per-slot", VariantType::UInt32, 600u, {"number of seconds per calibration time slot (put 0 for infinite slot length)"}},
       {"updateInterval", VariantType::UInt32, 6'000u, {"update interval in number of TFs (only used in case slot length is infinite)"}},
       {"max-delay", VariantType::UInt32, 1u, {"number of slots in past to consider"}},
       {"min-entries", VariantType::Int, 0, {"minimum number of entries on average per voxel"}},

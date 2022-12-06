@@ -9,22 +9,26 @@
 // granted to it by virtue of its status as an Intergovernmental Organization
 // or submit itself to any jurisdiction.
 
-#ifndef O2_TPC_RESIDUAL_WRITER_H
-#define O2_TPC_RESIDUAL_WRITER_H
+/// \author fnoferin@cern.ch
 
-/// @file   TPCResidualWriterSpec.h
+#ifndef ALICEO2_MATCHTOF_PARAMS_H
+#define ALICEO2_MATCHTOF_PARAMS_H
 
-#include "Framework/DataProcessorSpec.h"
+#include "CommonUtils/ConfigurableParam.h"
+#include "CommonUtils/ConfigurableParamHelper.h"
 
 namespace o2
 {
-namespace tpc
+namespace globaltracking
 {
 
-/// create a processor spec
-framework::DataProcessorSpec getTPCResidualWriterSpec(bool writeTrackData);
+struct MatchTOFParams : public o2::conf::ConfigurableParamHelper<MatchTOFParams> {
+  float calibMaxChi2 = 3.0;
 
-} // namespace tpc
-} // namespace o2
+  O2ParamDef(MatchTOFParams, "MatchTOF");
+};
+
+} // namespace globaltracking
+} // end namespace o2
 
 #endif

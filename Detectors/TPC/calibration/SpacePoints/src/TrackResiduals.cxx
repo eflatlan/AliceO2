@@ -48,7 +48,7 @@ using namespace o2::tpc;
 ///////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-void TrackResiduals::init(bool doBinning, float bz)
+void TrackResiduals::init(bool doBinning)
 {
   if (doBinning) {
     // initialize binning
@@ -58,9 +58,9 @@ void TrackResiduals::init(bool doBinning, float bz)
   mSmoothPol2[VoxX] = true;
   mSmoothPol2[VoxF] = true;
   setKernelType();
-  mBz = bz;
+  mParams = &SpacePointsCalibConfParam::Instance();
   mIsInitialized = true;
-  LOGF(info, "Initialization complete for B=%.2f", mBz);
+  LOG(info) << "Initialization complete";
 }
 
 //______________________________________________________________________________
@@ -173,6 +173,10 @@ void TrackResiduals::initBinning()
 //______________________________________________________________________________
 void TrackResiduals::initResultsContainer(int iSec)
 {
+  if (mInitResultsContainer) {
+    return;
+  }
+  mInitResultsContainer = true;
   mVoxelResults[iSec].resize(mNVoxPerSector);
   for (int ix = 0; ix < mNXBins; ++ix) {
     for (int ip = 0; ip < mNY2XBins; ++ip) {
@@ -296,6 +300,25 @@ void TrackResiduals::setKernelType(KernelType kernel, float bwX, float bwP, floa
 ///
 ///////////////////////////////////////////////////////////////////////////////
 
+void TrackResiduals::fillStats(int iSec)
+{
+  initResultsContainer(iSec);
+  std::vector<VoxRes>& secDataTmp = mVoxelResults[iSec];
+  for (int iVox = 0; iVox < mNVoxPerSector; ++iVox) {
+    const auto& voxStat = mVoxStatsIn[iVox];
+    VoxRes& resVox = secDataTmp[iVox];
+    for (int iDim = VoxDim; iDim--;) {
+      const auto sumStat = (resVox.stat[VoxDim] + voxStat.nEntries);
+      if (sumStat == 0) {
+        continue;
+      }
+      double norm = 1. / sumStat;
+      resVox.stat[iDim] = (resVox.stat[iDim] * resVox.stat[VoxDim] + voxStat.meanPos[iDim] * voxStat.nEntries) * norm;
+    }
+    resVox.stat[VoxDim] += voxStat.nEntries;
+  }
+}
+
 //______________________________________________________________________________
 void TrackResiduals::processSectorResiduals(int iSec)
 {
@@ -309,14 +332,7 @@ void TrackResiduals::processSectorResiduals(int iSec)
   o2::math_utils::SortData(binData, binIndices);
   // fill the voxel statistics into the results container
   std::vector<VoxRes>& secData = mVoxelResults[iSec];
-  for (int iVox = 0; iVox < mNVoxPerSector; ++iVox) {
-    const auto& voxStat = mVoxStatsIn[iVox];
-    VoxRes& resVox = secData[iVox];
-    for (int iDim = VoxDim; iDim--;) {
-      resVox.stat[iDim] = voxStat.meanPos[iDim];
-    }
-    resVox.stat[VoxDim] = voxStat.nEntries;
-  }
+
   // vectors holding the data for one voxel at a time
   std::vector<float> dyVec;
   std::vector<float> dzVec;
@@ -418,9 +434,9 @@ void TrackResiduals::processSectorResiduals(int iSec)
 void TrackResiduals::processVoxelResiduals(std::vector<float>& dy, std::vector<float>& dz, std::vector<float>& tg, VoxRes& resVox)
 {
   int nPoints = dy.size();
-  //LOG(debug) << "processing voxel residuals for vox " << getGlbVoxBin(resVox.bvox) << " with " << nPoints << " points";
-  if (nPoints < mMinEntriesPerVoxel) {
-    LOG(info) << "voxel " << getGlbVoxBin(resVox.bvox) << " is skipped due to too few entries (" << nPoints << " < " << mMinEntriesPerVoxel << ")";
+  // LOG(debug) << "processing voxel residuals for vox " << getGlbVoxBin(resVox.bvox) << " with " << nPoints << " points";
+  if (nPoints < mParams->minEntriesPerVoxel) {
+    LOG(info) << "voxel " << getGlbVoxBin(resVox.bvox) << " is skipped due to too few entries (" << nPoints << " < " << mParams->minEntriesPerVoxel << ")";
     return;
   } else {
     LOGF(info, "Processing voxel %i with %i entries", getGlbVoxBin(resVox.bvox), nPoints);
@@ -428,13 +444,13 @@ void TrackResiduals::processVoxelResiduals(std::vector<float>& dy, std::vector<f
   std::array<float, 7> zResults;
   resVox.flags = 0;
   std::vector<size_t> indices(dz.size());
-  if (!o2::math_utils::LTMUnbinned(dz, indices, zResults, mLTMCut)) {
+  if (!o2::math_utils::LTMUnbinned(dz, indices, zResults, mParams->LTMCut)) {
     LOG(debug) << "failed trimming input array for voxel " << getGlbVoxBin(resVox.bvox);
     return;
   }
   std::array<float, 2> res{0.f};
   std::array<float, 3> err{0.f};
-  float sigMAD = fitPoly1Robust(tg, dy, res, err, mLTMCut);
+  float sigMAD = fitPoly1Robust(tg, dy, res, err, mParams->LTMCut);
   if (sigMAD < 0) {
     LOG(debug) << "failed robust linear fit, sigMAD =  " << sigMAD;
     return;
@@ -498,15 +514,15 @@ int TrackResiduals::validateVoxels(int iSec)
         bool voxelOK = (resVox.flags & DistDone) && !(resVox.flags & Masked);
         if (voxelOK) {
           // check fit errors
-          if (resVox.E[ResY] * resVox.E[ResY] > mMaxFitErrY2 ||
-              resVox.E[ResX] * resVox.E[ResX] > mMaxFitErrX2 ||
-              fabs(resVox.EXYCorr) > mMaxFitCorrXY) {
+          if (resVox.E[ResY] * resVox.E[ResY] > mParams->maxFitErrY2 ||
+              resVox.E[ResX] * resVox.E[ResX] > mParams->maxFitErrX2 ||
+              fabs(resVox.EXYCorr) > mParams->maxFitCorrXY) {
             voxelOK = false;
             ++cntMaskedFit;
           }
           // check raw distribution sigmas
-          if (resVox.dYSigMAD > mMaxSigY ||
-              resVox.dZSigLTM > mMaxSigZ) {
+          if (resVox.dYSigMAD > mParams->maxSigY ||
+              resVox.dZSigLTM > mParams->maxSigZ) {
             voxelOK = false;
             ++cntMaskedSigma;
           }
@@ -534,7 +550,7 @@ int TrackResiduals::validateVoxels(int iSec)
   bool prevBad = false;
   float fracBadRows = 0.f;
   for (int ix = 0; ix < mNXBins; ++ix) {
-    if (mValidFracXBins[iSec][ix] < mMinValidVoxFracDrift) {
+    if (mValidFracXBins[iSec][ix] < mParams->minValidVoxFracDrift) {
       LOG(debug) << "row " << ix << " is bad";
       ++fracBadRows;
       if (prevBad) {
@@ -555,7 +571,7 @@ int TrackResiduals::validateVoxels(int iSec)
     ++nBadReg;
   }
   fracBadRows /= mNXBins;
-  if (fracBadRows > mMaxFracBadRowsPerSector) {
+  if (fracBadRows > mParams->maxFracBadRowsPerSector) {
     LOG(warning) << "sector " << iSec << ": Fraction of bad X-bins: " << fracBadRows << " -> masking whole sector";
     mXBinsIgnore[iSec].set();
   } else {
@@ -563,14 +579,14 @@ int TrackResiduals::validateVoxels(int iSec)
       LOG(debug) << "masking bad region " << iBad;
       short badInReg = badEnd[iBad] - badStart[iBad] + 1;
       short badInNextReg = iBad < (nBadReg - 1) ? badEnd[iBad] - badStart[iBad] + 1 : 0;
-      if (badInReg > mMaxBadXBinsToCover) {
+      if (badInReg > mParams->maxBadXBinsToCover) {
         // disable too large bad patches
         for (int i = 0; i < badInReg; ++i) {
           LOG(debug) << "disabling too large patch in bad region " << iBad << ", badStart(" << badStart[iBad] << "), i(" << i << ")";
           mXBinsIgnore[iSec].set(badStart[iBad] + i);
         }
       }
-      if (badInNextReg > mMaxBadXBinsToCover && (badStart[iBad + 1] - badEnd[iBad] - 1) < mMinGoodXBinsToCover) {
+      if (badInNextReg > mParams->maxBadXBinsToCover && (badStart[iBad + 1] - badEnd[iBad] - 1) < mParams->minGoodXBinsToCover) {
         // disable too small isolated good patches`
         for (int i = badEnd[iBad] + 1; i < badStart[iBad + 1]; ++i) {
           LOG(debug) << "disabling too small good patch before bad region " << iBad + 1 << ", badStart(" << badEnd[iBad] << "), badEnd(" << badStart[iBad + 1] << ")";
@@ -579,14 +595,14 @@ int TrackResiduals::validateVoxels(int iSec)
       }
     }
     if (nBadReg) {
-      if (mXBinsIgnore[iSec].test(badStart[0]) && badStart[0] < mMinGoodXBinsToCover) {
+      if (mXBinsIgnore[iSec].test(badStart[0]) && badStart[0] < mParams->minGoodXBinsToCover) {
         // 1st good patch is too small
         for (int i = 0; i < badStart[0]; ++i) {
           LOG(debug) << "disabling too small first good patch badStart(0), badEnd(" << badStart[0] << ")";
           mXBinsIgnore[iSec].set(i);
         }
       }
-      if (mXBinsIgnore[iSec].test(badStart[nBadReg - 1]) && (mNXBins - badEnd[nBadReg - 1] - 1) < mMinGoodXBinsToCover) {
+      if (mXBinsIgnore[iSec].test(badStart[nBadReg - 1]) && (mNXBins - badEnd[nBadReg - 1] - 1) < mParams->minGoodXBinsToCover) {
         // last good patch is too small
         for (int i = badEnd[nBadReg - 1] + 1; i < mNXBins; ++i) {
           LOG(debug) << "disabling too small last good patch badStart(" << badEnd[nBadReg - 1] << "), badEnd(" << mNXBins << ")";
@@ -685,7 +701,7 @@ bool TrackResiduals::getSmoothEstimate(int iSec, float x, float p, float z, std:
   std::array<int, VoxDim> maxTrials;
   maxTrials[VoxZ] = mNZ2XBins / 2;
   maxTrials[VoxF] = mNY2XBins / 2;
-  maxTrials[VoxX] = mMaxBadXBinsToCover * 2;
+  maxTrials[VoxX] = mParams->maxBadXBinsToCover * 2;
 
   std::array<int, VoxDim> trial{0};
 
@@ -845,13 +861,13 @@ bool TrackResiduals::getSmoothEstimate(int iSec, float x, float p, float z, std:
 
     if (!enoughPoints) {
       if (!(incrDone[VoxX] || incrDone[VoxF] || incrDone[VoxZ])) {
-        LOG(error) << "trial limit reached, skipping this voxel";
+        LOG(error) << fmt::format("trial limit reached, skipping this voxel: incrDone[VoxX] {}, incrDone[VoxF] {}, incrDone[VoxZ] {}", incrDone[VoxX], incrDone[VoxF], incrDone[VoxZ]);
         return false;
       }
       LOG(debug) << "sector " << iSec << ": increasing filter bandwidth around voxel " << binCenter;
-      //printf("Sector:%2d x=%.2f y/x=%.2f z/x=%.2f (iX: %d iY2X:%d iZ2X:%d)\n", iSec, x, p, z, ix0, ip0, iz0);
-      //printf("not enough neighbours (need min %d) %d %d %d (tot: %d) | Steps: %.1f %.1f %.1f\n", 2, nPoints[VoxX], nPoints[VoxF], nPoints[VoxZ], nbOK, stepX, stepF, stepZ);
-      //printf("trying to increase filter bandwidth (trialXFZ: %d %d %d)\n", trial[VoxX], trial[VoxF], trial[VoxZ]);
+      // printf("Sector:%2d x=%.2f y/x=%.2f z/x=%.2f (iX: %d iY2X:%d iZ2X:%d)\n", iSec, x, p, z, ix0, ip0, iz0);
+      // printf("not enough neighbours (need min %d) %d %d %d (tot: %d) | Steps: %.1f %.1f %.1f\n", 2, nPoints[VoxX], nPoints[VoxF], nPoints[VoxZ], nbOK, stepX, stepF, stepZ);
+      // printf("trying to increase filter bandwidth (trialXFZ: %d %d %d)\n", trial[VoxX], trial[VoxF], trial[VoxZ]);
       continue;
     }
 
@@ -1020,7 +1036,7 @@ double TrackResiduals::getKernelWeight(std::array<double, 3> u2vec) const
     for (size_t i = u2vec.size(); i--;) {
       u2 += u2vec[i];
     }
-    w = u2 < mMaxGaussStdDev * mMaxGaussStdDev * u2vec.size() ? std::exp(-u2) / std::sqrt(2. * M_PI) : 0;
+    w = u2 < mParams->maxGaussStdDev * mParams->maxGaussStdDev * u2vec.size() ? std::exp(-u2) / std::sqrt(2. * M_PI) : 0;
   }
   return w;
 }
@@ -1071,7 +1087,7 @@ float TrackResiduals::fitPoly1Robust(std::vector<float>& x, std::vector<float>& 
   // robust estimate of sigma after crude slope correction
   float sigMAD = getMAD2Sigma({ycm.begin() + vecOffset, ycm.begin() + vecOffset + nPointsUsed});
   // find LTM estimate matching to sigMAD, keaping at least given fraction
-  if (!o2::math_utils::LTMUnbinnedSig(ycm, indY, yResults, mMinFracLTM, sigMAD, true)) {
+  if (!o2::math_utils::LTMUnbinnedSig(ycm, indY, yResults, mParams->minFracLTM, sigMAD, true)) {
     return -1;
   }
   // final fit
@@ -1186,7 +1202,7 @@ float TrackResiduals::roFunc(int nPoints, int offset, const std::vector<float>& 
       std::nth_element(nth, nth, vecTmp.end());
       aa = 0.5 * (*(nth - 1) + *(nth));
     }
-    //aa = (nPoints & 0x1) ? selectKthMin(nPointsHalf, vecTmp) : .5f * (selectKthMin(nPointsHalf - 1, vecTmp) + selectKthMin(nPointsHalf, vecTmp));
+    // aa = (nPoints & 0x1) ? selectKthMin(nPointsHalf, vecTmp) : .5f * (selectKthMin(nPointsHalf - 1, vecTmp) + selectKthMin(nPointsHalf, vecTmp));
   }
   for (int j = nPoints; j-- > 0;) {
     float d = y[j + offset] - (b * x[j + offset] + aa);
@@ -1354,7 +1370,7 @@ void TrackResiduals::fitCircle(int nCl, std::array<float, param::NPadRows>& x, s
     float dysm = dy + ys;
     residHelixY[i] = fabsf(dysp) < fabsf(dysm) ? dysp : dysm;
   }
-  //printf("r = %.4f m, xc = %.4f, yc = %.4f\n", r/100.f, xc, yc);
+  // printf("r = %.4f m, xc = %.4f, yc = %.4f\n", r/100.f, xc, yc);
 }
 
 bool TrackResiduals::fitPoly1(int nCl, std::array<float, param::NPadRows>& x, std::array<float, param::NPadRows>& y, std::array<float, 2>& res)
@@ -1389,9 +1405,9 @@ bool TrackResiduals::fitPoly1(int nCl, std::array<float, param::NPadRows>& x, st
 ///
 ///////////////////////////////////////////////////////////////////////////////
 
-void TrackResiduals::createOutputFile()
+void TrackResiduals::createOutputFile(const char* filename)
 {
-  mFileOut = std::make_unique<TFile>("debugVoxRes.root", "recreate");
+  mFileOut = std::make_unique<TFile>(filename, "recreate");
   mTreeOut = std::make_unique<TTree>("voxResTree", "Voxel results and statistics");
   mTreeOut->Branch("voxRes", &mVoxelResultsOutPtr);
 }
@@ -1431,4 +1447,10 @@ void TrackResiduals::printMem() const
   mres0 = mres;
   mvir0 = mvir;
   sw.Start();
+}
+
+void TrackResiduals::clear()
+{
+  getLocalResVec().clear();
+  mInitResultsContainer = false;
 }

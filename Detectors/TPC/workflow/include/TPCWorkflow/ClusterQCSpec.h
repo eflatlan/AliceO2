@@ -9,22 +9,23 @@
 // granted to it by virtue of its status as an Intergovernmental Organization
 // or submit itself to any jurisdiction.
 
-#ifndef O2_TPC_RESIDUAL_WRITER_H
-#define O2_TPC_RESIDUAL_WRITER_H
+/// \file ClusterQCSpec.h
+/// \brief Workflow to run clusterQC
+/// \author Jens Wiechula, Jens.Wiechula@ikf.uni-frankfurt.de
 
-/// @file   TPCResidualWriterSpec.h
+#ifndef O2_TPC_ClusterQCSpec_H_
+#define O2_TPC_ClusterQCSpec_H_
 
 #include "Framework/DataProcessorSpec.h"
 
-namespace o2
-{
-namespace tpc
+using namespace o2::framework;
+
+namespace o2::tpc
 {
 
-/// create a processor spec
-framework::DataProcessorSpec getTPCResidualWriterSpec(bool writeTrackData);
+/// create a processor speco2::framework::DataProcessorSpec getClusterQCSpec();
+o2::framework::DataProcessorSpec getClusterQCSpec();
 
-} // namespace tpc
-} // namespace o2
+} // namespace o2::tpc
 
 #endif

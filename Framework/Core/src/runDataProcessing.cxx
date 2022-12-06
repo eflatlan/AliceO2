@@ -472,13 +472,12 @@ struct ControlWebSocketHandler : public WebSocketHandler {
       hasNewMetric = true;
     };
     std::string token(frame, s);
-    std::smatch match;
+    std::match_results<std::string_view::const_iterator> match;
     ParsedConfigMatch configMatch;
     ParsedMetricMatch metricMatch;
 
-    auto doParseConfig = [](std::string const& token, ParsedConfigMatch& configMatch, DeviceInfo& info) -> bool {
-      auto ts = "                 " + token;
-      if (DeviceConfigHelper::parseConfig(ts, configMatch)) {
+    auto doParseConfig = [](std::string_view const& token, ParsedConfigMatch& configMatch, DeviceInfo& info) -> bool {
+      if (DeviceConfigHelper::parseConfig(token, configMatch)) {
         DeviceConfigHelper::processConfig(configMatch, info);
         return true;
       }
@@ -870,7 +869,7 @@ LogProcessingState processChildrenOutput(DriverInfo& driverInfo,
   // TODO: have multiple display modes
   // TODO: graphical view of the processing?
   assert(infos.size() == controls.size());
-  std::smatch match;
+  std::match_results<std::string_view::const_iterator> match;
   ParsedMetricMatch metricMatch;
   ParsedConfigMatch configMatch;
   const std::string delimiter("\n");
@@ -923,7 +922,7 @@ LogProcessingState processChildrenOutput(DriverInfo& driverInfo,
       } else if (logLevel == LogParsingHelpers::LogLevel::Info && ControlServiceHelpers::parseControl(token, match)) {
         ControlServiceHelpers::processCommand(infos, info.pid, match[1].str(), match[2].str());
         result.didProcessControl = true;
-      } else if (logLevel == LogParsingHelpers::LogLevel::Info && DeviceConfigHelper::parseConfig(token, configMatch)) {
+      } else if (logLevel == LogParsingHelpers::LogLevel::Info && DeviceConfigHelper::parseConfig(token.substr(16), configMatch)) {
         DeviceConfigHelper::processConfig(configMatch, info);
         result.didProcessConfig = true;
       } else if (!control.quiet && (token.find(control.logFilter) != std::string::npos) &&

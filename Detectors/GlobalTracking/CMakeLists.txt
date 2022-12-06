@@ -22,6 +22,7 @@ o2_add_library(GlobalTracking
                        src/MatchITSTPCQC.cxx
                        src/ITSTPCMatchingQCParams.cxx
                        src/MatchGlobalFwdParam.cxx
+                       src/MatchTOFParams.cxx
   PUBLIC_LINK_LIBRARIES O2::Framework
                         O2::DataFormatsTPC
                         O2::DataFormatsITSMFT
