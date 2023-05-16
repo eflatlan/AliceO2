@@ -42,7 +42,8 @@ void readHMPIDDCSEntries(long ts = 9999999999000, const char* ccdb = "localhost:
 
   int cnt = 0;
   for (TF1& tf1 : *mChargeCut) {
-    TCanvas* cChargeCut = new TCanvas(Form("ChargeCut number %i", cnt), Form("ChargeCut number %i", cnt), 1200, 400);
+    std::unique_ptr<TCanvas> cChargeCut; 
+    cChargeCut.reset(new TCanvas(Form("ChargeCut number %i", cnt), Form("ChargeCut number %i", cnt), 1200, 400));
     tf1.Draw();
     cChargeCut->SaveAs(Form("/root/hmpidTest/img/HV/ChargeCut number %i.png", cnt));
     cnt++;
@@ -53,7 +54,8 @@ void readHMPIDDCSEntries(long ts = 9999999999000, const char* ccdb = "localhost:
 
   cnt = 0;
   for (TF1& tf1 : *mRefIndex) {
-    TCanvas* cRefIndex = new TCanvas(Form("RefIndex number %i", cnt), Form("RefIndex number %i", cnt), 1200, 400);
+    std::unique_ptr<TCanvas> cRefIndex; 
+    cRefIndex.reset(new TCanvas(Form("RefIndex number %i", cnt), Form("RefIndex number %i", cnt), 1200, 400));
     tf1.Draw();
     cRefIndex->SaveAs(Form("/root/hmpidTest/img/HV/RefIndex number %i.png", cnt));
     cnt++;

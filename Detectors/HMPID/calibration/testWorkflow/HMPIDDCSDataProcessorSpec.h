@@ -85,7 +85,16 @@ class HMPIDDCSDataProcessor : public o2::framework::Task
       }
     } else {
       LOG(info) << "Configuring via hardcoded strings";
+      std::vector<std::string> expaliasesSW_int = o2::dcs::expandAliases(aliasesSW_int); // other datatype for these DPs: replace later?
       std::vector<std::string> expaliases = o2::dcs::expandAliases(aliases);
+
+
+
+      // change datatype?
+      for (const auto& i : expaliasesSW_int) {
+        vect.emplace_back(i, o2::dcs::DPVAL_INT);
+        // LOG(info) << i;
+      }
 
       for (const auto& i : expaliases) {
         vect.emplace_back(i, o2::dcs::DPVAL_DOUBLE);
@@ -254,7 +263,15 @@ class HMPIDDCSDataProcessor : public o2::framework::Task
       info);
   }
 
-  std::vector<std::string> aliases = {/*"HMP_MP_[0..6]_STATUSW",*/
+
+  // DP aliases for SW has other datatype
+  // Link L R : Sectors 5 4 3 2 1 0  | "00000000" to "11111111"
+  std::vector<std::string> aliasesSW_int = {"HMP_MP_[0..6]_STATUSW"}; // aliasesSW
+
+  // ef: remove later, just for test
+  //std::vector<std::string> aliasessw = {"HMP_MP_[0..6]_statusw"};
+
+  std::vector<std::string> aliases = {/*"HMP_MP_[0..6]_STATUSW",*/ // ef remove, jsut for test
                                       "HMP_ENV_PENV",
                                       "HMP_MP_[0..6]_GAS_PMWPC",
                                       "HMP_MP_[0..6]_LIQ_LOOP_RAD_[0..2]_IN_TEMP",

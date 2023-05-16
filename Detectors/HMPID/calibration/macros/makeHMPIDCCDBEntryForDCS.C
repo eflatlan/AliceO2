@@ -29,7 +29,8 @@ int makeHMPIDCCDBEntryForDCS(const std::string url = "localhost:8080")
   // macro to populate CCDB for HMPID with the configuration for DCS
   std::vector<std::string> aliases; // vector of strings that will hold DataPoints identifiers
 
-  aliases = {"HMP_ENV_PENV",
+  aliases = {/*"HMP_MP_[0..6]_STATUSW"*/ // Status word of detectors
+             "HMP_ENV_PENV",
              "HMP_MP_[0..6]_GAS_PMWPC",
              "HMP_MP_[0..6]_LIQ_LOOP_RAD_[0..2]_IN_TEMP",
              "HMP_MP_[0..6]_LIQ_LOOP_RAD_[0..2]_OUT_TEMP",

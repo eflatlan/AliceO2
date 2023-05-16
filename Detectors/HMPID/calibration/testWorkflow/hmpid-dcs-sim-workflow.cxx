@@ -54,6 +54,14 @@ o2::framework::WorkflowSpec defineDataProcessing(ConfigContext const& config)
 
   std::vector<o2::dcs::test::HintType> dphints;
 
+  // ==| Status Word of Chambers |=================================
+  // Link L R : Sectors 5 4 3 2 1 0  | "00000000" to "11111111"
+  dphints.emplace_back(o2::dcs::test::DataPointHint<int>{"HMP_MP_[0..6]_STATUSW", 0, 255 }); //  
+ 
+
+  // ef: placeholder, just for testing:
+  ///dphints.emplace_back(o2::dcs::test::DataPointHint<int>{"HMP_MP_[0..6]_statusw",00000000, 11111111});
+
   // ==| Environment Pressure  (mBar) |=================================
   dphints.emplace_back(o2::dcs::test::DataPointHint<double>{"HMP_ENV_PENV", 1003., 1023.});
 

@@ -40,10 +40,11 @@ void HMPIDDCSProcessor::process(const gsl::span<const DPCOM> dps)
   if (mVerbose) {
     LOG(debug) << "\n\n\nProcessing new DCS DP map\n-----------------";
   }
-
   if (!mFirstTimeSet) {
     mFirstTime = mStartValidity;
     mFirstTimeSet = true;
+
+    //setStartTimeEff(mStartValidity);
   }
 
   // itterate over span of datapoints
@@ -83,33 +84,63 @@ void HMPIDDCSProcessor::processHMPID(const DPCOM& dp)
 
   if (hmpidString == TEMP_IN_ID) {
     if (mVerbose) {
-      LOG(info) << "Temperature_in DP: " << dp;
+      LOG(info) << "Temperature_in DP : " << dp;
     }
     fillTempIn(dp);
   } else if (hmpidString == TEMP_OUT_ID) {
     if (mVerbose) {
-      LOG(info) << "Temperature_out DP: " << dp;
+      LOG(info) << "Temperature_out DP : " << dp;
     }
     fillTempOut(dp);
   } else if (hmpidString == HV_ID) {
     if (mVerbose) {
-      LOG(info) << "HV DP: " << dp;
+      LOG(info) << "HV DP : " << dp;
     }
     fillHV(dp);
   } else if (hmpidString == ENV_PRESS_ID) {
     if (mVerbose) {
-      LOG(info) << "Environment Pressure DP: " << dp;
+      LOG(info) << "Environment Pressure DP : " << dp;
     }
     fillEnvPressure(dp);
+  } else if (hmpidString == STATUSWORD_ID) {
+    if (mVerbose) {
+      LOG(info) << " Status Word DP : " << dp;
+    }
+    processStatusWord(dp);
   } else if (hmpidString == CH_PRESS_ID) {
     if (mVerbose) {
-      LOG(info) << "Chamber Pressure DP: " << dp;
+      LOG(info) << "Chamber Pressure DP : " << dp;
     }
     fillChPressure(dp);
   } else {
-    LOG(warn) << "Missing data point: " << dp;
+    LOG(warn) << "Missing data point : " << dp;
   }
 }
+
+void HMPIDDCSProcessor::processStatusWord(const DPCOM& dp)
+{
+  /* 8 GINO (32 for all) Bit StatusWord; status [0, 1] of links and Sectors Per Chamber
+     To be used e.g., to evaluate efficiency of the chamber
+  */
+
+
+  // Link L R : Sectors 5 4 3 2 1 0  | "00000000" to "11111111"
+  const auto& dpid = dp.id;
+  const std::string alias(dpid.get_alias());
+
+  // Get Chamber number : 
+  const int chNum = aliasStringToInt(dpid, indexChStatusWord);
+  
+  if(dp.id.get_type() == DeliveryType::DPVAL_INT){
+    timeDPCOMVec[chNum].emplace_back(dp);
+
+    // ef : later comment out / or add if mVerbose statement
+    LOG(info) << "Status Word DP" << dp ;
+    LOGP(info, "ch {} ", chNum) ;
+  }
+
+}
+
 
 // if the string of the dp contains the Transparency-specifier
 // "HMP_TRANPLANT_MEASURE_"
@@ -280,6 +311,99 @@ void HMPIDDCSProcessor::fillTempOut(const DPCOM& dpcom)
   } else {
     LOGP(warn, "Not correct datatype for TempOut");
   }
+}
+
+
+
+
+// ef: calculate efficiency
+void HMPIDDCSProcessor::calculateEff()
+{
+  // chamber loop
+  for(int chNum = 0; chNum < 7; chNum++){
+
+
+    // keep track of number of times 
+    int cnt[8] = {0};
+    bool firstProcessed = false;
+    // loop through DPCOM vector for the given chamber
+    for(const auto& dp : timeDPCOMVec[chNum]){
+
+      //const auto& dpid = dp.id;
+      //const std::string alias(dpid.get_alias());
+
+      auto time = dp.data.get_epoch_time();
+      auto dpVal = o2::dcs::getValue<int>(dp);
+      int/*std::string*/ dpValPrev;     
+      LOGP(info, "dp {}", dpVal);
+
+      // read entries in the DPCOM-vector for the given chamber
+      // loop through, starting at MSB L-link
+      for(int index = 0; index < 8; index++){
+        auto valNew = static_cast<int> (dpVal%2);
+
+
+	// check if there is already one DP in graph
+	if(!firstProcessed/*cnt[index] == 0*/) {
+	  timeGraphVec[chNum*8+index].SetPoint(cnt[index]++, time, valNew);
+        } else {
+
+	  // previous DP is found; only set DP if SW for index changes:
+          auto valPrev = static_cast<int> (dpValPrev%2);
+	  if(valNew != valPrev){
+	    timeGraphVec[chNum*8+index].SetPoint(cnt[index]++, time, valNew);
+          }
+        }	
+      }
+
+      dpValPrev = dpVal;
+      firstProcessed = true;
+    }
+
+  
+
+    // ef: remove
+    LOGP(info, "Calculating Eff");
+
+    // get duration of run (could also be done by mStartValidity...)
+    auto axis = timeGraphVec[0].GetXaxis();
+    auto startTime = axis->GetXmin();
+    auto endTime = axis->GetXmax();
+    auto duration = endTime - startTime;
+
+
+
+    // ef: remove these 4 lines later
+    LOGP(info, "startTime {}, endTime {}, duration {}", startTime, endTime, duration);
+    LOGP(info, "NumEnt {}", timeGraphVec[0].GetN());
+    LOGP(info, "1stEnt {}", timeGraphVec[0].GetPointX(0));
+    LOGP(info, "2ndEnt {}", timeGraphVec[0].GetPointX(1));
+
+    
+    for(int index = 0; index < 8; index++){
+      for(int i = 0; i < timeGraphVec[chNum*8+index].GetN(); i++){
+        double x, y;
+        timeGraphVec[chNum*8+index].GetPoint(i, x, y);
+
+        // ef :remove later
+        LOGP(info, "TimeGraph i {} | x {} | y {}", i, x, y);
+      }
+
+      // ef: take time on as the integral over the period
+      // on = 1 | off = 0 -> The integral will yield time on
+      auto timeOn = timeGraphVec[chNum*8+index].Integral(0, -1);
+
+      // ef: take efficiency by dividing the total duration of run
+      auto eff = static_cast<double>(timeOn/duration);
+
+      // store efficiency in 2D array, maybe change to 1D-vector because of CCDB
+      efficiency[chNum][index] = eff;
+
+      // ef :remove later(?)
+      LOGP(info, "timeOn {}, eff {}", timeOn, eff);
+    }
+  }
+ 
 }
 
 //==== Calculate mean photon energy=============================================
@@ -720,6 +844,8 @@ std::unique_ptr<TF1> HMPIDDCSProcessor::finalizeHv(int iCh, int iSec)
 // HMPIDDCSDataProcessorSpec::endOfStream() function
 void HMPIDDCSProcessor::finalize()
 {
+  // status-word; calculate efficiency
+  calculateEff();
 
   LOG(info) << "finalize=================================== ";
   std::unique_ptr<TF1> pEnv = finalizeEnvPressure();

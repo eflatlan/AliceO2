@@ -21,6 +21,7 @@
 #include <TF2.h>
 #include <TGraph.h>
 #include <TSystem.h>
+#include <TAxis.h>
 
 // miscallenous libraries
 #include <cmath>
@@ -155,6 +156,7 @@ class HMPIDDCSProcessor
  private:
   void processTRANS(const DPCOM& dp);
   void processHMPID(const DPCOM& dp);
+  void processStatusWord(const DPCOM& dp); // ef: process status word DPs
 
   // Fill entries of DPs==================================================
   void fillChPressure(
@@ -168,6 +170,11 @@ class HMPIDDCSProcessor
   // Temp in (T1) and out (T2), in each chamber_radiator = 7*3 :
   void fillTempIn(const DPCOM& dpcom);  // fill element[0-20] in tempIn vector
   void fillTempOut(const DPCOM& dpcom); // fill element[0-20] in tempOut vector
+
+
+  // evaluate status-word
+  //void evalStatusWord(const DPCOM& dp, int chNum, const char* newVal);
+
 
   // =====finalize DPs, after run is finished
   // ==================================================================================
@@ -348,6 +355,9 @@ class HMPIDDCSProcessor
   // indexes for getting chamber-numbers etc
   // =======================================================================================
 
+  // Chamber Index for Status word
+  static constexpr std::size_t indexChStatusWord = 7;
+
   // Chamber Pressures
   static constexpr std::size_t indexChPr = 7;
 
@@ -359,6 +369,65 @@ class HMPIDDCSProcessor
   static constexpr std::size_t indexChTemp = 7;
   static constexpr std::size_t indexRadTemp = 22;
 
+
+
+
+  // Status Word
+  // =====================================================================
+  // 
+
+
+  // DPCOM-vector of statusword per chamber
+  std::vector<DPCOM> timeDPCOMVec[7];
+
+  // TGraph for on/off values per chamber-link/sector
+  std::unique_ptr<TGraph[]> timeGraphVec = std::unique_ptr<TGraph[]>(new TGraph[7*8]);
+
+  // efficiency per chamber-link/sector
+  double efficiency[7][8] = {{0.}};
+ 
+  // call EOR to calculate efficiency
+  void calculateEff(); 
+
+  /* can remove this, better to integrate a TGraph
+  long prevTime[7][8];
+  long timeOn[7][8];
+  long timeOff[7][8];
+
+  void setTimeOn(int ch, int index, long time)
+  {
+    timeOn[ch][index] += time;
+  }
+
+  void setTimeOff(int ch, int index, long time)
+  {
+    timeOff[ch][index] += time;
+  }
+
+  std::array<std::array<double, 8>, 7> eff = {{0.}};
+  std::array<char[9], 7> prev = {{"11111111"}};
+  void setTime(const DPCOM& dp, int diff, int ch, int index);
+
+  
+  void calculateEfficiency()
+  {
+     for(int i = 0; i < 7; i++){
+       for(int j = 0; j < 8; j++){
+         
+         // alternatively, only track time on, and divide by run-time
+         efficiency[i][j] = static_cast<double>(timeOn[i][j]/(timeOn[i][j]+timeOff[i][j]));
+        }
+     }
+  } 
+  void setStartTimeEff(long startTime)
+  {
+    prevTime = {{startTime}};
+  }
+
+  void getPrevTime(int ch, int index)
+  {
+     return prevTime[ch][index];
+  }*/
   // Timestamps and TimeRanges
   // ======================================================================================
   // timestamps of last and first  entry in vectors of DPCOMs
@@ -376,6 +445,7 @@ class HMPIDDCSProcessor
 
   // check if Transparency or other HMPID specifciation
   static constexpr auto HMPID_ID{"HMP_"sv};
+  static constexpr auto STATUSWORD_ID{"_STATUSW"sv};
   static constexpr auto TRANS_ID{"HMP_TRANPLANT_MEASURE_"sv};
   // HMPID-temp, HV, pressure IDs (HMP_{"HMP_"sv};)
   static constexpr auto TEMP_OUT_ID{"OUT_TEMP"sv};
