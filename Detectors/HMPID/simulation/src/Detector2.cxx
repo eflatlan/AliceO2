@@ -76,32 +76,14 @@ bool Detector::ProcessHits(FairVolume* v)
 
 
   TParticle* currentParticleTrack = fMC->GetStack()->GetCurrentTrack();  
+
   const auto pdgCode = currentParticleTrack->GetPdgCode();
-
-  
-  if(pdgCode == 50000050 || pdgCode == 50000051) {
-
-     Int_t particlePdg = fMC->TrackPid();                          //take PID
-    /*LOGP(info, "Particle Type {}; PDG {} ; particlePdg {}: volID {}",  currentParticleTrack->GetTitle(), currentParticleTrack->GetPdgCode(), particlePdg, volID);*/ 
-
-   /*LOGP(info, "mHpad0VolID {} mHpad1VolID {} mHpad2VolID {} mHpad3VolID {} mHpad4VolID {} mHpad5VolID {} mHpad6VolID", mHpad0VolID, mHpad1VolID, mHpad2VolID, mHpad3VolID, mHpad4VolID, mHpad5VolID, mHpad6VolID);*/
-  }
-
-
-
-  if((volID == mHpad0VolID || volID == mHpad1VolID || volID == mHpad2VolID || volID == mHpad3VolID || volID == mHpad4VolID || volID == mHpad5VolID || volID == mHpad6VolID)) {
-
-    //throw std::runtime_error("Found photon!:)"); 
-  }
-
   //Treat photons
   //photon (Ckov or feedback) hits on module PC (Hpad)
   if ((pdgCode == 50000050 || pdgCode == 50000051) && (volID == mHpad0VolID || volID == mHpad1VolID || volID == mHpad2VolID || volID == mHpad3VolID || volID == mHpad4VolID || volID == mHpad5VolID || volID == mHpad6VolID)) {
 
 
     LOGP(info, "Photon or cherenkov!"); 
-
-    throw std::runtime_error("Found photon!:)"); 
 
     if (fMC->Edep() > 0) { //photon survided QE test i.e. produces electron
       if (IsLostByFresnel()) {
@@ -204,7 +186,7 @@ bool Detector::ProcessHits(FairVolume* v)
 	TParticle* currentParticleTrack = fMC->GetStack()->GetCurrentTrack();
   	TParticlePDG* partcilePDG = currentParticleTrack->GetPDG();
 
-	LOGP(info, "TrackID : {} : Particle Type {}; PDG {}; Mass {}", tid, currentParticleTrack->GetTitle(), currentParticleTrack->GetPdgCode(), currentParticleTrack->GetMass()); 
+	LOGP(info, "TrackID : {} : Particle Type {}; PDG {}; Mass {}", tid, currentParticleTrack->GetTitle(), 	 		currentParticleTrack->GetPdgCode(), currentParticleTrack->GetMass()); 
 
 
         GenFee(eloss); //generate feedback photons
