@@ -123,6 +123,8 @@ class Digit
   uint8_t getY() const { return mY; }
 
  public:
+
+  // ef: TODO: make these private?
   // Members
   uint16_t mQ = 0;
   uint8_t mCh = 0; // 0xFF indicates invalid digit

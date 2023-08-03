@@ -15,6 +15,7 @@
 #include <TGeoManager.h>
 #include <TVirtualFitter.h>
 #include <cmath>
+#include "Framework/Logger.h"
 
 ClassImp(o2::hmpid::Cluster);
 namespace o2
@@ -111,6 +112,7 @@ void Cluster::coG()
 
   o2::hmpid::Digit* pDig = nullptr;
   for (int iDig = 0; iDig < mDigs.size(); iDig++) { // digits loop
+
     int x, y, mod;
     int padId = mDigs[iDig]->getPadID();
     o2::hmpid::Digit::pad2Absolute(padId, &mod, &x, &y);
@@ -464,6 +466,8 @@ void Cluster::findClusterSize(int i, float* pSigmaCut)
   for (int iDig = 0; iDig < mSi; iDig++) { // digits loop
     auto pDig = dig(iDig);                 // take digit
     int iCh = pDig->mCh;
+
+
     double qPad = mQ * o2::hmpid::Digit::intMathieson(x(), y(), pDig->getPadID()); // pad charge  pDig->
     //  AliDebug(1,Form("Chamber %i X %i Y %i SigmaCut %i pad %i qpadMath %8.2f qPadRaw %8.2f Qtotal %8.2f cluster n.%i",
     //                 iCh, o2::hmpid::Digit::a2X(pDig->getPadID()), o2::hmpid::Digit::a2Y(pDig->getPadID()),
@@ -502,6 +506,9 @@ void Cluster::digAdd(const Digit* pDig)
     //  std::vector<o2::hmpid::Digit*> fDigs;
   }
   // fDigs->Add(pDig);
+
+  LOGP(info, "Cluster::digAdd --> ParticlePDG {}", pDig->mParticlePdg);
+
   mDigs.push_back(pDig);
   mSt = kFrm;
   mSi++;
