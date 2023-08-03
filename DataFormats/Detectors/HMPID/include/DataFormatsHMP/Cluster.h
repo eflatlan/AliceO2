@@ -51,6 +51,17 @@ class Cluster
   void coG();                                                                            // calculates center of gravity
   void corrSin();                                                                        // sinoidal correction
   void digAdd(const o2::hmpid::Digit* pDig);                                             // add new digit to the cluster
+<<<<<<< HEAD
+=======
+
+
+
+  std::vector<const o2::hmpid::Digit*> getDigits() const { return mDigs; }  // ef: get vector of digits
+
+  const int getNumDigits() const { return mDigs.size(); }  // ef: get number of digits
+
+
+>>>>>>> 3f7bda523 (Also add particlePDG to  dig/clu)
   const o2::hmpid::Digit* dig(int i) const { return mDigs[i]; }                          // pointer to i-th digi
   inline bool isInPc();                                                                  // check if is in the current PC
   void reset();                                                                          // cleans the cluster
