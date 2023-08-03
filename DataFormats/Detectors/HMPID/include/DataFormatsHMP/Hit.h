@@ -32,11 +32,44 @@ namespace hmpid
 // class Hit : public o2::BasicXYZQHit<float>
 class HitType : public o2::BasicXYZEHit<float>
 {
+ private: 
+  Int_t mParticlePdg;
+
  public:
-  using BasicXYZEHit<float>::BasicXYZEHit;
+  
+  Int_t getParticlePdg() const { return mParticlePdg;}
+  
+  HitType() = default;
+  inline HitType(
+	float x, 
+	float y,
+	float z,
+	float time,
+	float energy,
+ 	Int_t trackId,
+	Int_t detId,
+	Int_t particlePdg); // ef: added particlePdg
+
+
+  
+  //using BasicXYZEHit<float>::BasicXYZEHit;
+
 
   ClassDefNV(HitType, 1);
 };
+
+
+HitType::HitType(float x, 
+		 float y,
+		 float z,
+		 float time,
+		 float energy,
+	 	 Int_t trackId,
+		 Int_t detId,
+		 Int_t particlePdg)
+	: BasicXYZEHit(x, y, z, time, energy, trackId, detId),
+	  mParticlePdg(particlePdg) 
+	{}
 
 } // namespace hmpid
 } // namespace o2

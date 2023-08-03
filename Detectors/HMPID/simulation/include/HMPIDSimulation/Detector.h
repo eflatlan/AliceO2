@@ -39,7 +39,7 @@ class Detector : public o2::base::DetImpl<Detector>
 
   void InitializeO2Detector() override;
   bool ProcessHits(FairVolume* v) override;
-  o2::hmpid::HitType* AddHit(float x, float y, float z, float time, float energy, Int_t trackId, Int_t detId);
+  o2::hmpid::HitType* AddHit(float x, float y, float z, float time, float energy, Int_t trackId, Int_t detId, Int_t particlePdg);
   void GenFee(float qtot);
   Bool_t IsLostByFresnel();
   float Fresnel(float ene, float pdoti, Bool_t pola);
@@ -64,6 +64,8 @@ class Detector : public o2::base::DetImpl<Detector>
   Detector(const Detector&);
 
   std::vector<o2::hmpid::HitType>* mHits = nullptr; ///!< Collection of HMPID hits
+
+
   enum EMedia {
     kAir = 1,
     kRoha = 2,

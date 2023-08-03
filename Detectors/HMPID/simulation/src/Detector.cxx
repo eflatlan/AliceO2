@@ -69,6 +69,10 @@ void Detector::InitializeO2Detector()
 //*********************************************************************************************************
 bool Detector::ProcessHits(FairVolume* v)
 {
+
+  // ef: get current particle of track 
+  TParticle* currentParticleTrack = fMC->GetStack()->GetCurrentTrack();
+
   Int_t copy;
   Int_t volID = fMC->CurrentVolID(copy);
   auto stack = (o2::data::Stack*)fMC->GetStack();
@@ -82,7 +86,7 @@ bool Detector::ProcessHits(FairVolume* v)
         return false;
       }                                                     //photon lost due to fersnel reflection on PC
       Int_t tid = fMC->GetStack()->GetCurrentTrackNumber(); //take TID
-      Int_t pid = fMC->TrackPid();                          //take PID
+      Int_t particlePdg = fMC->TrackPid();                          //take PID
       Float_t etot = fMC->Etot();                           //total hpoton energy, [GeV]
       Double_t x[3];
       fMC->TrackPosition(x[0], x[1], x[2]);        //take MARS position at entrance to PC
@@ -105,7 +109,9 @@ bool Detector::ProcessHits(FairVolume* v)
       }
       Double_t xl, yl;
       o2::hmpid::Param::instance()->mars2Lors(idch, x, xl, yl); //take LORS position
-      AddHit(x[0], x[1], x[2], hitTime, etot, tid, idch); //HIT for photon, position at P, etot will be set to Q
+      AddHit(x[0], x[1], x[2], hitTime, etot, tid, idch, particlePdg); //HIT for photon, position at P, etot will be set to Q
+      // ef : added pid here
+
       GenFee(etot);                                       //generate feedback photons etot is modified in hit ctor to Q of hit
       stack->addHit(GetDetId());
     } //photon hit PC and DE >0
@@ -132,7 +138,7 @@ bool Detector::ProcessHits(FairVolume* v)
     } else if (fMC->IsTrackExiting() || fMC->IsTrackStop() || fMC->IsTrackDisappeared()) { //exiting or disappeared
       eloss += fMC->Edep();                                                                //take into account last step Eloss
       Int_t tid = fMC->GetStack()->GetCurrentTrackNumber();                                //take TID
-      Int_t pid = fMC->TrackPid();                                                         //take PID
+      Int_t particlePdg = fMC->TrackPid();                                                         //take PID
       Double_t out[3];
       fMC->TrackPosition(out[0], out[1], out[2]);  //take MARS position at exit
       Float_t hitTime = (Float_t)fMC->TrackTime(); //hit formation time
@@ -159,7 +165,7 @@ bool Detector::ProcessHits(FairVolume* v)
       o2::hmpid::Param::instance()->mars2Lors(idch, out, xl, yl); //take LORS position
       if (eloss > 0) {
         // HIT for MIP, position near anod plane, eloss will be set to Q
-        AddHit(out[0], out[1], out[2], hitTime, eloss, tid, idch);
+        AddHit(out[0], out[1], out[2], hitTime, eloss, tid, idch, particlePdg); // ef : added hit here
         GenFee(eloss); //generate feedback photons
         stack->addHit(GetDetId());
         eloss = 0;
@@ -175,9 +181,9 @@ bool Detector::ProcessHits(FairVolume* v)
   return false;
 }
 //*********************************************************************************************************
-o2::hmpid::HitType* Detector::AddHit(float x, float y, float z, float time, float energy, Int_t trackId, Int_t detId)
+o2::hmpid::HitType* Detector::AddHit(float x, float y, float z, float time, float energy, Int_t trackId, Int_t detId, Int_t particlePdg)
 {
-  mHits->emplace_back(x, y, z, time, energy, trackId, detId);
+  mHits->emplace_back(x, y, z, time, energy, trackId, detId, particlePdg);
   return &(mHits->back());
 }
 //*********************************************************************************************************
