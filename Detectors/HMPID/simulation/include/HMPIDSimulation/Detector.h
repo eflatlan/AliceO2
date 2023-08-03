@@ -39,7 +39,10 @@ class Detector : public o2::base::DetImpl<Detector>
 
   void InitializeO2Detector() override;
   bool ProcessHits(FairVolume* v) override;
+
+  // ef: must add track particle type here??
   o2::hmpid::HitType* AddHit(float x, float y, float z, float time, float energy, Int_t trackId, Int_t detId, Int_t particlePdg);
+
   void GenFee(float qtot);
   Bool_t IsLostByFresnel();
   float Fresnel(float ene, float pdoti, Bool_t pola);
