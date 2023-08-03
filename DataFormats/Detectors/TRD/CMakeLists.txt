@@ -13,6 +13,7 @@ o2_add_library(DataFormatsTRD
                SOURCES src/TriggerRecord.cxx
                        src/LinkRecord.cxx
                        src/AngularResidHistos.cxx
+                       src/GainCalibHistos.cxx
                        src/DcsCcdbObjects.cxx
                        src/Tracklet64.cxx
                        src/RawData.cxx
@@ -35,14 +36,17 @@ o2_target_root_dictionary(DataFormatsTRD
                        include/DataFormatsTRD/CalibratedTracklet.h
                        include/DataFormatsTRD/DcsCcdbObjects.h
                        include/DataFormatsTRD/AngularResidHistos.h
+                       include/DataFormatsTRD/GainCalibHistos.h
                        include/DataFormatsTRD/HelperMethods.h
                        include/DataFormatsTRD/Hit.h
                        include/DataFormatsTRD/Digit.h
                        include/DataFormatsTRD/KrCluster.h
                        include/DataFormatsTRD/KrClusterTriggerRecord.h
                        include/DataFormatsTRD/NoiseCalibration.h
+                        include/DataFormatsTRD/PHData.h
                        include/DataFormatsTRD/CTF.h
                        include/DataFormatsTRD/CalVdriftExB.h
+                       include/DataFormatsTRD/CalGain.h
                        include/DataFormatsTRD/CalT0.h
                        include/DataFormatsTRD/SignalArray.h
                        include/DataFormatsTRD/CompressedDigit.h
@@ -63,4 +67,3 @@ o2_add_test(RawData
             ENVIRONMENT O2_ROOT=${CMAKE_BINARY_DIR}/stage
             LABELS trd
             )
-

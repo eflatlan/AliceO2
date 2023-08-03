@@ -22,6 +22,7 @@
 #include "EMCALCalibration/EMCALChannelData.h"
 #include "EMCALCalibration/EMCALCalibExtractor.h"
 #include "EMCALCalibration/EMCALCalibParams.h"
+#include "EMCALCalib/GainCalibrationFactors.h"
 #include "DetectorsCalibration/TimeSlotCalibration.h"
 #include "DetectorsCalibration/TimeSlot.h"
 #include "DataFormatsEMCAL/Cell.h"
@@ -95,6 +96,8 @@ class EMCALChannelCalibrator : public o2::calibration::TimeSlotCalibration<DataI
   std::shared_ptr<EMCALCalibExtractor> getCalibExtractor() { return mCalibrator; } // return shared pointer!
   /// \brief setter for mCalibrator
   void SetCalibExtractor(std::shared_ptr<EMCALCalibExtractor> extr) { mCalibrator = extr; };
+
+  bool setGainCalibrationFactors(o2::emcal::GainCalibrationFactors* gainCalibFactors);
 
  private:
   int mNBins = 0;          ///< bins of the histogram for passing
@@ -170,7 +173,7 @@ void EMCALChannelCalibrator<DataInput, DataOutput>::finalizeSlot(o2::calibration
     // for the CCDB entry
     auto clName = o2::utils::MemFileHelper::getClassName(bcm);
     auto flName = o2::ccdb::CcdbApi::generateFileName(clName);
-    mInfoVector.emplace_back(CalibDB::getCDBPathBadChannelMap(), clName, flName, md, slot.getStartTimeMS(), o2::ccdb::CcdbObjectInfo::INFINITE_TIMESTAMP);
+    mInfoVector.emplace_back(CalibDB::getCDBPathBadChannelMap(), clName, flName, md, slot.getStartTimeMS(), slot.getEndTimeMS() + EMCALCalibParams::Instance().endTimeMargin, true);
     mCalibObjectVector.push_back(bcm);
 
     if ((EMCALCalibParams::Instance().localRootFilePath).find(".root") != std::string::npos) {
@@ -200,7 +203,7 @@ void EMCALChannelCalibrator<DataInput, DataOutput>::finalizeSlot(o2::calibration
     auto flName = o2::ccdb::CcdbApi::generateFileName(clName);
 
     //prepareCCDBobjectInfo
-    mInfoVector.emplace_back(CalibDB::getCDBPathTimeCalibrationParams(), clName, flName, md, slot.getStartTimeMS(), o2::ccdb::CcdbObjectInfo::INFINITE_TIMESTAMP);
+    mInfoVector.emplace_back(CalibDB::getCDBPathTimeCalibrationParams(), clName, flName, md, slot.getStartTimeMS(), slot.getEndTimeMS() + EMCALCalibParams::Instance().endTimeMargin, true);
     mCalibObjectVector.push_back(tcd);
 
     if ((EMCALCalibParams::Instance().localRootFilePath).find(".root") != std::string::npos) {
@@ -249,7 +252,7 @@ bool EMCALChannelCalibrator<DataInput, DataOutput>::saveLastSlotData(TFile& fl)
     auto histTime = c->getHistoTime();
 
     TH2F hEnergy = o2::utils::TH2FFromBoost(hist);
-    TH2F hTime = o2::utils::TH2FFromBoost(histTime);
+    TH2F hTime = o2::utils::TH2FFromBoost(histTime, "histTime");
     TH1D hNEvents("hNEvents", "hNEvents", 1, 0, 1);
     hNEvents.SetBinContent(1, c->getNEvents());
 
@@ -283,6 +286,11 @@ bool EMCALChannelCalibrator<DataInput, DataOutput>::adoptSavedData(const o2::cal
     return true;
 
   auto& cont = o2::calibration::TimeSlotCalibration<DataInput>::getSlots();
+
+  if (cont.size() == 0) {
+    LOG(warning) << "cont.size() is 0, calibration objects from previous run cannot be loaded...";
+    return true;
+  }
   auto& slot = cont.at(0);
   DataInput* c = slot.getContainer();
 
@@ -312,6 +320,22 @@ bool EMCALChannelCalibrator<DataInput, DataOutput>::adoptSavedData(const o2::cal
     return false;
   }
   c->setNEvents(hEvents->GetBinContent(1));
+
+  return true;
+}
+
+template <typename DataInput, typename DataOutput>
+bool EMCALChannelCalibrator<DataInput, DataOutput>::setGainCalibrationFactors(o2::emcal::GainCalibrationFactors* gainCalibFactors)
+{
+
+  auto& cont = o2::calibration::TimeSlotCalibration<DataInput>::getSlots();
+  if (cont.size() == 0) {
+    return false; // time slot object not yet there
+  }
+
+  auto& slot = cont.at(0);
+  DataInput* c = slot.getContainer();
+  c->setGainCalibFactors(gainCalibFactors);
 
   return true;
 }
