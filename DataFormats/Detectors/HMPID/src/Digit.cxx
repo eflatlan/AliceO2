@@ -1,4 +1,5 @@
-// Copyright 2019-2020 CERN and copyright holders of ALICE O2.
+	22
+// Copyright 2020-2022 CERN and copyright holders of ALICE O2.
 // See https://alice-o2.web.cern.ch/copyright for details of the copyright holders.
 // All rights not expressly granted are reserved.
 //
@@ -35,12 +36,11 @@ namespace hmpid
 {
 
 // ============= Digit Class implementation =======
-/// Constructor : Create the Digit structure. Accepts the trigger time (Orbit,BC)
-///               The mapping of the digit is in the Photo Cathod coords
+/// Constructor : Create the Digit structure. Accepts the trigger time (Orbit,BC)///               The mapping of the digit is in the Photo Cathod coords
 ///               (Chamber, PhotoCathod, X, Y)
 /// @param[in] pad : the Digit Unique Id [0x00CPXXYY]
 /// @param[in] charge : the value of the charge [0 .. 2^12-1]
-Digit::Digit(int pad, uint16_t charge, int particlePdg)
+Digit::Digit(int pad, uint16_t charge,int particlePdg)
 {
   mQ = charge > 0x0FFF ? 0x0FFF : charge;
   mCh = a2C(pad);
@@ -58,7 +58,8 @@ Digit::Digit(int pad, uint16_t charge, int particlePdg)
 /// @param[in] x : the horizontal in cathode displacement [0 .. 79]
 /// @param[in] y : the vertical in cathode displacement [0 .. 47]
 /// @param[in] charge : the value of the charge [0 .. 2^12-1]
-Digit::Digit(int chamber, int photo, int x, int y, uint16_t charge, int particlePdg)
+Digit::Digit(int chamber, int photo, int x, int y, uint16_t charge,int particlePdg)
+{
 {
   mQ = charge > 0x0FFF ? 0x0FFF : charge;
   mCh = chamber;
@@ -76,7 +77,7 @@ Digit::Digit(int chamber, int photo, int x, int y, uint16_t charge, int particle
 /// @param[in] column : the readout column number [0 .. 23]
 /// @param[in] dilogic : the displacement in the Dilogics chain [0 .. 9]
 /// @param[in] channel : the number of gassiplexes channels [0 .. 47]
-Digit::Digit(uint16_t charge, int equipment, int column, int dilogic, int channel, int particlePdg)
+Digit::Digit(uint16_t charge, int equipment, int column, int dilogic, int channel,int particlePdg)
 {
   mQ = charge > 0x0FFF ? 0x0FFF : charge;
   pad2Photo(equipment2Pad(equipment, column, dilogic, channel), &mCh, &mPh, &mX, &mY);
@@ -90,7 +91,8 @@ Digit::Digit(uint16_t charge, int equipment, int column, int dilogic, int channe
 /// @param[in] module : the HMPID Module [0 .. 6]
 /// @param[in] x : the horizontal in Module displacement [0 .. 159]
 /// @param[in] y : the vertical in Module displacement [0 .. 143]
-Digit::Digit(uint16_t charge, int module, int x, int y, int particlePdg)
+Digit::Digit(uint16_t charge, int module, int x, int y,int particlePdg)
+{
 {
   mQ = charge > 0x0FFF ? 0x0FFF : charge;
   pad2Photo(absolute2Pad(module, x, y), &mCh, &mPh, &mX, &mY);
@@ -329,8 +331,8 @@ Double_t Digit::qdcTot(Double_t e, Double_t time, Int_t pc, Int_t px, Int_t py, 
 /// @return : a charge fraction [0-1] imposed into the pad
 double Digit::intPartMathiX(double x, int pad)
 {
-  double shift1 = -lorsX(pad) + 0.5 * o2::hmpid::Param::sizePadX();
-  double shift2 = -lorsX(pad) - 0.5 * o2::hmpid::Param::sizePadX();
+  double shift1 = -lorsX(pad) + o2::hmpid::Param::sizeHalfPadX();
+  double shift2 = -lorsX(pad) - o2::hmpid::Param::sizeHalfPadX();
 
   double ux1 = o2::hmpid::Param::sqrtK3x() * tanh(o2::hmpid::Param::k2x() * (x + shift1) / o2::hmpid::Param::pitchAnodeCathode());
   double ux2 = o2::hmpid::Param::sqrtK3x() * tanh(o2::hmpid::Param::k2x() * (x + shift2) / o2::hmpid::Param::pitchAnodeCathode());
@@ -347,8 +349,8 @@ double Digit::intPartMathiX(double x, int pad)
 /// @return : a charge fraction [0-1] imposed into the pad
 double Digit::intPartMathiY(double y, int pad)
 {
-  double shift1 = -lorsY(pad) + 0.5 * o2::hmpid::Param::sizePadY();
-  double shift2 = -lorsY(pad) - 0.5 * o2::hmpid::Param::sizePadY();
+  double shift1 = -lorsY(pad) + o2::hmpid::Param::sizeHalfPadY();
+  double shift2 = -lorsY(pad) - o2::hmpid::Param::sizeHalfPadY();
 
   double uy1 = o2::hmpid::Param::sqrtK3y() * tanh(o2::hmpid::Param::k2y() * (y + shift1) / o2::hmpid::Param::pitchAnodeCathode());
   double uy2 = o2::hmpid::Param::sqrtK3y() * tanh(o2::hmpid::Param::k2y() * (y + shift2) / o2::hmpid::Param::pitchAnodeCathode());

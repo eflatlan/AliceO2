@@ -1,4 +1,4 @@
-// Copyright 2019-2020 CERN and copyright holders of ALICE O2.
+// Copyright 2020-2022 CERN and copyright holders of ALICE O2.
 // See https://alice-o2.web.cern.ch/copyright for details of the copyright holders.
 // All rights not expressly granted are reserved.
 //
@@ -51,6 +51,16 @@ class Cluster
   void coG();                                                                            // calculates center of gravity
   void corrSin();                                                                        // sinoidal correction
   void digAdd(const o2::hmpid::Digit* pDig);                                             // add new digit to the cluster
+
+
+
+
+  std::vector<const o2::hmpid::Digit*> getDigits() const { return mDigs; }  // ef: get vector of digits
+
+  const int getNumDigits() const { return mDigs.size(); }  // ef: get number of digits
+
+
+
   const o2::hmpid::Digit* dig(int i) const { return mDigs[i]; }                          // pointer to i-th digi
   inline bool isInPc();                                                                  // check if is in the current PC
   void reset();                                                                          // cleans the cluster
@@ -95,21 +105,21 @@ class Cluster
 
   // public:
  protected:
-  int mCh;                              // chamber number
-  int mSi;                              // size of the formed cluster from which this cluster deduced
-  int mSt;                              // flag to mark the quality of the cluster
-  int mBox;                             // box contaning this cluster
-  int mNlocMax;                         // number of local maxima in formed cluster
-  int mMaxQpad;                         // abs pad number of a pad with the highest charge
-  double mMaxQ;                         // that max charge value
-  double mQRaw;                         // QDC value of the raw cluster
-  double mQ;                            // QDC value of the actual cluster
-  double mErrQ;                         // error on Q
-  double mXX;                           // local x postion, [cm]
-  double mErrX;                         // error on x postion, [cm]
-  double mYY;                           // local y postion, [cm]
-  double mErrY;                         // error on y postion, [cm]
-  double mChi2;                         // some estimator of the fit quality
+  int mCh;                                    // chamber number
+  int mSi;                                    // size of the formed cluster from which this cluster deduced
+  int mSt;                                    // flag to mark the quality of the cluster
+  int mBox;                                   // box contaning this cluster
+  int mNlocMax;                               // number of local maxima in formed cluster
+  int mMaxQpad;                               // abs pad number of a pad with the highest charge
+  double mMaxQ;                               // that max charge value
+  double mQRaw;                               // QDC value of the raw cluster
+  double mQ;                                  // QDC value of the actual cluster
+  double mErrQ;                               // error on Q
+  double mXX;                                 // local x postion, [cm]
+  double mErrX;                               // error on x postion, [cm]
+  double mYY;                                 // local y postion, [cm]
+  double mErrY;                               // error on y postion, [cm]
+  double mChi2;                               // some estimator of the fit quality
   std::vector<const o2::hmpid::Digit*> mDigs; //! list of digits forming this cluster
 
  public:

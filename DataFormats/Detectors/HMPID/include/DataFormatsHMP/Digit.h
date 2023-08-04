@@ -1,4 +1,4 @@
-// Copyright 2019-2020 CERN and copyright holders of ALICE O2.
+// Copyright 2020-2022 CERN and copyright holders of ALICE O2.
 // See https://alice-o2.web.cern.ch/copyright for details of the copyright holders.
 // All rights not expressly granted are reserved.
 //
@@ -9,7 +9,6 @@
 // granted to it by virtue of its status as an Intergovernmental Organization
 // or submit itself to any jurisdiction.
 
-///
 /// \file   Digit.h
 /// \author Antonio Franco - INFN Bari
 /// \version 1.0
@@ -74,7 +73,7 @@ class Digit
  public:
   Digit() = default;
   Digit(int pad, uint16_t charge, int particlePdg);
-  Digit(int chamber, int photo, int x, int y, uint16_t charge, int particlePdg);
+  Digit(int chamber, int photo, int x, int y, uint16_t charge,int particlePdg);
   Digit(uint16_t charge, int equipment, int column, int dilogic, int channel, int particlePdg);
   Digit(uint16_t charge, int module, int x, int y, int particlePdg);
 
@@ -131,7 +130,6 @@ class Digit
   uint8_t mPh = 0;
   uint8_t mX = 0;
   uint8_t mY = 0;
-
   int mParticlePdg = 0;
 
   // The Pad Unique Id, code a pad inside one HMPID chamber.
