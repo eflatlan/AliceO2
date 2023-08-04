@@ -1,4 +1,3 @@
-	22
 // Copyright 2020-2022 CERN and copyright holders of ALICE O2.
 // See https://alice-o2.web.cern.ch/copyright for details of the copyright holders.
 // All rights not expressly granted are reserved.
@@ -60,7 +59,6 @@ Digit::Digit(int pad, uint16_t charge,int particlePdg)
 /// @param[in] charge : the value of the charge [0 .. 2^12-1]
 Digit::Digit(int chamber, int photo, int x, int y, uint16_t charge,int particlePdg)
 {
-{
   mQ = charge > 0x0FFF ? 0x0FFF : charge;
   mCh = chamber;
   mPh = photo;
@@ -77,7 +75,7 @@ Digit::Digit(int chamber, int photo, int x, int y, uint16_t charge,int particleP
 /// @param[in] column : the readout column number [0 .. 23]
 /// @param[in] dilogic : the displacement in the Dilogics chain [0 .. 9]
 /// @param[in] channel : the number of gassiplexes channels [0 .. 47]
-Digit::Digit(uint16_t charge, int equipment, int column, int dilogic, int channel,int particlePdg)
+Digit::Digit(uint16_t charge, int equipment, int column, int dilogic, int channel, int particlePdg)
 {
   mQ = charge > 0x0FFF ? 0x0FFF : charge;
   pad2Photo(equipment2Pad(equipment, column, dilogic, channel), &mCh, &mPh, &mX, &mY);
@@ -92,7 +90,6 @@ Digit::Digit(uint16_t charge, int equipment, int column, int dilogic, int channe
 /// @param[in] x : the horizontal in Module displacement [0 .. 159]
 /// @param[in] y : the vertical in Module displacement [0 .. 143]
 Digit::Digit(uint16_t charge, int module, int x, int y,int particlePdg)
-{
 {
   mQ = charge > 0x0FFF ? 0x0FFF : charge;
   pad2Photo(absolute2Pad(module, x, y), &mCh, &mPh, &mX, &mY);
