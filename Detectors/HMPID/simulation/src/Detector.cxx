@@ -71,6 +71,9 @@ bool Detector::ProcessHits(FairVolume* v)
 {
 
 
+  /*bool isPrimary = fMC->GetStack()->IsPrimary(); //take TID
+
+
 
   // ef: get current particle of track 
 
@@ -79,7 +82,7 @@ bool Detector::ProcessHits(FairVolume* v)
     //TParticlePDG* partcilePDG = currentParticleTrack->GetPDG();
 
   
-		//LOGP(info, "Particle Type {}, Name {}, PDG {}; Mass {}, calcMass {}, massPDG", currentParticleTrack->GetTitle(), currentParticleTrack->GetName(), currentParticleTrack->GetPdgCode(), currentParticleTrack->GetMass(), currentParticleTrack->GetCalcMass()/*, particlePDG->Ge*/);
+		//LOGP(info, "Particle Type {}, Name {}, PDG {}; Mass {}, calcMass {}, massPDG", currentParticleTrack->GetTitle(), currentParticleTrack->GetName(), currentParticleTrack->GetPdgCode(), currentParticleTrack->GetMass(), currentParticleTrack->GetCalcMass()/*, particlePDG->Ge);
   }
 
   /*
@@ -89,7 +92,19 @@ bool Detector::ProcessHits(FairVolume* v)
   Int_t copy;
   Int_t volID = fMC->CurrentVolID(copy);
   auto stack = (o2::data::Stack*)fMC->GetStack();
+
+  TParticle* currentParticleTrack = fMC->GetStack()->GetCurrentTrack();
+
+
+  //sLOGP(info, "isPrimary? {}",currentParticleTrack->IsPrimary());
+  if(currentParticleTrack->IsPrimary()) {
+		LOGP(info, "isPrimary");
+    throw std::runtime_error("was primary!!");
+  } 
+
   const int particlePdg = fMC->TrackPid();
+
+
 
   /*if ((particlePdg == 22) && (volID == mHpad0VolID || volID == mHpad1VolID || volID == mHpad2VolID || volID == mHpad3VolID || volID == mHpad4VolID || volID == mHpad5VolID || volID == mHpad6VolID)) {
 
@@ -99,6 +114,8 @@ bool Detector::ProcessHits(FairVolume* v)
 
   //Treat photons
   //photon (Ckov or feedback) hits on module PC (Hpad)
+
+
   if ((particlePdg == 50000050 || particlePdg == 50000051) && (volID == mHpad0VolID || volID == mHpad1VolID || volID == mHpad2VolID || volID == mHpad3VolID || volID == mHpad4VolID || volID == mHpad5VolID || volID == mHpad6VolID)) {
 
 
@@ -141,7 +158,7 @@ bool Detector::ProcessHits(FairVolume* v)
       AddHit(x[0], x[1], x[2], hitTime, etot, tid, idch, particlePdg); //HIT for photon, position at P, etot will be set to Q
       // ef : added pid here
 
-			//LOGP(info, "TrackID : {} : Particle Type {};", tid, particlePdg); 
+			LOGP(info, "TrackID : {} : Particle Type {};", tid, particlePdg); 
 
       GenFee(etot);                                       //generate feedback photons etot is modified in hit ctor to Q of hit
       stack->addHit(GetDetId());
@@ -206,12 +223,19 @@ bool Detector::ProcessHits(FairVolume* v)
         AddHit(out[0], out[1], out[2], hitTime, eloss, tid, idch, particlePdg); // ef : added hit here
 
 
-				/*
+				
 				if(particlePdg == 211 || particlePdg == 2212 || particlePdg == 321) {
 					TParticle* currentParticleTrack = fMC->GetStack()->GetCurrentTrack();
 			  	TParticlePDG* partcilePDG = currentParticleTrack->GetPDG();
-				  //LOGP(info, "TrackID : {} : Particle Type {}; PDG {}; Mass {}", tid, currentParticleTrack->GetTitle(), 	 		currentParticleTrack->GetPdgCode(), currentParticleTrack->GetMass()); 
-				} */
+
+					const auto fMother = currentParticleTrack->GetFirstMother();
+					const auto sMother = currentParticleTrack->GetSecondMother();
+					//const auto mother = currentParticleTrack->GetMother();
+
+				  LOGP(info, "TrackID : {} : Particle Type {}; PDG {}; Mass {}", tid, currentParticleTrack->GetTitle(), 	 		currentParticleTrack->GetPdgCode(), currentParticleTrack->GetMass()); 
+				  LOGP(info, "mother IDs  : 1st {} , 2nd {}", fMother, sMother);
+
+				} 
 
         GenFee(eloss); //generate feedback photons
         stack->addHit(GetDetId());

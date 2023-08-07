@@ -79,6 +79,8 @@ Bool_t Detector::ProcessHits(FairVolume* v)
     return kFALSE; // wo se need a threshold?
   }
 
+
+
   // ADD HIT
   float posx, posy, posz;
   fMC->TrackPosition(posx, posy, posz);
@@ -91,6 +93,9 @@ Bool_t Detector::ProcessHits(FairVolume* v)
   Float_t delta[3];
   Geo::getPadDxDyDz(pos, det, delta);
   auto channel = Geo::getIndex(det);
+
+  //LOGP(info, "TOF Track numbber ? {}",trackID);
+
   HitType newhit(posx, posy, posz, time, enDep, trackID, sensID);
   if (channel != mLastChannelID || !isMergable(newhit, mHits->back())) {
     mHits->push_back(newhit);
