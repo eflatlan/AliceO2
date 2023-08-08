@@ -262,6 +262,13 @@ bool Detector::ProcessHits(FairVolume* v)
   Int_t volID = fMC->CurrentVolID(copy);
   auto stack = (o2::data::Stack*)fMC->GetStack();
 
+  const int particlePdg = fMC->TrackPid();
+  const int charge = TMath::Abs(particlePdg);  
+  const bool isKaonProtonPion = (charge == 211 || charge == 111 || charge == 311 || charge == 321 || charge == 2212);
+  if(isKaonProtonPion) {
+    addParticleIncoming()
+  }
+
   //Treat photons
   //photon (Ckov or feedback) hits on module PC (Hpad)
   if ((fMC->TrackPid() == 50000050 || fMC->TrackPid() == 50000051) && (volID == mHpad0VolID || volID == mHpad1VolID || volID == mHpad2VolID || volID == mHpad3VolID || volID == mHpad4VolID || volID == mHpad5VolID || volID == mHpad6VolID)) {
@@ -389,7 +396,7 @@ bool Detector::ProcessHits(FairVolume* v)
       Double_t xl, yl;
       o2::hmpid::Param::instance()->mars2Lors(idch, out, xl, yl); //take LORS position
       if (eloss > 0) {
- 	const int particlePdg = fMC->TrackPid();
+ 	      const int particlePdg = fMC->TrackPid();
         // HIT for MIP, position near anod plane, eloss will be set to Q
         AddHit(out[0], out[1], out[2], hitTime, eloss, tid, idch, particlePdg);
         GenFee(eloss); //generate feedback photons

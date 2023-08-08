@@ -57,6 +57,31 @@ class Detector : public o2::base::DetImpl<Detector>
   void defineOpticalProperties();
   void EndOfEvent() override { Reset(); }
 
+  void printParticleInfo(TParticle* currentParticleTrack) 
+  {
+     //TParticle* currentParticleTrack = fMC->GetStack()->GetCurrentTrack();
+    //TParticlePDG* partcilePDG = currentParticleTrack->GetPDG();
+
+  
+		LOGP(info, "Particle Type {}, Name {}, PDG {}; Mass {}",
+     currentParticleTrack->GetTitle(), currentParticleTrack->GetName(), currentParticleTrack->GetPdgCode(), currentParticleTrack->GetMass());
+  }
+
+  void addParticleIncoming(int particlePdg, int fMother, int sMother, int fDaughter, int sDaugther)
+  {
+    particleVector.push_back({particlePdg, fMother, sMother, fDaughter, sDaugther});
+  }
+
+  void printParticleInfo(o2::data::Stack* stack) 
+  {
+    TParticle* currentParticleTrack = stack->GetCurrentTrack();
+    //TParticlePDG* partcilePDG = currentParticleTrack->GetPDG();
+
+  
+		LOGP(info, "Particle Type {}, Name {}, PDG {}; Mass {}",
+     currentParticleTrack->GetTitle(), currentParticleTrack->GetName(), currentParticleTrack->GetPdgCode(), currentParticleTrack->GetMass());
+  }
+
   // for the geometry sub-parts
   TGeoVolume* createChamber(int number);
   TGeoVolume* CreateCradle();
@@ -64,6 +89,9 @@ class Detector : public o2::base::DetImpl<Detector>
 
  private:
   // copy constructor for CloneModule
+
+  std::vector<std::array<int, 5>> particleVector;
+
   Detector(const Detector&);
 
   std::vector<o2::hmpid::HitType>* mHits = nullptr; ///!< Collection of HMPID hits
