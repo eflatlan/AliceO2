@@ -266,7 +266,8 @@ bool Detector::ProcessHits(FairVolume* v)
   const int charge = TMath::Abs(particlePdg);  
   const bool isKaonProtonPion = (charge == 211 || charge == 111 || charge == 311 || charge == 321 || charge == 2212);
   if(isKaonProtonPion) {
-    addParticleIncoming()
+    //printMotherInfo();
+
   }
 
   //Treat photons
@@ -311,6 +312,7 @@ bool Detector::ProcessHits(FairVolume* v)
   } //photon hit PC
 
 
+  /*
   if ((fMC->TrackPid() == 22) && (volID == mHpad0VolID || volID == mHpad1VolID || volID == mHpad2VolID || volID == mHpad3VolID || volID == mHpad4VolID || volID == mHpad5VolID || volID == mHpad6VolID)) {
     if (fMC->Edep() > 0) { //photon survided QE test i.e. produces electron
       if (IsLostByFresnel()) {
@@ -346,9 +348,13 @@ bool Detector::ProcessHits(FairVolume* v)
       GenFee(etot);                                       //generate feedback photons etot is modified in hit ctor to Q of hit
       stack->addHit(GetDetId());
       LOGP(info, "photon22 {}", fMC->TrackPid()); // this was triggered, why only 5500.. above??
+
+      printParticleInfo(stack);
+
     } //photon hit PC and DE >0
     return kTRUE;
-  } //photon hit PC
+  } //photon hit PC 
+  */ 
 
   //Treat charged particles
   static Float_t eloss; //need to store mip parameters between different steps
@@ -360,7 +366,7 @@ bool Detector::ProcessHits(FairVolume* v)
     tr.setTrackID(stack->GetCurrentTrackNumber());
     // tr.setUserId(lay);
     stack->addTrackReference(tr);
-  }
+  } 
 
   if (fMC->TrackCharge() && (volID == mHcel0VolID || volID == mHcel1VolID || volID == mHcel2VolID || volID == mHcel3VolID || volID == mHcel4VolID || volID == mHcel5VolID || volID == mHcel6VolID)) {
     // charged particle in amplification gap (Hcel)
@@ -402,7 +408,9 @@ bool Detector::ProcessHits(FairVolume* v)
         GenFee(eloss); //generate feedback photons
         stack->addHit(GetDetId());
         eloss = 0;
-			LOGP(info, "charged {}", fMC->TrackPid());
+ 	//printParticleInfo(stack);
+
+	LOGP(info, "charged {}", fMC->TrackPid());
 }
 } else {
 //just going inside

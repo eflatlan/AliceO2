@@ -15,7 +15,10 @@
 #include <vector>
 #include "DetectorsBase/Detector.h"
 #include "DataFormatsHMP/Hit.h"
-
+#include "TParticle.h"
+#include "DetectorsBase/Stack.h"
+#include "TParticlePDG.h"
+#include "TDatabasePDG.h"
 class TGeoVolume;
 class TGeoHMatrix;
 
@@ -57,14 +60,33 @@ class Detector : public o2::base::DetImpl<Detector>
   void defineOpticalProperties();
   void EndOfEvent() override { Reset(); }
 
+
+  void printMotherInfo(o2::data::Stack* stack) 
+  {
+    TParticle* currentParticleTrack = stack->GetCurrentTrack();
+    Int_t tid = stack->GetCurrentTrackNumber(); //take TID
+
+
+
+    const auto fMother = currentParticleTrack->GetFirstMother();
+    const auto sMother = currentParticleTrack->GetSecondMother();
+    const auto fDaughter = currentParticleTrack->GetFirstDaughter();
+    //const auto sDaugther = currentParticleTrack->GetSecondDaughter();
+    const int ndaughters = currentParticleTrack->GetNDaughters();
+    LOGP(info, "mother {} mother2 {} tid {}", fMother, sMother, tid);
+    if(currentParticleTrack->IsPrimary()) {
+      LOGP(error, "found mother {}", fMother);
+    }
+    // addParticleIncoming(particlePdg, fMother, sMother, fDaughter, ndaughters);
+  }
+
   void printParticleInfo(TParticle* currentParticleTrack) 
   {
      //TParticle* currentParticleTrack = fMC->GetStack()->GetCurrentTrack();
     //TParticlePDG* partcilePDG = currentParticleTrack->GetPDG();
 
   
-		LOGP(info, "Particle Type {}, Name {}, PDG {}; Mass {}",
-     currentParticleTrack->GetTitle(), currentParticleTrack->GetName(), currentParticleTrack->GetPdgCode(), currentParticleTrack->GetMass());
+LOGP(info, "Particle Type {}, Name {}, PDG {}; Mass {}", currentParticleTrack->GetTitle(), currentParticleTrack->GetName(), currentParticleTrack->GetPdgCode(), currentParticleTrack->GetMass());
   }
 
   void addParticleIncoming(int particlePdg, int fMother, int sMother, int fDaughter, int sDaugther)
