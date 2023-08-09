@@ -9,24 +9,25 @@
 // granted to it by virtue of its status as an Intergovernmental Organization
 // or submit itself to any jurisdiction.
 
-#ifndef O2_SECONDARY_VERTEXER_SPEC_H
-#define O2_SECONDARY_VERTEXER_SPEC_H
+/// @file   HMPMatcherSpec.h // ef ; change to hmp
 
-/// @file SecondaryVertexingSpec.h
+#ifndef O2_HMP_MATCHER_SPEC // hmp
+#define O2_HMP_MATCHER_SPEC //
 
-#include "ReconstructionDataFormats/GlobalTrackID.h"
 #include "Framework/DataProcessorSpec.h"
-#include "Framework/Task.h"
+#include "ReconstructionDataFormats/GlobalTrackID.h"
+
+using namespace o2::framework;
 
 namespace o2
 {
-namespace vertexing
+namespace globaltracking
 {
 
 /// create a processor spec
-o2::framework::DataProcessorSpec getSecondaryVertexingSpec(o2::dataformats::GlobalTrackID::mask_t src, bool enableCasc, bool enable3body, bool enableStrangenesTracking, bool useMC);
+framework::DataProcessorSpec getHMPMatcherSpec(o2::dataformats::GlobalTrackID::mask_t src, bool useMC);
 
-} // namespace vertexing
+} // namespace globaltracking
 } // namespace o2
 
-#endif
+#endif /* O2_HMP_MATCHER_SPEC */
