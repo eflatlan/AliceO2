@@ -72,10 +72,10 @@ class Digit
 
  public:
   Digit() = default;
-  Digit(int pad, uint16_t charge);
-  Digit(int chamber, int photo, int x, int y, uint16_t charge);
-  Digit(uint16_t charge, int equipment, int column, int dilogic, int channel);
-  Digit(uint16_t charge, int module, int x, int y);
+  Digit(int pad, uint16_t charge, int particlePdg);
+  Digit(int chamber, int photo, int x, int y, uint16_t charge, int particlePdg);
+  Digit(uint16_t charge, int equipment, int column, int dilogic, int channel, int particlePdg);
+  Digit(uint16_t charge, int module, int x, int y, int particlePdg);
 
   // Getter & Setters
   uint16_t getCharge() const { return mQ; }
@@ -123,6 +123,8 @@ class Digit
 
  public:
   // Members
+
+  int mParticlePdg;
   uint16_t mQ = 0;
   uint8_t mCh = 0; // 0xFF indicates invalid digit
   uint8_t mPh = 0;
