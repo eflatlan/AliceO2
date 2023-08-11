@@ -60,9 +60,14 @@ bool Detector::ProcessHits(FairVolume* v)
   //Treat photons
   //photon (Ckov or feedback) hits on module PC (Hpad)
   if ((fMC->TrackPid() == 50000050 || fMC->TrackPid() == 50000051) && volname.Contains("Hpad")) {
+
+    Printf("1photon %d", fMC->TrackPid());
+
     if (fMC->Edep() > 0) { //photon survided QE test i.e. produces electron
+      Printf("2photon %d", fMC->TrackPid());
       if (IsLostByFresnel()) {
         fMC->StopTrack();
+    	Printf("2photon IsLostByFresnel %d", fMC->TrackPid());
         return false;
       }                                                     //photon lost due to fersnel reflection on PC
       Int_t tid = fMC->GetStack()->GetCurrentTrackNumber(); //take TID
