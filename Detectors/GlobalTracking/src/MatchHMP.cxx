@@ -370,6 +370,20 @@ void MatchHMP::doMatching()
 
     int evtTracks = 0;
 
+
+    std::vector<Cluster> oneEventClusters;
+
+    for (int j = event.getFirstEntry(); j <= event.getLastEntry(); j++) { // event clusters loop
+      auto& cluster = (o2::hmpid::Cluster&)mHMPClustersArray[j];
+
+      if (cluster.ch() != iCh) {
+        continue;
+      }
+      oneEventClusters.push_back(cluster);
+    }
+
+    auto mlEvent = std::make_unique<MLInfoAsStrut>(ievt, oneEventClusters); // ef: initialize as int of Event and clusters relevant to the event
+
     for (int itrk = 0; itrk < cacheTrk.size(); itrk++) { // tracks loop
 
       auto& trackWork = mTracksWork[type][cacheTrk[itrk]];
@@ -422,6 +436,12 @@ void MatchHMP::doMatching()
         bool isMatched = kFALSE;
 
         Cluster* bestHmpCluster = nullptr; // the best matching cluster
+
+
+
+        // ef: move to before tracks loop?
+
+        /* ef: was like this 
         std::vector<Cluster> oneEventClusters;
 
         for (int j = event.getFirstEntry(); j <= event.getLastEntry(); j++) { // event clusters loop
@@ -431,11 +451,23 @@ void MatchHMP::doMatching()
             continue;
           }
           oneEventClusters.push_back(cluster);
+        */ 
+        // </ ef: move to before tracks loop?
+        // ef: changed to this : 
+
+        // ef: store instead as vector of nTracks x {MIPS, RAD, .... } + oneEventCluster? 
+
+
+
+        for(const auto& cluster : oneEventClusters)
+
           double qthre = pParam->qCut();
 
           if (cluster.q() < 150.) {
             continue;
           }
+
+
 
           isOkQcut = kTRUE;
 
@@ -560,6 +592,23 @@ void MatchHMP::doMatching()
         recon->setImpPC(xPc, yPc);                                            // store track impact to PC
         recon->ckovAngle(matching, oneEventClusters, index, nmean, xRa, yRa); // search for Cerenkov angle of this track
 
+        
+
+
+
+        // can pass pointer to MatchInfoHMP (matching), or I can pass the same member fields initiated?
+        auto mlTrack = std::make_unique<MLinfoHMP>(matching, xRa, yRa); // TODO: add refractive index from calibration
+
+
+        // ef: add other fields, find more suitable name pls
+        mlEvent.addTrack(mlTrack);
+        // TODO : make copy ctor
+
+        // ef add as uniqute_ptrs instead?
+        if(mlTrack != nullptr) {
+          mMLTracks[type].push_back(*mlTrack);
+        }
+
         mMatchedTracks[type].push_back(*matching);
 
         oneEventClusters.clear();
@@ -571,6 +620,10 @@ void MatchHMP::doMatching()
 
       } // if matching in time
     }   // tracks loop
+
+
+    // ef: add this event to the vectors of events
+    mMLEvents.push_back(mlEvent);
   }     // events loop
 }
 //==================================================================================================================================================
