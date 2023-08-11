@@ -46,20 +46,43 @@ Detector::Detector(const Detector& other) : mSensitiveVolumes(other.mSensitiveVo
 
 void Detector::InitializeO2Detector()
 {
+  TVirtualMC* fMC = TVirtualMC::GetMC();
   for (auto sensitiveHpad : mSensitiveVolumes) {
     LOG(debug) << "HMPID: registering sensitive " << sensitiveHpad->GetName();
     AddSensitiveVolume(sensitiveHpad);
+    mHpad0VolID = fMC->VolId("Hpad0");
+    mHpad1VolID = fMC->VolId("Hpad1");
+    mHpad2VolID = fMC->VolId("Hpad2");
+    mHpad3VolID = fMC->VolId("Hpad3");
+    mHpad4VolID = fMC->VolId("Hpad4");
+    mHpad5VolID = fMC->VolId("Hpad5");
+    mHpad6VolID = fMC->VolId("Hpad6");
+    mHcel0VolID = fMC->VolId("Hcel0");
+    mHcel1VolID = fMC->VolId("Hcel1");
+    mHcel2VolID = fMC->VolId("Hcel2");
+    mHcel3VolID = fMC->VolId("Hcel3");
+    mHcel4VolID = fMC->VolId("Hcel4");
+    mHcel5VolID = fMC->VolId("Hcel5");
+    mHcel6VolID = fMC->VolId("Hcel6");
   }
 }
 //*********************************************************************************************************
 bool Detector::ProcessHits(FairVolume* v)
 {
-  TString volname = fMC->CurrentVolName();
+  Int_t copy;
+  Int_t volID = fMC->CurrentVolID(copy);
   auto stack = (o2::data::Stack*)fMC->GetStack();
 
+  const int particlePdg = fMC->TrackPid();
+  const int charge = TMath::Abs(particlePdg);  
+  const bool isKaonProtonPion = (charge == 211 || charge == 111 || charge == 311 || charge == 321 || charge == 2212);
+  if(isKaonProtonPion) {
+    //printMotherInfo();
+
+  }
   //Treat photons
   //photon (Ckov or feedback) hits on module PC (Hpad)
-  if ((fMC->TrackPid() == 50000050 || fMC->TrackPid() == 50000051) && volname.Contains("Hpad")) {
+  if ((particlePdg == 50000050 || particlePdg == 50000051) && (volID == mHpad0VolID || volID == mHpad1VolID || volID == mHpad2VolID || volID == mHpad3VolID || volID == mHpad4VolID || volID == mHpad5VolID || volID == mHpad6VolID)) {
     if (fMC->Edep() > 0) { //photon survided QE test i.e. produces electron
       if (IsLostByFresnel()) {
         fMC->StopTrack();
@@ -71,16 +94,28 @@ bool Detector::ProcessHits(FairVolume* v)
       Double_t x[3];
       fMC->TrackPosition(x[0], x[1], x[2]);        //take MARS position at entrance to PC
       Float_t hitTime = (Float_t)fMC->TrackTime(); //hit formation time
-      TString tmpname = volname;
-      Printf("photon %d", fMC->TrackPid());
-
-      tmpname.Remove(0, 4);
-      Int_t idch = tmpname.Atoi(); //retrieve the chamber number
+      Int_t idch;                                  // chamber number
+      if (volID == mHpad0VolID) {
+        idch = 0;
+      } else if (volID == mHpad1VolID) {
+        idch = 1;
+      } else if (volID == mHpad2VolID) {
+        idch = 2;
+      } else if (volID == mHpad3VolID) {
+        idch = 3;
+      } else if (volID == mHpad4VolID) {
+        idch = 4;
+      } else if (volID == mHpad5VolID) {
+        idch = 5;
+      } else if (volID == mHpad6VolID) {
+        idch = 6;
+      }
       Double_t xl, yl;
       o2::hmpid::Param::instance()->mars2Lors(idch, x, xl, yl); //take LORS position
-      AddHit(x[0], x[1], x[2], hitTime, etot, tid, idch, 0); //HIT for photon, position at P, etot will be set to Q
+      AddHit(x[0], x[1], x[2], hitTime, etot, tid, idch, particlePdg); //HIT for photon, position at P, etot will be set to Q
       GenFee(etot);                                       //generate feedback photons etot is modified in hit ctor to Q of hit
       stack->addHit(GetDetId());
+      LOGP(info, "photon {}", fMC->TrackPid());
     } //photon hit PC and DE >0
     return kTRUE;
   } //photon hit PC
@@ -89,7 +124,7 @@ bool Detector::ProcessHits(FairVolume* v)
   static Float_t eloss; //need to store mip parameters between different steps
   static Double_t in[3];
 
-  if (fMC->IsTrackEntering() && fMC->TrackCharge() && volname.Contains("Hpad")) {
+  if (fMC->IsTrackEntering() && fMC->TrackCharge() && (volID == mHpad0VolID || volID == mHpad1VolID || volID == mHpad2VolID || volID == mHpad3VolID || volID == mHpad4VolID || volID == mHpad5VolID || volID == mHpad6VolID)) {
     //Trackref stored when entering in the pad volume
     o2::TrackReference tr(*fMC, GetDetId());
     tr.setTrackID(stack->GetCurrentTrackNumber());
@@ -97,7 +132,8 @@ bool Detector::ProcessHits(FairVolume* v)
     stack->addTrackReference(tr);
   }
 
-  if (fMC->TrackCharge() && volname.Contains("Hcel")) {                                    //charged particle in amplification gap (Hcel)
+  if (fMC->TrackCharge() && (volID == mHcel0VolID || volID == mHcel1VolID || volID == mHcel2VolID || volID == mHcel3VolID || volID == mHcel4VolID || volID == mHcel5VolID || volID == mHcel6VolID)) {
+    // charged particle in amplification gap (Hcel)
     if (fMC->IsTrackEntering() || fMC->IsNewTrack()) {                                     //entering or newly created
       eloss = 0;                                                                           //reset Eloss collector
       fMC->TrackPosition(in[0], in[1], in[2]);                                             //take position at the entrance
@@ -111,16 +147,27 @@ bool Detector::ProcessHits(FairVolume* v)
       out[0] = 0.5 * (out[0] + in[0]);             //
       out[1] = 0.5 * (out[1] + in[1]);             //take hit position at the anod plane
       out[2] = 0.5 * (out[2] + in[2]);
-      TString tmpname = volname;
-      tmpname.Remove(0, 4);
-      Int_t idch = tmpname.Atoi(); //retrieve the chamber number
+      Int_t idch; // chamber number
+      if (volID == mHcel0VolID) {
+        idch = 0;
+      } else if (volID == mHcel1VolID) {
+        idch = 1;
+      } else if (volID == mHcel2VolID) {
+        idch = 2;
+      } else if (volID == mHcel3VolID) {
+        idch = 3;
+      } else if (volID == mHcel4VolID) {
+        idch = 4;
+      } else if (volID == mHcel5VolID) {
+        idch = 5;
+      } else if (volID == mHcel6VolID) {
+        idch = 6;
+      }
       Double_t xl, yl;
-
-      Printf("Charged Particles %d", fMC->TrackPid());
       o2::hmpid::Param::instance()->mars2Lors(idch, out, xl, yl); //take LORS position
       if (eloss > 0) {
         // HIT for MIP, position near anod plane, eloss will be set to Q
-        AddHit(out[0], out[1], out[2], hitTime, eloss, tid, idch, 0 );
+        AddHit(out[0], out[1], out[2], hitTime, eloss, tid, idch, particlePdg);
         GenFee(eloss); //generate feedback photons
         stack->addHit(GetDetId());
         eloss = 0;
@@ -136,9 +183,9 @@ bool Detector::ProcessHits(FairVolume* v)
   return false;
 }
 //*********************************************************************************************************
-o2::hmpid::HitType* Detector::AddHit(float x, float y, float z, float time, float energy, Int_t trackId, Int_t detId, int pid)
+o2::hmpid::HitType* Detector::AddHit(float x, float y, float z, float time, float energy, Int_t trackId, Int_t detId, Int_t particlePdg)
 {
-  mHits->emplace_back(x, y, z, time, energy, trackId, detId, pid);
+  mHits->emplace_back(x, y, z, time, energy, trackId, detId, particlePdg);
   return &(mHits->back());
 }
 //*********************************************************************************************************

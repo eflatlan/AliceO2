@@ -39,7 +39,7 @@ class Detector : public o2::base::DetImpl<Detector>
 
   void InitializeO2Detector() override;
   bool ProcessHits(FairVolume* v) override;
-  o2::hmpid::HitType* AddHit(float x, float y, float z, float time, float energy, Int_t trackId, Int_t detId, int pid);
+  o2::hmpid::HitType* AddHit(float x, float y, float z, float time, float energy, Int_t trackId, Int_t detId, Int_t particlePdg);
   void GenFee(float qtot);
   Bool_t IsLostByFresnel();
   float Fresnel(float ene, float pdoti, Bool_t pola);
@@ -59,9 +59,56 @@ class Detector : public o2::base::DetImpl<Detector>
   TGeoVolume* CreateCradle();
   TGeoVolume* CradleBaseVolume(TGeoMedium* med, double l[7], const char* name);
 
+  /* ef functions
+   
+  void printMotherInfo(o2::data::Stack* stack) 
+  {
+    TParticle* currentParticleTrack = stack->GetCurrentTrack();
+    Int_t tid = stack->GetCurrentTrackNumber(); //take TID
+
+
+
+    const auto fMother = currentParticleTrack->GetFirstMother();
+    const auto sMother = currentParticleTrack->GetSecondMother();
+    const auto fDaughter = currentParticleTrack->GetFirstDaughter();
+    //const auto sDaugther = currentParticleTrack->GetSecondDaughter();
+    const int ndaughters = currentParticleTrack->GetNDaughters();
+    LOGP(info, "mother {} mother2 {} tid {}", fMother, sMother, tid);
+    if(currentParticleTrack->IsPrimary()) {
+      LOGP(error, "found mother {}", fMother);
+    }
+    // addParticleIncoming(particlePdg, fMother, sMother, fDaughter, ndaughters);
+  }
+
+  void printParticleInfo(TParticle* currentParticleTrack) 
+  {
+     //TParticle* currentParticleTrack = fMC->GetStack()->GetCurrentTrack();
+    //TParticlePDG* partcilePDG = currentParticleTrack->GetPDG();
+
+  
+LOGP(info, "Particle Type {}, Name {}, PDG {}; Mass {}", currentParticleTrack->GetTitle(), currentParticleTrack->GetName(), currentParticleTrack->GetPdgCode(), currentParticleTrack->GetMass());
+  }
+
+  void addParticleIncoming(int particlePdg, int fMother, int sMother, int fDaughter, int sDaugther)
+  {
+    particleVector.push_back({particlePdg, fMother, sMother, fDaughter, sDaugther});
+  }
+
+  void printParticleInfo(o2::data::Stack* stack) 
+  {
+    TParticle* currentParticleTrack = stack->GetCurrentTrack();
+    //TParticlePDG* partcilePDG = currentParticleTrack->GetPDG();
+
+  
+		LOGP(info, "Particle Type {}, Name {}, PDG {}; Mass {}",
+     currentParticleTrack->GetTitle(), currentParticleTrack->GetName(), currentParticleTrack->GetPdgCode(), currentParticleTrack->GetMass());
+  }
+  */
+
  private:
   // copy constructor for CloneModule
   Detector(const Detector&);
+  std::vector<std::array<int, 5>> particleVector;
 
   std::vector<o2::hmpid::HitType>* mHits = nullptr; ///!< Collection of HMPID hits
   enum EMedia {
@@ -79,6 +126,23 @@ class Detector : public o2::base::DetImpl<Detector>
   };
 
   std::vector<TGeoVolume*> mSensitiveVolumes; //!
+
+  // Define volume IDs
+  int mHpad0VolID = -1;
+  int mHpad1VolID = -1;
+  int mHpad2VolID = -1;
+  int mHpad3VolID = -1;
+  int mHpad4VolID = -1;
+  int mHpad5VolID = -1;
+  int mHpad6VolID = -1;
+
+  int mHcel0VolID = -1;
+  int mHcel1VolID = -1;
+  int mHcel2VolID = -1;
+  int mHcel3VolID = -1;
+  int mHcel4VolID = -1;
+  int mHcel5VolID = -1;
+  int mHcel6VolID = -1;
 
   template <typename Det>
   friend class o2::base::DetImpl;
