@@ -35,6 +35,8 @@ o2_add_library(ReconstructionDataFormats
                        src/TrackMCHMID.cxx
                        src/TrackHMP.cxx
                        src/MatchInfoHMP.cxx
+                       src/MLinfoHMP.cxx
+
                PUBLIC_LINK_LIBRARIES O2::GPUCommon
                                      O2::GPUUtils
                                      O2::FrameworkLogger
@@ -71,6 +73,8 @@ o2_target_root_dictionary(
           include/ReconstructionDataFormats/BCRange.h
           include/ReconstructionDataFormats/TrackHMP.h
           include/ReconstructionDataFormats/MatchInfoHMP.h
+          include/ReconstructionDataFormats/MLInfoHMP.h
+
   )
 
 o2_add_test(Vertex
