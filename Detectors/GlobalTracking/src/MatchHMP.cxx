@@ -592,10 +592,6 @@ void MatchHMP::doMatching()
         recon->setImpPC(xPc, yPc);                                            // store track impact to PC
         recon->ckovAngle(matching, oneEventClusters, index, nmean, xRa, yRa); // search for Cerenkov angle of this track
 
-        
-
-
-
         // can pass pointer to MatchInfoHMP (matching), or I can pass the same member fields initiated?
         auto mlTrack = std::make_unique<MLinfoHMP>(matching, xRa, yRa); // TODO: add refractive index from calibration
 
