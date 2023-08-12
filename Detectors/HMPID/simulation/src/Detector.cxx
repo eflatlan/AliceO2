@@ -59,7 +59,7 @@ bool Detector::ProcessHits(FairVolume* v)
 
   //Treat photons
   //photon (Ckov or feedback) hits on module PC (Hpad)
-  if ((fMC->TrackPid() == 50000050 || fMC->TrackPid() == 50000051) && volname.Contains("Hpad")) {
+  if ((fMC->TrackPid() == 50000050 || fMC->TrackPid() == 50000051) /*& volname.Contains("Hpad")*/) {
 
     Printf("1photon %d", fMC->TrackPid());
 

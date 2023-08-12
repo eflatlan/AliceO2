@@ -61,18 +61,36 @@ class Cluster
   // void setClusterParams(float xL, float yL, int iCh); //Set AliCluster3D part
   int solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, bool isUnfold); // solve cluster: MINUIT fit or CoG
   // Getters
+
+	/*ef : TODO: why are these not marked const??*/
   int box() { return mBox; }     // Dimension of the cluster
   int ch() { return mCh; }       // chamber number
   int size() { return mSi; }     // returns number of pads in formed cluster
   int status() { return mSt; }   // Status of cluster
   float qRaw() { return mQRaw; } // raw cluster charge in QDC channels
   float q() { return mQ; }       // given cluster charge in QDC channels
+
   float qe() { return mErrQ; }   // Error in cluster charge in QDC channels
   float x() { return mXX; }      // cluster x position in LRS
   float xe() { return mErrX; }   // cluster charge in QDC channels
   float y() { return mYY; }      // cluster y position in LRS
   float ye() { return mErrY; }   // cluster charge in QDC channels
   float chi2() { return mChi2; } // chi2 of the fit
+
+	int box() const { return mBox; }     // Dimension of the cluster
+	int ch() const { return mCh; }       // chamber number
+	int size() const { return mSi; }     // returns number of pads in formed cluster
+	int status() const { return mSt; }   // Status of cluster
+	float qRaw() const { return mQRaw; } // raw cluster charge in QDC channels
+	float q() const { return mQ; }       // given cluster charge in QDC channels
+	float qe() const { return mErrQ; }   // Error in cluster charge in QDC channels
+	float x() const { return mXX; }      // cluster x position in LRS
+	float xe() const { return mErrX; }   // cluster charge in QDC channels
+	float y() const { return mYY; }      // cluster y position in LRS
+	float ye() const { return mErrY; }   // cluster charge in QDC channels
+	float chi2() const { return mChi2; } // chi2 of the fit
+
+
   // Setters
   void doCorrSin(bool doCorrSin) { fgDoCorrSin = doCorrSin; } // Set sinoidal correction
   void setX(float x) { mXX = x; }

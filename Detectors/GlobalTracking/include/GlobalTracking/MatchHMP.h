@@ -45,7 +45,7 @@
 #include "CommonDataFormat/InteractionRecord.h"
 #include "ReconstructionDataFormats/MatchInfoHMP.h"
 
-#include "ReconstructionDataFormats/MLinfoHMP.h" // ef: added this
+#include "GlobalTracking/MLHMPID.h" // ef: added this
 
 #include "ReconstructionDataFormats/TrackHMP.h"
 
@@ -103,11 +103,18 @@ class MatchHMP
                             SIZEALL };
 
 
-  // ef: hva gjoer jeg her for trackType? 
-  std::vector<o2::dataformats::HmpMLVector>& getMLEventVector(o2::globaltracking::MatchHMP::trackType index) { return mMLEvents[index]; } // ef: added this
 
 
-  std::vector<o2::dataformats::MLinfoHMP>& getMLTrackVector(o2::globaltracking::MatchHMP::trackType index) { return mMLTracks[index]; } // ef: added this
+
+
+	o2::globaltracking::HmpMLVector& getMLEventVector(o2::globaltracking::MatchHMP::trackType index) 
+	{
+		  return mMLEvents[index];
+	}
+
+
+
+  std::vector<o2::globaltracking::MLinfoHMP>& getMLTrackVector(o2::globaltracking::MatchHMP::trackType index) { return mMLTracks[index]; } // ef: added this
 
   std::vector<o2::dataformats::MatchInfoHMP>& getMatchedTrackVector(o2::globaltracking::MatchHMP::trackType index) { return mMatchedTracks[index]; }
 
@@ -120,6 +127,9 @@ class MatchHMP
   unsigned long getTS() const { return mTimestamp; }
 
  private:
+
+
+  std::vector<o2::globaltracking::HmpMLVector> mMLEvents = {}; // ef added this
   // bool prepareFITData();
   int prepareInteractionTimes();
   bool prepareTracks();
@@ -201,7 +211,7 @@ class MatchHMP
 
   ///< array of matched HMPCluster with matching information
   std::vector<o2::dataformats::MatchInfoHMP> mMatchedTracks[o2::globaltracking::MatchHMP::trackType::SIZE]; // this is the output of the matching -> UNCONS, CONSTR
-  std::vector<o2::dataformats::MLinfoHMP> mMLTracks[o2::globaltracking::MatchHMP::trackType::SIZE]; // ef: added this
+  std::vector<o2::globaltracking::MLinfoHMP> mMLTracks[o2::globaltracking::MatchHMP::trackType::SIZE]; // ef: added this
 
   
   std::vector<o2::MCCompLabel> mOutHMPLabels[o2::globaltracking::MatchHMP::trackType::SIZE];                ///< HMP label of matched tracks

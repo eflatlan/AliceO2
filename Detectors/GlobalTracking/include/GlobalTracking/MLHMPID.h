@@ -5,31 +5,32 @@
 
 // Include the header for the base class
 #include "ReconstructionDataFormats/MatchInfoHMP.h"
-//#include "DataFormatsHMP/Cluster.h"
+#include "DataFormatsHMP/Cluster.h"
 #include "DataFormatsHMP/Trigger.h"
 
 
 namespace o2
 {
-namespace dataformats
+namespace globaltracking
 {
-
+using MatchInfoHMP = o2::dataformats::MatchInfoHMP;
 // Define the derived class
 class MLinfoHMP : public MatchInfoHMP
 { 
 using Cluster = o2::hmpid::Cluster;
-  using GTrackID = o2::dataformats::GlobalTrackID;
+using GTrackID = o2::dataformats::GlobalTrackID;
 private:
 
-std::vector<Cluster>* mOneEventCluster;
 float mxRa, myRa;
-float mRefIndex = 1.27;
-TVector2 mRadImpact;
 
+TVector2 mRadImpact;
+	float mRefIndex = 1.27;
 public:
     // Default constructor
     MLinfoHMP() = default;
     
+    
+		/*
     MLinfoHMP(int idxHMPClus, 
 				     GTrackID idxTrack, 
 				     float xmip = 0, 
@@ -44,24 +45,26 @@ public:
 				     int hmpqn = 0,
 				     float xRa = 0, 
 				     float yRa = 0, 
-				     float RefIndex = 0)
+				     float refIndex = 0)
 
     : MatchInfoHMP(idxHMPClus, idxTrack, xmip, ymip, xtrk, ytrk, theta, phi, angle, size, idxPhotClus, hmpqn),
       mxRa(xRa), 
       myRa(yRa), 
-      mRefIndex(RefIndex)  // Initialize the new member variables
+      mRefIndex(refIndex)  // Initialize the new member variables
     {
-        mRadImpact.Set(mxRa, myRa)
-    }
+        mRadImpact.Set(mxRa, myRa);
+    }*/
+
+	
 
     MLinfoHMP(const MatchInfoHMP* baseInstance,                         
                         float xRa = 0, 
                         float yRa = 0, 
-                        float RefIndex = 0)
+                        float refIndex = -1)
     : MatchInfoHMP(*baseInstance), // Use the copy constructor of the base class 
-    mXra(xRa), 
-    mYra(yRa), 
-    mRefIndex(RefIndex)
+    mxRa(xRa), 
+    myRa(yRa), 
+    mRefIndex(refIndex)
     {
         mRadImpact.Set(mxRa, myRa);
     }
@@ -72,12 +75,16 @@ public:
         return mOneEventCluster;
     } */ 
 
+
+
+		void print() const;
+
     double getRefIndex() const 
     {
         return mRefIndex;
     }
 
-    void getHMPIDtrk(float& xRa, float& yRa, float& xPc, float& yPc, float& th, float& ph) const
+    void getHMPIDtrk(float& xRad, float& yRad, float& xPc, float& yPc, float& th, float& ph) const
     {
         xRad = mxRa;
         yRad = myRa;
@@ -100,33 +107,33 @@ using Cluster = o2::hmpid::Cluster;
   using GTrackID = o2::dataformats::GlobalTrackID;
   private:
 
-    std::vector<MLinfoHMP>* mMlTracks; // store fields of tracks 
+  std::vector<MLinfoHMP>* mMlTracks; // store fields of tracks 
 
-    std::vector<cluster>* mOneEventCluster;
-    float mxRa, myRa;
-    float mRefIndex = 1.27;
-    TVector2 mRadImpact;
-
+  std::vector<Cluster>* mOneEventCluster;
+	float mRefIndex = 1.27;
+	int mIevent;
   public:
       // Default constructor
-      HmpMLVector() = default;
-      
+      // HmpMLVector() = default;
+
+			// ef: delete de
+      //HmpMLVector() = delete;
 
 
-      HmpMLVector(std::vector<Cluster>* oneEventcluster = {}, 
-                          int iEvent,
-                          float refIndex)
-      : MatchInfoHMP(*baseInstance), // Use the copy constructor of the base class
+      HmpMLVector(std::vector<Cluster>* oneEventcluster = nullptr, 
+                          int iEvent = -1,
+                          float refIndex = -1)
+      :  // Use the copy constructor of the base class
       mOneEventCluster(oneEventcluster), 
       mRefIndex(refIndex), 
       mIevent(iEvent)
       {
-          mRadImpact.Set(mxRa, myRa);
+          
       }
 
       // Add new member functions or override base class functions here
       // For example:
-      double getClusters() const 
+      std::vector<Cluster>* getClusters() const 
       {
           return mOneEventCluster;
       }
@@ -136,10 +143,15 @@ using Cluster = o2::hmpid::Cluster;
           return mRefIndex;
       }
 
-      void addTrack(const MLinfoHMP& hmpTrack) 
-      {
-        mMlTracks->push_back(hmpTrack)
-      }
+      void addTrack(std::unique_ptr<MLinfoHMP> hmpTrack) 
+			{
+					mMlTracks->push_back(*hmpTrack);
+			}
+
+			void addTrack(const MLinfoHMP& hmpTrack) 
+			{
+					mMlTracks->push_back(hmpTrack);
+			}
 
       
       std::vector<MLinfoHMP>* getTracks() const 
@@ -147,10 +159,17 @@ using Cluster = o2::hmpid::Cluster;
         return mMlTracks;
       }
 
-      MLinfoHMP getTracks(int index) const 
+		  const MLinfoHMP& getTrack(int index) const 
+		  {
+		      return mMlTracks->at(index);
+		  }
+			/*
+      MLinfoHMP getTrack(int index) const 
       {
         return mMlTracks[index];
-      }
+      }*/ 
+
+
   ClassDefNV(HmpMLVector, 2);
 };
 

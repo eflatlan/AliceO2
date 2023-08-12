@@ -54,6 +54,9 @@ using evGIdx = o2::dataformats::EvIndex<int, o2::dataformats::GlobalTrackID>;
 using Cluster = o2::hmpid::Cluster;
 using Recon = o2::hmpid::Recon;
 using MatchInfo = o2::dataformats::MatchInfoHMP;
+//using MLinfoHMP = o2::dataformats::MLinfoHMP;
+
+using MLinfoHMP = o2::globaltracking::MLinfoHMP;
 using Trigger = o2::hmpid::Trigger;
 using GTrackID = o2::dataformats::GlobalTrackID;
 using TrackHMP = o2::dataformats::TrackHMP;
@@ -376,13 +379,18 @@ void MatchHMP::doMatching()
     for (int j = event.getFirstEntry(); j <= event.getLastEntry(); j++) { // event clusters loop
       auto& cluster = (o2::hmpid::Cluster&)mHMPClustersArray[j];
 
+
+      /*
       if (cluster.ch() != iCh) {
         continue;
-      }
+      }*/
+
       oneEventClusters.push_back(cluster);
     }
 
-    auto mlEvent = std::make_unique<MLInfoAsStrut>(ievt, oneEventClusters); // ef: initialize as int of Event and clusters relevant to the event
+
+    double nmean = pParam->meanIdxRad();
+    auto mlEvent = std::make_unique<HmpMLVector>(&oneEventClusters, ievt, nmean); // ef: initialize as int of Event and clusters relevant to the event
 
     for (int itrk = 0; itrk < cacheTrk.size(); itrk++) { // tracks loop
 
@@ -402,7 +410,7 @@ void MatchHMP::doMatching()
 
         evtTracks++;
 
-        MatchInfo* matching = new o2::dataformats::MatchInfoHMP(999999, mTrackGid[type][cacheTrk[itrk]]);
+        auto matching = std::make_unique<o2::dataformats::MatchInfoHMP>(999999, mTrackGid[type][cacheTrk[itrk]]);
 
         matching->setHMPIDtrk(0, 0, 0, 0);            // no intersection found
         matching->setHMPIDmip(0, 0, 0, 0);            // store mip info in any case
@@ -410,17 +418,22 @@ void MatchHMP::doMatching()
         matching->setHMPsignal(Recon::kNotPerformed); // ring reconstruction not yet performed
         matching->setIdxTrack(trackGid);
 
-        TrackHMP* hmpTrk = new TrackHMP(trefTrk); // create a hmpid track to be used for propagation and matching
-        TrackHMP* hmpTrkConstrained = nullptr;    // create a hmpid track to be used for propagation and matching
+        auto hmpTrk = std::make_unique<TrackHMP>(trefTrk); // create a hmpid track to be used for propagation and matching
+
+
+
+        //TrackHMP* hmpTrkConstrained = nullptr;    // create a hmpid track to be used for propagation and matching
+
+        std::unique_ptr<TrackHMP> hmpTrkConstrained;
 
         hmpTrk->set(trefTrk.getX(), trefTrk.getAlpha(), trefTrk.getParams(), trefTrk.getCharge(), trefTrk.getPID());
 
         double xPc, yPc, xRa, yRa, theta, phi;
 
         Int_t iCh = intTrkCha(&trefTrk, xPc, yPc, xRa, yRa, theta, phi, bz); // find the intersected chamber for this track
-        if (iCh < 0) {
+        if (iCh < 0) {/*
           delete hmpTrk;
-          hmpTrk = nullptr;
+          hmpTrk = nullptr; */
           continue;
         } // no intersection at all, go next track
 
@@ -435,8 +448,7 @@ void MatchHMP::doMatching()
         bool isOkQcut = kFALSE;
         bool isMatched = kFALSE;
 
-        Cluster* bestHmpCluster = nullptr; // the best matching cluster
-
+	const o2::hmpid::Cluster* bestHmpCluster = nullptr;
 
 
         // ef: move to before tracks loop?
@@ -460,14 +472,12 @@ void MatchHMP::doMatching()
 
 
         for(const auto& cluster : oneEventClusters)
-
+	{
           double qthre = pParam->qCut();
 
           if (cluster.q() < 150.) {
             continue;
           }
-
-
 
           isOkQcut = kTRUE;
 
@@ -485,11 +495,11 @@ void MatchHMP::doMatching()
 
         // 2. Propagate track to the MIP cluster using the central method
 
-        if (!bestHmpCluster) {
+        if (!bestHmpCluster) {/*
           delete hmpTrk;
           hmpTrk = nullptr;
           delete hmpTrkConstrained;
-          hmpTrkConstrained = nullptr;
+          hmpTrkConstrained = nullptr; */
           continue;
         }
 
@@ -505,10 +515,11 @@ void MatchHMP::doMatching()
           continue;
         }
         if (!prop->PropagateToXBxByBz(*hmpTrk, radiusH, o2::base::Propagator::MAX_SIN_PHI, o2::base::Propagator::MAX_STEP, matCorr)) {
-          delete hmpTrk;
+          
+	  /*delete hmpTrk;
           hmpTrk = nullptr;
           delete hmpTrkConstrained;
-          hmpTrkConstrained = nullptr;
+          hmpTrkConstrained = nullptr; */
           continue;
         }
 
@@ -524,14 +535,16 @@ void MatchHMP::doMatching()
 
         // 4. Propagate back the constrained track to the radiator radius
 
-        hmpTrkConstrained = new TrackHMP(trackC);
+        hmpTrkConstrained.reset(new TrackHMP(trackC));
         hmpTrkConstrained->set(trackC.getX(), trackC.getAlpha(), trackC.getParams(), trackC.getCharge(), trackC.getPID());
         if (!prop->PropagateToXBxByBz(*hmpTrkConstrained, radiusH - kdRadiator, o2::base::Propagator::MAX_SIN_PHI, o2::base::Propagator::MAX_STEP, matCorr)) {
+
+	  /*
           delete hmpTrk;
           hmpTrk = nullptr;
           delete hmpTrkConstrained;
           hmpTrkConstrained = nullptr;
-          continue;
+          continue; */
         }
 
         matching->setHmpMom(hmpTrkConstrained->getP());
@@ -539,7 +552,7 @@ void MatchHMP::doMatching()
         // 5. Propagation in the last 10 cm with the fast method
 
         double xPc0 = 0., yPc0 = 0.;
-        intTrkCha(iCh, hmpTrkConstrained, xPc0, yPc0, xRa, yRa, theta, phi, bz);
+        intTrkCha(iCh, hmpTrkConstrained.get(), xPc0, yPc0, xRa, yRa, theta, phi, bz);
 
         // 6. Set match information
 
@@ -551,12 +564,12 @@ void MatchHMP::doMatching()
 
         matching->setHMPsignal(pParam->kMipQdcCut);
 
-        if (!isOkQcut) {
+        if (!isOkQcut) {/*
           delete hmpTrk;
           hmpTrk = nullptr;
           delete hmpTrkConstrained;
           hmpTrkConstrained = nullptr;
-          continue;
+          continue; */
         }
 
         // dmin recalculated
@@ -577,49 +590,56 @@ void MatchHMP::doMatching()
         } // MIP-Track matched !!
 
         if (!isMatched) {
-          mMatchedTracks[type].push_back(*matching);
+          mMatchedTracks[type].push_back(*matching);/*
           delete hmpTrk;
           hmpTrk = nullptr;
           delete hmpTrkConstrained;
-          hmpTrkConstrained = nullptr;
+          hmpTrkConstrained = nullptr; */
           continue;
         } // If matched continue...
 
-        double nmean = pParam->meanIdxRad();
+
 
         // 7. Calculate the Cherenkov angle
 
         recon->setImpPC(xPc, yPc);                                            // store track impact to PC
-        recon->ckovAngle(matching, oneEventClusters, index, nmean, xRa, yRa); // search for Cerenkov angle of this track
+        recon->ckovAngle(matching.get(), oneEventClusters, index, nmean, xRa, yRa); // search for Cerenkov angle of this track
 
         // can pass pointer to MatchInfoHMP (matching), or I can pass the same member fields initiated?
-        auto mlTrack = std::make_unique<MLinfoHMP>(matching, xRa, yRa); // TODO: add refractive index from calibration
 
 
-        // ef: add other fields, find more suitable name pls
-        mlEvent.addTrack(mlTrack);
+        //auto mlTrackPtr = std::make_unique<MLinfoHMP>(matching, xRa, yRa); // TODO: add refractive index from calibration
+
+	MLinfoHMP mlTrack(matching.get(), nmean, xRa, yRa);
+  	mlEvent->addTrack(mlTrack);
+
         // TODO : make copy ctor
 
-        // ef add as uniqute_ptrs instead?
-        if(mlTrack != nullptr) {
-          mMLTracks[type].push_back(*mlTrack);
-        }
+	/*
+        if(mlTrackPtr != nullptr) {
+
+        // ef: add other fields, find more suitable name pls
+	  mlEvent.addTrack(std::move(mlTrackPtr));
+          //mMLTracks[type].push_back(*mlTrack);
+        } */ 
 
         mMatchedTracks[type].push_back(*matching);
 
         oneEventClusters.clear();
 
+
+	/*
         delete hmpTrk;
         hmpTrk = nullptr;
         delete hmpTrkConstrained;
-        hmpTrkConstrained = nullptr;
+        hmpTrkConstrained = nullptr; */
 
       } // if matching in time
     }   // tracks loop
 
 
     // ef: add this event to the vectors of events
-    mMLEvents.push_back(mlEvent);
+    mMLEvents.push_back(*mlEvent);
   }     // events loop
 }
 //==================================================================================================================================================

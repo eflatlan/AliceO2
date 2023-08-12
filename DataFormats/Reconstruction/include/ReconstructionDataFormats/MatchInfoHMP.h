@@ -122,7 +122,7 @@ class MatchInfoHMP
 
   void print() const;
 
- private:
+ protected:
   int mIdxHMPClus;       // Idx for HMP cluster
   GTrackID mIdxTrack;    // Idx for track
   float mMipX;           // local x coordinate of macthed cluster
