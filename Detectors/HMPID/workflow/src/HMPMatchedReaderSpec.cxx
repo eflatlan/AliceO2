@@ -27,6 +27,7 @@
 #include "CommonUtils/StringUtils.h"
 #include "CommonUtils/NameConf.h"
 #include "ReconstructionDataFormats/GlobalTrackID.h"
+#include "GlobalTracking/MLHMPID.h"
 
 using namespace o2::framework;
 

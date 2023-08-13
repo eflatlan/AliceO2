@@ -54,6 +54,9 @@ class Cluster
   void corrSin();                                                                        // sinoidal correction
   void digAdd(const o2::hmpid::Digit* pDig);                                             // add new digit to the cluster
   const o2::hmpid::Digit* dig(int i) const { return mDigs ? (*mDigs)[i] : nullptr; }     // pointer to i-th digi
+
+
+  const int getNumDigits() const { return mDigs->size(); }
   const std::vector<const o2::hmpid::Digit*>* getDigits() const { return mDigs; }
   void setDigits(std::vector<const o2::hmpid::Digit*>* v = nullptr) { mDigs = v; }
   inline bool isInPc();                                                                  // check if is in the current PC

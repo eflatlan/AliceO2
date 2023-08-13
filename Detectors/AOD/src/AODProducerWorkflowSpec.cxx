@@ -63,7 +63,10 @@
 #include "ReconstructionDataFormats/Track.h"
 #include "ReconstructionDataFormats/TrackTPCITS.h"
 #include "ReconstructionDataFormats/TrackMCHMID.h"
+
 #include "ReconstructionDataFormats/MatchInfoHMP.h"
+#include "GlobalTracking/MLHMPID.h" // ef added
+
 #include "ReconstructionDataFormats/V0.h"
 #include "ReconstructionDataFormats/VtxTrackIndex.h"
 #include "ReconstructionDataFormats/VtxTrackRef.h"

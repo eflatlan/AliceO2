@@ -22,6 +22,10 @@
 #include "ReconstructionDataFormats/MatchingType.h"
 #include "ReconstructionDataFormats/GlobalTrackID.h"
 
+
+#include "GlobalTracking/MLHMPID.h"
+
+
 #include "DataFormatsHMP/Cluster.h"
 #include "CommonUtils/StringUtils.h"
 #include <sstream>
@@ -35,7 +39,12 @@ namespace hmpid
 
 template <typename T>
 using BranchDefinition = MakeRootTreeWriterSpec::BranchDefinition<T>;
-using MatchInfo = std::vector<o2::dataformats::MatchInfoHMP>;
+//using MatchInfo = std::vector<o2::dataformats::MatchInfoHMP>;
+
+using MatchInfo = std::vector<o2::globaltracking::MLinfoHMP>;
+using MatchInfoVec = std::vector<o2::globaltracking::HmpMLVector>;
+
+
 using LabelsType = std::vector<o2::MCCompLabel>;
 using namespace o2::header;
 

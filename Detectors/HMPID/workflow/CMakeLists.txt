@@ -31,6 +31,7 @@ o2_add_library(HMPIDWorkflow
 
                        PUBLIC_LINK_LIBRARIES
                                      O2::Framework
+		  	             O2::GlobalTracking # ef added
                                      O2::CCDB
                                      O2::DPLUtils
                                      O2::DetectorsRaw
