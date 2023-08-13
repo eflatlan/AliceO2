@@ -41,7 +41,7 @@ template <typename T>
 using BranchDefinition = MakeRootTreeWriterSpec::BranchDefinition<T>;
 //using MatchInfo = std::vector<o2::dataformats::MatchInfoHMP>;
 
-using MatchInfo = std::vector<o2::globaltracking::MLinfoHMP>;
+using MatchInfo = std::vector<o2::globaltracking::HmpMLVector>;
 using MatchInfoVec = std::vector<o2::globaltracking::HmpMLVector>;
 
 

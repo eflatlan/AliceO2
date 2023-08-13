@@ -11,7 +11,7 @@
 
 namespace o2
 {
-namespace globaltracking
+namespace reconstruction
 {
 using MatchInfoHMP = o2::dataformats::MatchInfoHMP;
 // Define the derived class
@@ -58,9 +58,9 @@ public:
 	
 
     MLinfoHMP(const MatchInfoHMP* baseInstance,                         
-                        float xRa = 0, 
-                        float yRa = 0, 
-                        float refIndex = -1)
+                        float xRa = -1.0, 
+                        float yRa = -1.0, 
+                        float refIndex = -1.0)
     : MatchInfoHMP(*baseInstance), // Use the copy constructor of the base class 
     mxRa(xRa), 
     myRa(yRa), 
@@ -100,79 +100,6 @@ public:
     }
   ClassDefNV(MLinfoHMP, 2);
 };
-
-class HmpMLVector
-{ 
-using Cluster = o2::hmpid::Cluster;
-  using GTrackID = o2::dataformats::GlobalTrackID;
-  private:
-
-  std::vector<MLinfoHMP>* mMlTracks; // store fields of tracks 
-
-  std::vector<Cluster>* mOneEventCluster;
-	float mRefIndex = 1.27;
-	int mIevent;
-  public:
-      // Default constructor
-      // HmpMLVector() = default;
-
-			// ef: delete de
-      //HmpMLVector() = delete;
-
-
-      HmpMLVector(std::vector<Cluster>* oneEventcluster = nullptr, 
-                          int iEvent = -1,
-                          float refIndex = -1)
-      :  // Use the copy constructor of the base class
-      mOneEventCluster(oneEventcluster), 
-      mRefIndex(refIndex), 
-      mIevent(iEvent)
-      {
-          
-      }
-
-      // Add new member functions or override base class functions here
-      // For example:
-      std::vector<Cluster>* getClusters() const 
-      {
-          return mOneEventCluster;
-      }
-
-      double getRefIndex() const 
-      {
-          return mRefIndex;
-      }
-
-      void addTrack(std::unique_ptr<MLinfoHMP> hmpTrack) 
-			{
-					mMlTracks->push_back(*hmpTrack);
-			}
-
-			void addTrack(const MLinfoHMP& hmpTrack) 
-			{
-					mMlTracks->push_back(hmpTrack);
-			}
-
-      
-      std::vector<MLinfoHMP>* getTracks() const 
-      {
-        return mMlTracks;
-      }
-
-		  const MLinfoHMP& getTrack(int index) const 
-		  {
-		      return mMlTracks->at(index);
-		  }
-			/*
-      MLinfoHMP getTrack(int index) const 
-      {
-        return mMlTracks[index];
-      }*/ 
-
-
-  ClassDefNV(HmpMLVector, 2);
-};
-
 
 } // namespace dataformats
 } // namespace o2

@@ -103,6 +103,12 @@ class Cluster;
 class Trigger;
 } // namespace o2::hmpid
 
+namespace o2::globaltracking
+{
+class HmpMLVector;
+class MLinfoHMP;
+} // namespace o2::hmpid
+
 namespace o2::ft0
 {
 class RecPoints;
@@ -622,6 +628,10 @@ struct RecoContainer {
 
   // HMPID matches
   auto getHMPMatches() const { return getSpan<o2::dataformats::MatchInfoHMP>(GTrackID::HMP, MATCHES); }
+  // ef tried:
+  //auto getHMPMatches() const { return getSpan<o2::globaltracking::HmpMLVector>(GTrackID::HMP, MATCHES); }
+
+
   auto getHMPMatchesMCLabels() const { return getSpan<o2::MCCompLabel>(GTrackID::HMP, MCLABELS); }
 
   // TOF clusters

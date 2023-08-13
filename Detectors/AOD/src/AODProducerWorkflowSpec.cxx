@@ -65,7 +65,7 @@
 #include "ReconstructionDataFormats/TrackMCHMID.h"
 
 #include "ReconstructionDataFormats/MatchInfoHMP.h"
-#include "GlobalTracking/MLHMPID.h" // ef added
+#include "ReconstructionDataFormats/MLinfoHMP.h"
 
 #include "ReconstructionDataFormats/V0.h"
 #include "ReconstructionDataFormats/VtxTrackIndex.h"
@@ -1240,14 +1240,17 @@ template <typename HMPCursorType>
 void AODProducerWorkflowDPL::fillHMPID(const o2::globaltracking::RecoContainer& recoData, HMPCursorType& hmpCursor)
 {
   auto hmpMatches = recoData.getHMPMatches();
+  auto hmpClusters = recoData.getHMPClusters();
 
   hmpCursor.reserve(hmpMatches.size());
 
   // filling HMPs table
-  for (size_t iHmp = 0; iHmp < hmpMatches.size(); iHmp++) {
 
-    const auto& match = hmpMatches[iHmp];
-
+  LOGP(info, "fillHMPID");
+  //for (size_t iHmp = 0; iHmp < hmpMatches.size(); iHmp++) {
+  //  const auto& match = hmpMatches[iHmp];
+  for (const auto& match : hmpMatches) {
+    LOGP(info, "fillHMPID :: 1st event");
     float xTrk, yTrk, theta, phi;
     float xMip, yMip;
     int charge, nph;

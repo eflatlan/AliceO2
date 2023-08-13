@@ -12,11 +12,11 @@
 /// \file MatchInfoHMP.cxx
 /// \brief Class to store the output of the matching to HMPID
 
-#include "ReconstructionDataFormats/MLinfoHMP.h"
+#include "ReconstructionDataFormats/MLHMPID.h"
 
-using namespace o2::dataformats;
+using namespace o2::reconstruction;
 
-ClassImp(o2::dataformats::MLinfoHMP);
+ClassImp(o2::reconstruction::MLinfoHMP);
 
 void MLinfoHMP::print() const
 {

@@ -56,7 +56,7 @@ using Recon = o2::hmpid::Recon;
 using MatchInfo = o2::dataformats::MatchInfoHMP;
 //using MLinfoHMP = o2::dataformats::MLinfoHMP;
 
-using MLinfoHMP = o2::globaltracking::MLinfoHMP;
+using MLinfoHMP = o2::dataformats::MLinfoHMP;
 using Trigger = o2::hmpid::Trigger;
 using GTrackID = o2::dataformats::GlobalTrackID;
 using TrackHMP = o2::dataformats::TrackHMP;
@@ -366,9 +366,9 @@ void MatchHMP::doMatching()
 
   float timeFromTF = o2::InteractionRecord::bc2ns(mStartIR.bc, mStartIR.orbit);
 
-  for (int ievt = 0; ievt < cacheTriggerHMP.size(); ievt++) { // events loop
+  for (int iEvent = 0; iEvent < cacheTriggerHMP.size(); iEvent++) { // events loop
 
-    auto& event = mHMPTriggersWork[cacheTriggerHMP[ievt]];
+    auto& event = mHMPTriggersWork[cacheTriggerHMP[iEvent]];
     auto evtTime = o2::InteractionRecord::bc2ns(event.getBc(), event.getOrbit()); // event(trigger) time in ns
 
     int evtTracks = 0;
@@ -390,7 +390,7 @@ void MatchHMP::doMatching()
 
 
     double nmean = pParam->meanIdxRad();
-    auto mlEvent = std::make_unique<HmpMLVector>(&oneEventClusters, ievt, nmean); // ef: initialize as int of Event and clusters relevant to the event
+    //auto mlEvent = std::make_unique<HmpMLVector>(&oneEventClusters, iEvent, nmean); // ef: initialize as int of Event and clusters relevant to the event
 
     for (int itrk = 0; itrk < cacheTrk.size(); itrk++) { // tracks loop
 
@@ -473,11 +473,15 @@ void MatchHMP::doMatching()
 
         for(const auto& cluster : oneEventClusters)
 	{
+
+	  // ef: must loop over oneEventClusters here to make sure these are fulfilled: 
           double qthre = pParam->qCut();
 
           if (cluster.q() < 150.) {
             continue;
           }
+	  // ef: must also check intersection with chambers : oneEventClusters
+	  // store vector of valid Cluster-indexes per track
 
           isOkQcut = kTRUE;
 
@@ -610,18 +614,18 @@ void MatchHMP::doMatching()
 
         //auto mlTrackPtr = std::make_unique<MLinfoHMP>(matching, xRa, yRa); // TODO: add refractive index from calibration
 
-	MLinfoHMP mlTrack(matching.get(), nmean, xRa, yRa);
-  	mlEvent->addTrack(mlTrack);
+	MLinfoHMP mlTrack(matching.get(), xRa, yRa, nmean, iEvent);
+  	//mlEvent->addTrack(mlTrack);
 
         // TODO : make copy ctor
 
-	/*
-        if(mlTrackPtr != nullptr) {
+	
+        if(&mlTrack != nullptr && mlTrack.getRefIndex() > 0 && mlTrack.getEvent() > 0) {
 
         // ef: add other fields, find more suitable name pls
-	  mlEvent.addTrack(std::move(mlTrackPtr));
-          //mMLTracks[type].push_back(*mlTrack);
-        } */ 
+	  //mlEvent.addTrack(std::move(mlTrackPtr));
+          mMLTracks[type].push_back(mlTrack);
+        }  
 
         mMatchedTracks[type].push_back(*matching);
 
@@ -639,7 +643,7 @@ void MatchHMP::doMatching()
 
 
     // ef: add this event to the vectors of events
-    mMLEvents.push_back(*mlEvent);
+    //mMLEvents.push_back(*mlEvent);
   }     // events loop
 }
 //==================================================================================================================================================
