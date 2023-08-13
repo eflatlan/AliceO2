@@ -19,11 +19,12 @@
 #include <SimulationDataFormat/MCCompLabel.h>
 #include <SimulationDataFormat/MCTruthContainer.h>
 #include "ReconstructionDataFormats/MatchInfoHMP.h"
+#include "ReconstructionDataFormats/MLinfoHMP.h"
 #include "ReconstructionDataFormats/MatchingType.h"
 #include "ReconstructionDataFormats/GlobalTrackID.h"
 
 
-#include "GlobalTracking/MLHMPID.h"
+
 
 
 #include "DataFormatsHMP/Cluster.h"
@@ -41,8 +42,7 @@ template <typename T>
 using BranchDefinition = MakeRootTreeWriterSpec::BranchDefinition<T>;
 //using MatchInfo = std::vector<o2::dataformats::MatchInfoHMP>;
 
-using MatchInfo = std::vector<o2::globaltracking::HmpMLVector>;
-using MatchInfoVec = std::vector<o2::globaltracking::HmpMLVector>;
+using MatchInfo = std::vector<o2::dataformats::MLinfoHMP>;
 
 
 using LabelsType = std::vector<o2::MCCompLabel>;

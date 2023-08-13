@@ -64,7 +64,7 @@
 
 // ef: TODO: remove this?
 #pragma link C++ class o2::dataformats::MLinfoHMP + ;
-//#pragma link C++ class std::vector < o2::dataformats::MLinfoHMP> + ; 
+#pragma link C++ class std::vector < o2::dataformats::MLinfoHMP> + ; 
 /*
 #pragma link C++ class o2::dataformats::HmpMLVector + ;
 #pragma link C++ class std::vector < o2::dataformats::HmpMLVector> + ; */ 

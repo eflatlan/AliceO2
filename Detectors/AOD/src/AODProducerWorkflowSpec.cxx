@@ -1247,15 +1247,22 @@ void AODProducerWorkflowDPL::fillHMPID(const o2::globaltracking::RecoContainer& 
   // filling HMPs table
 
   LOGP(info, "fillHMPID");
+
+
+  LOGP(info, "hmpMatches size = {}", hmpMatches.size());
+  LOGP(info, "hmpClusters size = {}", hmpClusters.size());
+
   //for (size_t iHmp = 0; iHmp < hmpMatches.size(); iHmp++) {
   //  const auto& match = hmpMatches[iHmp];
   for (const auto& match : hmpMatches) {
     LOGP(info, "fillHMPID :: 1st event");
-    float xTrk, yTrk, theta, phi;
+    float xRa, yRa, xTrk, yTrk, theta, phi;
     float xMip, yMip;
     int charge, nph;
 
-    match.getHMPIDtrk(xTrk, yTrk, theta, phi);
+    match.getHMPIDtrk(xRa, yRa, xTrk, yTrk, theta, phi);
+    //getHMPIDtrk(float& xRad, float& yRad, float& xPc, float& yPc, float& th, float& ph); 
+
     match.getHMPIDmip(xMip, yMip, charge, nph);
 
     auto photChargeVec = match.getPhotCharge();
