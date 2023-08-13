@@ -64,7 +64,7 @@ public:
               float refIndex = -1.0,
 	          int event = -1)
     : MatchInfoHMP(*baseInstance), // Use the copy constructor of the base class 
-    iCh(miCh), 
+    miCh(iCh), 
     mxRa(xRa), 
     myRa(yRa), 
     mRefIndex(refIndex),
