@@ -375,21 +375,10 @@ void MatchHMP::doMatching()
 
 
     std::vector<Cluster> oneEventClusters;
+    
 
-    for (int j = event.getFirstEntry(); j <= event.getLastEntry(); j++) { // event clusters loop
-      auto& cluster = (o2::hmpid::Cluster&)mHMPClustersArray[j];
+    double nmean = pParam->meanIdxRad(); // ef TODO: get this from calibration
 
-
-      /*
-      if (cluster.ch() != iCh) {
-        continue;
-      }*/
-
-      oneEventClusters.push_back(cluster);
-    }
-
-
-    double nmean = pParam->meanIdxRad();
     //auto mlEvent = std::make_unique<HmpMLVector>(&oneEventClusters, iEvent, nmean); // ef: initialize as int of Event and clusters relevant to the event
 
     for (int itrk = 0; itrk < cacheTrk.size(); itrk++) { // tracks loop
@@ -412,6 +401,9 @@ void MatchHMP::doMatching()
 
         auto matching = std::make_unique<o2::dataformats::MatchInfoHMP>(999999, mTrackGid[type][cacheTrk[itrk]]);
 
+
+
+        // can these be mveed after if (iCh < 0) {/* statemetns?
         matching->setHMPIDtrk(0, 0, 0, 0);            // no intersection found
         matching->setHMPIDmip(0, 0, 0, 0);            // store mip info in any case
         matching->setIdxHMPClus(99, 99999);           // chamber not found, mip not yet considered
@@ -420,20 +412,20 @@ void MatchHMP::doMatching()
 
         auto hmpTrk = std::make_unique<TrackHMP>(trefTrk); // create a hmpid track to be used for propagation and matching
 
-
-
         //TrackHMP* hmpTrkConstrained = nullptr;    // create a hmpid track to be used for propagation and matching
 
         std::unique_ptr<TrackHMP> hmpTrkConstrained;
 
         hmpTrk->set(trefTrk.getX(), trefTrk.getAlpha(), trefTrk.getParams(), trefTrk.getCharge(), trefTrk.getPID());
 
+
+        // ef: check for simulation if this gets the correct PID::
+        LOGP(info, "MatchHMP.cxx trefTrk.getPID() {}", trefTrk.getPID());
+
         double xPc, yPc, xRa, yRa, theta, phi;
 
         Int_t iCh = intTrkCha(&trefTrk, xPc, yPc, xRa, yRa, theta, phi, bz); // find the intersected chamber for this track
-        if (iCh < 0) {/*
-          delete hmpTrk;
-          hmpTrk = nullptr; */
+        if (iCh < 0) {
           continue;
         } // no intersection at all, go next track
 
@@ -448,12 +440,8 @@ void MatchHMP::doMatching()
         bool isOkQcut = kFALSE;
         bool isMatched = kFALSE;
 
-	const o2::hmpid::Cluster* bestHmpCluster = nullptr;
+	      const o2::hmpid::Cluster* bestHmpCluster = nullptr;
 
-
-        // ef: move to before tracks loop?
-
-        /* ef: was like this 
         std::vector<Cluster> oneEventClusters;
 
         for (int j = event.getFirstEntry(); j <= event.getLastEntry(); j++) { // event clusters loop
@@ -463,25 +451,19 @@ void MatchHMP::doMatching()
             continue;
           }
           oneEventClusters.push_back(cluster);
-        */ 
-        // </ ef: move to before tracks loop?
-        // ef: changed to this : 
-
-        // ef: store instead as vector of nTracks x {MIPS, RAD, .... } + oneEventCluster? 
+          //triggerClusterIndexes.push_back(j); // ef: store index of cluster related to track
+          // </ ef: move to before tracks loop?
+          // ef: changed to this : 
 
 
-
-        for(const auto& cluster : oneEventClusters)
-	{
-
-	  // ef: must loop over oneEventClusters here to make sure these are fulfilled: 
-          double qthre = pParam->qCut();
+	        // ef: must loop over oneEventClusters here to make sure these are fulfilled: 
+          double qthre = pParam->qCut(); // ef : TODO add chargeCut from calibration!
 
           if (cluster.q() < 150.) {
             continue;
           }
-	  // ef: must also check intersection with chambers : oneEventClusters
-	  // store vector of valid Cluster-indexes per track
+          // ef: must also check intersection with chambers : oneEventClusters
+          // store vector of valid Cluster-indexes per track
 
           isOkQcut = kTRUE;
 
@@ -518,9 +500,9 @@ void MatchHMP::doMatching()
         if (!(hmpTrk->rotate(alpha))) {
           continue;
         }
-        if (!prop->PropagateToXBxByBz(*hmpTrk, radiusH, o2::base::Propagator::MAX_SIN_PHI, o2::base::Propagator::MAX_STEP, matCorr)) {
-          
-	  /*delete hmpTrk;
+
+        if (!prop->PropagateToXBxByBz(*hmpTrk, radiusH, o2::base::Propagator::MAX_SIN_PHI, o2::base::Propagator::MAX_STEP, matCorr)) {          
+	        /*delete hmpTrk;
           hmpTrk = nullptr;
           delete hmpTrkConstrained;
           hmpTrkConstrained = nullptr; */
@@ -543,12 +525,12 @@ void MatchHMP::doMatching()
         hmpTrkConstrained->set(trackC.getX(), trackC.getAlpha(), trackC.getParams(), trackC.getCharge(), trackC.getPID());
         if (!prop->PropagateToXBxByBz(*hmpTrkConstrained, radiusH - kdRadiator, o2::base::Propagator::MAX_SIN_PHI, o2::base::Propagator::MAX_STEP, matCorr)) {
 
-	  /*
+	        /*
           delete hmpTrk;
           hmpTrk = nullptr;
           delete hmpTrkConstrained;
-          hmpTrkConstrained = nullptr;
-          continue; */
+          hmpTrkConstrained = nullptr;*/
+          continue; 
         }
 
         matching->setHmpMom(hmpTrkConstrained->getP());
@@ -572,8 +554,8 @@ void MatchHMP::doMatching()
           delete hmpTrk;
           hmpTrk = nullptr;
           delete hmpTrkConstrained;
-          hmpTrkConstrained = nullptr;
-          continue; */
+          hmpTrkConstrained = nullptr; */
+          continue;
         }
 
         // dmin recalculated
@@ -609,21 +591,20 @@ void MatchHMP::doMatching()
         recon->setImpPC(xPc, yPc);                                            // store track impact to PC
         recon->ckovAngle(matching.get(), oneEventClusters, index, nmean, xRa, yRa); // search for Cerenkov angle of this track
 
-        // can pass pointer to MatchInfoHMP (matching), or I can pass the same member fields initiated?
 
 
         //auto mlTrackPtr = std::make_unique<MLinfoHMP>(matching, xRa, yRa); // TODO: add refractive index from calibration
 
-	MLinfoHMP mlTrack(matching.get(), xRa, yRa, nmean, iEvent);
-  	//mlEvent->addTrack(mlTrack);
+    	  MLinfoHMP mlTrack(matching.get(), xRa, yRa, nmean, iEvent);
+  	    //mlEvent->addTrack(mlTrack);
 
         // TODO : make copy ctor
 
 	
         if(&mlTrack != nullptr && mlTrack.getRefIndex() > 0 && mlTrack.getEvent() > 0) {
 
-        // ef: add other fields, find more suitable name pls
-	  //mlEvent.addTrack(std::move(mlTrackPtr));
+          // ef: add other fields, find more suitable name pls
+	        //mlEvent.addTrack(std::move(mlTrackPtr));
           mMLTracks[type].push_back(mlTrack);
         }  
 
@@ -631,8 +612,7 @@ void MatchHMP::doMatching()
 
         oneEventClusters.clear();
 
-
-	/*
+	      /*
         delete hmpTrk;
         hmpTrk = nullptr;
         delete hmpTrkConstrained;
