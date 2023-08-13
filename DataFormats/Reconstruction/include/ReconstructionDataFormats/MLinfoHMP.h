@@ -24,6 +24,7 @@ float mxRa, myRa;
 TVector2 mRadImpact;
 float mRefIndex = 1.27;
 int mEvent;
+int miCh;
 public:
     // Default constructor
     MLinfoHMP() = default;
@@ -56,12 +57,14 @@ public:
 
 	
 
-    MLinfoHMP(const MatchInfoHMP* baseInstance,                         
+    MLinfoHMP(const MatchInfoHMP* baseInstance,
+              int iCh = -1,                         
               float xRa = -1.0, 
               float yRa = -1.0, 
               float refIndex = -1.0,
-	      int event = -1)
+	          int event = -1)
     : MatchInfoHMP(*baseInstance), // Use the copy constructor of the base class 
+    iCh(miCh), 
     mxRa(xRa), 
     myRa(yRa), 
     mRefIndex(refIndex),
@@ -72,6 +75,11 @@ public:
 
 
     void print() const;
+
+    int getChamber() const 
+    {
+        return miCh;
+    }
 
     int getEvent() const 
     {

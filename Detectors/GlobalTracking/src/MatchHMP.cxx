@@ -595,7 +595,7 @@ void MatchHMP::doMatching()
 
         //auto mlTrackPtr = std::make_unique<MLinfoHMP>(matching, xRa, yRa); // TODO: add refractive index from calibration
 
-    	  o2::dataformats::MLinfoHMP mlTrack(matching.get(), xRa, yRa, nmean, iEvent);
+    	  o2::dataformats::MLinfoHMP mlTrack(matching.get(), iCh, xRa, yRa, nmean, iEvent);
   	    //mlEvent->addTrack(mlTrack);
 
         // TODO : make copy ctor
