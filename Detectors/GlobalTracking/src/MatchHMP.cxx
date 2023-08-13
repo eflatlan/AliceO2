@@ -399,16 +399,7 @@ void MatchHMP::doMatching()
 
         evtTracks++;
 
-        auto matching = std::make_unique<o2::dataformats::MatchInfoHMP>(999999, mTrackGid[type][cacheTrk[itrk]]);
 
-
-
-        // can these be mveed after if (iCh < 0) {/* statemetns?
-        matching->setHMPIDtrk(0, 0, 0, 0);            // no intersection found
-        matching->setHMPIDmip(0, 0, 0, 0);            // store mip info in any case
-        matching->setIdxHMPClus(99, 99999);           // chamber not found, mip not yet considered
-        matching->setHMPsignal(Recon::kNotPerformed); // ring reconstruction not yet performed
-        matching->setIdxTrack(trackGid);
 
         auto hmpTrk = std::make_unique<TrackHMP>(trefTrk); // create a hmpid track to be used for propagation and matching
 
@@ -428,6 +419,15 @@ void MatchHMP::doMatching()
         if (iCh < 0) {
           continue;
         } // no intersection at all, go next track
+
+        auto matching = std::make_unique<o2::dataformats::MatchInfoHMP>(999999, mTrackGid[type][cacheTrk[itrk]]);
+
+        // can these be mveed after if (iCh < 0) {/* statemetns?
+        matching->setHMPIDtrk(0, 0, 0, 0);            // no intersection found
+        matching->setHMPIDmip(0, 0, 0, 0);            // store mip info in any case
+        matching->setIdxHMPClus(99, 99999);           // chamber not found, mip not yet considered
+        matching->setHMPsignal(Recon::kNotPerformed); // ring reconstruction not yet performed
+        matching->setIdxTrack(trackGid);
 
         matching->setHMPIDtrk(xPc, yPc, theta, phi); // store initial infos
         matching->setIdxHMPClus(iCh, 9999);          // set chamber, index of cluster + cluster size
