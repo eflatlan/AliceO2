@@ -90,11 +90,12 @@ Digit::Digit(uint16_t charge, int equipment, int column, int dilogic, int channe
 /// @param[in] module : the HMPID Module [0 .. 6]
 /// @param[in] x : the horizontal in Module displacement [0 .. 159]
 /// @param[in] y : the vertical in Module displacement [0 .. 143]
-Digit::Digit(uint16_t charge, int module, int x, int y, int particlePdg)
+Digit::Digit(uint16_t charge, int module, int x, int y, int particlePdg, int trackId);
 {
   mQ = charge > 0x0FFF ? 0x0FFF : charge;
   pad2Photo(absolute2Pad(module, x, y), &mCh, &mPh, &mX, &mY);
   mParticlePdg = particlePdg;
+  mTrackId = trackId;
 }
 
 // Digit ASCCI format Dump := [Chamber,PhotoCathod,X,Y]@(Orbit,BunchCrossing)=Charge
