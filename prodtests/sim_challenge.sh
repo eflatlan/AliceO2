@@ -117,7 +117,7 @@ if [ "$dosim" == "1" ]; then
 
   #---------------------------------------------------
   echo "Running simulation for $nev $collSyst events with $gener generator and engine $engine and run number $runNumber"
-  taskwrapper sim.log o2-sim -n"$nev" --configKeyValues "Diamond.width[2]=6." -g "$gener" -e "$engine" $simWorker --run ${runNumber}
+  taskwrapper sim.log o2-sim -n"$nev" -m PIPE ITS TPC TOF TRD HMP FIT --configKeyValues "Diamond.width[2]=6." -g "$gener" -e "$engine" $simWorker --run ${runNumber}
 
   ##------ extract number of hits
   taskwrapper hitstats.log root -q -b -l ${O2_ROOT}/share/macro/analyzeHits.C
@@ -127,7 +127,7 @@ if [ "$dodigi" == "1" ]; then
   echo "Running digitization for $intRate kHz interaction rate"
   intRate=$((1000*(intRate)));
   if [[ "$dotrdtrap" == "1" ]]; then trddigioption="--disable-trd-trapsim"; fi # no need to run the TRAP simulation twice
-  taskwrapper digi.log o2-sim-digitizer-workflow $gloOpt $trddigioption --interactionRate $intRate $tpcLanes --configKeyValues "HBFUtils.runNumber=${runNumber}" --early-forward-policy always --combine-devices
+  taskwrapper digi.log o2-sim-digitizer-workflow  $gloOpt $trddigioption --interactionRate $intRate $tpcLanes --configKeyValues "HBFUtils.runNumber=${runNumber}" --early-forward-policy always --combine-devices
   echo "Return status of digitization: $?"
   # existing checks
   #root -b -q O2/Detectors/ITSMFT/ITS/macros/test/CheckDigits.C+
@@ -155,44 +155,44 @@ if [ "$doreco" == "1" ]; then
   # root -b -q O2/Detectors/ITSMFT/ITS/macros/test/CheckClusters.C+
   # root -b -q O2/Detectors/ITSMFT/ITS/macros/test/CheckTracks.C+
 
-  echo "Running MFT reco flow"
+  #echo "Running MFT reco flow"
   #needs MFT digitized data
-  MFTRecOpt=" --configKeyValues \"MFTTracking.forceZeroField=false;MFTTracking.LTFclsRCut=0.0100;\""
-  taskwrapper mftreco.log  o2-mft-reco-workflow  $gloOpt $MFTRecOpt
-  echo "Return status of mftreco: $?"
+  #MFTRecOpt=" --configKeyValues \"MFTTracking.forceZeroField=false;MFTTracking.LTFclsRCut=0.0100;\""
+  #taskwrapper mftreco.log  o2-mft-reco-workflow  $gloOpt $MFTRecOpt
+  #echo "Return status of mftreco: $?"
 
-  echo "Running MCH reco flow"
-  taskwrapper mchreco.log o2-mch-reco-workflow $gloOpt
-  echo "Return status of mchreco: $?"
+  #echo "Running MCH reco flow"
+  #taskwrapper mchreco.log o2-mch-reco-workflow $gloOpt
+  #echo "Return status of mchreco: $?"
 
   echo "Running FT0 reco flow"
   #needs FT0 digitized data
   taskwrapper ft0reco.log o2-ft0-reco-workflow $gloOpt
   echo "Return status of ft0reco: $?"
 
-  echo "Running FDD reco flow"
+  #echo "Running FDD reco flow"
   #needs FDD digitized data
-  taskwrapper fddreco.log o2-fdd-reco-workflow $gloOpt
-  echo "Return status of fddreco: $?"
+  #taskwrapper fddreco.log o2-fdd-reco-workflow $gloOpt
+  #echo "Return status of fddreco: $?"
 
-  echo "Running FV0 reco flow"
+  #echo "Running FV0 reco flow"
   #needs FV0 digitized data
-  taskwrapper fv0reco.log o2-fv0-reco-workflow $gloOpt
-  echo "Return status of fv0reco: $?"
+  #taskwrapper fv0reco.log o2-fv0-reco-workflow $gloOpt
+  #echo "Return status of fv0reco: $?"
 
-  echo "Running MID reco flow"
+  #echo "Running MID reco flow"
   #needs MID digitized data
-  taskwrapper midreco.log "o2-mid-digits-reader-workflow | o2-mid-reco-workflow $gloOpt"
-  echo "Return status of midreco: $?"
+  #taskwrapper midreco.log "o2-mid-digits-reader-workflow | o2-mid-reco-workflow $gloOpt"
+  #echo "Return status of midreco: $?"
 
   echo "Running HMPID reco flow to produce clusters"
   #needs HMPID digitized data
   taskwrapper hmpreco.log "o2-hmpid-digits-to-clusters-workflow $gloOpt"
   echo "Return status of hmpid cluster reco: $?"
 
-  echo "Running MCH-MID matching flow"
-  taskwrapper mchmidMatch.log "o2-muon-tracks-matcher-workflow $gloOpt"
-  echo "Return status of mchmidmatch: $?"
+  #echo "Running MCH-MID matching flow"
+  #taskwrapper mchmidMatch.log "o2-muon-tracks-matcher-workflow $gloOpt"
+  #echo "Return status of mchmidmatch: $?"
 
   echo "Running ITS-TPC matching flow"
   #needs results of o2-tpc-reco-workflow, o2-its-reco-workflow and o2-fit-reco-workflow
@@ -206,11 +206,11 @@ if [ "$doreco" == "1" ]; then
   taskwrapper trdMatch.log o2-trd-global-tracking $gloOpt
   echo "Return status of trdTracker: $?"
 
-  echo "Running MFT-MCH-MID matching flow"
+  #echo "Running MFT-MCH-MID matching flow"
   #needs results of o2-mch-reco-workflow, o2-mft-reco-workflow and o2-muon-tracks-matcher-workflow
-  FwdMatchOpt=" --configKeyValues \"FwdMatching.useMIDMatch=true;\""
-  taskwrapper mftmchMatch.log o2-globalfwd-matcher-workflow $gloOpt $FwdMatchOpt
-  echo "Return status of globalfwdMatch: $?"
+  #FwdMatchOpt=" --configKeyValues \"FwdMatching.useMIDMatch=true;\""
+  #taskwrapper mftmchMatch.log o2-globalfwd-matcher-workflow $gloOpt $FwdMatchOpt
+  #echo "Return status of globalfwdMatch: $?"
 
   echo "Running TOF reco flow to produce clusters"
   #needs results of TOF digitized data and results of o2-tpcits-match-workflow
@@ -227,40 +227,42 @@ if [ "$doreco" == "1" ]; then
   taskwrapper hmpidMatchTracks.log o2-hmpid-matcher-workflow $gloOpt
   echo "Return status of o2-hmpid-matcher-workflow: $?"
 
-  echo "Running TOF matching QA"
+
+  
+  #echo "Running TOF matching QA"
   #need results of ITSTPC-TOF matching (+ TOF clusters and ITS-TPC tracks)
-  taskwrapper tofmatch_qa.log root -b -q -l $O2_ROOT/share/macro/checkTOFMatching.C
-  echo "Return status of TOF matching qa: $?"
+  #taskwrapper tofmatch_qa.log root -b -q -l $O2_ROOT/share/macro/checkTOFMatching.C
+  #echo "Return status of TOF matching qa: $?"
 
-  echo "Running ZDC reconstruction"
+  #echo "Running ZDC reconstruction"
   #need ZDC digits
-  taskwrapper zdcreco.log o2-zdc-digits-reco $gloOpt
-  echo "Return status of ZDC reconstruction: $?"
+  #taskwrapper zdcreco.log o2-zdc-digits-reco $gloOpt
+  #echo "Return status of ZDC reconstruction: $?"
 
-  echo "Running EMC reconstruction"
+  #echo "Running EMC reconstruction"
   #need EMC digits
-  taskwrapper emcreco.log o2-emcal-reco-workflow --infile emcaldigits.root $gloOpt
-  echo "Return status of EMC reconstruction: $?"
+  #taskwrapper emcreco.log o2-emcal-reco-workflow --infile emcaldigits.root $gloOpt
+  #echo "Return status of EMC reconstruction: $?"
 
-  echo "Running PHS reconstruction"
+  #echo "Running PHS reconstruction"
   #need PHS digits
-  taskwrapper phsreco.log o2-phos-reco-workflow $gloOpt
-  echo "Return status of PHS reconstruction: $?"
+  #taskwrapper phsreco.log o2-phos-reco-workflow $gloOpt
+  #echo "Return status of PHS reconstruction: $?"
 
-  echo "Running CPV reconstruction"
+  #echo "Running CPV reconstruction"
   #need CPV digits
-  taskwrapper cpvreco.log o2-cpv-reco-workflow $gloOpt
-  echo "Return status of CPV reconstruction: $?"
+  #taskwrapper cpvreco.log o2-cpv-reco-workflow $gloOpt
+  #echo "Return status of CPV reconstruction: $?"
 
-  echo "Running primary vertex finding flow"
+  #echo "Running primary vertex finding flow"
   #needs results of TPC-ITS matching and FIT workflows
-  taskwrapper pvfinder.log o2-primary-vertexing-workflow $gloOpt --condition-remap file://./GRP=GLO/Config/GRPECS
-  echo "Return status of primary vertexing: $?"
+  #taskwrapper pvfinder.log o2-primary-vertexing-workflow $gloOpt --condition-remap file://./GRP=GLO/Config/GRPECS
+  #echo "Return status of primary vertexing: $?"
 
-  echo "Running secondary vertex finding flow"
+  #echo "Running secondary vertex finding flow"
   #needs results of all trackers + P.Vertexer
-  taskwrapper svfinder.log o2-secondary-vertexing-workflow $gloOpt
-  echo "Return status of secondary vertexing: $?"
+  #taskwrapper svfinder.log o2-secondary-vertexing-workflow $gloOpt
+  #echo "Return status of secondary vertexing: $?"
 
   # the strangeness trackin is now called from the secondary-vertexing. To enable it as a standalone workflow
   # one should run the previous o2-secondary-vertexing-workflow with options
