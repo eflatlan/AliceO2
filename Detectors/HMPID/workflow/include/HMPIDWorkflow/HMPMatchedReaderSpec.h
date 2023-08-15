@@ -20,10 +20,11 @@
 #include "Framework/DataProcessorSpec.h"
 #include "Framework/Task.h"
 #include "ReconstructionDataFormats/MatchInfoHMP.h"
+#include "ReconstructionDataFormats/MatchInfoHMP.h"
 #include "ReconstructionDataFormats/TrackTPCTOF.h"
 #include "SimulationDataFormat/MCCompLabel.h"
+#include "ReconstructionDataFormats/MLinfoHMP.h" // ef: added
 
-#include "GlobalTracking/MLHMPID.h"
 
 
 
@@ -50,7 +51,11 @@ class HMPMatchedReader : public o2::framework::Task
   std::string mInTreeName{"matchHMP"};
   std::unique_ptr<TFile> mFile = nullptr;
   std::unique_ptr<TTree> mTree = nullptr;
-  std::vector<o2::globaltracking::HmpMLVector> mMatches, *mMatchesPtr = &mMatches;
+  
+
+  //std::vector<o2::dataformats::MLinfoHMP> mMatches, *mMatchesPtr = &mMatches; // ef changed
+  std::vector<o2::dataformats::MatchInfoHMP> mMatches, *mMatchesPtr = &mMatches;
+
   //std::vector<o2::dataformats::MatchInfoHMP> mMatches, *mMatchesPtr = &mMatches;
   // std::vector<o2::dataformats::MatchInfoHMP> *mMatchesPtr = nullptr;
   std::vector<o2::MCCompLabel> mLabelHMP, *mLabelHMPPtr = &mLabelHMP;

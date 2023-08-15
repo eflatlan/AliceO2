@@ -168,7 +168,7 @@ class TrackTPCITS;
 class TrackTPCTOF;
 class MatchInfoTOF;
 class MatchInfoHMP;
-class MLinfoHMP;
+//class MLinfoHMP;
 class PrimaryVertex;
 class VtxTrackIndex;
 class VtxTrackRef;
@@ -631,12 +631,10 @@ struct RecoContainer {
   auto getITSTPCTRDTOFMatchesMCLabels() const { return getSpan<o2::MCCompLabel>(GTrackID::ITSTPCTRDTOF, MCLABELS); }
 
   // HMPID matches
-  //auto getHMPMatches() const { return getSpan<o2::dataformats::MatchInfoHMP>(GTrackID::HMP, MATCHES); }
+  auto getHMPMatches() const { return getSpan<o2::dataformats::MatchInfoHMP>(GTrackID::HMP, MATCHES); }
   // ef changed to : 
-  auto getHMPMatches() const { return getSpan<o2::dataformats::MLinfoHMP>(GTrackID::HMP, MATCHES); }
 
-  // ef tried:
-  //auto getHMPMatches() const { return getSpan<o2::globaltracking::HmpMLVector>(GTrackID::HMP, MATCHES); }
+  //auto getHMPMatches() const { return getSpan<o2::dataformats::MLinfoHMP>(GTrackID::HMP, MATCHES); }
 
 
   auto getHMPMatchesMCLabels() const { return getSpan<o2::MCCompLabel>(GTrackID::HMP, MCLABELS); }

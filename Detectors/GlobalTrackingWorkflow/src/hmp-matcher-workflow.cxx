@@ -41,11 +41,15 @@ using GID = o2::dataformats::GlobalTrackID;
 // ------------------------------------------------------------------
 void customize(std::vector<o2::framework::CallbacksPolicy>& policies)
 {
+
+ LOGP(info, "  o2::raw::HBFUtilsInitializer::addNewTimeSliceCallback(policies);");
   o2::raw::HBFUtilsInitializer::addNewTimeSliceCallback(policies);
 }
 
 void customize(std::vector<o2::framework::CompletionPolicy>& policies)
 {
+
+  LOGP(info, "hmp-matcher-workflow.cxx customize(std::vector<o2::framework::CompletionPolicy>& policies)");
   // ordered policies for the writers
   policies.push_back(CompletionPolicyHelpers::consumeWhenAllOrdered(".*(?:HMP|hmp).*[W,w]riter.*"));
 }
@@ -53,6 +57,8 @@ void customize(std::vector<o2::framework::CompletionPolicy>& policies)
 // we need to add workflow options before including Framework/runDataProcessing
 void customize(std::vector<o2::framework::ConfigParamSpec>& workflowOptions)
 {
+ LOGP(info, "hmp-matcher-workflow.cxx ustomize(std::vector<o2::framework::ConfigParamSpec>& workflowOptions)");
+
   // option allowing to set parameters
   std::vector<o2::framework::ConfigParamSpec> options{
     {"disable-mc", o2::framework::VariantType::Bool, false, {"disable MC propagation even if available"}},
@@ -70,6 +76,9 @@ void customize(std::vector<o2::framework::ConfigParamSpec>& workflowOptions)
 
 WorkflowSpec defineDataProcessing(ConfigContext const& configcontext)
 {
+
+  LOGP(info, "hmp-matcher-workflow.cxx ::init defineDataProcessing");
+
   WorkflowSpec specs;
 
   // Update the (declared) parameters if changed from the command line
@@ -79,6 +88,8 @@ WorkflowSpec defineDataProcessing(ConfigContext const& configcontext)
   auto useMC = !configcontext.options().get<bool>("disable-mc");
   auto disableRootIn = configcontext.options().get<bool>("disable-root-input");
   auto disableRootOut = configcontext.options().get<bool>("disable-root-output");
+
+  LOGP(info, "hmp-matcher-workflow.cxx");
 
   bool writematching = 0;
   bool writecalib = 0;

@@ -40,7 +40,7 @@ namespace hmpid
 ///               (Chamber, PhotoCathod, X, Y)
 /// @param[in] pad : the Digit Unique Id [0x00CPXXYY]
 /// @param[in] charge : the value of the charge [0 .. 2^12-1]
-Digit::Digit(int pad, uint16_t charge, int particlePdg)
+Digit::Digit(int pad, uint16_t charge, int particlePdg, Int_t trackId)
 {
   mQ = charge > 0x0FFF ? 0x0FFF : charge;
   mCh = a2C(pad);
@@ -48,6 +48,7 @@ Digit::Digit(int pad, uint16_t charge, int particlePdg)
   mX = a2X(pad);
   mY = a2Y(pad);
   mParticlePdg = particlePdg;
+  mTrackId = trackId;
 }
 
 /// Constructor : Create the Digit structure. Accepts the trigger time (Orbit,BC)
@@ -90,12 +91,12 @@ Digit::Digit(uint16_t charge, int equipment, int column, int dilogic, int channe
 /// @param[in] module : the HMPID Module [0 .. 6]
 /// @param[in] x : the horizontal in Module displacement [0 .. 159]
 /// @param[in] y : the vertical in Module displacement [0 .. 143]
-Digit::Digit(uint16_t charge, int module, int x, int y, int particlePdg, int trackId);
+Digit::Digit(uint16_t charge, int module, int x, int y, Int_t particlePdg)
 {
   mQ = charge > 0x0FFF ? 0x0FFF : charge;
   pad2Photo(absolute2Pad(module, x, y), &mCh, &mPh, &mX, &mY);
   mParticlePdg = particlePdg;
-  mTrackId = trackId;
+
 }
 
 // Digit ASCCI format Dump := [Chamber,PhotoCathod,X,Y]@(Orbit,BunchCrossing)=Charge

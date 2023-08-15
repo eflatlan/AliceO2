@@ -1260,6 +1260,8 @@ void AODProducerWorkflowDPL::fillHMPID(const o2::globaltracking::RecoContainer& 
     float xMip, yMip;
     int charge, nph;
 
+
+    //match.getHMPIDtrk(xTrk, yTrk, theta, phi);
     match.getHMPIDtrk(xRa, yRa, xTrk, yTrk, theta, phi);
     //getHMPIDtrk(float& xRad, float& yRad, float& xPc, float& yPc, float& th, float& ph); 
 

@@ -18,6 +18,7 @@
 #include "ReconstructionDataFormats/TrackLTIntegral.h"
 #include "ReconstructionDataFormats/GlobalTrackID.h"
 #include "CommonDataFormat/EvIndex.h"
+#include <TVector2.h>
 
 namespace o2
 {
@@ -85,12 +86,72 @@ class MatchInfoHMP
     mTrkPhi = ph;
   }
 
-  void getHMPIDtrk(float& x, float& y, float& th, float& ph) const
+
+  void setHMPIDtrk(float xRa, float yRa, float x, float y, float th, float ph)
   {
-    x = mTrkX;
-    y = mTrkY;
-    th = mTrkTheta;
-    ph = mTrkPhi;
+
+    mxRa = xRa;
+    myRa = yRa;
+
+    mTrkX = x;
+    mTrkY = y;
+    mTrkTheta = th;
+    mTrkPhi = ph;
+  }
+
+
+    int getEvent() const 
+    {
+        return mEvent;
+    }
+
+
+
+    void getHMPIDtrk(float& xRad, float& yRad, float& xPc, float& yPc, float& th, float& ph) const
+    {
+        xRad = mxRa;
+        yRad = myRa;
+        xPc = mTrkX;
+        yPc = mTrkY;
+        th = mTrkTheta;
+        ph = mTrkPhi;
+    }
+
+    void getHMPIDtrk(float& xPc, float& yPc, float& th, float& ph) const
+    {
+
+        xPc = mTrkX;
+        yPc = mTrkY;
+        th = mTrkTheta;
+        ph = mTrkPhi;
+    }
+
+
+  void setRefIndex(float refIndex)
+  {
+    mRefIndex = refIndex;
+  }
+
+  double getRefIndex () const 
+	{
+    return mRefIndex;
+	}
+
+
+  void setChamber(int iChamber)
+  {
+    miCh = iChamber;
+  }
+
+  double getChamber () const 
+	{
+    return miCh;
+	}
+
+
+  void setEventNumber(int iEvent)
+  {
+    mEvent = iEvent;
   }
 
   void setHMPIDmip(float x, float y, int q, int nph = 0)
@@ -122,6 +183,15 @@ class MatchInfoHMP
 
   void print() const;
 
+ private:
+
+	float mxRa, myRa;
+
+
+	float mRefIndex = 1.27;
+	int mEvent;
+	int miCh;
+
  protected:
   int mIdxHMPClus;       // Idx for HMP cluster
   GTrackID mIdxTrack;    // Idx for track
@@ -132,8 +202,8 @@ class MatchInfoHMP
   float mTrkTheta;       // theta track
   float mTrkPhi;         // phi track
   float mCkovAngle;      // emission angle value
-  int mMipCluSize = 0.0; // MIP cluster size
-  int mNPhots = 0.0;     // number of candidate photo-electrons
+  int mMipCluSize; // MIP cluster size
+  int mNPhots;     // number of candidate photo-electrons
   int mIdxPhotClus;      // index of the first photo
   int mHMPqn;            // 1000000*number of photon clusters + QDC
   float mHmpMom;         // track momentum at HMPID chambers

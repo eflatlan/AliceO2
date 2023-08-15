@@ -42,8 +42,6 @@
 #include "Framework/DataRefUtils.h"
 #include "Framework/CCDBParamSpec.h"
 
-//#include "GlobalTracking/MLHMPID.h" ef tried this
-
 using namespace o2::globaltracking;
 using namespace o2::framework;
 namespace o2d = o2::dataformats;
@@ -1011,10 +1009,7 @@ void RecoContainer::addTOFMatchesITSTPCTRD(ProcessingContext& pc, bool mc)
 //__________________________________________________________
 void RecoContainer::addHMPMatches(ProcessingContext& pc, bool mc)
 {
-  // ef changed:
-  commonPool[GTrackID::HMP].registerContainer(pc.inputs().get<gsl::span<o2d::MatchInfoHMP>>("matchHMP"), MATCHES); //  HMPID match info, no real tracks
-// ef tried this: commonPool[GTrackID::HMP].registerContainer(pc.inputs().get<gsl::span<o2::globaltracking::HmpMLVector>>("matchHMP"), MATCHES); //  HMPID match info, no real tracks
-
+  commonPool[GTrackID::HMP].registerContainer(pc.inputs().get<gsl::span<o2::dataformats::MatchInfoHMP>>("matchHMP"), MATCHES); //  HMPID match info, no real tracks
   if (mc) {
     commonPool[GTrackID::HMP].registerContainer(pc.inputs().get<gsl::span<o2::MCCompLabel>>("clsHMP_GLO_MCTR"), MCLABELS);
   }

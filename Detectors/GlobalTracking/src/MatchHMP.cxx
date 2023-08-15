@@ -54,7 +54,7 @@ using evGIdx = o2::dataformats::EvIndex<int, o2::dataformats::GlobalTrackID>;
 using Cluster = o2::hmpid::Cluster;
 using Recon = o2::hmpid::Recon;
 using MatchInfo = o2::dataformats::MatchInfoHMP;
-//using MLinfoHMP = o2::dataformats::MLinfoHMP;
+using MLinfoHMP = o2::dataformats::MLinfoHMP;
 
 using MLinfoHMP = o2::dataformats::MLinfoHMP;
 using Trigger = o2::hmpid::Trigger;
@@ -146,6 +146,9 @@ bool MatchHMP::prepareTracks()
 
   mRecoCont->createTracksVariadic(creator);
 
+
+
+
   for (int it = 0; it < o2::globaltracking::MatchHMP::trackType::SIZE; it++) {
     mMatchedTracksIndex[it].resize(mTracksWork[it].size());
     std::fill(mMatchedTracksIndex[it].begin(), mMatchedTracksIndex[it].end(), -1); // initializing all to -1
@@ -188,6 +191,8 @@ bool MatchHMP::prepareTracks()
     //  } // loop over tracks of single sector
   } // constrained tracks
 
+
+  LOGP(info, "MatchHMP::prepareTracks() ended ok");
   return true;
 }
 //______________________________________________
@@ -440,7 +445,7 @@ void MatchHMP::doMatching()
         bool isOkQcut = kFALSE;
         bool isMatched = kFALSE;
 
-	      const o2::hmpid::Cluster* bestHmpCluster = nullptr;
+        const o2::hmpid::Cluster* bestHmpCluster = nullptr;
 
         std::vector<Cluster> oneEventClusters;
 
@@ -488,6 +493,8 @@ void MatchHMP::doMatching()
           hmpTrkConstrained = nullptr; */
           continue;
         }
+
+	LOGP(info," MatchHMP.cxx : found new BestCLuster");
 
         double Dist = TMath::Sqrt((xPc - bestHmpCluster->x()) * (xPc - bestHmpCluster->x()) + (yPc - bestHmpCluster->y()) * (yPc - bestHmpCluster->y()));
 
@@ -546,7 +553,10 @@ void MatchHMP::doMatching()
         matching->setHMPIDmip(bestHmpCluster->x(), bestHmpCluster->y(), bestHmpCluster->q(), 0); // store mip info in any case
         matching->setMipClusSize(bestHmpCluster->size());
         matching->setIdxHMPClus(iCh, index + 1000 * cluSize); // set chamber, index of cluster + cluster size
-        matching->setHMPIDtrk(xPc, yPc, theta, phi);
+
+        matching->setHMPIDtrk(xRa, yRa,xPc, yPc, theta, phi);
+
+
 
         matching->setHMPsignal(pParam->kMipQdcCut);
 
@@ -595,8 +605,14 @@ void MatchHMP::doMatching()
 
         //auto mlTrackPtr = std::make_unique<MLinfoHMP>(matching, xRa, yRa); // TODO: add refractive index from calibration
 
-    	  o2::dataformats::MLinfoHMP mlTrack(matching.get(), iCh, xRa, yRa, nmean, iEvent);
-  	    //mlEvent->addTrack(mlTrack);
+				o2::dataformats::MLinfoHMP mlTrack(matching.get(), iCh, xRa, yRa, nmean, iEvent);
+
+
+				matching->setRefIndex(nmean);
+				matching->setChamber(iCh);
+				matching->setEventNumber(iEvent);
+
+							//mlEvent->addTrack(mlTrack);
 
         // TODO : make copy ctor
 
@@ -605,12 +621,17 @@ void MatchHMP::doMatching()
 
           // ef: add other fields, find more suitable name pls
 	        //mlEvent.addTrack(std::move(mlTrackPtr));
+
+
           mMLTracks[type].push_back(mlTrack);
+          LOGP(info, "MatchHMP.cxx emplacing mlTrack in mMLTracks : refIndex {} | chamber {} | xRa {} | yRa {}", mlTrack.getRefIndex(), iCh, xRa, yRa);
         }  
 
         mMatchedTracks[type].push_back(*matching);
 
         oneEventClusters.clear();
+
+
 
 	      /*
         delete hmpTrk;
@@ -619,12 +640,16 @@ void MatchHMP::doMatching()
         hmpTrkConstrained = nullptr; */
 
       } // if matching in time
+
+      LOGP(info," MatchHMP.cxx : end track");
     }   // tracks loop
 
 
     // ef: add this event to the vectors of events
     //mMLEvents.push_back(*mlEvent);
+      LOGP(info," MatchHMP.cxx : end event");
   }     // events loop
+  LOGP(info," MatchHMP.cxx : finished all events");
 }
 //==================================================================================================================================================
 int MatchHMP::intTrkCha(o2::track::TrackParCov* pTrk, double& xPc, double& yPc, double& xRa, double& yRa, double& theta, double& phi, double bz)
