@@ -436,6 +436,8 @@ void MatchHMP::doMatching()
 
         matching->setHMPIDtrk(xPc, yPc, theta, phi); // store initial infos
         matching->setIdxHMPClus(iCh, 9999);          // set chamber, index of cluster + cluster size
+        matching->setParticlePdg(trefTrk.getPID());
+
 
         int index = -1;
 

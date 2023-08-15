@@ -169,6 +169,9 @@ class MatchInfoHMP
     nph = mHMPqn / 1000000;
   }
 
+  void setParticlePdg(int p) { mParticlePdg = particlePdg; }
+  int getParticlePdg() const { return mParticlePdg; }
+
   void setHmpMom(float p) { mHmpMom = p; }
   float getHmpMom() const { return mHmpMom; }
 
@@ -193,6 +196,8 @@ class MatchInfoHMP
 	int miCh;
 
  protected:
+
+  int mParticlePdg;      // for sim: the PDG code of the track
   int mIdxHMPClus;       // Idx for HMP cluster
   GTrackID mIdxTrack;    // Idx for track
   float mMipX;           // local x coordinate of macthed cluster
