@@ -118,7 +118,7 @@ bool Detector::ProcessHits(FairVolume* v)
       Double_t xl, yl;
       const int particlePdg = fMC->TrackPid();
       o2::hmpid::Param::instance()->mars2Lors(idch, x, xl, yl); //take LORS position
-      AddHit(x[0], x[1], x[2], hitTime, etot, tid, idch, particlePdg, eventNumber, motherTrackId); //HIT for photon, position at P, etot will be set to Q
+      AddHit(x[0], x[1], x[2], hitTime, etot, tid, idch, particlePdg, motherTrackId); //HIT for photon, position at P, etot will be set to Q
       GenFee(etot);                                       //generate feedback photons etot is modified in hit ctor to Q of hit
       stack->addHit(GetDetId());
       LOGP(info, "photon {}", fMC->TrackPid());
@@ -242,9 +242,9 @@ return kTRUE;
 //*********************************************************************************************************
 
 // ef: must add track particle type here??
-o2::hmpid::HitType* Detector::AddHit(float x, float y, float z, float time, float energy, Int_t trackId, Int_t detId, Int_t particlePdg, int eventNumber, int motherTrackId)
+o2::hmpid::HitType* Detector::AddHit(float x, float y, float z, float time, float energy, Int_t trackId, Int_t detId, Int_t particlePdg, int motherTrackId)
 {
-  mHits->emplace_back(x, y, z, time, energy, trackId, detId, particlePdg, eventNumber, motherTrackId);
+  mHits->emplace_back(x, y, z, time, energy, trackId, detId, particlePdg, motherTrackId);
   return &(mHits->back());
 }
 //*********************************************************************************************************

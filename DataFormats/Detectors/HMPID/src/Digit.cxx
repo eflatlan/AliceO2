@@ -40,7 +40,10 @@ namespace hmpid
 ///               (Chamber, PhotoCathod, X, Y)
 /// @param[in] pad : the Digit Unique Id [0x00CPXXYY]
 /// @param[in] charge : the value of the charge [0 .. 2^12-1]
-Digit::Digit(int pad, uint16_t charge,  int particlePdg, Int_t trackId)
+
+
+
+Digit::Digit(int pad, uint16_t charge,  int particlePdg, Int_t trackId, int motherTrack, int eventId, int sourceId)
 {
   mQ = charge > 0x0FFF ? 0x0FFF : charge;
   mCh = a2C(pad);
@@ -49,7 +52,11 @@ Digit::Digit(int pad, uint16_t charge,  int particlePdg, Int_t trackId)
   mY = a2Y(pad);
   mParticlePdg = particlePdg;
   mTrackId = trackId;
+  mMotherTrackId = motherTrack;
+  mEventNumber = eventId;
+  mSourceId = sourceId;
 }
+
 
 /// Constructor : Create the Digit structure. Accepts the trigger time (Orbit,BC)
 ///               The mapping of the digit is in the Photo Cathod coords

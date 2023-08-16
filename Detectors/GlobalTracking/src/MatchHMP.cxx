@@ -558,7 +558,7 @@ void MatchHMP::doMatching()
         matching->setIdxHMPClus(iCh, index + 1000 * cluSize); // set chamber, index of cluster + cluster size
 
 
-        matching->setMIPindex(index); // the position of the MIP in the qrray of clusters
+        //matching->setMIPindex(index); // the position of the MIP in the qrray of clusters
 
 
         matching->setHMPIDtrk(xRa, yRa,xPc, yPc, theta, phi);
