@@ -40,7 +40,7 @@ namespace hmpid
 ///               (Chamber, PhotoCathod, X, Y)
 /// @param[in] pad : the Digit Unique Id [0x00CPXXYY]
 /// @param[in] charge : the value of the charge [0 .. 2^12-1]
-Digit::Digit(int pad, uint16_t charge, int particlePdg, Int_t trackId)
+Digit::Digit(int pad, uint16_t charge,  int particlePdg, Int_t trackId)
 {
   mQ = charge > 0x0FFF ? 0x0FFF : charge;
   mCh = a2C(pad);

@@ -450,7 +450,7 @@ void MatchHMP::doMatching()
         const o2::hmpid::Cluster* bestHmpCluster = nullptr;
 
         std::vector<Cluster> oneEventClusters;
-
+        auto cluInde = 0;
         for (int j = event.getFirstEntry(); j <= event.getLastEntry(); j++) { // event clusters loop
           auto& cluster = (o2::hmpid::Cluster&)mHMPClustersArray[j];
 
@@ -482,6 +482,7 @@ void MatchHMP::doMatching()
             dmin = dist;
             index = oneEventClusters.size() - 1;
             bestHmpCluster = &cluster;
+            
           }
 
         } // event clusters loop
@@ -496,7 +497,7 @@ void MatchHMP::doMatching()
           continue;
         }
 
-	LOGP(info," MatchHMP.cxx : found new BestCLuster");
+	      LOGP(info," MatchHMP.cxx : found new BestCLuster");
 
         double Dist = TMath::Sqrt((xPc - bestHmpCluster->x()) * (xPc - bestHmpCluster->x()) + (yPc - bestHmpCluster->y()) * (yPc - bestHmpCluster->y()));
 
@@ -556,6 +557,10 @@ void MatchHMP::doMatching()
         matching->setMipClusSize(bestHmpCluster->size());
         matching->setIdxHMPClus(iCh, index + 1000 * cluSize); // set chamber, index of cluster + cluster size
 
+
+        matching->setMIPindex(index); // the position of the MIP in the qrray of clusters
+
+
         matching->setHMPIDtrk(xRa, yRa,xPc, yPc, theta, phi);
 
 
@@ -587,14 +592,7 @@ void MatchHMP::doMatching()
           isMatched = kTRUE;
         } // MIP-Track matched !!
 
-        if (!isMatched) {
-          mMatchedTracks[type].push_back(*matching);/*
-          delete hmpTrk;
-          hmpTrk = nullptr;
-          delete hmpTrkConstrained;
-          hmpTrkConstrained = nullptr; */
-          continue;
-        } // If matched continue...
+
 
 
 
@@ -610,10 +608,21 @@ void MatchHMP::doMatching()
 				o2::dataformats::MLinfoHMP mlTrack(matching.get(), iCh, xRa, yRa, nmean, iEvent);
 
 
+
+        // should this be befoer or after the if (!isMatched) { ?? TODO: ef:
 				matching->setRefIndex(nmean);
 				matching->setChamber(iCh);
 				matching->setEventNumber(iEvent);
 
+
+        if (!isMatched) {
+          mMatchedTracks[type].push_back(*matching);/*
+          delete hmpTrk;
+          hmpTrk = nullptr;
+          delete hmpTrkConstrained;
+          hmpTrkConstrained = nullptr; */
+          continue;
+        } // If matched continue...
 							//mlEvent->addTrack(mlTrack);
 
         // TODO : make copy ctor

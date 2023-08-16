@@ -3,8 +3,9 @@ struct ShallowDigit {
     uint16_t mQ;
     uint8_t mX;
     uint8_t mY;
+    Int_t mTrackId, mParticlePdg;
 
-    ShallowDigit(uint16_t q, uint8_t x, uint8_t y) : mQ(q), mX(x), mY(y) {}
+    ShallowDigit(uint16_t q, uint8_t x, uint8_t y, Int_t trackId, Int_t particlePdg) : mQ(q), mX(x), mY(y), trackId(mTrackId),particlePdg(mParticlePdg) {}
 };
 
 struct ClusterCandidate {
@@ -96,7 +97,7 @@ for(const auto& clusters : clustersVector) // "events loop"
             shallowDigits.reserve((obj.pDig)->size());
             std::transform(obj.pDig.begin(), obj.pDig.end(), std::back_inserter(shallowDigits),
             [](const Digit* d) {
-                return ShallowDigit(d->getQ(), d->getX(), d->getY());
+                return ShallowDigit(d->getQ(), d->getX(), d->getY(), d->getY(), d->getTrackId(), d->getParticlePdg());
             });
 
 
@@ -125,6 +126,17 @@ for(const auto& clusters : clustersVector) // "events loop"
             // pass clusters (and track) by reference, and add its status per track (adding to candStatus vector )
             evaluateClusterTrack(clusterPerChamber, track);
         }
+
+        // save ClusterPerChamber
+
+        // save trackInfo : 
+        //                  trackIndex : mIdxTrack
+        //                  scalar : p, refIndex,
+        //                  trackInfo theta, phi, xRad, yRad; {xPc yPc is redundant}
+        //                  MIP            : x, y, q
+        //                  MCTruth : pdg code of track || pdg code of MIP?
+          
+
 
 
         // now assigned all types of candidates for all clusters in teh given chamber

@@ -72,7 +72,7 @@ class Digit
 
  public:
   Digit() = default;
-  Digit(int pad, uint16_t charge, int particlePdg, int trackId);
+  Digit(int pad, uint16_t charge, int particlePdg, int trackId, int eventId, int sourceId);
   Digit(int chamber, int photo, int x, int y, uint16_t charge, int particlePdg);
   Digit(uint16_t charge, int equipment, int column, int dilogic, int channel, int particlePdg);
   Digit(uint16_t charge, int module, int x, int y, int particlePdg);
@@ -96,6 +96,9 @@ class Digit
     mCh = 0xFF;
     return;
   };
+
+  void setEventNumber (int eventNumber) {mEventNumber = eventNumber;}
+  double getEventNumber const () {return mEventNumber;}
 
   // // convenience wrapper function for conversion to x-y pad coordinates
   // int getPx() const { return A2X(mPad); }
@@ -123,6 +126,10 @@ class Digit
 
  public:
   // Members
+
+  int motherTrack;
+  int mSourceId;
+  int mEventNumber;
   int mTrackId;
   int mParticlePdg;
   uint16_t mQ = 0;

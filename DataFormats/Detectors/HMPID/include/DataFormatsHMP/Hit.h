@@ -34,12 +34,15 @@ class HitType : public o2::BasicXYZEHit<float>
 {
  private: 
   Int_t mParticlePdg;
+  int mMotherTrack; // ef: added particlePdg
+
   Int_t mTrackId;
  public:
   
   Int_t getParticlePdg() const { return mParticlePdg;}
   Int_t getTrackId() const { return mTrackId;}
-
+  Int_t getMother() const { return mMotherTrack;}
+  
   HitType() = default;
   inline HitType(
 	float x, 
@@ -49,7 +52,8 @@ class HitType : public o2::BasicXYZEHit<float>
 	float energy,
  	Int_t trackId,
 	Int_t detId,
-	Int_t particlePdg); // ef: added particlePdg
+	Int_t particlePdg, 
+	int motherTrack); // ef: added particlePdg
 
 
   
@@ -67,10 +71,12 @@ HitType::HitType(float x,
 		 float energy,
 	 	 Int_t trackId,
 		 Int_t detId,
-		 Int_t particlePdg)
+		 Int_t particlePdg, 
+		 int motherTrack)
 	: BasicXYZEHit(x, y, z, time, energy, trackId, detId),
 	  mParticlePdg(particlePdg), 
-	  mTrackId(trackId)
+	  mTrackId(trackId), 
+	  mMotherTrack(motherTrack)
 	{}
 
 } // namespace hmpid

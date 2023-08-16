@@ -38,13 +38,13 @@ void readTreeEntries() {
     // Open the ROOT file
     auto matchFile = std::make_unique<TFile>("o2match_hmp.root");
     auto clusterFile = std::make_unique<TFile>("hmpidclus.root");
+    auto mcFile = std::make_unique<TFile>("o2sim_Kine.root");
 
-    std::unique_ptr<TTree> matchTree, clusTree; ///< input tree
-
-
+    std::unique_ptr<TTree> matchTree, clusTree, kineTRee; ///< input tree
 
     std::vector<Clusters>* mClustersFromFile;
     std::vector<o2::dataformats::MLinfoHMP>* mTracksFromFile;
+    std::vector<o2::MCTrack>* mCarloFromFile;
 
     initFileIn(matchFile, matchTree,  "",  "", "HMPMatchInfo", "HMPMatchInfo", &mTracksFromFile );
     /*if (mUseMC) {
@@ -52,6 +52,8 @@ void readTreeEntries() {
     }*/ 
 
     initFileIn(clusterFile, clusTree,  "o2hmp",  "o2sim", "HMPIDClusters", "HMPIDclusters", &mClustersFromFile);
+
+    initFileIn(mcFile, kineTRee,  "o2hmp",  "o2sim", "MCTrack", "MCTrack", &mCarloFromFile);
 
     
 
@@ -63,18 +65,47 @@ void readTreeEntries() {
 
 
     // Loop over tree entries
-    Long64_t nEntries = matchTree->GetEntries();
-    for (Long64_t i = 0; i < nEntries; i++) {
-        if (mTree->GetReadEntry() + 1 >= mTree->GetEntries()) {
+    Long64_t nMatchEvents = matchTree->GetEntries();
+    Long64_t nClusterEvents = clusTree->GetEntries();
+    Long64_t nKineEvents = kineTRee->GetEntries();
+    LOGP(info, "nMatchEvents {}, nClusterEvents {nClusterEvents},  nKineEvents {nKineEvents}");
 
+    // loop over nKineTree see if we have HMP tracks and clusters for the given event
+
+    for (Long64_t iKine = 0; iKine < nKineEvents; iKine++) {
+        if (nKineEvents->GetReadEntry() + 1 >= nKineEvents->GetEntries()) {
+        }  
         else {
-            matchTree->GetEntry(i);  // This fills the above variables with data
-            clusTree->GetEntry(i);  // This fills the above variables with data
+            kineTRee->GetEntry(iKine);  // This fills the above variables with data
+
+            for (int i = 0; i < mCarloFromFile->size(); ++i) {
+              const auto& mcTrack = (*mcAmCarloFromFilerr)[i];
+
+              // 
+              if (i == trackID) {
+                Printf("Particle %d: pdg = %d, pT = %f, px = %f, py = %f, pz = %f, vx = %f, vy = %f, vz = %f", i, mcTrack.GetPdgCode(), TMath::Abs(mcTrack.GetStartVertexMomentumX() * mcTrack.GetStartVertexMomentumX() + mcTrack.GetStartVertexMomentumY() * mcTrack.GetStartVertexMomentumY()), mcTrack.GetStartVertexMomentumX(), mcTrack.GetStartVertexMomentumY(), mcTrack.GetStartVertexMomentumZ(), mcTrack.GetStartVertexCoordinatesX(), mcTrack.GetStartVertexCoordinatesY(), mcTrack.GetStartVertexCoordinatesZ());
+              }
+            }
+
+            matchTree->GetEntry(iKine);  // This fills the above variables with data
+            clusTree->GetEntry(iKine);  // This fills the above variables with data
 
             // Now you can use the data
-            std::cout << "Entry " << i << ": branchA = " << branchAData << ", branchB = " << branchBData << std::endl;
+            //std::cout << "Entry " << i << ": branchA = " << branchAData << ", branchB = " << branchBData << std::endl;
         }
     }
 
     //file->Close();
+
+
+
+
+  tKine->GetEntry(eventID);
+  for (int i = 0; i < mCarloFromFile->size(); ++i) {
+    const auto& mcTrack = (*mCarloFromFile)[i];
+    if (i == trackID) {
+      Printf("Particle %d: pdg = %d, pT = %f, px = %f, py = %f, pz = %f, vx = %f, vy = %f, vz = %f", i, mcTrack.GetPdgCode(), TMath::Abs(mcTrack.GetStartVertexMomentumX() * mcTrack.GetStartVertexMomentumX() + mcTrack.GetStartVertexMomentumY() * mcTrack.GetStartVertexMomentumY()), mcTrack.GetStartVertexMomentumX(), mcTrack.GetStartVertexMomentumY(), mcTrack.GetStartVertexMomentumZ(), mcTrack.GetStartVertexCoordinatesX(), mcTrack.GetStartVertexCoordinatesY(), mcTrack.GetStartVertexCoordinatesZ());
+    }
+  }
+
 }
