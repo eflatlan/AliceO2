@@ -169,7 +169,7 @@ class MatchInfoHMP
     nph = mHMPqn / 1000000;
   }
 
-  void setParticlePdg(int p) { mParticlePdg = particlePdg; }
+  void setParticlePdg(int particlePdg) { mParticlePdg = particlePdg; }
   int getParticlePdg() const { return mParticlePdg; }
 
   void setHmpMom(float p) { mHmpMom = p; }
