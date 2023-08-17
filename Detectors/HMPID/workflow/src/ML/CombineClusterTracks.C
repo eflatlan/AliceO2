@@ -84,46 +84,100 @@ void initFileIn(std::unique_ptr<TFile>& mFile, std::unique_ptr<TTree>& mTree, co
 
 
 std::vector<o2::dataformats::MatchInfoHMP>* readTrack(int eventID, int trackID, int& pdg) {
-
-
-  TFile* fKine = new TFile("o2match_hmp.root");
-  TTree* tKine = (TTree*)fKine->Get("matchHMP");
-	if(!tKine) tKine = (TTree*)fKine->Get("o2hmp");
-  std::vector<o2::dataformats::MatchInfoHMP>* mcArr = nullptr;
-  tKine->SetBranchAddress("HMPMatchInfo", &mcArr);
-  tKine->GetEntry(eventID);
+  TFile* fMatch = new TFile("o2match_hmp.root");
+  TTree* tMatch = (TTree*)fKine->Get("matchHMP");
+	if(!tMatch) tMatch = (TTree*)fKine->Get("o2hmp");
+  std::vector<o2::dataformats::MatchInfoHMP>* matchArr = nullptr;
+  tMatch->SetBranchAddress("HMPMatchInfo", &matchArr);
+  tMatch->GetEntry(eventID);
 	
-	Printf("mcArr size %d"  , mcArr->size());
+	Printf("matchArr size %d"  , matchArr->size());
 	int cnt = 0;
-  for(const auto& c : *mcArr) {	
+  for(const auto& c : *matchArr) {	
 
 		float x, y; int q, nph;
 		c.getHMPIDmip(x, y, q, nph); 
 	  Printf("i %d MIPindex %d" , cnt++, q);
   }
 
-	return mcArr;
+	return matchArr;
+}
+
+TTree* initializeTree(std::vector<o2::dataformats::MatchInfoHMP>*& matchArr) {
+    TFile* fMatch = TFile::Open("o2match_hmp.root");
+    if (!fMatch || fMatch->IsZombie()) {
+        Printf("Error opening file");
+        return nullptr;
+    }
+  
+    TTree* tMatch = (TTree*)fMatch->Get("matchHMP");
+    if(!tMatch) tMatch = (TTree*)fMatch->Get("o2hmp");
+    if(!tMatch) {
+        Printf("Error accessing TTree");
+        fMatch->Close();
+        delete fMatch;
+        return nullptr;
+    }
+
+    tMatch->SetBranchAddress("HMPMatchInfo", &matchArr);
+    tMatch->GetEntry(0);
+
+    return tMatch;
 }
 
 
+// eventId = eventID to be searched for;
+// startIndex : index of where matchArr is to be searched
+// newStartIndex startIndex for next event
+std::vector<o2::dataformats::MatchInfoHMP>* readTrackWithCut(TTree* tMatch, std::vector<o2::dataformats::MatchInfoHMP>* matchArr, int eventID, int& startIndex) {
+    if(!tMatch) {
+        Printf("TTree not initialized");
+        return nullptr;
+    }
+
+    // Prepare to store filtered matches
+    std::vector<o2::dataformats::MatchInfoHMP>* filteredMatches = new std::vector<o2::dataformats::MatchInfoHMP>;
+
+
+
+    // tracks should be stored in "time" --> when we find our event we can then switch this condition "of" when the event changes:
+    bool found = false;
+
+
+    if((*matchArr)[startIndex].getEventNumber() != eventID) {Printf("This shouldnt happen");}
+    else found = true;
+
+    for(int i = startIndex; i < matchArr.size(); i++) {
+        const auto& track = (*matchArr)[i];
+        if(track.getEventNumber() != eventID) {
+          startIndex = i; // new startIndex for next event
+          break;
+        } else { 
+          filteredMatches->push_back(track);
+        }
+    }
+
+    return filteredMatches;
+}
+
+
+TFile* fClu = new TFile("hmpidclusters.root");
+TTree* tClu = (TTree*)fClu->Get("o2sim");
+if(!tClu) tClu = (TTree*)fClu->Get("o2hmp");
+std::vector<Cluster>* cluArr = nullptr;
+tClu->SetBranchAddress("HMPIDclusters",&cluArr);
 
 std::vector<Cluster>* readClu(int eventID, int trackID, int& pdg) {
-  TFile* fKine = new TFile("hmpidclusters.root");
-  TTree* tKine = (TTree*)fKine->Get("o2sim");
-	if(!tKine) tKine = (TTree*)fKine->Get("o2hmp");
-  std::vector<Cluster>* mcArr = nullptr;
-  tKine->SetBranchAddress("HMPIDclusters", &mcArr);
-  tKine->GetEntry(eventID);
-	
 
-	Printf("mcArr size %d"  , mcArr->size());
+  tClu->GetEntry(eventID);
+	Printf("mcArr size %d"  , cluArr->size());
 
 	int cnt = 0;
-  for(const auto& c : *mcArr) {	
-	  Printf("i %d ye %f" , cnt++,c.ye());
+  for(const auto& c : *cluArr) {	
+	  Printf("i %d ye %f" , cnt++, c.ye());
   }
 
-	return mcArr;
+	return cluArr;
 }
 
 
@@ -138,7 +192,7 @@ std::vector<o2::MCTrack>* readTOF(int eventID, int trackID, int& pdg) {
 
 
 
-
+.
 
   for (int i = 0; i < mcArr->size(); ++i) {
     const auto& mcTrack = (*mcArr)[i];
@@ -207,6 +261,13 @@ void readTreeEntries() {
   auto trackVector = readTrack(0,0,i);
   auto clusterVector = readClu(0,0,i);
   std::vector<o2::MCTrack>* mcVector = readTOF(0,0,i);
+
+
+
+  // 
+  for() {
+    
+  }
 
 	Printf("numTracks %d numClusters %d numMC %d", trackVector->size(), clusterVector->size(), mcVector->size());
 	

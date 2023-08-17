@@ -1,10 +1,32 @@
 
 struct ShallowDigit {
-    uint16_t mQ;
-    uint8_t mX;
-    uint8_t mY;
-    Int_t mTrackId, mParticlePdg;
+  int mMotherTrackId;
+  int mSourceId;
+  int mEventNumber;
+  int mTrackId;
+  int mParticlePdg;
+  uint16_t mQ = 0;
+  uint8_t mCh = 0; // 0xFF indicates invalid digit
+  uint8_t mPh = 0;
+  uint8_t mX = 0;
+  uint8_t mY = 0;
+  
+  uint16_t getQ() const { return mQ; }
+  uint8_t getCh() const { return mCh; }
+  uint8_t getPh() const { return mPh; }
+  uint8_t getX() const { return mX; }
+  uint8_t getY() const { return mY; }
 
+
+  void setEventNumber (int eventNumber) {mEventNumber = eventNumber;}
+  int getEventNumber () const  {return mEventNumber;}
+
+
+  void setMotherId (int motherTrackId) {mMotherTrackId = motherTrackId;}
+  int getMotherId () const  {return mMotherTrackId;}
+
+
+  int getSourceId () const  {return mSourceId;}
     ShallowDigit(uint16_t q, uint8_t x, uint8_t y, Int_t trackId, Int_t particlePdg) : mQ(q), mX(x), mY(y), trackId(mTrackId),particlePdg(mParticlePdg) {}
 };
 
@@ -55,19 +77,47 @@ struct ClusterCandidate {
 };
 
 
+std::vector<o2::dataformats::MatchInfoHMP>* matchArr = nullptr;
+TTree* tMatch = initializeTree(matchArr);
 
-for(const auto& clusters : clustersVector) // "events loop"
+
+
+//for(const auto& clusters : clustersVector) // "events loop"
+
+int startIndexTrack = 0;
+for(int i = 0; i < trigger->size(); i++) //{
 { 
+
+    std::vector<Cluster> oneEventClusters;
+    const int firstEntry = pTgr->getFirstEntry();
+    const int lastEntry = pTgr->getLastEntry();
+    int eventNumber1 = static_cast<o2::hmpid::Cluster>(clusters->at(firstEntry));
+    int eventNumberLast = static_cast<o2::hmpid::Cluster>(clusters->at(lastEntry));
+    if(ceventNumberLast != eventNumber1) {Printf("Eventnumber changed??");} // TODO: throw error? ef:
+
+
+    for(int j = pTgr->getFirstEntry(); j <= pTgr->getLastEntry(); j++) {      
+      const auto& clu = static_cast<o2::hmpid::Cluster>(clusters->at(j));
+
+      if(clu.getEventNumber != eventNumber1) {Printf("Eventnumber changed??");}
+      else {
+          oneEventClusters.push_back(clu);
+      }
+    }  
+
+    // find entries in tracksOneEvent which corresponds to correct eventNumber
+    std::vector<o2::dataformats::MatchInfoHMP>* tracksOneEvent = readTrackWithCut(tMatch, matchArr, startIndexTrack);
+
+
+
     // for this event 
-    
-    // for this event, find intersected chambers: 
 
 
-    std::sort(MLinfoHMPVector.begin(), MLinfoHMPVector.end(), [](const MLinfoHMP &a, const MLinfoHMP &b) {
+    std::sort(tracksOneEvent.begin(), tracksOneEvent.end(), [](const MLinfoHMP &a, const MLinfoHMP &b) {
         return a.iCh < b.iCh;
     });
     
-    std::sort(clusters.begin(), clusters.end(), [](const Cluster &a, const Cluster &b) {
+    std::sort(oneEventClusters.begin(), oneEventClusters.end(), [](const Cluster &a, const Cluster &b) {
         return a.iCh < b.iCh;
     });
 
@@ -75,7 +125,7 @@ for(const auto& clusters : clustersVector) // "events loop"
     
     std::vector<MLinfoHMP> sortedTracks[7];
     // Assign MLinfoHMP objects to corresponding vectors based on iCh value
-    for (const auto &obj : MLinfoHMPVector) {
+    for (const auto &obj : tracksOneEvent) {
         if (obj.iCh >= 0 && obj.iCh <= 6) {
             sortedTracks[obj.iCh].push_back(obj);
         } else {
@@ -93,20 +143,21 @@ for(const auto& clusters : clustersVector) // "events loop"
         if (obj.iCh >= 0 && obj.iCh <= 6 && sortedTracks[obj.iCh].size() > 0) {
 
             // make a light copy of digits, just holding the fields charge, x, y
-            std::vector<ShallowDigit> shallowDigits;
+            /*std::vector<ShallowDigit> shallowDigits;
             shallowDigits.reserve((obj.pDig)->size());
             std::transform(obj.pDig.begin(), obj.pDig.end(), std::back_inserter(shallowDigits),
             [](const Digit* d) {
                 return ShallowDigit(d->getQ(), d->getX(), d->getY(), d->getY(), d->getTrackId(), d->getParticlePdg());
-            });
+            }); */
 
+            const std::vector<o2::hmpid::Cluster::Topology>& topology = ch.getClusterTopology();  // some info about digits associated w cluster
 
             std::vector<std::pair<int,int>> candStatus = {{0,0}};
             /*
                 ClusterCandidate(int ch, double x, double y, double q, double chi2, 
                      double xe, double ye, std::vector<ShallowDigit>* shallowDigits, 
                      std::vector<std::pair<int,int>>* candidateStatusVector) */
-            sortedClusters[obj.iCh].emplace_back({obj.ch, obj.x, obj.y, obj.q, obj.chi2, obj.xE, obj.yE, &shallowDigits, &candStatus});
+            sortedClusters[obj.iCh].emplace_back({obj.ch, obj.x, obj.y, obj.q, obj.chi2, obj.xE, obj.yE, &topology, &candStatus});
         } else {
             std::cerr << "Warning: iCh value out of expected range: " << obj.iCh << std::endl;
         }
@@ -115,16 +166,29 @@ for(const auto& clusters : clustersVector) // "events loop"
 
     for(int i = 0; i < 7; i++) {
         
-        // check if has more than one track
+        // check if has more than one track --> this means there is no candidates
         if(sortedTracks[i].size() < 1) {
             continue;
         }
 
         auto& clusterPerChamber = sortedClusters[i];
+
+
+        std::vector<float> mipCharges;
+        // fill charges of MIPs
+        for(const auto& track : sortedTracks[i]) {
+            float xMip, yMip;
+            track.getHMPIDmip(xMip, yMip, q, nph);
+            mipCharges.emplace_back(q);
+        }
+
         for(const auto& track : sortedTracks[i]) {
 
             // pass clusters (and track) by reference, and add its status per track (adding to candStatus vector )
-            evaluateClusterTrack(clusterPerChamber, track);
+
+            // for each clusterPerChamber we will have a "candidate-status" for each of the photons, this is a vector of length of sortedTracks[i].size();
+            // and holds the fields 
+            evaluateClusterTrack(clusterPerChamber, track, mipCharges);
         }
 
         // save ClusterPerChamber
@@ -147,15 +211,15 @@ for(const auto& clusters : clustersVector) // "events loop"
 }
 
 
-void evaluateClusterTrack(std::vector<ClusterCandidate> clusterPerChamber, MLinfoHMP track);
+void evaluateClusterTrack(std::vector<ClusterCandidate>& clusterPerChamber, const MLinfoHMP& track, const std::vector<float>& mipCharges);
 {
 
 
-        const auto iEvent = track->getEvent(); // check it corresponds to entry in loop of events?
+        const auto iEvent = track.getEvent(); // check it corresponds to entry in loop of events?
 
-        const auto momentum = track->getHmpMom()
+        const auto momentum = track.getHmpMom();
 
-        const auto nF = track->getRefIndex(); // ef: aon it only gets the mean value ; TODO: in MatchHMP.cxx get calibration value
+        const auto nF = track.getRefIndex(); // ef: aon it only gets the mean value ; TODO: in MatchHMP.cxx get calibration value
 
         const auto nQ = 1.5787;
         const auto nG = 1.0005;
@@ -173,7 +237,9 @@ void evaluateClusterTrack(std::vector<ClusterCandidate> clusterPerChamber, MLinf
         float xMip, yMip;
         int q, nph;
         // get MIP pos, charge
-        track.getHMPIDmip(x, y, q, nph);
+
+        float xMip, yMip;
+        track.getHMPIDmip(xMip, yMip, q, nph);
 
         
 
@@ -192,6 +258,10 @@ void evaluateClusterTrack(std::vector<ClusterCandidate> clusterPerChamber, MLinf
         //numBackgroundPhotons, numFoundActualCkov, numActualCkov, numBackgroundLabeledCkov
         std::array<int, 4> arrayInfo;
 
+
+
+        // add charge of MIPS here? to skip them in candidates ? 
+
         // clusterPerChamber by reference, add element to vector {trackNumber, bitHadronStatus}
-        ckovTools.segment(clusterPerChamber, arrayInfo, track.getTrackIndex()); // temp --> mapBins
+        ckovTools.segment(clusterPerChamber, arrayInfo, track.getTrackIndex(), mipCharges, mipX, mipY); // temp --> mapBins
 }

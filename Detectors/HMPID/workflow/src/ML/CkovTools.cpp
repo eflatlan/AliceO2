@@ -768,7 +768,7 @@ double getThetaP()
 	// ;
 
 //std::vector<std::pair<double, double>> segment(std::vector<std::array<double, 3>>& cherenkovPhotons, vecArray2& pionCands, vecArray2& kaonCands, vecArray2& protonCands, std::array<int, 4>& arrayInfo, std::vector<ParticleUtils::Candidate2>& candCombined, MapType& bins) { 
-std::vector<std::pair<double, double>> segment(const std::vector<o2::hmpid::Cluster>& clusterTrack, std::array<int, 4>& arrayInfo, int trackIndex)
+std::vector<std::pair<double, double>> segment(const std::vector<o2::hmpid::Cluster>& clusterTrack, std::array<int, 4>& arrayInfo, int trackIndex, const std::vector<float>& mipCharges, float mipX, float mipY)
 { 
 
 
@@ -964,6 +964,29 @@ std::vector<std::pair<double, double>> segment(const std::vector<o2::hmpid::Clus
   //for(const auto& photons : ckovAndBackground) {
   for(const auto& photons : clusterTrack) 
   {
+
+    const auto& dist = (photons.x() - mipX)*(photons.x() - mipX) + (photons.y() - mipY)*(photons.y() - mipY);
+    
+
+    // match track PDG w MIP cluster : 
+    
+
+
+    if(dist < 2) // add small radius where we dont add; this also to not include the MIP for hte current track;
+      continue;  // also to not add candidates from other MIPs
+
+
+    // this means 
+    bool skip = false;
+    for(const auto& mipCharge : mipCharges ) {  if(photons.getQ() ==  mipCharge) { skip = true; } }
+    if(skip) 
+      continue; // this photon charge is a MIP--> dont consider as candidate 
+
+
+    // this means current entry should be a MIP, this will not be a candidate
+
+    if(photons.getQ() > mipCut) {continue; } // this means current entry should be a MIP, this will not be a candidate
+
 		iPhotCount++;
 
 
