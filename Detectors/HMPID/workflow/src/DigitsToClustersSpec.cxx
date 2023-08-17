@@ -108,6 +108,8 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
         size_t(trig.getNumberOfObjects())};
       size_t clStart = clusters.size();
       mRec->Dig2Clu(trigDigits, clusters, mSigmaCut, true);
+
+      if(clusters.back().dig(0) == nullptr) {Printf("DigtisToClusterSpec:: dig was nullptr!!");}
       clusterTriggers.emplace_back(trig.getIr(), clStart, clusters.size() - clStart);
     }
   }

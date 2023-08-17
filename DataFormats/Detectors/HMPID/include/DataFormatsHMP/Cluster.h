@@ -38,6 +38,15 @@ class Cluster
                         kAbn,
                         kBig,
                         kEmp = -1 }; // status flags
+struct Topology {
+    int diffX;
+    int diffY;
+    int q;
+    int pdg;
+    int tid;
+    int mid;
+};
+
 
  public:
   Cluster() : mCh(-1), mSi(-1), mSt(kEmp), mBox(-1), mNlocMax(-1), mMaxQpad(-1), mMaxQ(-1), mQRaw(0), mQ(0), mErrQ(-1), mXX(0), mErrX(-1), mYY(0), mErrY(-1), mChi2(-1) {}
@@ -54,6 +63,33 @@ class Cluster
   void corrSin();                                                                        // sinoidal correction
   void digAdd(const o2::hmpid::Digit* pDig);                                             // add new digit to the cluster
   const o2::hmpid::Digit* dig(int i) const { return mDigs ? (*mDigs)[i] : nullptr; }     // pointer to i-th digi
+
+  void setClusterTopology()
+  { 
+    topologyVector.reserve(mDigs->size());
+
+
+    int eventNumber = -1;
+    
+    if(!mDigs->empty()) {
+      eventNumber = ((*mDigs)[0])->getEventNumber();
+
+    }
+    setEventNumber(eventNumber);
+
+
+    // <o2::hmpid::Digit*>* mDigs
+    for(const auto& dig : *mDigs){
+      const auto& posX = dig->getX(); // pos of digit
+      const auto& posY = dig->getY();
+      const auto& q = dig->getQ();
+      const auto& pdg = dig->mParticlePdg;
+      const auto& tid = dig->mTrackId;
+      const auto& mid = dig->mMotherTrackId;
+      topologyVector.emplace_back(Topology{posX, posY, q, pdg, tid, mid});
+    }
+    
+  }
 
 
   const int getNumDigits() const { return mDigs->size(); }
@@ -112,14 +148,24 @@ class Cluster
       mQRaw = 4095;
     }
   }
+
+  void setEventNumber(int eNum) { mEventNumber = eNum; }
+  int getEventNumber() const { return mEventNumber; }
+
   void setSize(int size) { mSi = size; }
   void setCh(int chamber) { mCh = chamber; }
   void setChi2(float chi2) { mChi2 = chi2; }
   void setStatus(int status) { mSt = status; }
   void findClusterSize(int i, float* pSigmaCut); // Find the clusterSize of deconvoluted clusters
 
+  std::vector<Topology> getTopologyVector () const { return topologyVector;}
+  
   // public:
  protected:
+
+  std::vector<Topology> topologyVector;
+
+//topologyVector.emplace_back(diffX, diffY, q, pdg, tid, mid);
   int mCh;                                    // chamber number
   int mSi;                                    // size of the formed cluster from which this cluster deduced
   int mSt;                                    // flag to mark the quality of the cluster
@@ -136,6 +182,8 @@ class Cluster
   double mErrY;                               // error on y postion, [cm]
   double mChi2;                               // some estimator of the fit quality
   std::vector<const o2::hmpid::Digit*>* mDigs = nullptr; //! list of digits forming this cluster
+
+  int mEventNumber; // ef: 
 
  public:
   static bool fgDoCorrSin; // flag to switch on/off correction for Sinusoidal to cluster reco

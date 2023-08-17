@@ -282,8 +282,11 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, b
   if (rawSize > 100 || isTryUnfold == false || rawSize == 1) { // No deconv if: 1 - big cluster (also avoid no zero suppression!)
     // setClusterParams(mXX, mYY, mCh); //                               2 - flag is set to FALSE
     // new ((*pCluLst)[iCluCnt++]) Cluster(*this); //                      3 - size = 1
-    pCluLst->push_back(o2::hmpid::Cluster(*this));
-    pCluLst->back().cleanPointers();
+
+    // ef: set member field "clusterTopology"
+
+    setClusterTopology();  pCluLst->push_back(o2::hmpid::Cluster(*this));
+    pCluLst->back().cleanPointers(); // ef:  why should this be done??
     return 1; // add this raw cluster
   }
 
@@ -338,7 +341,7 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, b
     mNlocMax = 1;
     mSt = kNoLoc;
     // setClusterParams(mXX, mYY, mCh); //need to fill the AliCluster3D part
-    pCluLst->push_back(o2::hmpid::Cluster(*this)); // add new unfolded cluster pCluLst->push_back(o2::hmpid::Cluster(*this));
+   setClusterTopology();  pCluLst->push_back(o2::hmpid::Cluster(*this)); // add new unfolded clustersetClusterTopology();  pCluLst->push_back(o2::hmpid::Cluster(*this));
     pCluLst->back().cleanPointers();
     return mNlocMax;
   }
@@ -347,8 +350,10 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, b
   if (mNlocMax >= kMaxLocMax) {
     // setClusterParams(mXX, mYY, mCh); // if # of local maxima exceeds kMaxLocMax...
     mSt = kMax;
-    pCluLst->push_back(o2::hmpid::Cluster(*this)); //...add this raw cluster
+   setClusterTopology();  pCluLst->push_back(o2::hmpid::Cluster(*this)); //...add this raw cluster
     pCluLst->back().cleanPointers();
+
+
   } else {                                         // or resonable number of local maxima to fit and user requested it
     // Now ready for minimization step
     arglist[0] = 500;                                       // number of steps and sigma on pads charges
@@ -401,7 +406,7 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, b
         }
       }
       // setClusterParams(mXX, mYY, mCh); //need to fill the AliCluster3D part
-      pCluLst->push_back(o2::hmpid::Cluster(*this)); // add new unfolded cluster
+     setClusterTopology();  pCluLst->push_back(o2::hmpid::Cluster(*this)); // add new unfolded cluster
       pCluLst->back().cleanPointers();
       if (mNlocMax > 1) {
         setSize(rawSize); // Original raw size is set again to its proper value

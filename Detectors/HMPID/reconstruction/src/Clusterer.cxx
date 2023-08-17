@@ -67,9 +67,49 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
       digVec.clear();
       Cluster clu;
       clu.setDigits(&digVec);
+
+
+      // denne skal mulgiens vaere nptr, men jeg skjonner ikke logikken!
+      /*if(!clu.dig(0))
+    	Printf("dig2Clu Digit i0 nullptr ");
+      else 
+      	Printf("dig2Clu Digit i0 ok"); */
+
       clu.setCh(iCh);
+
+
+      // for clu, add shallowDigit corresponding to digit at index pUsedDig
+      // done recursively
+
+	
       FormClu(clu, pUsedDig, digs, padMap); // form cluster starting from this digit by recursion
+
+      // clu now has a vector<Digit*>* field;
+      // iterate over it and find cluster topology
+
+      // denne skal ikke vaere nptr
+
+      /*
+      if(clu.dig(0)==nullptr)
+    	Printf("dig2Clu Digit i0 nullptr ");
+      else 
+      	Printf("dig2Clu Digit i0 ok");
+      */
+
+          
+
+      clu.setCh(iCh);
+
       clu.solve(&clus, pUserCut, isUnfold); // solve this cluster and add all unfolded clusters to provided list
+
+      /*
+      if(clu.dig(0)==nullptr)
+    	Printf("dig2Clu Digit i0 nullptr ");
+      else 
+      	Printf("dig2Clu Digit i0 ok");
+      
+      if(clus.back().dig(0) == nullptr) {Printf("dig2Clu dig was nullptr!!");}
+      */
     }                                       // digits loop for current chamber
     vPad.clear();
   } // chambers loop
@@ -120,7 +160,9 @@ void Clusterer::FormClu(Cluster& pClu, int pDig, gsl::span<const o2::hmpid::Digi
   // Arguments: pClu - pointer to cluster being formed
   //   Returns: none
 
+
   pClu.digAdd(&digs[pDig]); // take this digit in cluster
+
   int cnt = 0;
   int cx[4];
   int cy[4];
