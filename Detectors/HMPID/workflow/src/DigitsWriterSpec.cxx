@@ -113,6 +113,7 @@ void DigitsToRootTask::run(framework::ProcessingContext& pc)
       mTriggers.back().setDataRange(startDigitsIndex, numberOfDigits);
     }
   }
+  mTheTree->Fill();
   mExTimer.stop();
   return;
 }

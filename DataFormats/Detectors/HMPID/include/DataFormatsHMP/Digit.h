@@ -72,6 +72,8 @@ class Digit
 
  public:
   Digit() = default;
+
+
   Digit(int pad, uint16_t charge,  int particlePdg, Int_t trackId, int motherTrack, int eventId, int sourceId);
   Digit(int chamber, int photo, int x, int y, uint16_t charge, int particlePdg);
   Digit(uint16_t charge, int equipment, int column, int dilogic, int channel, int particlePdg);

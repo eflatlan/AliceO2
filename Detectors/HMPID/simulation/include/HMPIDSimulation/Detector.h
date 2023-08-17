@@ -42,7 +42,7 @@ class Detector : public o2::base::DetImpl<Detector>
 
   // ef: must add track particle type here??
 
-  o2::hmpid::HitType* AddHit(float x, float y, float z, float time, float energy, Int_t trackId, Int_t detId, Int_t particlePdg, int motherTrackId);
+  o2::hmpid::HitType* AddHit(float x, float y, float z, float time, float energy, Int_t trackId, Int_t detId, Int_t particlePdg, int motherTrackId, int event);
 
   void GenFee(float qtot);
   Bool_t IsLostByFresnel();

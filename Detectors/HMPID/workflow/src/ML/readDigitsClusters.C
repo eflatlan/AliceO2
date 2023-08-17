@@ -19,6 +19,10 @@
 #include "DataFormatsHMP/Cluster.h"
 #endif
 
+
+using Cluster = o2::hmpid::Cluster;
+
+
 void readDigits(char* filename, int nEvent)
 {
   TFile *fileDigits = TFile::Open(filename);
@@ -351,6 +355,20 @@ treeClusters = ((TTree *)fileClusters->Get("o2sim"));
       module = pClu->ch();
                              
       hCharge[module]->Fill(pClu->q());
+      std::vector<Cluster::Topology> topologies = pClu->getTopologyVector();
+      
+
+      std::cout << "evnum" << pClu->getEventNumber()<< std::endl; 
+      /*for (const Cluster::Topology& topo : topologies) {
+              std::cout << "diffX: " << topo.diffX << ", "
+              << "diffY: " << topo.diffY << ", "
+              << "q: " << topo.q << ", "
+              << "pdg: " << topo.pdg << ", "
+              << "tid: " << topo.tid << ", "
+              << "mid: " << topo.mid 
+              << std::endl;
+      }*/
+
     
       if(pClu->size() >=3 && pClu->size()<=7) hMipCharge[module]->Fill(pClu->q());
     

@@ -73,6 +73,7 @@ bool Detector::ProcessHits(FairVolume* v)
   Int_t copy;
   Int_t volID = fMC->CurrentVolID(copy);
   auto stack = (o2::data::Stack*)fMC->GetStack();
+  const auto& event = fMC->CurrentEvent();
 
   const int particlePdg = fMC->TrackPid();
   const int charge = TMath::Abs(particlePdg);  
@@ -118,7 +119,7 @@ bool Detector::ProcessHits(FairVolume* v)
       Double_t xl, yl;
       const int particlePdg = fMC->TrackPid();
       o2::hmpid::Param::instance()->mars2Lors(idch, x, xl, yl); //take LORS position
-      AddHit(x[0], x[1], x[2], hitTime, etot, tid, idch, particlePdg, motherTrackId); //HIT for photon, position at P, etot will be set to Q
+      AddHit(x[0], x[1], x[2], hitTime, etot, tid, idch, particlePdg, motherTrackId, event); //HIT for photon, position at P, etot will be set to Q
       GenFee(etot);                                       //generate feedback photons etot is modified in hit ctor to Q of hit
       stack->addHit(GetDetId());
       LOGP(info, "photon {}", fMC->TrackPid());
@@ -219,7 +220,7 @@ bool Detector::ProcessHits(FairVolume* v)
       if (eloss > 0) {
  	      const int particlePdg = fMC->TrackPid();
         // HIT for MIP, position near anod plane, eloss will be set to Q
-        AddHit(out[0], out[1], out[2], hitTime, eloss, tid, idch, particlePdg, motherTrackId);
+        AddHit(out[0], out[1], out[2], hitTime, eloss, tid, idch, particlePdg, motherTrackId, event);
         GenFee(eloss); //generate feedback photons
         stack->addHit(GetDetId());
         eloss = 0;
@@ -242,9 +243,9 @@ return kTRUE;
 //*********************************************************************************************************
 
 // ef: must add track particle type here??
-o2::hmpid::HitType* Detector::AddHit(float x, float y, float z, float time, float energy, Int_t trackId, Int_t detId, Int_t particlePdg, int motherTrackId)
+o2::hmpid::HitType* Detector::AddHit(float x, float y, float z, float time, float energy, Int_t trackId, Int_t detId, Int_t particlePdg, int motherTrackId, int event)
 {
-  mHits->emplace_back(x, y, z, time, energy, trackId, detId, particlePdg, motherTrackId);
+  mHits->emplace_back(x, y, z, time, energy, trackId, detId, particlePdg, motherTrackId, event);
   return &(mHits->back());
 }
 //*********************************************************************************************************
