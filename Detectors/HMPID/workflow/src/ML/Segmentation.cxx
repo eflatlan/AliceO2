@@ -1,4 +1,4 @@
-
+/*
 struct ShallowDigit {
   int mMotherTrackId;
   int mSourceId;
@@ -28,7 +28,7 @@ struct ShallowDigit {
 
   int getSourceId () const  {return mSourceId;}
     ShallowDigit(uint16_t q, uint8_t x, uint8_t y, Int_t trackId, Int_t particlePdg) : mQ(q), mX(x), mY(y), trackId(mTrackId),particlePdg(mParticlePdg) {}
-};
+}; */ 
 
 struct ClusterCandidate {
     
@@ -38,25 +38,25 @@ struct ClusterCandidate {
     double mQ = 0;
     double mChi2 = 0;
     double mXe = 0., mYe = 0.;
-    std::vector<ShallowDigit>* mShallowDigits = nullptr;
     std::vector<std::pair<int,int>>* mCandidateStatusVector = nullptr;
+    std::vector<o2::hmpid::Cluster::Topology> mTopologyVector = nullptr;
 
     // Constructor based on the order and types you provided
     ClusterCandidate(int ch, double x, double y, double q, double chi2, 
-                     double xe, double ye, std::vector<ShallowDigit>* shallowDigits, 
+                     double xe, double ye, std::vector<Topology>* topologyVector, 
                      std::vector<std::pair<int,int>>* candidateStatusVector) 
         : mCh(ch), mX(x), mY(y), mQ(q), mChi2(chi2), mXe(xe), mYe(ye), 
-          mShallowDigits(shallowDigits), mCandidateStatusVector(candidateStatusVector) {}
+          mTopologyVector(topologyVector), mCandidateStatusVector(candidateStatusVector) {}
 
 
     //obj.ch, obj.x, obj.y, obj.q, shallowDigits, obj.chi2, obj.xE, obj.yE, candStatus
 
-    void setDigits(const std::vector<ShallowDigit>& shallowDigits) 
+    void setDigits(const std::vector<Topology>*& topologyVector) 
     {
-        if(!mShallowDigits) {
-            mShallowDigits = new std::vector<ShallowDigit>;
+        if(!mTopologyVector) {
+            mTopologyVector = new std::vector<Topology>;
         }
-        *mShallowDigits = shallowDigits;
+        *mTopologyVector = topologyVector;
     }
 
     void addCandidateStatus(int iTrack, int hadronCandidateBit) 
@@ -77,27 +77,35 @@ struct ClusterCandidate {
 };
 
 
+std::vector<Cluster>* clusterArr = nullptr;
+TTree* tCluster = initializeClusterTree(clusterArr);
+// clusterArr now initialized correctly
+
 std::vector<o2::dataformats::MatchInfoHMP>* matchArr = nullptr;
-TTree* tMatch = initializeTree(matchArr);
+TTree* tMatch = initializeMatchTree(matchArr);
 
 
 
-//for(const auto& clusters : clustersVector) // "events loop"
+std::vector<o2::MCTrack>* mcArr = nullptr;
+TTree* tMcTrack = initializeMCTree(matchArr);
+
+
+// 
 
 int startIndexTrack = 0;
-for(int i = 0; i < trigger->size(); i++) //{
+for(int i = 0; i < trigger->size(); i++) //for(const auto& clusters : clustersVector) // "events loop"
 { 
 
     std::vector<Cluster> oneEventClusters;
     const int firstEntry = pTgr->getFirstEntry();
     const int lastEntry = pTgr->getLastEntry();
-    int eventNumber1 = static_cast<o2::hmpid::Cluster>(clusters->at(firstEntry));
-    int eventNumberLast = static_cast<o2::hmpid::Cluster>(clusters->at(lastEntry));
+    int eventNumber1 = static_cast<o2::hmpid::Cluster>(clusterArr->at(firstEntry));
+    int eventNumberLast = static_cast<o2::hmpid::Cluster>(clusterArr->at(lastEntry));
     if(ceventNumberLast != eventNumber1) {Printf("Eventnumber changed??");} // TODO: throw error? ef:
 
 
     for(int j = pTgr->getFirstEntry(); j <= pTgr->getLastEntry(); j++) {      
-      const auto& clu = static_cast<o2::hmpid::Cluster>(clusters->at(j));
+      const auto& clu = static_cast<o2::hmpid::Cluster>(clusterArr->at(j));
 
       if(clu.getEventNumber != eventNumber1) {Printf("Eventnumber changed??");}
       else {
@@ -106,7 +114,11 @@ for(int i = 0; i < trigger->size(); i++) //{
     }  
 
     // find entries in tracksOneEvent which corresponds to correct eventNumber
-    std::vector<o2::dataformats::MatchInfoHMP>* tracksOneEvent = readTrackWithCut(tMatch, matchArr, startIndexTrack);
+    std::vector<o2::dataformats::MatchInfoHMP>* tracksOneEvent = readMatch(tMatch, matchArr, startIndexTrack);
+
+    // get MC tracks for given event from mc;
+    std::vector<o2::MCTrack>* mcTracks = readMC(mcA, tMcTrack, eventNumber1);
+
 
 
 
@@ -139,7 +151,7 @@ for(int i = 0; i < trigger->size(); i++) //{
     // Assuming the range of iCh values is from 0 to 6 (inclusive)
     std::vector<ClusterCandidate> sortedClusters[7];
     // Assign MLinfoHMP objects to corresponding vectors based on iCh value
-    for (const auto &obj : clusters) {
+    for (const auto &obj : oneEventClusters) {
         if (obj.iCh >= 0 && obj.iCh <= 6 && sortedTracks[obj.iCh].size() > 0) {
 
             // make a light copy of digits, just holding the fields charge, x, y
@@ -150,7 +162,7 @@ for(int i = 0; i < trigger->size(); i++) //{
                 return ShallowDigit(d->getQ(), d->getX(), d->getY(), d->getY(), d->getTrackId(), d->getParticlePdg());
             }); */
 
-            const std::vector<o2::hmpid::Cluster::Topology>& topology = ch.getClusterTopology();  // some info about digits associated w cluster
+            const std::vector<o2::hmpid::Cluster::Topology>& topology = obj.getClusterTopology();  // some info about digits associated w cluster
 
             std::vector<std::pair<int,int>> candStatus = {{0,0}};
             /*
@@ -188,7 +200,15 @@ for(int i = 0; i < trigger->size(); i++) //{
 
             // for each clusterPerChamber we will have a "candidate-status" for each of the photons, this is a vector of length of sortedTracks[i].size();
             // and holds the fields 
-            evaluateClusterTrack(clusterPerChamber, track, mipCharges);
+
+            
+            // get MCTrack correspondign to trackId
+            const auto mcTrackIndex = track.getTrackIndex();
+            const o2::MCTrack& mcTrack = getMCEntry(mcTracks, mcTrackIndex);
+
+            const int mcTrackPdg = mcTrack.GetPdgCode();
+            // add mcTrackPdg
+            evaluateClusterTrack(clusterPerChamber, track, mipCharges, mcTrackPdg);
         }
 
         // save ClusterPerChamber
@@ -211,9 +231,8 @@ for(int i = 0; i < trigger->size(); i++) //{
 }
 
 
-void evaluateClusterTrack(std::vector<ClusterCandidate>& clusterPerChamber, const MLinfoHMP& track, const std::vector<float>& mipCharges);
+void evaluateClusterTrack(std::vector<ClusterCandidate>& clusterPerChamber, const MLinfoHMP& track, const std::vector<float>& mipCharges, int mcTrackPdg);
 {
-
 
         const auto iEvent = track.getEvent(); // check it corresponds to entry in loop of events?
 
@@ -263,5 +282,8 @@ void evaluateClusterTrack(std::vector<ClusterCandidate>& clusterPerChamber, cons
         // add charge of MIPS here? to skip them in candidates ? 
 
         // clusterPerChamber by reference, add element to vector {trackNumber, bitHadronStatus}
-        ckovTools.segment(clusterPerChamber, arrayInfo, track.getTrackIndex(), mipCharges, mipX, mipY); // temp --> mapBins
+
+
+        // mcTrackPdg check that it matches with clusterPDG?
+        ckovTools.segment(clusterPerChamber, arrayInfo, track.getTrackIndex(), mipCharges, mipX, mipY, mcTrackPdg); // temp --> mapBins
 }

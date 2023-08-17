@@ -62,74 +62,22 @@ using Cluster = o2::hmpid::Cluster;//, o2::hmpid::Digit, o2::hmpid::Trigger, o2:
 
 //template <typename T>
 
-void initFileIn(std::unique_ptr<TFile>& mFile, std::unique_ptr<TTree>& mTree, const std::string& firstTree, const std::string& secondTree, const std::string& firstBranch, const std::string& secondBranch) {
- 
-  long mDigitsReceived, mClustersReceived, mTriggersReceived = 0;
-  // Create the TFIle
-  //mFile = std::make_unique<TFile>(filename.c_str(), "OLD");
-  assert(mFile && !mFile->IsZombie());
 
-  mTree.reset((TTree *)mFile->Get(firstTree.c_str()));
-  if (!mTree) {
-    mTree.reset((TTree *)mFile->Get(secondTree.c_str()));
-  }
-
-  if (!mTree) {
-    LOGP(warn, "HMPID DigitToClusterSpec::initFileIn() : Did not find {} tree in file ", secondTree.c_str());
-    return;
-    std::exit(0);
-  }
-
-}
-
-
-std::vector<o2::dataformats::MatchInfoHMP>* readTrack(int eventID, int trackID, int& pdg) {
+TTree* initializeMatchTree(std::vector<o2::dataformats::MatchInfoHMP>* matchArr, int eventID, int trackID, int& pdg) {
   TFile* fMatch = new TFile("o2match_hmp.root");
   TTree* tMatch = (TTree*)fKine->Get("matchHMP");
 	if(!tMatch) tMatch = (TTree*)fKine->Get("o2hmp");
   std::vector<o2::dataformats::MatchInfoHMP>* matchArr = nullptr;
   tMatch->SetBranchAddress("HMPMatchInfo", &matchArr);
-  tMatch->GetEntry(eventID);
-	
-	Printf("matchArr size %d"  , matchArr->size());
-	int cnt = 0;
-  for(const auto& c : *matchArr) {	
-
-		float x, y; int q, nph;
-		c.getHMPIDmip(x, y, q, nph); 
-	  Printf("i %d MIPindex %d" , cnt++, q);
-  }
-
-	return matchArr;
-}
-
-TTree* initializeTree(std::vector<o2::dataformats::MatchInfoHMP>*& matchArr) {
-    TFile* fMatch = TFile::Open("o2match_hmp.root");
-    if (!fMatch || fMatch->IsZombie()) {
-        Printf("Error opening file");
-        return nullptr;
-    }
-  
-    TTree* tMatch = (TTree*)fMatch->Get("matchHMP");
-    if(!tMatch) tMatch = (TTree*)fMatch->Get("o2hmp");
-    if(!tMatch) {
-        Printf("Error accessing TTree");
-        fMatch->Close();
-        delete fMatch;
-        return nullptr;
-    }
-
-    tMatch->SetBranchAddress("HMPMatchInfo", &matchArr);
-    tMatch->GetEntry(0);
-
-    return tMatch;
+  tMatch->GetEntry(0);
+	return tMatch;
 }
 
 
 // eventId = eventID to be searched for;
 // startIndex : index of where matchArr is to be searched
 // newStartIndex startIndex for next event
-std::vector<o2::dataformats::MatchInfoHMP>* readTrackWithCut(TTree* tMatch, std::vector<o2::dataformats::MatchInfoHMP>* matchArr, int eventID, int& startIndex) {
+std::vector<o2::dataformats::MatchInfoHMP>* readMatch(TTree* tMatch, std::vector<o2::dataformats::MatchInfoHMP>* matchArr, int eventID, int& startIndex) {
     if(!tMatch) {
         Printf("TTree not initialized");
         return nullptr;
@@ -137,9 +85,6 @@ std::vector<o2::dataformats::MatchInfoHMP>* readTrackWithCut(TTree* tMatch, std:
 
     // Prepare to store filtered matches
     std::vector<o2::dataformats::MatchInfoHMP>* filteredMatches = new std::vector<o2::dataformats::MatchInfoHMP>;
-
-
-
     // tracks should be stored in "time" --> when we find our event we can then switch this condition "of" when the event changes:
     bool found = false;
 
@@ -161,178 +106,78 @@ std::vector<o2::dataformats::MatchInfoHMP>* readTrackWithCut(TTree* tMatch, std:
 }
 
 
-TFile* fClu = new TFile("hmpidclusters.root");
-TTree* tClu = (TTree*)fClu->Get("o2sim");
-if(!tClu) tClu = (TTree*)fClu->Get("o2hmp");
-std::vector<Cluster>* cluArr = nullptr;
-tClu->SetBranchAddress("HMPIDclusters",&cluArr);
 
-std::vector<Cluster>* readClu(int eventID, int trackID, int& pdg) {
+TTree* initializeClusterTree(std::vector<Cluster>*& cluArr) {
+    TFile* fClu = TFile::Open("hmpidclusters.root");
+    if (!fClu || fClu->IsZombie()) {
+        Printf("Error opening file");
+        return nullptr;
+    }
 
-  tClu->GetEntry(eventID);
-	Printf("mcArr size %d"  , cluArr->size());
+    TTree* tClu = (TTree*)fClu->Get("o2sim");
+    if(!tClu) tClu = (TTree*)fClu->Get("o2hmp");
+    if(!tClu) {
+        Printf("Error accessing TTree");
+        fClu->Close();
+        delete fClu;
+        return nullptr;
+    }
 
-	int cnt = 0;
-  for(const auto& c : *cluArr) {	
-	  Printf("i %d ye %f" , cnt++, c.ye());
-  }
+    tClu->SetBranchAddress("HMPIDclusters", &cluArr);
+    tClu->GetEntry(0);
+    return tClu;
+}
 
-	return cluArr;
+TTree* initializeMCTree(std::vector<o2::MCTrack>*& mcArr) {
+    TFile* fKine = TFile::Open("o2sim_Kine.root");
+    if (!fKine || fKine->IsZombie()) {
+        Printf("Error opening file");
+        return nullptr;
+    }
+
+    TTree* tKine = (TTree*)fKine->Get("o2sim");
+    if(!tKine) {
+        Printf("Error accessing TTree");
+        fKine->Close();
+        delete fTrack;
+        return nullptr;
+    }
+
+    tKine->SetBranchAddress("MCTrack", &mcArr);
+    tKine->GetEntry(0);
+    return tKine;
+}
+
+std::vector<o2::MCTrack>* readMC(std::vector<o2::MCTrack>*& mcArr, TTree* tKine, int eventId) {
+  tKine->GetEntry(eventID);
+	return mcArr;
 }
 
 
-std::vector<o2::MCTrack>* readTOF(int eventID, int trackID, int& pdg) {
-  TFile* fKine = new TFile("o2sim_Kine.root");
-  TTree* tKine = (TTree*)fKine->Get("o2sim");
-  std::vector<o2::MCTrack>* mcArr = nullptr;
-  tKine->SetBranchAddress("MCTrack", &mcArr);
-  tKine->GetEntry(eventID);
-
-	const auto& track = mcArr->at(trackID);
-
-
-
-.
-
+// for the given eventID; read trackID 
+o2::MCTrack getMCEntry(std::vector<o2::MCTrack>*& mcArr, int trackId) {
+	const auto& track = mcArr->at(trackID);.
   for (int i = 0; i < mcArr->size(); ++i) {
     const auto& mcTrack = (*mcArr)[i];
     if (i == trackID) {
       Printf("Particle %d: pdg = %d, pT = %f, px = %f, py = %f, pz = %f, vx = %f, vy = %f, vz = %f", i, mcTrack.GetPdgCode(), TMath::Abs(mcTrack.GetStartVertexMomentumX() * mcTrack.GetStartVertexMomentumX() + mcTrack.GetStartVertexMomentumY() * mcTrack.GetStartVertexMomentumY()), mcTrack.GetStartVertexMomentumX(), mcTrack.GetStartVertexMomentumY(), mcTrack.GetStartVertexMomentumZ(), mcTrack.GetStartVertexCoordinatesX(), mcTrack.GetStartVertexCoordinatesY(), mcTrack.GetStartVertexCoordinatesZ());
+      return mcTrack;
     }
-  }
-	Printf("Particle  pdg = %d"  ,track.GetPdgCode()); 
-
-	return mcArr;
+  } 
+  return nullptr;
 }
 
 void readTreeEntries() {
     // Open the ROOT file
 
-
-    /*
-    auto matchFile = std::make_unique<TFile>("o2match_hmp.root");
-    auto clusterFile = std::make_unique<TFile>("hmpidclusters.root");
-    auto mcFile = std::make_unique<TFile>("o2sim_Kine.root");
-
-    std::unique_ptr<TTree> matchTree, clusTree, kineTRee; ///< input tree
-
-    std::vector<Clusters>* mClustersFromFile;
-    std::vector<o2::dataformats::MatchInfoHMP>* mTracksFromFile;
-    std::vector<o2::MCTrack>* mCarloFromFile;
-    initFileIn(matchFile, matchTree,  "matchHMP",  "matchHMP", "HMPMatchInfo", "HMPMatchInfo");
-    /*if (mUseMC) {
-        mTree->SetBranchAddress("MatchHMPMCTruth", &mLabelHMPPtr);
-    } 
-
-    initFileIn(clusterFile, clusTree,  "o2hmp",  "o2sim", "HMPIDClusters", "HMPIDclusters");*/
-
-
-
-    /*void initFileIn(std::unique_ptr<TFile>& mFile, std::unique_ptr<TTree>& mTree, const std::string& firstTree, const std::string& secondTree, const std::string& firstBranch, const std::string& secondBranch, std::vector<T>*& dataFromFile)
-
-    * / 
-
-
-
-  if (clusTree->GetBranchStatus("HMPIDClusters") == 1) {
-    clusTree->SetBranchAddress("HMPIDClusters", &mClustersFromFile);
-  } else if (clusTree->GetBranchStatus("HMPIDclusters") == 1) {
-    clusTree->SetBranchAddress("HMPIDclusters", &mClustersFromFile);
-  } else {
-  Printf("HMPID DigitToClusterSpec::initFileIn() : Error in branches!");
-    return;
-    std::exit(0);
-  }
-
-
-  if (matchTree->GetBranchStatus("HMPMatchInfo") == 1) {
-    matchTree->SetBranchAddress("HMPMatchInfo", &mTracksFromFile);
-  } else if (matchTree->GetBranchStatus("HMPMatchInfo") == 1) {
-    matchTree->SetBranchAddress("HMPMatchInfo", &mTracksFromFile);
-  } else {
-    Printf("HMPID DigitToClusterSpec::initFileIn() : Error in branches!");
-    return;
-    std::exit(0);
-  } */
- 
-
-
 	int i;
   auto trackVector = readTrack(0,0,i);
   auto clusterVector = readClu(0,0,i);
-  std::vector<o2::MCTrack>* mcVector = readTOF(0,0,i);
-
-
-
-  // 
+  std::vector<o2::MCTrack>* mcVector = readMC(0,0,i);
   for() {
     
   }
 
 	Printf("numTracks %d numClusters %d numMC %d", trackVector->size(), clusterVector->size(), mcVector->size());
-	
-  /*
-  for(const auto& clu : *mClustersFromFile)
-  {
-	  const auto& dig = clu.dig(0);
-		if(dig != nullptr) {
-
-			const auto& trackId = dig->mTrackId;
-			const auto& particlePdg = dig->mTrackId;
-
-			int pdg;
-			readTOF(0, trackId, pdg);
-			Printf("trackId%d particlePdg %d pdg %d", trackId, particlePdg, pdg);
-    }
-	}*/ 
-	
-
-
-  //mTree->SetBranchAddress("InteractionRecords", &mTriggersFromFilePtr);
-
-/* 
-  matchTree->Print("toponly");
-  clusTree->Print("toponly");
-  //kineTRee->Print("toponly");
-    // Loop over tree entries
-    Long64_t nMatchEvents = matchTree->GetEntries();
-    Long64_t nClusterEvents = clusTree->GetEntries();
-    Long64_t nKineEvents = 5;//kineTRee->GetEntries();
-    LOGP(info, " nMatchEvents {}, nClusterEvents {},  nKineEvents {}",nMatchEvents,nClusterEvents,nKineEvents);
-
-    // loop over nKineTree see if we have HMP tracks and clusters for the given event
-
-
-    //matchTree->GetEntry(0);  // This fills the above variables with data
-    //clusTree->GetEntry(0);  // This fills the above variables with data
-
-
-    LOGP(info, " numClusters = {}", mClustersFromFile->size());
-
-	
-  if (clusTree->GetReadEntry() + 1 >= clusTree->GetEntries()) {
-    //mDigitsReceived, mClustersReceived, mTriggersReceived = 0;
-    //firstTrigger, lastTrigger = 0;
-  } else {
-    auto entry = clusTree->GetReadEntry() + 1;
-    assert(entry < clusTree->GetEntries());
-    clusTree->GetEntry(entry);
-
-  }
-
-  if (matchTree->GetReadEntry() + 1 >= matchTree->GetEntries()) {
-    //mDigitsReceived, mClustersReceived, mTriggersReceived = 0;
-    //firstTrigger, lastTrigger = 0;
-  } else {
-    auto entry = matchTree->GetReadEntry() + 1;
-    assert(entry < matchTree->GetEntries());
-    matchTree->GetEntry(entry);
-        
-}*/
- //   LOGP(info, " nMatchEvents {}, nClusterEvents {},  nKineEvents {}",nMatchEvents,nClusterEvents,nKineEvents);
-
-
-
-
 
 }

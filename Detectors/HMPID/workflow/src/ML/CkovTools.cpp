@@ -768,7 +768,7 @@ double getThetaP()
 	// ;
 
 //std::vector<std::pair<double, double>> segment(std::vector<std::array<double, 3>>& cherenkovPhotons, vecArray2& pionCands, vecArray2& kaonCands, vecArray2& protonCands, std::array<int, 4>& arrayInfo, std::vector<ParticleUtils::Candidate2>& candCombined, MapType& bins) { 
-std::vector<std::pair<double, double>> segment(const std::vector<o2::hmpid::Cluster>& clusterTrack, std::array<int, 4>& arrayInfo, int trackIndex, const std::vector<float>& mipCharges, float mipX, float mipY)
+std::vector<std::pair<double, double>> segment(const std::vector<o2::hmpid::Cluster>& clusterTrack, std::array<int, 4>& arrayInfo, int trackIndex, const std::vector<float>& mipCharges, float mipX, float mipY, const int mcmcTrackPdg)
 { 
 
 
@@ -969,7 +969,30 @@ std::vector<std::pair<double, double>> segment(const std::vector<o2::hmpid::Clus
     
 
     // match track PDG w MIP cluster : 
-    
+    if(photons.x() == mipX && photons.y() == mipY && photons.getQ() ==  mipCharge) { // current cluster is mip
+      // check if PDG code matches track's PDG-code
+      // : photons has field digits w pdg-code; get this and match w track: 
+
+      std::vector<Topology> topologyVector = photons.getClusterTopology();
+
+      if(topologyVector.size() != 0) {
+        const auto photonPDG = topologyVector[0].pdg; // check also other indexes?
+
+        if(photonPDG != mcTrackPdg) {
+          Printf("photonPDG != mcTrackPdg"); 
+          
+        }
+        else {
+          Printf("photonPDG matched mcTrackPdg!"); 
+
+          // the current photon is the MIP corresponding to the current track
+          // good! set the truth or something? 
+        }
+      }
+
+      if()
+     
+    }
 
 
     if(dist < 2) // add small radius where we dont add; this also to not include the MIP for hte current track;
@@ -978,14 +1001,21 @@ std::vector<std::pair<double, double>> segment(const std::vector<o2::hmpid::Clus
 
     // this means 
     bool skip = false;
-    for(const auto& mipCharge : mipCharges ) {  if(photons.getQ() ==  mipCharge) { skip = true; } }
+    for(const auto& mipCharge : mipCharges ) { 
+       if(photons.getQ() ==  mipCharge) { 
+        skip = true; 
+       } 
+    }
+
     if(skip) 
       continue; // this photon charge is a MIP--> dont consider as candidate 
 
 
     // this means current entry should be a MIP, this will not be a candidate
 
-    if(photons.getQ() > mipCut) {continue; } // this means current entry should be a MIP, this will not be a candidate
+
+    // ef : TODO get this value from calibration
+    //if(photons.getQ() > mipCut) {continue; } // this means current entry should be a MIP, this will not be a candidate
 
 		iPhotCount++;
 
