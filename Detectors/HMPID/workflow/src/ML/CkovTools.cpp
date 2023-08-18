@@ -1,4 +1,9 @@
-#define _USE_MATH_DEFINES
+
+
+#ifndef TEST_POPULATE
+#define TEST_POPULATE
+
+//#define _USE_MATH_DEFINES
 #include <iostream>
 #include <cmath>
 #include <random>
@@ -8,7 +13,7 @@
 
 #include <math.h>
 //#include "ReconE.cpp"
-#include "ReconG.cpp"
+//#include "ReconG.cpp"
 
 //namespace ParticleUtils
 using namespace o2;
@@ -2113,8 +2118,4 @@ void populateRegions(std::vector<std::pair<double, double>>& vecArr, TH2F* map, 
 
 }; // end class CkovTools
 
-
-
-
-
-
+#endif
