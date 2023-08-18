@@ -49,6 +49,21 @@ struct Topology {
 
 
  public:
+  Cluster(const Cluster& other)
+    : mCh(other.mCh), mSi(other.mSi), mSt(other.mSt),
+      mBox(other.mBox), mNlocMax(other.mNlocMax), mMaxQpad(other.mMaxQpad),
+      mMaxQ(other.mMaxQ), mQRaw(other.mQRaw), mQ(other.mQ),
+      mErrQ(other.mErrQ), mXX(other.mXX), mErrX(other.mErrX),
+      mYY(other.mYY), mErrY(other.mErrY), mChi2(other.mChi2),
+      mEventNumber(other.mEventNumber)
+  {
+      // Copy the mDigs vector, you should deep copy if needed. Here it's shallow copy.
+      mDigs = new std::vector<const o2::hmpid::Digit*>(*(other.mDigs));
+
+      // Copy the mTopologyVector
+      mTopologyVector = other.mTopologyVector;
+  }
+
   Cluster() : mCh(-1), mSi(-1), mSt(kEmp), mBox(-1), mNlocMax(-1), mMaxQpad(-1), mMaxQ(-1), mQRaw(0), mQ(0), mErrQ(-1), mXX(0), mErrX(-1), mYY(0), mErrY(-1), mChi2(-1) {}
 
   // Methods

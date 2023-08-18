@@ -344,9 +344,46 @@ bool MatchHMP::prepareHMPClusters()
 //==================================================================================================================================================
 void MatchHMP::doMatching()
 {
-  int i = 0;
+  int jj = 0;
+  Cluster oneEventArray[mHMPClustersArray.size()];
+  std::vector<Cluster> oneEventClustersTest;
+
+  std::vector<int> oneEventClustersInt;
+  int icnt = 0;
   for(const auto& clu : mHMPClustersArray) {
-    Printf("Clu %d clus event Number %d", i++,clu.getEventNumber());
+    Printf("Clu %d clusCnt event Number %d", icnt++,clu.getEventNumber());
+    oneEventClustersInt.push_back(icnt);
+  }
+
+
+  std::vector<Cluster> oneEventClustersEmpty;
+  icnt = 0;
+  for(const auto& clu : mHMPClustersArray) {
+    Printf("Clu %d cluEmpty event Number %d", icnt++,clu.getEventNumber());
+    Cluster cl;
+    oneEventClustersEmpty.push_back(cl);
+  }
+
+
+
+
+
+
+  for(const auto& clu : mHMPClustersArray) {
+    Printf("Clu %d clus event Number %d", jj++,clu.getEventNumber());
+
+
+    //o2::hmpid::Cluster cluster2(clu); // This uses the copy constructor
+    //Printf("made copy");
+    try {
+	oneEventArray[jj] = clu;
+	Printf("pushback");
+	oneEventClustersTest.push_back(clu);
+    } catch (const std::exception& e) {
+	// This is a generic exception catch. You can narrow it down to specific exceptions like std::out_of_range.
+	Printf("Exception during assignment: %s", e.what());
+    }
+
   }
 
 
@@ -492,7 +529,19 @@ void MatchHMP::doMatching()
 	  int i = j - event.getFirstEntry();
 
 	  LOGP(info, "Setting element {}",i);
-          oneEventClusters.at(i) = cluster;
+	  if (i >= 0 && i < oneEventClusters.size()) {
+	    try {
+		oneEventClusters.at(i) = cluster;
+	    } catch (const std::exception& e) {
+		// This is a generic exception catch. You can narrow it down to specific exceptions like std::out_of_range.
+		Printf("Exception during assignment: %s", e.what());
+	    }
+	  } else {
+	    // Handle the error case or print a debug message.
+	    Printf("Error: Index %d out of bounds", i);
+	  }
+	   
+
 	  LOGP(info, "Setting element worked, now trying pushback");
           oneEventClusters.push_back(cluster);
           LOGP(info, "after  oneEventClusters size = {}", oneEventClusters.size());

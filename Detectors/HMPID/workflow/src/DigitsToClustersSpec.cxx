@@ -95,19 +95,23 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
   std::vector<o2::hmpid::Cluster> clusters;
   std::vector<o2::hmpid::Trigger> clusterTriggers;
   LOG(info) << "[HMPID DClusterization - run() ] Enter ...";
-  clusters.clear();
-  clusterTriggers.clear();
+  /*clusters.clear();
+  clusterTriggers.clear();*/ 
 
   auto triggers = pc.inputs().get<gsl::span<o2::hmpid::Trigger>>("intrecord");
   auto digits = pc.inputs().get<gsl::span<o2::hmpid::Digit>>("digits");
 
   for (const auto& trig : triggers) {
     if (trig.getNumberOfObjects()) {
+
+  		LOG(info) << "[HMPID DClusterization - run() ] nObjects <<< calling clusterer->Dig2Clu" << trig.getNumberOfObjects();
       gsl::span<const o2::hmpid::Digit> trigDigits{
         digits.data() + trig.getFirstEntry(),
         size_t(trig.getNumberOfObjects())};
       size_t clStart = clusters.size();
       mRec->Dig2Clu(trigDigits, clusters, mSigmaCut, true);
+
+  		LOG(info) << "[HMPID DClusterization - return from dig2clu";
 
       if(clusters.back().dig(0) == nullptr) {Printf("DigtisToClusterSpec:: dig was nullptr!!");}
       clusterTriggers.emplace_back(trig.getIr(), clStart, clusters.size() - clStart);

@@ -285,7 +285,10 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, b
 
     // ef: set member field "clusterTopology"
 
-    setClusterTopology();  pCluLst->push_back(o2::hmpid::Cluster(*this));
+    this->setClusterTopology();  
+    Printf("cluster::solve ln289");
+    pCluLst->push_back(o2::hmpid::Cluster(*this));
+    Printf("cluster::solve ln291");
     pCluLst->back().cleanPointers(); // ef:  why should this be done??
     return 1; // add this raw cluster
   }
@@ -341,7 +344,10 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, b
     mNlocMax = 1;
     mSt = kNoLoc;
     // setClusterParams(mXX, mYY, mCh); //need to fill the AliCluster3D part
-   setClusterTopology();  pCluLst->push_back(o2::hmpid::Cluster(*this)); // add new unfolded clustersetClusterTopology();  pCluLst->push_back(o2::hmpid::Cluster(*this));
+    this->setClusterTopology();  
+    Printf("cluster::solve ln348");
+    pCluLst->push_back(o2::hmpid::Cluster(*this));
+    Printf("cluster::solve ln350"); 
     pCluLst->back().cleanPointers();
     return mNlocMax;
   }
@@ -350,7 +356,10 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, b
   if (mNlocMax >= kMaxLocMax) {
     // setClusterParams(mXX, mYY, mCh); // if # of local maxima exceeds kMaxLocMax...
     mSt = kMax;
-   setClusterTopology();  pCluLst->push_back(o2::hmpid::Cluster(*this)); //...add this raw cluster
+    this->setClusterTopology();  
+    Printf("cluster::solve ln360");
+    pCluLst->push_back(o2::hmpid::Cluster(*this));
+    Printf("cluster::solve ln362"); 
     pCluLst->back().cleanPointers();
 
 
@@ -406,7 +415,10 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, b
         }
       }
       // setClusterParams(mXX, mYY, mCh); //need to fill the AliCluster3D part
-     setClusterTopology();  pCluLst->push_back(o2::hmpid::Cluster(*this)); // add new unfolded cluster
+      this->setClusterTopology();  
+		  Printf("cluster::solve ln419");
+		  pCluLst->push_back(o2::hmpid::Cluster(*this));
+		  Printf("cluster::solve ln421"); 
       pCluLst->back().cleanPointers();
       if (mNlocMax > 1) {
         setSize(rawSize); // Original raw size is set again to its proper value
