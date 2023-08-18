@@ -56,7 +56,7 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
     padMap = (Float_t)-1;                                      // reset map to -1 (means no digit for this pad)
     for (size_t iDig = 0; iDig < digs.size(); iDig++) {
       o2::hmpid::Digit::pad2Absolute(digs[iDig].getPadID(), &module, &padChX, &padChY);
-  Printf("dig2Clu l59 ");
+
       vPad.push_back({padChX, padChY, module});
       if (module == iCh) {
         padMap(padChX, padChY) = iDig; // fill the map for the given chamber, (padx,pady) cell takes digit index
@@ -68,26 +68,26 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
       if (vPad.at(iDig).m != iCh || (pUsedDig = UseDig(vPad.at(iDig).x, vPad.at(iDig).y, padMap)) == -1) { // this digit is from other module or already taken in FormClu(), go after next digit
         continue;
       }
-  Printf("dig2Clu l71 ");
+      Printf("dig2Clu l71 ");
       digVec.clear();
       Cluster clu;
-  Printf("dig2Clu l74 ");
+      Printf("dig2Clu l74 ");
       clu.setDigits(&digVec);
 
 
       // denne skal mulgiens vaere nptr, men jeg skjonner ikke logikken!
       /*if(!clu.dig(0))
-    	Printf("dig2Clu Digit i0 nullptr ");
+      Printf("dig2Clu Digit i0 nullptr ");
       else 
-      	Printf("dig2Clu Digit i0 ok"); */
-  Printf("dig2Clu ls83 ");
+      Printf("dig2Clu Digit i0 ok"); */
+      Printf("dig2Clu ls83 ");
       clu.setCh(iCh);
 
 	Printf("dig2Clu ls90 ");
       // for clu, add shallowDigit corresponding to digit at index pUsedDig
       // done recursively
 
-	Printf("dig2Clu ls90 ");
+      Printf("dig2Clu ls90 ");
       FormClu(clu, pUsedDig, digs, padMap); // form cluster starting from this digit by recursion
 	Printf("dig2Clu ls92 ");
       // clu now has a vector<Digit*>* field;
@@ -102,9 +102,11 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
       	Printf("dig2Clu Digit i0 ok");
       */
 
+      Printf("clus size %d", clus.size());
+
+      clu.solve(clus, pUserCut, isUnfold); // solve this cluster and add all unfolded clusters to provided list
 
 
-      clu.solve(&clus, pUserCut, isUnfold); // solve this cluster and add all unfolded clusters to provided list
       Printf("dig2Clu ls108 ");
       /*
       if(clu.dig(0)==nullptr)

@@ -254,7 +254,7 @@ void Cluster::print(Option_t* opt) const
 } // Print()
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, bool isTryUnfold)
+int Cluster::solve(std::vector<o2::hmpid::Cluster>& cluLst, float* pSigmaCut, bool isTryUnfold)
 {
   // This methode is invoked when the cluster is formed to solve it. Solve the cluster means to try to unfold the cluster
   // into the local maxima number of clusters. This methode is invoked by AliHMPIDRconstructor::Dig2Clu() on cluster by cluster basis.
@@ -270,7 +270,7 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, b
   }
   const int kMaxLocMax = 6;      // max allowed number of loc max for fitting
   coG();                         // First calculate CoG for the given cluster
-  int iCluCnt = pCluLst->size(); // get current number of clusters already stored in the list by previous operations
+  //int iCluCnt = cluLst.size(); // get current number of clusters already stored in the list by previous operations
   int rawSize = mSi;             // get current raw cluster size
   if (rawSize > 100) {
     mSt = kBig;
@@ -285,11 +285,16 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, b
 
     // ef: set member field "clusterTopology"
 
-    this->setClusterTopology();  
+
     Printf("cluster::solve ln289");
-    pCluLst->push_back(o2::hmpid::Cluster(*this));
+    //cluLst.push_back(o2::hmpid::Cluster(*this));
     Printf("cluster::solve ln291");
-    pCluLst->back().cleanPointers(); // ef:  why should this be done??
+
+		if(this != nullptr) {
+ 		  this->setClusterTopology();  
+      cluLst.push_back(*this);
+      //cluLst.back().cleanPointers();//back().cleanPointers(); // ef:  why should this be done??}
+    } else {Printf("l296 was nptr;");}
     return 1; // add this raw cluster
   }
 
@@ -301,6 +306,7 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, b
     LOG(fatal) << "TVirtualFitter could not be created";
     return 1;
   }
+
   arglist[0] = -1;
   ierflg = fitter->ExecuteCommand("SET PRI", arglist, 1); // no printout
   ierflg = fitter->ExecuteCommand("SET NOW", arglist, 0); // no warning messages
@@ -344,11 +350,18 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, b
     mNlocMax = 1;
     mSt = kNoLoc;
     // setClusterParams(mXX, mYY, mCh); //need to fill the AliCluster3D part
-    this->setClusterTopology();  
-    Printf("cluster::solve ln348");
-    pCluLst->push_back(o2::hmpid::Cluster(*this));
-    Printf("cluster::solve ln350"); 
-    pCluLst->back().cleanPointers();
+
+
+    //cluLst.push_back(o2::hmpid::Cluster(*this));
+
+    //cluLst.back().cleanPointers();
+		if(this != nullptr) {
+ 		  this->setClusterTopology();  
+    	Printf("cluster::solve ln348");
+      cluLst.push_back(*this);
+    	Printf("cluster::solve ln350"); 
+      //cluLst.back().cleanPointers();//back().cleanPointers(); // ef:  why should this be done??}
+    } else {Printf("l362 was nptr;");}
     return mNlocMax;
   }
 
@@ -356,11 +369,17 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, b
   if (mNlocMax >= kMaxLocMax) {
     // setClusterParams(mXX, mYY, mCh); // if # of local maxima exceeds kMaxLocMax...
     mSt = kMax;
-    this->setClusterTopology();  
-    Printf("cluster::solve ln360");
-    pCluLst->push_back(o2::hmpid::Cluster(*this));
-    Printf("cluster::solve ln362"); 
-    pCluLst->back().cleanPointers();
+
+    Printf("cluster::solve ln360");   		
+    //cluLst.push_back(o2::hmpid::Cluster(*this));
+    
+		if(this != nullptr) {
+ 		  this->setClusterTopology();  
+    	Printf("cluster::solve ln381 : Test this->q %f", this->q());
+      cluLst.push_back(*this);
+    	Printf("cluster::solve ln383"); 
+      //cluLst.back().cleanPointers();Printf("cluster::solve ln384");//back().cleanPointers(); // ef:  why should this be done??}
+    } else {Printf("l385 was nptr;");}
 
 
   } else {                                         // or resonable number of local maxima to fit and user requested it
@@ -414,12 +433,17 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, b
           mNlocMax = 0; // if with no loc max (pads with same charge..)
         }
       }
-      // setClusterParams(mXX, mYY, mCh); //need to fill the AliCluster3D part
-      this->setClusterTopology();  
-		  Printf("cluster::solve ln419");
-		  pCluLst->push_back(o2::hmpid::Cluster(*this));
-		  Printf("cluster::solve ln421"); 
-      pCluLst->back().cleanPointers();
+
+			if(this != nullptr) {
+	 		  this->setClusterTopology();  
+		  	Printf("cluster::solve ln439 || cluster i%d of mNlocMax %d || Test this->q %f", i,mNlocMax, this->q());
+		    cluLst.push_back(*this);
+		  	Printf("cluster::solve ln441");
+		    //cluLst.back().cleanPointers();
+				Printf("cluster::solve ln442");//back().cleanPointers(); // ef:  why should this be done??}
+		  } else {Printf("l385 was nptr;");}
+
+		  Printf("cluster::solve cleaned Pointers"); 
       if (mNlocMax > 1) {
         setSize(rawSize); // Original raw size is set again to its proper value
       }

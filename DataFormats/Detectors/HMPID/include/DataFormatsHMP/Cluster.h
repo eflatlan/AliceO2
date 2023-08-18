@@ -73,6 +73,7 @@ struct Topology {
   void cleanPointers()
   {
     mDigs = nullptr;
+		delete mDigs;
   }
   void coG();                                                                            // calculates center of gravity
   void corrSin();                                                                        // sinoidal correction
@@ -113,7 +114,11 @@ struct Topology {
   inline bool isInPc();                                                                  // check if is in the current PC
   void reset();                                                                          // cleans the cluster
   // void setClusterParams(float xL, float yL, int iCh); //Set AliCluster3D part
-  int solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, bool isUnfold); // solve cluster: MINUIT fit or CoG
+  
+
+  //int solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, bool isUnfold); // solve cluster: MINUIT fit or CoG
+int solve(/*std::vector<o2::hmpid::Cluster>& pCluLst, */Cluster& clu, float* pSigmaCut, bool isTryUnfold);
+int solve(std::vector<o2::hmpid::Cluster>& cluLst,  float* pSigmaCut, bool isTryUnfold);
   // Getters
 
 	/*ef : TODO: why are these not marked const??*/
