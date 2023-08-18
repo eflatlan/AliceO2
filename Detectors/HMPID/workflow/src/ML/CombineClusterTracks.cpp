@@ -64,7 +64,9 @@ using Cluster = o2::hmpid::Cluster;//, o2::hmpid::Digit, o2::hmpid::Trigger, o2:
 
 class HmpidDataReader {
 private:
-    // Potentially private members go here (like helper functions and data members)
+    const float mass_Pion = 0.1396, mass_Kaon = 0.4937, mass_Proton = 0.938; // masses in
+    std::array<float, 3> masses = {mass_Pion, mass_Kaon, mass_Proton};
+    const float mass_Pion_sq = mass_Pion*mass_Pion, mass_Kaon_sq = mass_Kaon*mass_Kaon,  mass_Proton_sq = mass_Proton*mass_Proton;
 
 public:
     HmpidDataReader() {
@@ -85,7 +87,7 @@ public:
     std::array<float, 3> calcCherenkovHyp(float p, float n);
 };
 
-TTree* initializeMatchTree(std::vector<o2::dataformats::MatchInfoHMP>* matchArr, int eventID, int trackID, int& pdg) {
+TTree* HmpidDataReader::initializeMatchTree(std::vector<o2::dataformats::MatchInfoHMP>* matchArr, int eventID, int trackID, int& pdg) {
   TFile* fMatch = new TFile("o2match_hmp.root");
   TTree* tMatch = (TTree*)fKine->Get("matchHMP");
 	if(!tMatch) tMatch = (TTree*)fKine->Get("o2hmp");
@@ -99,7 +101,7 @@ TTree* initializeMatchTree(std::vector<o2::dataformats::MatchInfoHMP>* matchArr,
 // eventId = eventID to be searched for;
 // startIndex : index of where matchArr is to be searched
 // newStartIndex startIndex for next event
-std::vector<o2::dataformats::MatchInfoHMP>* readMatch(TTree* tMatch, std::vector<o2::dataformats::MatchInfoHMP>* matchArr, int eventID, int& startIndex) {
+std::vector<o2::dataformats::MatchInfoHMP>* HmpidDataReader::readMatch(TTree* tMatch, std::vector<o2::dataformats::MatchInfoHMP>* matchArr, int eventID, int& startIndex) {
     if(!tMatch) {
         Printf("TTree not initialized");
         return nullptr;
@@ -136,7 +138,7 @@ std::vector<o2::dataformats::MatchInfoHMP>* readMatch(TTree* tMatch, std::vector
 
 
 
-TTree* initializeClusterTree(std::vector<Cluster>*& cluArr, std::vector<Trigger>*& trigArr) {
+TTree* HmpidDataReader::initializeClusterTree(std::vector<Cluster>*& cluArr, std::vector<Trigger>*& trigArr) {
     TFile* fClu = TFile::Open("hmpidclusters.root");
     if (!fClu || fClu->IsZombie()) {
         Printf("Error opening file");
@@ -159,7 +161,7 @@ TTree* initializeClusterTree(std::vector<Cluster>*& cluArr, std::vector<Trigger>
     return tClu;
 }
 
-TTree* initializeMCTree(std::vector<o2::MCTrack>*& mcArr) {
+TTree* HmpidDataReader::initializeMCTree(std::vector<o2::MCTrack>*& mcArr) {
     TFile* fKine = TFile::Open("o2sim_Kine.root");
     if (!fKine || fKine->IsZombie()) {
         Printf("Error opening file");
@@ -179,7 +181,7 @@ TTree* initializeMCTree(std::vector<o2::MCTrack>*& mcArr) {
     return tKine;
 }
 
-std::vector<o2::MCTrack>* readMC(std::vector<o2::MCTrack>*& mcArr, TTree* tKine, int eventId) {
+std::vector<o2::MCTrack>* HmpidDataReader::readMC(std::vector<o2::MCTrack>*& mcArr, TTree* tKine, int eventId) {
   if (!fKine || fKine->IsZombie()) {
       Printf("Error opening file");
       return nullptr;
@@ -198,7 +200,7 @@ std::vector<o2::MCTrack>* readMC(std::vector<o2::MCTrack>*& mcArr, TTree* tKine,
 
 
 // for the given eventID; read trackID 
-const o2::MCTrack* getMCEntry(std::vector<o2::MCTrack>* mcArr, int trackID) {
+const o2::MCTrack* HmpidDataReader::getMCEntry(std::vector<o2::MCTrack>* mcArr, int trackID) {
 
   if(trackID < 0 || trackID >= mcArr->size()){
     return nullptr;
@@ -216,7 +218,7 @@ const o2::MCTrack* getMCEntry(std::vector<o2::MCTrack>* mcArr, int trackID) {
   return nullptr;
 }
 
-void readTreeEntries() {
+void HmpidDataReader::readTreeEntries() {
     // Open the ROOT file
 
 	int i;
@@ -230,12 +232,9 @@ void readTreeEntries() {
 	Printf("numTracks %d numClusters %d numMC %d", trackVector->size(), clusterVector->size(), mcVector->size());
 
 }
-const float mass_Pion = 0.1396, mass_Kaon = 0.4937, mass_Proton = 0.938; // masses in
-std::array<float, 3> masses = {mass_Pion, mass_Kaon, mass_Proton};
-const float mass_Pion_sq = mass_Pion*mass_Pion, mass_Kaon_sq = mass_Kaon*mass_Kaon,  mass_Proton_sq = mass_Proton*mass_Proton;
 
-std::array<float, 3> calcCherenkovHyp(float p, float n);
-std::array<float, 3> calcCherenkovHyp(float p, float n)
+
+std::array<float, 3> HmpidDataReader::calcCherenkovHyp(float p, float n)
 {
   const float p_sq = p*p;
   const float cos_ckov_denom = p*refIndexFreon;
@@ -253,3 +252,5 @@ std::array<float, 3> calcCherenkovHyp(float p, float n)
 
   return {ckovAnglePion, ckovAngleKaon, ckovAngleProton};
 }
+
+#endif // HMPID_DATA_READER_H
