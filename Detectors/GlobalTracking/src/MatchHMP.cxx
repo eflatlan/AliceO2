@@ -344,6 +344,12 @@ bool MatchHMP::prepareHMPClusters()
 //==================================================================================================================================================
 void MatchHMP::doMatching()
 {
+  int i = 0;
+  for(const auto& clu : mHMPClustersArray) {
+    Printf("Clu %d clus event Number %d", i++,clu.getEventNumber());
+  }
+
+
   o2::globaltracking::MatchHMP::trackType type = o2::globaltracking::MatchHMP::trackType::CONSTR;
   o2::base::Propagator::MatCorrType matCorr = o2::base::Propagator::MatCorrType::USEMatCorrLUT; // material correction method
   Recon* recon = new o2::hmpid::Recon();
@@ -371,6 +377,9 @@ void MatchHMP::doMatching()
 
   float timeFromTF = o2::InteractionRecord::bc2ns(mStartIR.bc, mStartIR.orbit);
 
+  std::vector<Cluster> oneEventClusters;
+
+   
   for (int iEvent = 0; iEvent < cacheTriggerHMP.size(); iEvent++) { // events loop
 
     auto& event = mHMPTriggersWork[cacheTriggerHMP[iEvent]];
@@ -379,7 +388,7 @@ void MatchHMP::doMatching()
     int evtTracks = 0;
 
 
-    std::vector<Cluster> oneEventClusters;
+
     
 
     double nmean = pParam->meanIdxRad(); // ef TODO: get this from calibration
@@ -387,6 +396,9 @@ void MatchHMP::doMatching()
     //auto mlEvent = std::make_unique<HmpMLVector>(&oneEventClusters, iEvent, nmean); // ef: initialize as int of Event and clusters relevant to the event
 
     for (int itrk = 0; itrk < cacheTrk.size(); itrk++) { // tracks loop
+    oneEventClusters.clear();
+    oneEventClusters.reserve(mHMPClustersArray.size());	
+    oneEventClusters.resize(mHMPClustersArray.size());
 
       auto& trackWork = mTracksWork[type][cacheTrk[itrk]];
       auto& trackGid = mTrackGid[type][cacheTrk[itrk]];
@@ -416,7 +428,7 @@ void MatchHMP::doMatching()
 
 
         // ef: check for simulation if this gets the correct PID::
-        LOGP(info, "MatchHMP.cxx trefTrk.getPID() {}", trefTrk.getPID());
+        LOGP(info, "MatchHMP.cxx Event {}: Track {}" , iEvent, itrk);
 
         double xPc, yPc, xRa, yRa, theta, phi;
 
@@ -436,7 +448,9 @@ void MatchHMP::doMatching()
 
         matching->setHMPIDtrk(xPc, yPc, theta, phi); // store initial infos
         matching->setIdxHMPClus(iCh, 9999);          // set chamber, index of cluster + cluster size
-        matching->setParticlePdg(trefTrk.getPID());
+
+	// no, this is not correct: 
+        //matching->setParticlePdg(trefTrk.getPID());
 
 
         int index = -1;
@@ -449,21 +463,48 @@ void MatchHMP::doMatching()
 
         const o2::hmpid::Cluster* bestHmpCluster = nullptr;
 
-        std::vector<Cluster> oneEventClusters;
+        
         auto cluInde = 0;
-        for (int j = event.getFirstEntry(); j <= event.getLastEntry(); j++) { // event clusters loop
-          auto& cluster = (o2::hmpid::Cluster&)mHMPClustersArray[j];
 
+
+          LOGP(info, "clusters loop {} -- {}", event.getFirstEntry(), event.getLastEntry());
+
+
+	  LOGP(info, "mHMPClustersArray Size  {}", mHMPClustersArray.size());
+        for (int j = event.getFirstEntry(); j <= event.getLastEntry(); j++) { // event clusters loop
+
+	  if( j >= mHMPClustersArray.size()) {
+	    LOGP(info, "j{} > mHMPClustersArray.size() {}", j, mHMPClustersArray.size());
+          }
+	  LOGP(info, "Accesing cluster from mHMPClustersArray[{}]", j);
+          //const auto& cluster = (o2::hmpid::Cluster&)mHMPClustersArray[j];
+          auto& cluster = (o2::hmpid::Cluster&)mHMPClustersArray[j];
+          LOGP(info, "Accessed mHMPClustersArray[{}]", j);
           if (cluster.ch() != iCh) {
+            LOGP(info, "cluster.ch() != iCh");
             continue;
           }
+
+          LOGP(info, "trying  oneEventClusters.push_back");
+
+          LOGP(info, "before  oneEventClusters size = {}", oneEventClusters.size());
+
+	  int i = j - event.getFirstEntry();
+
+	  LOGP(info, "Setting element {}",i);
+          oneEventClusters.at(i) = cluster;
+	  LOGP(info, "Setting element worked, now trying pushback");
           oneEventClusters.push_back(cluster);
+          LOGP(info, "after  oneEventClusters size = {}", oneEventClusters.size());
+
+
+          LOGP(info, "oneEventClusters.push_back(cluster); ok");
           //triggerClusterIndexes.push_back(j); // ef: store index of cluster related to track
           // </ ef: move to before tracks loop?
           // ef: changed to this : 
 
 
-	        // ef: must loop over oneEventClusters here to make sure these are fulfilled: 
+	  // ef: must loop over oneEventClusters here to make sure these are fulfilled: 
           double qthre = pParam->qCut(); // ef : TODO add chargeCut from calibration!
 
           if (cluster.q() < 150.) {
@@ -480,13 +521,17 @@ void MatchHMP::doMatching()
 
           if (dist < dmin) {
             dmin = dist;
-            index = oneEventClusters.size() - 1;
+            index =  i;
+            // index = oneEventClusters.size() - 1; // not valid w resize/
             bestHmpCluster = &cluster;
             
           }
+          LOGP(info, "eventLoop");
 
         } // event clusters loop
 
+
+        LOGP(info, "Finished  event clusters loop");
         // 2. Propagate track to the MIP cluster using the central method
 
         if (!bestHmpCluster) {/*
@@ -494,10 +539,11 @@ void MatchHMP::doMatching()
           hmpTrk = nullptr;
           delete hmpTrkConstrained;
           hmpTrkConstrained = nullptr; */
+       	  LOGP(info, "!bestHmpCluster");
           continue;
         }
 
-	      LOGP(info," MatchHMP.cxx : found new BestCLuster");
+	LOGP(info," MatchHMP.cxx : found new BestCLuster");
 
         double Dist = TMath::Sqrt((xPc - bestHmpCluster->x()) * (xPc - bestHmpCluster->x()) + (yPc - bestHmpCluster->y()) * (yPc - bestHmpCluster->y()));
 

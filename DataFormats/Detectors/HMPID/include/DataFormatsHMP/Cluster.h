@@ -66,7 +66,7 @@ struct Topology {
 
   void setClusterTopology()
   { 
-    topologyVector.reserve(mDigs->size());
+    mTopologyVector.reserve(mDigs->size());
 
 
     int eventNumber = -1;
@@ -86,7 +86,7 @@ struct Topology {
       const auto& pdg = dig->mParticlePdg;
       const auto& tid = dig->mTrackId;
       const auto& mid = dig->mMotherTrackId;
-      topologyVector.emplace_back(Topology{posX, posY, q, pdg, tid, mid});
+      mTopologyVector.emplace_back(Topology{posX, posY, q, pdg, tid, mid});
     }
     
   }
@@ -158,14 +158,15 @@ struct Topology {
   void setStatus(int status) { mSt = status; }
   void findClusterSize(int i, float* pSigmaCut); // Find the clusterSize of deconvoluted clusters
 
-  std::vector<Topology> getTopologyVector () const { return topologyVector;}
+  const std::vector<Topology>& getTopologyVector() const { return mTopologyVector;}
+
   
   // public:
  protected:
 
-  std::vector<Topology> topologyVector;
+  std::vector<Topology> mTopologyVector;
 
-//topologyVector.emplace_back(diffX, diffY, q, pdg, tid, mid);
+//mTopologyVector.emplace_back(diffX, diffY, q, pdg, tid, mid);
   int mCh;                                    // chamber number
   int mSi;                                    // size of the formed cluster from which this cluster deduced
   int mSt;                                    // flag to mark the quality of the cluster
