@@ -39,9 +39,9 @@ class Cluster
                         kBig,
                         kEmp = -1 }; // status flags
 	struct Topology {
-		  int diffX;
-		  int diffY;
-		  int q;
+		  uint8_t posX;
+		  uint8_t posY;
+		  uint16_t q;
 		  int pdg;
 		  int tid;
 		  int mid;
@@ -86,6 +86,7 @@ class Cluster
   {
     mDigs = nullptr;
   }
+
   void coG();                                                                            // calculates center of gravity
   void corrSin();                                                                        // sinoidal correction
   void digAdd(const o2::hmpid::Digit* pDig);                                             // add new digit to the cluster

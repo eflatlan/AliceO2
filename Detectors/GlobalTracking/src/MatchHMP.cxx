@@ -396,29 +396,45 @@ void MatchHMP::doMatching()
 
   float timeFromTF = o2::InteractionRecord::bc2ns(mStartIR.bc, mStartIR.orbit);
 
-  std::vector<Cluster> oneEventClusters;
-
+  
    
   for (int iEvent = 0; iEvent < cacheTriggerHMP.size(); iEvent++) { // events loop
 
     auto& event = mHMPTriggersWork[cacheTriggerHMP[iEvent]];
     auto evtTime = o2::InteractionRecord::bc2ns(event.getBc(), event.getOrbit()); // event(trigger) time in ns
 
+std::vector<Cluster> oneEventClusters;
+
+
+
+		LOGP(info, "mHMPClustersArray Size  {}", mHMPClustersArray.size());
+		for (int j = event.getFirstEntry(); j <= event.getLastEntry(); j++) { // event clusters loop
+
+			if( j >= mHMPClustersArray.size()) {
+				LOGP(info, "j{} > mHMPClustersArray.size() {}", j, mHMPClustersArray.size());
+			}
+			LOGP(info, "Accesing cluster from mHMPClustersArray[{}]", j);
+			//const auto& cluster = (o2::hmpid::Cluster&)mHMPClustersArray[j];
+			auto& cluster = (o2::hmpid::Cluster&)mHMPClustersArray[j];
+			LOGP(info, " cluster --> Chamber{}", cluster.ch());
+
+
+			oneEventClusters.push_back(cluster);
+		}
+
+	
+
     int evtTracks = 0;
-
-
-
-    
 
     double nmean = pParam->meanIdxRad(); // ef TODO: get this from calibration
 
     //auto mlEvent = std::make_unique<HmpMLVector>(&oneEventClusters, iEvent, nmean); // ef: initialize as int of Event and clusters relevant to the event
 
     for (int itrk = 0; itrk < cacheTrk.size(); itrk++) { // tracks loop
-    oneEventClusters.clear();
-    oneEventClusters.reserve(mHMPClustersArray.size());	
-    oneEventClusters.resize(mHMPClustersArray.size());
-
+    	oneEventClusters.clear();
+    	oneEventClusters.reserve(mHMPClustersArray.size());	
+    	//oneEventClusters.resize(mHMPClustersArray.size()); this would initialize Cluster objects, dont want to do that
+ 
       auto& trackWork = mTracksWork[type][cacheTrk[itrk]];
       auto& trackGid = mTrackGid[type][cacheTrk[itrk]];
       auto& trefTrk = trackWork.first;
@@ -454,7 +470,7 @@ void MatchHMP::doMatching()
         Int_t iCh = intTrkCha(&trefTrk, xPc, yPc, xRa, yRa, theta, phi, bz); // find the intersected chamber for this track
 
         LOGP(info, "MatchHMP.cxx Event {}: Track {} Chamber {}" , iEvent, itrk, iCh);
-        if (iCh < 0) {
+        if (iCh <= 0 || iCh >= 7) {
         	LOGP(info, "MatchHMP.cxx  \n\n NBNBNB!!! \n\n *******  Chamber {} ***** \n\n" , iCh);
           continue;
         } // no intersection at all, go next track
@@ -512,7 +528,7 @@ void MatchHMP::doMatching()
           LOGP(info, "before  oneEventClusters size = {}", oneEventClusters.size());
 
 	  			int i = j - event.getFirstEntry();
-
+					/*
 					LOGP(info, "Setting element {}",i);
 					if (i >= 0 && i < oneEventClusters.size()) {
 						try {
@@ -524,7 +540,7 @@ void MatchHMP::doMatching()
 					} else {
 						// Handle the error case or print a debug message.
 						Printf("Error: Index %d out of bounds", i);
-					}
+					}*/ 
 	   
 
 	  			LOGP(info, "Setting element worked, now trying pushback");
