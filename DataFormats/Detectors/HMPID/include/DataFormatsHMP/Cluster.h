@@ -39,28 +39,52 @@ class Cluster
                         kBig,
                         kEmp = -1 }; // status flags
 	struct Topology {
-		  uint8_t posX;
-		  uint8_t posY;
-		  uint16_t q;
-		  int pdg;
-		  int tid;
-		  int mid;
+		uint8_t posX = 0;
+		uint8_t posY = 0;
+		uint16_t q = 0;
+		int pdg = 0;
+		int tid = 0;
+		int mid = 0;
 	};
+
 
  public:
   const std::vector<Topology>& getTopologyVector() const { return mTopologyVector;}
 
+
+  void setClusterTopology(const std::vector<Topology>& topVector)
+  { 
+
+
+
+    // <o2::hmpid::Digit*>* mDigs
+    for(const auto& dig : topVector){
+      const auto& posX = dig.posX; // pos of digit
+      const auto& posY = dig.posY ;
+      const auto& q = dig.q;
+      const auto& pdg = dig.pdg;
+      const auto& tid = dig.tid;
+      const auto& mid = dig.mid;
+      mTopologyVector.emplace_back(Topology{posX, posY, q, pdg, tid, mid});
+    }  
+    
+  }
+
   void setClusterTopology()
   { 
+    int eventNumber = -1;
+    if(!mDigs) {setEventNumber(eventNumber); return;}
     mTopologyVector.reserve(mDigs->size());
 
-    int eventNumber = -1;
-    
-    if(!mDigs->empty()) {
-      eventNumber = (*mDigs)[0]->getEventNumber();
-    }
 
-    setEventNumber(eventNumber);
+    
+
+
+    if(!mDigs->empty()) {
+      eventNumber = (*mDigs)[0]->getEventNumber();setEventNumber(eventNumber);
+    } 
+
+    
 
 
     // <o2::hmpid::Digit*>* mDigs
@@ -178,7 +202,7 @@ class Cluster
   static bool fgDoCorrSin; // flag to switch on/off correction for Sinusoidal to cluster reco
   void setEventNumber(int eNum) { mEventNumber = eNum; }
   int getEventNumber() const { return mEventNumber; }
-  ClassDefNV(Cluster, 3);
+  ClassDefNV(Cluster, 4);
 };
 
 } // namespace hmpid

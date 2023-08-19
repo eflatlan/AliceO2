@@ -510,8 +510,8 @@ void MatchHMP::doMatching()
         LOGP(info, "Track Intersected :::: clusters loop {} -- {}", event.getFirstEntry(), event.getLastEntry());
 
 		    std::vector<Cluster> oneEventClusters;
-    		oneEventClusters.clear();
-    		oneEventClusters.reserve(mHMPClustersArray.size());
+    		//oneEventClusters.clear();
+    		//oneEventClusters.reserve(mHMPClustersArray.size());
 
 
 				LOGP(info, "mHMPClustersArray Size  {}", mHMPClustersArray.size());
@@ -549,12 +549,41 @@ void MatchHMP::doMatching()
 						// Handle the error case or print a debug message.
 						Printf("Error: Index %d out of bounds", i);
 					}*/ 
-	   
 
 
+
+	  			LOGP(info, "Try clus;");
+	   			std::vector<o2::hmpid::Cluster> cluss;
+ 					o2::hmpid::Cluster c;
+          cluss.push_back(c);
+	  			LOGP(info, "Try clus2;");
+          cluss.push_back(c);
+	  			LOGP(info, "Try oneEventClusters;");
+
+          oneEventClusters.push_back(c);
+					c.setX(cluster.x());
+					c.setY(cluster.y());
+          oneEventClusters.push_back(c);
+
+					//c.setClusterTopology();
+					oneEventClusters.back().cleanPointers();
 					// crashes here 
-	  			LOGP(info, "Setting element worked, now trying pushback");
-          oneEventClusters.push_back(cluster);
+
+					LOGP(info, "cluster.box() {}", cluster.box());
+					LOGP(info, "cluster.size() {}", cluster.size());
+					LOGP(info, "cluster.status() {}", cluster.status());
+					LOGP(info, "cluster.q() {}", cluster.q());
+					LOGP(info, "cluster.qe() {}", cluster.qe());
+
+	  			LOGP(info, "cluster.getTopologyVector();");
+					const auto top = cluster.getTopologyVector();
+	  			LOGP(info, "c.setClusterTopology();");
+
+	  			LOGP(info, "c.setClusterTopology();");
+          oneEventClusters.push_back(c); //  //this is the important
+					oneEventClusters.back().cleanPointers();
+	  			LOGP(info, "c.setClusterTopology(cluster.setClusterTopology());");
+          oneEventClusters.push_back(cluster); //  //this is the important
           LOGP(info, "after  oneEventClusters size = {}", oneEventClusters.size());
 
 
