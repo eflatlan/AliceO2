@@ -36,6 +36,8 @@
 #include "ReconstructionDataFormats/TrackLTIntegral.h"
 #include "ReconstructionDataFormats/TrackHMP.h"
 
+#include "DataFormatsHMP/Digit.h"
+
 #include "GlobalTracking/MatchHMP.h"
 
 #include "TPCBase/ParameterGas.h"
@@ -356,11 +358,12 @@ void MatchHMP::doMatching()
   }
 
 
-  std::vector<Cluster> oneEventClustersEmpty;
+  //std::vector<Cluster> oneEventClustersEmpty;
+  std::vector<o2::hmpid::Digit> oneEventClustersEmpty;
   icnt = 0;
   for(const auto& clu : mHMPClustersArray) {
-    Printf("Clu %d cluEmpty event Number %d", icnt++,clu.getEventNumber());
-    Cluster cl;
+    Printf("Clu %d cluEmpty event Number %d", icnt++, clu.getEventNumber());
+    o2::hmpid::Digit cl;
     oneEventClustersEmpty.push_back(cl);
   }
 

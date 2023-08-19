@@ -113,7 +113,7 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
 
   		LOG(info) << "[HMPID DClusterization - return from dig2clu";
 
-      if(clusters.back().dig(0) == nullptr) {Printf("DigtisToClusterSpec:: dig was nullptr!!");}
+      //if(clusters.back().dig(0) == nullptr) {Printf("DigtisToClusterSpec:: dig was nullptr!!");}
       clusterTriggers.emplace_back(trig.getIr(), clStart, clusters.size() - clStart);
     }
   }

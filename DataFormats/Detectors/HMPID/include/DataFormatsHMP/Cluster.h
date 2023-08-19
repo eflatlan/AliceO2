@@ -58,7 +58,7 @@ struct Topology {
       mEventNumber(other.mEventNumber)
   {
       // Copy the mDigs vector, you should deep copy if needed. Here it's shallow copy.
-      mDigs = new std::vector<const o2::hmpid::Digit*>(*(other.mDigs));
+      mDigs = other.mDigs;
 
       // Copy the mTopologyVector
       mTopologyVector = other.mTopologyVector;
@@ -66,51 +66,55 @@ struct Topology {
 
   Cluster() : mCh(-1), mSi(-1), mSt(kEmp), mBox(-1), mNlocMax(-1), mMaxQpad(-1), mMaxQ(-1), mQRaw(0), mQ(0), mErrQ(-1), mXX(0), mErrX(-1), mYY(0), mErrY(-1), mChi2(-1) {}
 
+  //~Cluster() {  }
+
   // Methods
   // void draw(Option_t *opt=""); //overloaded TObject::Print() to draw cluster in current canvas
   void print(Option_t* opt = "") const;                                                  // overloaded TObject::Print() to print cluster info
   static void fitFunc(int& iNpars, double* deriv, double& chi2, double* par, int iflag); // fit function to be used by MINUIT
+  
   void cleanPointers()
   {
-    mDigs = nullptr;
-		delete mDigs;
+		///delete mDigs; 
+    //mDigs = nullptr;
   }
   void coG();                                                                            // calculates center of gravity
   void corrSin();                                                                        // sinoidal correction
-  void digAdd(const o2::hmpid::Digit* pDig);                                             // add new digit to the cluster
-  const o2::hmpid::Digit* dig(int i) const { return mDigs ? (*mDigs)[i] : nullptr; }     // pointer to i-th digi
+  void digAdd(const o2::hmpid::Digit& pDig);                                             // add new digit to the cluster
+  const o2::hmpid::Digit dig(int i) const { if(mDigs.size() < i) { return mDigs[i];}
+  o2::hmpid::Digit dig; return dig;  }     // pointer to i-th digi
 
   void setClusterTopology()
   { 
-    mTopologyVector.reserve(mDigs->size());
+    mTopologyVector.reserve(mDigs.size());
 
 
     int eventNumber = -1;
     
-    if(!mDigs->empty()) {
-      eventNumber = ((*mDigs)[0])->getEventNumber();
+    if(!mDigs.empty()) {
+      eventNumber = (mDigs[0]).getEventNumber();
 
     }
     setEventNumber(eventNumber);
 
 
     // <o2::hmpid::Digit*>* mDigs
-    for(const auto& dig : *mDigs){
-      const auto& posX = dig->getX(); // pos of digit
-      const auto& posY = dig->getY();
-      const auto& q = dig->getQ();
-      const auto& pdg = dig->mParticlePdg;
-      const auto& tid = dig->mTrackId;
-      const auto& mid = dig->mMotherTrackId;
+    for(const auto& dig : mDigs){
+      const auto& posX = dig.getX(); // pos of digit
+      const auto& posY = dig.getY();
+      const auto& q = dig.getQ();
+      const auto& pdg = dig.mParticlePdg;
+      const auto& tid = dig.mTrackId;
+      const auto& mid = dig.mMotherTrackId;
       mTopologyVector.emplace_back(Topology{posX, posY, q, pdg, tid, mid});
     }
     
   }
 
 
-  const int getNumDigits() const { return mDigs->size(); }
-  const std::vector<const o2::hmpid::Digit*>* getDigits() const { return mDigs; }
-  void setDigits(std::vector<const o2::hmpid::Digit*>* v = nullptr) { mDigs = v; }
+  const int getNumDigits() const { return mDigs.size(); }
+  const std::vector<o2::hmpid::Digit> getDigits() const { return mDigs; }
+  void setDigits(std::vector<o2::hmpid::Digit> v) { mDigs = v; }
   inline bool isInPc();                                                                  // check if is in the current PC
   void reset();                                                                          // cleans the cluster
   // void setClusterParams(float xL, float yL, int iCh); //Set AliCluster3D part
@@ -202,7 +206,7 @@ int solve(std::vector<o2::hmpid::Cluster>& cluLst,  float* pSigmaCut, bool isTry
   double mYY;                                 // local y postion, [cm]
   double mErrY;                               // error on y postion, [cm]
   double mChi2;                               // some estimator of the fit quality
-  std::vector<const o2::hmpid::Digit*>* mDigs = nullptr; //! list of digits forming this cluster
+  std::vector<o2::hmpid::Digit> mDigs; //! list of digits forming this cluster
 
   int mEventNumber; // ef: 
 

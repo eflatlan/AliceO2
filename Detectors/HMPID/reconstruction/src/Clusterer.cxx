@@ -49,7 +49,7 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
   int pUsedDig = -1;
   int padChX = 0, padChY = 0, module = 0;
   std::vector<Pad> vPad;
-  std::vector<const Digit*> digVec;
+  std::vector<Digit> digVec;
 
   Printf("dig2Clu l54 ");
   for (int iCh = Param::kMinCh; iCh <= Param::kMaxCh; iCh++) { // chambers loop
@@ -72,7 +72,7 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
       digVec.clear();
       Cluster clu;
       Printf("dig2Clu l74 ");
-      clu.setDigits(&digVec);
+      clu.setDigits(digVec);
 
 
       // denne skal mulgiens vaere nptr, men jeg skjonner ikke logikken!
@@ -167,7 +167,7 @@ void Clusterer::FormClu(Cluster& pClu, int pDig, gsl::span<const o2::hmpid::Digi
   //   Returns: none
 
 
-  pClu.digAdd(&digs[pDig]); // take this digit in cluster
+  pClu.digAdd(digs[pDig]); // take this digit in cluster
 
   int cnt = 0;
   int cx[4];
