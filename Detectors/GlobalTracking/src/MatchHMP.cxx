@@ -381,7 +381,7 @@ void MatchHMP::doMatching()
   auto& cacheTrk = mTracksIndexCache[type];       // array of cached tracks indices;
   int nTracks = cacheTrk.size(), nHMPtriggers = cacheTriggerHMP.size();
 
-  LOG(debug) << " ************************number of tracks: " << nTracks << ", number of HMP triggers: " << nHMPtriggers;
+  LOG(info) << " ************************number of tracks: " << nTracks << ", number of HMP triggers: " << nHMPtriggers;
   if (!nTracks || !nHMPtriggers) {
     return;
   }
@@ -403,12 +403,15 @@ void MatchHMP::doMatching()
     auto& event = mHMPTriggersWork[cacheTriggerHMP[iEvent]];
     auto evtTime = o2::InteractionRecord::bc2ns(event.getBc(), event.getOrbit()); // event(trigger) time in ns
 
-std::vector<Cluster> oneEventClusters;
+	
 
 
+		const int firstEntry = event.getFirstEntry();
+		const int lastEntry = event.getLastEntry();
 
+		LOGP(info, "1st entry last entry", mHMPClustersArray.size());
 		LOGP(info, "mHMPClustersArray Size  {}", mHMPClustersArray.size());
-		for (int j = event.getFirstEntry(); j <= event.getLastEntry(); j++) { // event clusters loop
+		for (size_t  j = firstEntry; j <= lastEntry; j++) { // event clusters loop
 
 			if( j >= mHMPClustersArray.size()) {
 				LOGP(info, "j{} > mHMPClustersArray.size() {}", j, mHMPClustersArray.size());
@@ -419,7 +422,7 @@ std::vector<Cluster> oneEventClusters;
 			LOGP(info, " cluster --> Chamber{}", cluster.ch());
 
 
-			oneEventClusters.push_back(cluster);
+			//oneEventClusters.push_back(cluster);
 		}
 
 	
@@ -431,8 +434,7 @@ std::vector<Cluster> oneEventClusters;
     //auto mlEvent = std::make_unique<HmpMLVector>(&oneEventClusters, iEvent, nmean); // ef: initialize as int of Event and clusters relevant to the event
 
     for (int itrk = 0; itrk < cacheTrk.size(); itrk++) { // tracks loop
-    	oneEventClusters.clear();
-    	oneEventClusters.reserve(mHMPClustersArray.size());	
+
     	//oneEventClusters.resize(mHMPClustersArray.size()); this would initialize Cluster objects, dont want to do that
  
       auto& trackWork = mTracksWork[type][cacheTrk[itrk]];
@@ -505,7 +507,11 @@ std::vector<Cluster> oneEventClusters;
         auto cluInde = 0;
 
 
-        LOGP(info, "clusters loop {} -- {}", event.getFirstEntry(), event.getLastEntry());
+        LOGP(info, "Track Intersected :::: clusters loop {} -- {}", event.getFirstEntry(), event.getLastEntry());
+
+		    std::vector<Cluster> oneEventClusters;
+    		oneEventClusters.clear();
+    		oneEventClusters.reserve(mHMPClustersArray.size());
 
 
 				LOGP(info, "mHMPClustersArray Size  {}", mHMPClustersArray.size());
@@ -518,6 +524,8 @@ std::vector<Cluster> oneEventClusters;
           //const auto& cluster = (o2::hmpid::Cluster&)mHMPClustersArray[j];
           auto& cluster = (o2::hmpid::Cluster&)mHMPClustersArray[j];
           LOGP(info, "Accessed mHMPClustersArray[{}]", j);
+
+
           if (cluster.ch() != iCh) {
             LOGP(info, "cluster.ch() != iCh");
             continue;
@@ -543,6 +551,8 @@ std::vector<Cluster> oneEventClusters;
 					}*/ 
 	   
 
+
+					// crashes here 
 	  			LOGP(info, "Setting element worked, now trying pushback");
           oneEventClusters.push_back(cluster);
           LOGP(info, "after  oneEventClusters size = {}", oneEventClusters.size());
