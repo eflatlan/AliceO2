@@ -346,31 +346,10 @@ bool MatchHMP::prepareHMPClusters()
 //==================================================================================================================================================
 void MatchHMP::doMatching()
 {
-  int jj = 0;
-  Cluster oneEventArray[mHMPClustersArray.size()];
-  std::vector<Cluster> oneEventClustersTest;
-
-  std::vector<int> oneEventClustersInt;
-  int icnt = 0;
-  for(const auto& clu : mHMPClustersArray) {
-    Printf("Clu %d clusCnt event Number %d", icnt++,clu.getEventNumber());
-    oneEventClustersInt.push_back(icnt);
-  }
-
-
-  //std::vector<Cluster> oneEventClustersEmpty;
-  std::vector<o2::hmpid::Digit> oneEventClustersEmpty;
-  icnt = 0;
-  for(const auto& clu : mHMPClustersArray) {
-    Printf("Clu %d cluEmpty event Number %d", icnt++, clu.getEventNumber());
-    o2::hmpid::Digit cl;
-    oneEventClustersEmpty.push_back(cl);
-  }
 
 
 
-
-
+  /*
 
   for(const auto& clu : mHMPClustersArray) {
     Printf("Clu %d clus event Number %d", jj++,clu.getEventNumber());
@@ -387,7 +366,7 @@ void MatchHMP::doMatching()
 	Printf("Exception during assignment: %s", e.what());
     }
 
-  }
+  } */ 
 
 
   o2::globaltracking::MatchHMP::trackType type = o2::globaltracking::MatchHMP::trackType::CONSTR;
@@ -468,12 +447,15 @@ void MatchHMP::doMatching()
 
 
         // ef: check for simulation if this gets the correct PID::
-        LOGP(info, "MatchHMP.cxx Event {}: Track {}" , iEvent, itrk);
+
 
         double xPc, yPc, xRa, yRa, theta, phi;
 
         Int_t iCh = intTrkCha(&trefTrk, xPc, yPc, xRa, yRa, theta, phi, bz); // find the intersected chamber for this track
+
+        LOGP(info, "MatchHMP.cxx Event {}: Track {} Chamber {}" , iEvent, itrk, iCh);
         if (iCh < 0) {
+        	LOGP(info, "MatchHMP.cxx  \n\n NBNBNB!!! \n\n *******  Chamber {} ***** \n\n" , iCh);
           continue;
         } // no intersection at all, go next track
 
@@ -507,16 +489,16 @@ void MatchHMP::doMatching()
         auto cluInde = 0;
 
 
-          LOGP(info, "clusters loop {} -- {}", event.getFirstEntry(), event.getLastEntry());
+        LOGP(info, "clusters loop {} -- {}", event.getFirstEntry(), event.getLastEntry());
 
 
-	  LOGP(info, "mHMPClustersArray Size  {}", mHMPClustersArray.size());
+				LOGP(info, "mHMPClustersArray Size  {}", mHMPClustersArray.size());
         for (int j = event.getFirstEntry(); j <= event.getLastEntry(); j++) { // event clusters loop
 
-	  if( j >= mHMPClustersArray.size()) {
-	    LOGP(info, "j{} > mHMPClustersArray.size() {}", j, mHMPClustersArray.size());
+	  			if( j >= mHMPClustersArray.size()) {
+	    			LOGP(info, "j{} > mHMPClustersArray.size() {}", j, mHMPClustersArray.size());
           }
-	  LOGP(info, "Accesing cluster from mHMPClustersArray[{}]", j);
+	  			LOGP(info, "Accesing cluster from mHMPClustersArray[{}]", j);
           //const auto& cluster = (o2::hmpid::Cluster&)mHMPClustersArray[j];
           auto& cluster = (o2::hmpid::Cluster&)mHMPClustersArray[j];
           LOGP(info, "Accessed mHMPClustersArray[{}]", j);
@@ -529,23 +511,23 @@ void MatchHMP::doMatching()
 
           LOGP(info, "before  oneEventClusters size = {}", oneEventClusters.size());
 
-	  int i = j - event.getFirstEntry();
+	  			int i = j - event.getFirstEntry();
 
-	  LOGP(info, "Setting element {}",i);
-	  if (i >= 0 && i < oneEventClusters.size()) {
-	    try {
-		oneEventClusters.at(i) = cluster;
-	    } catch (const std::exception& e) {
-		// This is a generic exception catch. You can narrow it down to specific exceptions like std::out_of_range.
-		Printf("Exception during assignment: %s", e.what());
-	    }
-	  } else {
-	    // Handle the error case or print a debug message.
-	    Printf("Error: Index %d out of bounds", i);
-	  }
+					LOGP(info, "Setting element {}",i);
+					if (i >= 0 && i < oneEventClusters.size()) {
+						try {
+						oneEventClusters.at(i) = cluster;
+						} catch (const std::exception& e) {
+					// This is a generic exception catch. You can narrow it down to specific exceptions like std::out_of_range.
+					Printf("Exception during assignment: %s", e.what());
+						}
+					} else {
+						// Handle the error case or print a debug message.
+						Printf("Error: Index %d out of bounds", i);
+					}
 	   
 
-	  LOGP(info, "Setting element worked, now trying pushback");
+	  			LOGP(info, "Setting element worked, now trying pushback");
           oneEventClusters.push_back(cluster);
           LOGP(info, "after  oneEventClusters size = {}", oneEventClusters.size());
 
@@ -556,7 +538,7 @@ void MatchHMP::doMatching()
           // ef: changed to this : 
 
 
-	  // ef: must loop over oneEventClusters here to make sure these are fulfilled: 
+	  			// ef: must loop over oneEventClusters here to make sure these are fulfilled: 
           double qthre = pParam->qCut(); // ef : TODO add chargeCut from calibration!
 
           if (cluster.q() < 150.) {
@@ -595,7 +577,7 @@ void MatchHMP::doMatching()
           continue;
         }
 
-	LOGP(info," MatchHMP.cxx : found new BestCLuster");
+				LOGP(info," MatchHMP.cxx : found new BestCLuster");
 
         double Dist = TMath::Sqrt((xPc - bestHmpCluster->x()) * (xPc - bestHmpCluster->x()) + (yPc - bestHmpCluster->y()) * (yPc - bestHmpCluster->y()));
 

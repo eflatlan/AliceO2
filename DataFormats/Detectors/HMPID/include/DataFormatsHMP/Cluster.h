@@ -38,16 +38,44 @@ class Cluster
                         kAbn,
                         kBig,
                         kEmp = -1 }; // status flags
-struct Topology {
-    int diffX;
-    int diffY;
-    int q;
-    int pdg;
-    int tid;
-    int mid;
-};
+	struct Topology {
+		  int diffX;
+		  int diffY;
+		  int q;
+		  int pdg;
+		  int tid;
+		  int mid;
+	};
 
  public:
+  const std::vector<Topology>& getTopologyVector() const { return mTopologyVector;}
+
+  void setClusterTopology()
+  { 
+    mTopologyVector.reserve(mDigs->size());
+
+    int eventNumber = -1;
+    
+    if(!mDigs->empty()) {
+      eventNumber = (*mDigs)[0]->getEventNumber();
+    }
+
+    setEventNumber(eventNumber);
+
+
+    // <o2::hmpid::Digit*>* mDigs
+    for(const auto& dig : *mDigs){
+      const auto& posX = dig->getX(); // pos of digit
+      const auto& posY = dig->getY();
+      const auto& q = dig->getQ();
+      const auto& pdg = dig->mParticlePdg;
+      const auto& tid = dig->mTrackId;
+      const auto& mid = dig->mMotherTrackId;
+      mTopologyVector.emplace_back(Topology{posX, posY, q, pdg, tid, mid});
+    }
+    
+  }
+
   Cluster() : mCh(-1), mSi(-1), mSt(kEmp), mBox(-1), mNlocMax(-1), mMaxQpad(-1), mMaxQ(-1), mQRaw(0), mQ(0), mErrQ(-1), mXX(0), mErrX(-1), mYY(0), mErrY(-1), mChi2(-1) {}
 
   // Methods
@@ -66,7 +94,7 @@ struct Topology {
   void setDigits(std::vector<const o2::hmpid::Digit*>* v = nullptr) { mDigs = v; }
   inline bool isInPc();                                                                  // check if is in the current PC
   void reset();                                                                          // cleans the cluster
-'  // void setClusterParams(float xL, float yL, int iCh); //Set AliCluster3D part
+  // void setClusterParams(float xL, float yL, int iCh); //Set AliCluster3D part
   int solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, bool isUnfold); // solve cluster: MINUIT fit or CoG
   // Getters
 
@@ -112,6 +140,7 @@ struct Topology {
   double mErrY;                               // error on y postion, [cm]
   double mChi2;                               // some estimator of the fit quality
   std::vector<const o2::hmpid::Digit*>* mDigs = nullptr; //! list of digits forming this cluster
+  std::vector<Topology> mTopologyVector;
 
   public  : 
 	int box() const { return mBox; }     // Dimension of the cluster

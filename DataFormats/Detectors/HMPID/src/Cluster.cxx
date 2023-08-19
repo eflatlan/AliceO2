@@ -283,6 +283,7 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, b
     // setClusterParams(mXX, mYY, mCh); //                               2 - flag is set to FALSE
     // new ((*pCluLst)[iCluCnt++]) Cluster(*this); //                      3 - size = 1
     pCluLst->push_back(o2::hmpid::Cluster(*this));
+    pCluLst->back().setClusterTopology();
     pCluLst->back().cleanPointers();
     return 1; // add this raw cluster
   }
@@ -339,6 +340,7 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, b
     mSt = kNoLoc;
     // setClusterParams(mXX, mYY, mCh); //need to fill the AliCluster3D part
     pCluLst->push_back(o2::hmpid::Cluster(*this)); // add new unfolded cluster pCluLst->push_back(o2::hmpid::Cluster(*this));
+    pCluLst->back().setClusterTopology();
     pCluLst->back().cleanPointers();
     return mNlocMax;
   }
@@ -348,6 +350,7 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, b
     // setClusterParams(mXX, mYY, mCh); // if # of local maxima exceeds kMaxLocMax...
     mSt = kMax;
     pCluLst->push_back(o2::hmpid::Cluster(*this)); //...add this raw cluster
+    pCluLst->back().setClusterTopology();
     pCluLst->back().cleanPointers();
   } else {                                         // or resonable number of local maxima to fit and user requested it
     // Now ready for minimization step
@@ -402,6 +405,7 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, b
       }
       // setClusterParams(mXX, mYY, mCh); //need to fill the AliCluster3D part
       pCluLst->push_back(o2::hmpid::Cluster(*this)); // add new unfolded cluster
+      pCluLst->back().setClusterTopology();
       pCluLst->back().cleanPointers();
       if (mNlocMax > 1) {
         setSize(rawSize); // Original raw size is set again to its proper value
