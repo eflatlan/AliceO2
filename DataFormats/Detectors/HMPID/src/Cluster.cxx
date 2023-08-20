@@ -289,7 +289,20 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, std::vector<Topolog
     // new ((*pCluLst)[iCluCnt++]) Cluster(*this); //                      3 - size = 1
     pCluLst->push_back(o2::hmpid::Cluster(*this));
     /*std::vector<Topology> topVec = */
-    pCluLst->back().setClusterTopology(pTopVector);
+
+
+    // set index of first digit topology vector
+    pCluLst->back().setFirstTopologyIndex(pTopVector.size());
+
+
+    // pTopVector sent by reference, will be longer after assignment
+    pCluLst->back().setClusterTopology(pTopVector, pCluLst->size());
+    // , pCluLst->size() to set the index of the cluster in teh vector to each element 
+    //   in pTopVector thas is added
+
+
+    // set index of first digit topology vector
+    pCluLst->back().setLastTopologyIndex(pTopVector.size());
     ////pTopVector->push_back(topVec);
     pCluLst->back().cleanPointers();
     return 1; // add this raw cluster
@@ -347,7 +360,7 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, std::vector<Topolog
     mSt = kNoLoc;
     // setClusterParams(mXX, mYY, mCh); //need to fill the AliCluster3D part
     pCluLst->push_back(o2::hmpid::Cluster(*this)); // add new unfolded cluster pCluLst->push_back(o2::hmpid::Cluster(*this));
-    pCluLst->back().setClusterTopology(pTopVector);
+        pCluLst->back().setClusterTopology(pTopVector, pCluLst->size());
     ////pTopVector->push_back(topVec);
     pCluLst->back().cleanPointers();
     return mNlocMax;
@@ -358,7 +371,7 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, std::vector<Topolog
     // setClusterParams(mXX, mYY, mCh); // if # of local maxima exceeds kMaxLocMax...
     mSt = kMax;
     pCluLst->push_back(o2::hmpid::Cluster(*this)); //...add this raw cluster
-    pCluLst->back().setClusterTopology(pTopVector);
+        pCluLst->back().setClusterTopology(pTopVector, pCluLst->size());
     //pTopVector->push_back(topVec);
     pCluLst->back().cleanPointers();
   } else {                                         // or resonable number of local maxima to fit and user requested it
@@ -414,7 +427,7 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, std::vector<Topolog
       }
       // setClusterParams(mXX, mYY, mCh); //need to fill the AliCluster3D part
       pCluLst->push_back(o2::hmpid::Cluster(*this)); // add new unfolded cluster
-      pCluLst->back().setClusterTopology(pTopVector);
+          pCluLst->back().setClusterTopology(pTopVector, pCluLst->size());
       ////pTopVector->push_back(topVec);
       pCluLst->back().cleanPointers();
       if (mNlocMax > 1) {

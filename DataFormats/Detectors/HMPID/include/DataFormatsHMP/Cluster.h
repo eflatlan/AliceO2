@@ -29,6 +29,13 @@ struct Topology {
 	int pdg = 0;
 	int tid = 0;
 	int mid = 0;
+	int eid = 0;
+	int currentCluVecSize = 0;
+
+	Topology() = default;  // Default constructor, uses default member initializers.
+
+  Topology(uint8_t x, uint8_t y, uint16_t q_val, int p, int t, int m, int e, int c)
+        : posX(x), posY(y), q(q_val), pdg(p), tid(t), mid(m), eid(e), currentCluVecSize(c) {}
 };
 
 
@@ -90,7 +97,16 @@ class Cluster
 	}*/ 
 
 
-	void setClusterTopology(std::vector<o2::hmpid::Topology>& topVector)
+
+  
+
+  void setLastTopologyIndex(int index) { mLastTopIndex = index;} 
+  void setFirstTopologyIndex(int index) { mFirstTopIndex = index;} 
+
+  int getLastTopologyIndex() const { return mLastTopIndex;} 
+  int getFirstTopologyIndex() const { return mFirstTopIndex;} 
+
+	void setClusterTopology(std::vector<o2::hmpid::Topology>& topVector, const int currCluVecSize)
 	{ 
       
 		  //std::vector<o2::hmpid::Topology> topVector;
@@ -116,7 +132,8 @@ class Cluster
 						const auto& pdg = dig->mParticlePdg;
 						const auto& tid = dig->mTrackId;
 						const auto& mid = dig->getMotherId();
-						
+						const auto& eid = dig->getEventNumber();
+
 						int pdgCat = 0;
 						if(pdg == 50000050 || pdg == 50000051) {
 							pdgCat = 4;
@@ -130,7 +147,7 @@ class Cluster
 							pdgCat = 0;
 						}
 
-      			topVector.emplace_back(o2::hmpid::Topology{posX, posY, q, pdgCat, tid, mid});
+      			topVector.emplace_back(o2::hmpid::Topology{posX, posY, q, pdgCat, tid, mid, eid, currCluVecSize});
 					}
 		  }
 			//return topVector;
@@ -191,7 +208,7 @@ class Cluster
 
   std::vector<int>  digsX, digsY, digsQ, digsPDG;//, digsTID, digsMID;//.push_back(dig->getX()); // pos of digit
 
-
+	int mLastTopIndex = -1, mFirstTopIndex = -1;
   int mCh;                                    // chamber number
   int mSi;                                    // size of the formed cluster from which this cluster deduced
   int mSt;                                    // flag to mark the quality of the cluster
