@@ -38,20 +38,28 @@ class Cluster
                         kAbn,
                         kBig,
                         kEmp = -1 }; // status flags
-	struct Topology {
-		uint8_t posX = 0;
-		uint8_t posY = 0;
-		uint16_t q = 0;
-		int pdg = 0;
-		int tid = 0;
-		int mid = 0;
-	};
+
 
 
  public:
-  const std::vector<Topology>& getTopologyVector() const { return mTopologyVector;}
+  void getTopologyVector(std::vector<int>& outDigsX, 
+                       std::vector<int>& outDigsY, 
+                       std::vector<int>& outDigsQ,  
+                       std::vector<int>& outDigsPDG, 
+                       std::vector<int>& outDigsTID, 
+                       std::vector<int>& outDigsMID) 
+{
+    outDigsX = digsX;
+    outDigsY = digsY;
+    outDigsQ = digsQ;
+    outDigsPDG = digsPDG;
+    outDigsTID = digsTID;
+    outDigsMID = digsMID;
+}
 
 
+
+  /*
   void setClusterTopology(const std::vector<Topology>& topVector)
   { 
 
@@ -68,34 +76,27 @@ class Cluster
       mTopologyVector.emplace_back(Topology{posX, posY, q, pdg, tid, mid});
     }  
     
-  }
+  }*/ 
 
   void setClusterTopology()
   { 
     int eventNumber = -1;
-    if(!mDigs) {setEventNumber(eventNumber); return;}
-    mTopologyVector.reserve(mDigs->size());
-
-
-    
+    if(!mDigs || mDigs->empty()) {setEventNumber(eventNumber); return;}
+    //mTopologyVector.reserve(mDigs->size());
 
 
     if(!mDigs->empty()) {
       eventNumber = (*mDigs)[0]->getEventNumber();setEventNumber(eventNumber);
     } 
 
-    
-
-
     // <o2::hmpid::Digit*>* mDigs
     for(const auto& dig : *mDigs){
-      const auto& posX = dig->getX(); // pos of digit
-      const auto& posY = dig->getY();
-      const auto& q = dig->getQ();
-      const auto& pdg = dig->mParticlePdg;
-      const auto& tid = dig->mTrackId;
-      const auto& mid = dig->mMotherTrackId;
-      mTopologyVector.emplace_back(Topology{posX, posY, q, pdg, tid, mid});
+      digsX.push_back(dig->getX()); // pos of digit
+      digsY.push_back(dig->getY()); // pos of digit
+      digsQ.push_back(dig->getQ()); // pos of digit
+      digsPDG.push_back(dig->mParticlePdg); // pos of digit
+      digsTID.push_back(dig->mTrackId); // pos of digit
+      digsMID.push_back(dig->mMotherTrackId); // pos of digit
     }
     
   }
@@ -149,6 +150,9 @@ class Cluster
 
   // public:
  protected:
+    std::vector<int>  digsX, digsY, digsQ, digsPDG, digsTID, digsMID;//.push_back(dig->getX()); // pos of digit
+
+
   int mCh;                                    // chamber number
   int mSi;                                    // size of the formed cluster from which this cluster deduced
   int mSt;                                    // flag to mark the quality of the cluster
@@ -165,7 +169,7 @@ class Cluster
   double mErrY;                               // error on y postion, [cm]
   double mChi2;                               // some estimator of the fit quality
   std::vector<const o2::hmpid::Digit*>* mDigs = nullptr; //! list of digits forming this cluster
-  std::vector<Topology> mTopologyVector;
+  //std::vector<Topology> mTopologyVector;
 
   public  : 
 	int box() const { return mBox; }     // Dimension of the cluster

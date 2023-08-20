@@ -576,13 +576,19 @@ void MatchHMP::doMatching()
 					LOGP(info, "cluster.qe() {}", cluster.qe());
 
 	  			LOGP(info, "cluster.getTopologyVector();");
-					const auto top = cluster.getTopologyVector();
+					//const auto top = cluster.getTopologyVector();
 	  			LOGP(info, "c.setClusterTopology();");
 
 	  			LOGP(info, "c.setClusterTopology();");
           oneEventClusters.push_back(c); //  //this is the important
 					oneEventClusters.back().cleanPointers();
 	  			LOGP(info, "c.setClusterTopology(cluster.setClusterTopology());");
+
+
+           std::vector<int>  digsX, digsY, digsQ, digsPDG, digsTID, digsMID;//.push_back(dig
+					cluster.getTopologyVector(digsX, digsY, digsQ, digsPDG, digsTID, digsMID);
+          LOGP(info, "ok cluster.getTopologyVector();");
+
           oneEventClusters.push_back(cluster); //  //this is the important
           LOGP(info, "after  oneEventClusters size = {}", oneEventClusters.size());
 
