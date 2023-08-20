@@ -71,6 +71,9 @@ void ClusterReaderTask::run(ProcessingContext& pc)
   assert(ent < mTree->GetEntries()); // this should not happen
   mTree->GetEntry(ent);
 
+
+  pc.outputs().snapshot(Output{"HMP", "CLUSTERS", 0, Lifetime::Timeframe}, mTopologyFromFile);
+
   pc.outputs().snapshot(Output{"HMP", "CLUSTERS", 0, Lifetime::Timeframe}, mClustersFromFile);
   pc.outputs().snapshot(Output{"HMP", "INTRECORDS1", 0, Lifetime::Timeframe}, mClusterTriggersFromFile);
   mClustersReceived += mClustersFromFile.size();
@@ -124,6 +127,9 @@ void ClusterReaderTask::initFileIn(const std::string& filename)
       "HMPID ClusterReaderTask::init() : Did not find Branch HMPIDClusters in clusters tree");
   }
 
+  mTree->SetBranchAddress("HMPIDDigitTopology", &mTopologyFromFilePtr);
+  mTree->Print("toponly");
+
   mTree->SetBranchAddress("InteractionRecords", &mClusterTriggersFromFilePtr);
   mTree->Print("toponly");
 }
@@ -135,6 +141,7 @@ o2::framework::DataProcessorSpec getClusterReaderSpec()
 
   std::vector<o2::framework::OutputSpec> outputs;
   outputs.emplace_back("HMP", "CLUSTERS", 0, o2::framework::Lifetime::Timeframe);
+  outputs.emplace_back("HMP", "DIGITTOPOLOGY", 0, o2::framework::Lifetime::Timeframe);
   outputs.emplace_back("HMP", "INTRECORDS1", 0, o2::framework::Lifetime::Timeframe);
 
   return DataProcessorSpec{

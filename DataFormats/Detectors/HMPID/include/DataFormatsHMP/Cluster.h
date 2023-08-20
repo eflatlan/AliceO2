@@ -21,6 +21,17 @@ namespace o2
 {
 namespace hmpid
 {
+
+struct Topology {
+	uint8_t posX = 0;
+	uint8_t posY = 0;
+	uint16_t q = 0;
+	int pdg = 0;
+	int tid = 0;
+	int mid = 0;
+};
+
+
 /// \class Cluster
 /// \brief HMPID cluster implementation
 class Cluster
@@ -42,20 +53,20 @@ class Cluster
 
 
  public:
-  void getTopologyVector(std::vector<int>& outDigsX, 
+  /*void getTopologyVector(std::vector<int>& outDigsX, 
                        std::vector<int>& outDigsY, 
                        std::vector<int>& outDigsQ,  
                        std::vector<int>& outDigsPDG, 
                        std::vector<int>& outDigsTID, 
                        std::vector<int>& outDigsMID) 
-{
-    outDigsX = digsX;
-    outDigsY = digsY;
-    outDigsQ = digsQ;
-    outDigsPDG = digsPDG;
-    outDigsTID = digsTID;
-    outDigsMID = digsMID;
-}
+	{
+		  /* outDigsX = digsX;
+		  outDigsY = digsY;
+		  outDigsQ = digsQ;
+		  outDigsPDG = digsPDG;
+		  outDigsTID = digsTID;
+		  outDigsMID = digsMID;* /
+	}*/
 
 
 
@@ -76,30 +87,55 @@ class Cluster
       mTopologyVector.emplace_back(Topology{posX, posY, q, pdg, tid, mid});
     }  
     
-  }*/ 
-
-  void setClusterTopology()
-  { 
-    int eventNumber = -1;
-    if(!mDigs || mDigs->empty()) {setEventNumber(eventNumber); return;}
-    //mTopologyVector.reserve(mDigs->size());
+	}*/ 
 
 
-    if(!mDigs->empty()) {
-      eventNumber = (*mDigs)[0]->getEventNumber();setEventNumber(eventNumber);
-    } 
+	void setClusterTopology(std::vector<o2::hmpid::Topology>& topVector)
+	{ 
+      
+		  //std::vector<o2::hmpid::Topology> topVector;
+		  // Check for null or empty mDigs
+		  if(!mDigs || mDigs->empty()) {
+		      setEventNumber(-1);
+		      return;// topVector;
+		  }
 
-    // <o2::hmpid::Digit*>* mDigs
-    for(const auto& dig : *mDigs){
-      digsX.push_back(dig->getX()); // pos of digit
-      digsY.push_back(dig->getY()); // pos of digit
-      digsQ.push_back(dig->getQ()); // pos of digit
-      digsPDG.push_back(dig->mParticlePdg); // pos of digit
-      digsTID.push_back(dig->mTrackId); // pos of digit
-      digsMID.push_back(dig->mMotherTrackId); // pos of digit
-    }
-    
-  }
+		  // Assuming all digits have the same event number, so take it from the first digit
+		  setEventNumber((*mDigs)[0]->getEventNumber());
+			
+		  // Reserve space for vectors (Optional, but can improve efficiency)
+		  const size_t digSize = mDigs->size();
+
+			//topVector.reserve(digSize);
+
+		  for(const auto& dig : *mDigs) {
+					if(dig) {			
+						const auto& posX = dig->getX(); // pos of digit
+						const auto& posY = dig->getY() ;
+						const auto& q = dig->getQ();
+						const auto& pdg = dig->mParticlePdg;
+						const auto& tid = dig->mTrackId;
+						const auto& mid = dig->getMotherId();
+						
+						int pdgCat = 0;
+						if(pdg == 50000050 || pdg == 50000051) {
+							pdgCat = 4;
+						} else if (pdg == 211 || pdg == 111) { // Pion
+							pdgCat = 3;
+						} else if (pdg == 321) { // Kaon
+							pdgCat = 2;
+						} else if (pdg == 2212) { // Proton
+							pdgCat = 1;
+						} else  { // Proton
+							pdgCat = 0;
+						}
+
+      			topVector.emplace_back(o2::hmpid::Topology{posX, posY, q, pdgCat, tid, mid});
+					}
+		  }
+			//return topVector;
+	}
+
 
   Cluster() : mCh(-1), mSi(-1), mSt(kEmp), mBox(-1), mNlocMax(-1), mMaxQpad(-1), mMaxQ(-1), mQRaw(0), mQ(0), mErrQ(-1), mXX(0), mErrX(-1), mYY(0), mErrY(-1), mChi2(-1) {}
 
@@ -121,7 +157,7 @@ class Cluster
   inline bool isInPc();                                                                  // check if is in the current PC
   void reset();                                                                          // cleans the cluster
   // void setClusterParams(float xL, float yL, int iCh); //Set AliCluster3D part
-  int solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, bool isUnfold); // solve cluster: MINUIT fit or CoG
+  int solve(std::vector<o2::hmpid::Cluster>* pCluLst,  std::vector<o2::hmpid::Topology>& pTopVector, float* pSigmaCut, bool isUnfold); // solve cluster: MINUIT fit or CoG
   // Getters
 
   // Setters
@@ -150,7 +186,10 @@ class Cluster
 
   // public:
  protected:
-    std::vector<int>  digsX, digsY, digsQ, digsPDG, digsTID, digsMID;//.push_back(dig->getX()); // pos of digit
+
+  //int  digsXArr[9], digsYArr[9], digsQArr[9], digsPDGArr[9];//, digsTIDArr[9], digsMIDArr[9];//.push_back(dig
+
+  std::vector<int>  digsX, digsY, digsQ, digsPDG;//, digsTID, digsMID;//.push_back(dig->getX()); // pos of digit
 
 
   int mCh;                                    // chamber number

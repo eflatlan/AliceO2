@@ -30,8 +30,8 @@ using namespace o2::hmpid;
   // mClus = {nullptr};
 }*/
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::hmpid::Cluster>& clus, float* pUserCut, bool isUnfold)
-{
+void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::hmpid::Cluster>& clus, std::vector<o2::hmpid::Topology>& topVector, float* pUserCut, bool isUnfold)
+{ 
   // Finds all clusters for a given digits list provided not empty. Currently digits list is a list of all digits for a single chamber.
   // Puts all found clusters in separate lists, one per clusters.
   // Arguments: pDigAll     - list of digits for all chambers
@@ -100,7 +100,10 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
 
       clu.setCh(iCh);
 
-      clu.solve(&clus, pUserCut, isUnfold); // solve this cluster and add all unfolded clusters to provided list
+
+
+
+      clu.solve(&clus, topVector,pUserCut, isUnfold); // solve this cluster and add all unfolded clusters to provided list
 
       /*
       if(clu.dig(0)==nullptr)

@@ -15,7 +15,13 @@
 #pragma link off all classes;
 #pragma link off all functions;
 
+#pragma link C++ function o2::hmpid::Cluster::setClusterTopology;
+
 #pragma link C++ class o2::hmpid::Digit + ;
+#pragma link C++ class o2::hmpid::Topology + ;
+#pragma link C++ class vector < o2::hmpid::Topology> + ;
+
+#pragma link C++ class vector < int> + ;
 #pragma link C++ class vector < o2::hmpid::Digit> + ;
 #pragma link C++ class o2::hmpid::HitType + ;
 #pragma link C++ class vector < o2::hmpid::HitType> + ;

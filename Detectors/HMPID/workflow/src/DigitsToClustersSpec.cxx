@@ -94,6 +94,8 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
   // outputs
   std::vector<o2::hmpid::Cluster> clusters;
   std::vector<o2::hmpid::Trigger> clusterTriggers;
+  std::vector<o2::hmpid::Topology> topVectorVector;
+
   LOG(info) << "[HMPID DClusterization - run() ] Enter ...";
   /*clusters.clear();
   clusterTriggers.clear();*/ 
@@ -109,7 +111,7 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
         digits.data() + trig.getFirstEntry(),
         size_t(trig.getNumberOfObjects())};
       size_t clStart = clusters.size();
-      mRec->Dig2Clu(trigDigits, clusters, mSigmaCut, true);
+      mRec->Dig2Clu(trigDigits, clusters, topVectorVector, mSigmaCut, true);
 
   		LOG(info) << "[HMPID DClusterization - return from dig2clu";
 
@@ -123,6 +125,9 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
   mClustersReceived += clusters.size();
 
   pc.outputs().snapshot(o2::framework::Output{"HMP", "CLUSTERS", 0, o2::framework::Lifetime::Timeframe}, clusters);
+
+  pc.outputs().snapshot(o2::framework::Output{"HMP", "DIGITTOPOLOGY", 0, o2::framework::Lifetime::Timeframe}, topVectorVector);
+
   pc.outputs().snapshot(o2::framework::Output{"HMP", "INTRECORDS1", 0, o2::framework::Lifetime::Timeframe}, clusterTriggers);
 
   mExTimer.elapseMes("Clusterization of Digits received = " + std::to_string(mDigitsReceived));
@@ -154,6 +159,8 @@ o2::framework::DataProcessorSpec
   std::vector<o2::framework::OutputSpec> outputs;
 
   outputs.emplace_back("HMP", "CLUSTERS", 0,
+                       o2::framework::Lifetime::Timeframe);
+  outputs.emplace_back("HMP", "DIGITTOPOLOGY", 0,
                        o2::framework::Lifetime::Timeframe);
   outputs.emplace_back("HMP", "INTRECORDS1", 0,
                        o2::framework::Lifetime::Timeframe);

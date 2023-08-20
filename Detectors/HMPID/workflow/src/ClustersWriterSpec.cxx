@@ -35,7 +35,7 @@ o2::framework::DataProcessorSpec getClusterWriterSpec()
                                 "hmpidclusters.root",
                                 MakeRootTreeWriterSpec::TreeAttributes{"o2hmp", "Tree with HMPID clusters"},
                                 BranchDefinition<std::vector<o2::hmpid::Cluster>>{InputSpec{"hmpclusterinput", "HMP", "CLUSTERS"}, "HMPIDclusters"},
-                                BranchDefinition<std::vector<o2::hmpid::Trigger>>{InputSpec{"hmpinteractionrecords", "HMP", "INTRECORDS1"}, "InteractionRecords"})();
+BranchDefinition<std::vector<o2::hmpid::Topology>>{InputSpec{"hmpdigittopology", "HMP", "DIGITTOPOLOGY"}, "HMPIDDigitTopology"},                                BranchDefinition<std::vector<o2::hmpid::Trigger>>{InputSpec{"hmpinteractionrecords", "HMP", "INTRECORDS1"}, "InteractionRecords"})();
 }
 
 } // end namespace hmpid

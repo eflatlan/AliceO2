@@ -98,20 +98,12 @@ if [ "$fromstage" == "sim" ]; then
   dodigi="1"
   dotrdtrap="1"
   doreco="1"
-  dorecofromhmp="1"
-
 elif [ "$fromstage" == "digi" ]; then
   dodigi="1"
   dotrdtrap="1"
   doreco="1"
-  dorecofromhmp="1"
-
 elif [ "$fromstage" == "reco" ]; then
   doreco="1"
-  dorecofromhmp="1"
-
-elif [ "$fromstage" == "hmpreco" ]; then
-  dorecofromhmp
 else
   echo "Wrong stage string $fromstage provided, should be sim or digi or reco"
   Usage
@@ -230,8 +222,6 @@ if [ "$doreco" == "1" ]; then
   #needs results of TOF clusters data from o2-tof-reco-workflow and results of o2-tpc-reco-workflow and ITS-TPC matching
   taskwrapper tofMatchTracks.log o2-tof-matcher-workflow $gloOpt
   echo "Return status of o2-tof-matcher-workflow: $?"
-
-if [ "$dorecofromhmp" == "1" ]; then // add this option like the others
 
   echo "Running Track-HMPID macthing flow"
   #needs results of HMPID clusters data from o2-hmpid-digits-to-clusters-workflow
