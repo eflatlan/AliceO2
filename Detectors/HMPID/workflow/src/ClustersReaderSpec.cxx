@@ -72,10 +72,13 @@ void ClusterReaderTask::run(ProcessingContext& pc)
   mTree->GetEntry(ent);
 
 
-  pc.outputs().snapshot(Output{"HMP", "CLUSTERS", 0, Lifetime::Timeframe}, mTopologyFromFile);
+  pc.outputs().snapshot(Output{"HMP", "DIGITTOPOLOGY", 0, Lifetime::Timeframe}, mTopologyFromFile);
 
   pc.outputs().snapshot(Output{"HMP", "CLUSTERS", 0, Lifetime::Timeframe}, mClustersFromFile);
+
+
   pc.outputs().snapshot(Output{"HMP", "INTRECORDS1", 0, Lifetime::Timeframe}, mClusterTriggersFromFile);
+
   mClustersReceived += mClustersFromFile.size();
   LOG(info) << "[HMPID ClusterReader - run() ] clusters  = " << mClustersFromFile.size();
 
