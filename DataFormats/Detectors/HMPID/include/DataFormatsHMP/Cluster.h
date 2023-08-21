@@ -68,6 +68,22 @@ class Cluster
   int getLastTopologyIndex() const { return mLastTopIndex;} 
   int getFirstTopologyIndex() const { return mFirstTopIndex;} 
 
+  int getPDG() const { return mParticlePdg;}
+  void setPDG(int pdg) { mParticlePdg = pdg;}
+
+
+  void setEventNumber (int eventNumber) {mEventNumber = eventNumber;}
+  int getEventNumber () const  {return mEventNumber;}
+
+
+  void setTrackId (int tid) {mTrackId = tid;}
+  int getTrackId () const  {return mTrackId;}
+
+  void setMotherId (int motherTrackId) {mMotherTrackId = motherTrackId;}
+  int getMotherId () const  {return mMotherTrackId;}
+
+  int getSourceId () const  {return mSourceId;}
+
 	void setClusterTopology(std::vector<o2::hmpid::Topology>& topVector, const int currCluVecSize)
 	{ 
       
@@ -80,7 +96,13 @@ class Cluster
 
 		  // Assuming all digits have the same event number, so take it from the first digit
 		  setEventNumber((*mDigs)[0]->getEventNumber());
-			
+      
+      // ef : does this really make sense ? Can check if they are from same mtrack?
+      setTrackId((*mDigs)[0]->getTrackId());
+      setMotherTrackId((*mDigs)[0]->getMotherId());
+      setPDG((*mDigs)[0]->getPDG());
+
+
 		  // Reserve space for vectors (Optional, but can improve efficiency)
 		  const size_t digSize = mDigs->size();
 
@@ -166,6 +188,12 @@ class Cluster
 
   // public:
  protected:
+
+  int mMotherTrackId = 0;
+  int mSourceId = 0;
+  int mEventNumber = 0;
+  int mTrackId = 0;
+  int mParticlePdg = 0;
 
   //int  digsXArr[9], digsYArr[9], digsQArr[9], digsPDGArr[9];//, digsTIDArr[9], digsMIDArr[9];//.push_back(dig
 
