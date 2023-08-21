@@ -55,6 +55,12 @@ struct ClusterCandidate {
     double mQ = 0;
     double mChi2 = 0;
     double mXe = 0., mYe = 0.;
+    
+
+    // vector e.l. som holder truth? // i.e., for hver track, set MIP og trackIndex fra track
+    int trackId = -1;
+    bool isMip = false;
+
     std::vector<std::pair<int,int>>* mCandidateStatusVector = nullptr;
     std::vector<o2::hmpid::Cluster::Topology> mTopologyVector = nullptr;
 
@@ -99,10 +105,13 @@ void process()
 {
     // clusters and triggers 
     std::vector<Cluster>* clusterArr = nullptr;
+    std::vector<o2::hmpid::Topology> mTopologyFromFile, *mTopologyFromFilePtr = &mTopologyFromFile;
+
+
     std::vector<Trigger>* trigArr = nullptr;
 
 
-    TTree* tCluster = HmpidDataReader::initializeClusterTree(clusterArr, trigArr);
+    TTree* tCluster = HmpidDataReader::initializeClusterTree(clusterArr, trigArr, mClusterTriggersFromFilePtr);
     // clusterArr now initialized correctly
 
 
@@ -319,6 +328,8 @@ void evaluateClusterTrack(std::vector<ClusterCandidate>& clusterPerChamber, cons
         // mcTrackPdg check that it matches with clusterPDG?
         ckovTools.segment(clusterPerChamber, arrayInfo, track.getTrackIndex(), mipCharges, mipX, mipY, mcTrackPdg); // temp --> mapBins
 }
+
+
 
 const float mass_Pion = 0.1396, mass_Kaon = 0.4937, mass_Proton = 0.938; // masses in
 std::array<float, 3> masses = {mass_Pion, mass_Kaon, mass_Proton};

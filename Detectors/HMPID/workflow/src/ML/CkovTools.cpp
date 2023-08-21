@@ -990,9 +990,14 @@ std::vector<std::pair<double, double>> segment(const std::vector<o2::hmpid::Clus
         else {
           Printf("photonPDG matched mcTrackPdg!"); 
 
+          photons.setIsMip(true, trackIndex); // set the mip to have teh tracks trackIndex value?
+          // eller expand denne og set index?
+          photons.addCandidateStatus(trackIndex, cStatus);
+
+
           // the current photon is the MIP corresponding to the current track
           // good! set the truth or something? 
-        }
+        } // trackIndex, const std::vector<float>& mipCharges, float mipX, float mipY, const int mcmcTrackPdg
       }
 
       if()
