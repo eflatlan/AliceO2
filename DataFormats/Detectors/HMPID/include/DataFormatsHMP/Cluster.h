@@ -25,6 +25,7 @@ namespace hmpid
 struct Topology {
 	uint8_t posX = 0;
 	uint8_t posY = 0;
+	uint8_t mPh = 0;
 	uint16_t q = 0;
 	int pdg = 0;
 	int tid = 0;
@@ -34,8 +35,8 @@ struct Topology {
 
 	Topology() = default;  // Default constructor, uses default member initializers.
 
-  Topology(uint8_t x, uint8_t y, uint16_t q_val, int p, int t, int m, int e, int c)
-        : posX(x), posY(y), q(q_val), pdg(p), tid(t), mid(m), eid(e), currentCluVecSize(c) {}
+  Topology(uint8_t x, uint8_t y, uint8_t ph, uint16_t q_val, int p, int t, int m, int e, int c)
+        : posX(x), posY(y), mPh(ph), q(q_val), pdg(p), tid(t), mid(m), eid(e), currentCluVecSize(c) {}
 };
 
 
@@ -60,45 +61,6 @@ class Cluster
 
 
  public:
-  /*void getTopologyVector(std::vector<int>& outDigsX, 
-                       std::vector<int>& outDigsY, 
-                       std::vector<int>& outDigsQ,  
-                       std::vector<int>& outDigsPDG, 
-                       std::vector<int>& outDigsTID, 
-                       std::vector<int>& outDigsMID) 
-	{
-		  /* outDigsX = digsX;
-		  outDigsY = digsY;
-		  outDigsQ = digsQ;
-		  outDigsPDG = digsPDG;
-		  outDigsTID = digsTID;
-		  outDigsMID = digsMID;* /
-	}*/
-
-
-
-  /*
-  void setClusterTopology(const std::vector<Topology>& topVector)
-  { 
-
-
-
-    // <o2::hmpid::Digit*>* mDigs
-    for(const auto& dig : topVector){
-      const auto& posX = dig.posX; // pos of digit
-      const auto& posY = dig.posY ;
-      const auto& q = dig.q;
-      const auto& pdg = dig.pdg;
-      const auto& tid = dig.tid;
-      const auto& mid = dig.mid;
-      mTopologyVector.emplace_back(Topology{posX, posY, q, pdg, tid, mid});
-    }  
-    
-	}*/ 
-
-
-
-  
 
   void setLastTopologyIndex(int index) { mLastTopIndex = index;} 
   void setFirstTopologyIndex(int index) { mFirstTopIndex = index;} 
@@ -128,6 +90,7 @@ class Cluster
 					if(dig) {			
 						const auto& posX = dig->getX(); // pos of digit
 						const auto& posY = dig->getY() ;
+						const auto& ph = dig->getPh() ;
 						const auto& q = dig->getQ();
 						const auto& pdg = dig->mParticlePdg;
 						const auto& tid = dig->mTrackId;
@@ -147,7 +110,7 @@ class Cluster
 							pdgCat = 0;
 						}
 
-      			topVector.emplace_back(o2::hmpid::Topology{posX, posY, q, pdgCat, tid, mid, eid, currCluVecSize});
+      			topVector.emplace_back(o2::hmpid::Topology{posX, posY, ph, q, pdgCat, tid, mid, eid, currCluVecSize});
 					}
 		  }
 			//return topVector;
@@ -206,7 +169,7 @@ class Cluster
 
   //int  digsXArr[9], digsYArr[9], digsQArr[9], digsPDGArr[9];//, digsTIDArr[9], digsMIDArr[9];//.push_back(dig
 
-  std::vector<int>  digsX, digsY, digsQ, digsPDG;//, digsTID, digsMID;//.push_back(dig->getX()); // pos of digit
+  //std::vector<int>  digsX, digsY, digsQ, digsPDG;//, digsTID, digsMID;//.push_back(dig->getX()); // pos of digit
 
 	int mLastTopIndex = -1, mFirstTopIndex = -1;
   int mCh;                                    // chamber number
