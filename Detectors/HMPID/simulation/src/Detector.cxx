@@ -122,7 +122,7 @@ bool Detector::ProcessHits(FairVolume* v)
       AddHit(x[0], x[1], x[2], hitTime, etot, tid, idch, particlePdg, motherTrackId, event); //HIT for photon, position at P, etot will be set to Q
       GenFee(etot);                                       //generate feedback photons etot is modified in hit ctor to Q of hit
       stack->addHit(GetDetId());
-      LOGP(info, "photon {}", fMC->TrackPid());
+	LOGP(info, "photon, event {}", event);
     } //photon hit PC and DE >0
     return kTRUE;
   } //photon hit PC
@@ -226,7 +226,7 @@ bool Detector::ProcessHits(FairVolume* v)
         eloss = 0;
  	//printParticleInfo(stack);
 
-	LOGP(info, "charged {}", fMC->TrackPid());
+	LOGP(info, "Charged, event {}", event);
 }
 } else {
 //just going inside

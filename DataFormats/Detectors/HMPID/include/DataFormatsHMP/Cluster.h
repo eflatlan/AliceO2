@@ -99,7 +99,7 @@ class Cluster
       
       // ef : does this really make sense ? Can check if they are from same mtrack?
       setTrackId((*mDigs)[0]->getTrackId());
-      setMotherTrackId((*mDigs)[0]->getMotherId());
+      setMotherId((*mDigs)[0]->getMotherId());
       setPDG((*mDigs)[0]->getPDG());
 
 
@@ -247,13 +247,12 @@ class Cluster
   float chi2() { return mChi2; } // chi2 of the fit
 
 
-  int mEventNumber; // ef: 
+
 
  public:
   static bool fgDoCorrSin; // flag to switch on/off correction for Sinusoidal to cluster reco
-  void setEventNumber(int eNum) { mEventNumber = eNum; }
-  int getEventNumber() const { return mEventNumber; }
-  ClassDefNV(Cluster, 4);
+
+  ClassDefNV(Cluster, 5);
 };
 
 } // namespace hmpid

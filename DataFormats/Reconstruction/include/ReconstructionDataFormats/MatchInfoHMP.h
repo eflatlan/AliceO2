@@ -143,7 +143,7 @@ class MatchInfoHMP
     miCh = iChamber;
   }
 
-  double getChamber () const 
+  int getChamber () const 
 	{
     return miCh;
 	}

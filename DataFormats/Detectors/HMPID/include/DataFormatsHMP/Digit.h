@@ -99,6 +99,9 @@ class Digit
     return;
   };
 
+  void setTrackId (int tid) {mTrackId = tid;}
+  int getTrackId () const  {return mTrackId;}
+
   void setEventNumber (int eventNumber) {mEventNumber = eventNumber;}
   int getEventNumber () const  {return mEventNumber;}
 
@@ -167,6 +170,10 @@ class Digit
   static double intMathieson(double localX, double localY, int pad);
   static double mathiesonX(double x); // Mathieson distribution along wires X
   static double mathiesonY(double x); // Mathieson distribution perp to wires Y
+
+
+  int getPDG() const { return mParticlePdg;}
+  void setPDG(int pdg) { mParticlePdg = pdg;}
 
   ClassDefNV(Digit, 2);
 };
