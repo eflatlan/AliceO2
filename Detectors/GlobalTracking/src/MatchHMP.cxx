@@ -478,7 +478,7 @@ void MatchHMP::doMatching()
         } // no intersection at all, go next track
 
         auto matching = std::make_unique<o2::dataformats::MatchInfoHMP>(999999, mTrackGid[type][cacheTrk[itrk]]);
-
+		
         // can these be mveed after if (iCh < 0) {/* statemetns?
         matching->setHMPIDtrk(0, 0, 0, 0);            // no intersection found
         matching->setHMPIDmip(0, 0, 0, 0);            // store mip info in any case
@@ -513,7 +513,7 @@ void MatchHMP::doMatching()
     		//oneEventClusters.clear();
     		//oneEventClusters.reserve(mHMPClustersArray.size());
 
-
+				int eventID = -1; // eventID from clusters 
 				LOGP(info, "mHMPClustersArray Size  {}", mHMPClustersArray.size());
         for (int j = event.getFirstEntry(); j <= event.getLastEntry(); j++) { // event clusters loop
 
@@ -523,58 +523,19 @@ void MatchHMP::doMatching()
 	  			LOGP(info, "Accesing cluster from mHMPClustersArray[{}]", j);
           //const auto& cluster = (o2::hmpid::Cluster&)mHMPClustersArray[j];
           auto& cluster = (o2::hmpid::Cluster&)mHMPClustersArray[j];
-          LOGP(info, "Accessed mHMPClustersArray[{}]", j);
 
+					eventID = cluster.getEventNumber();
 
           if (cluster.ch() != iCh) {
-            LOGP(info, "cluster.ch() != iCh");
+            // LOGP(info, "cluster.ch() != iCh");
             continue;
           }
 
-          LOGP(info, "trying  oneEventClusters.push_back");
-
-          LOGP(info, "before  oneEventClusters size = {}", oneEventClusters.size());
 
 	  			int i = j - event.getFirstEntry();
-					/*
-					LOGP(info, "Setting element {}",i);
-					if (i >= 0 && i < oneEventClusters.size()) {
-						try {
-						oneEventClusters.at(i) = cluster;
-						} catch (const std::exception& e) {
-					// This is a generic exception catch. You can narrow it down to specific exceptions like std::out_of_range.
-					Printf("Exception during assignment: %s", e.what());
-						}
-					} else {
-						// Handle the error case or print a debug message.
-						Printf("Error: Index %d out of bounds", i);
-					}*/ 
-
-
-
-	  			LOGP(info, "Try clus;");
-	   			std::vector<o2::hmpid::Cluster> cluss;
- 					o2::hmpid::Cluster c;
-          cluss.push_back(c);
-	  			LOGP(info, "Try clus2;");
-          cluss.push_back(c);
-	  			LOGP(info, "Try oneEventClusters;");
-
-          oneEventClusters.push_back(c);
-					c.setX(cluster.x());
-					c.setY(cluster.y());
-          oneEventClusters.push_back(c);
-
-					//c.setc cluster.getTopologyVector();");
 
           oneEventClusters.push_back(cluster); //  //this is the important
-          LOGP(info, "after  oneEventClusters size = {}", oneEventClusters.size());
 
-
-          LOGP(info, "oneEventClusters.push_back(cluster); ok");
-          //triggerClusterIndexes.push_back(j); // ef: store index of cluster related to track
-          // </ ef: move to before tracks loop?
-          // ef: changed to this : 
 
 
 	  			// ef: must loop over oneEventClusters here to make sure these are fulfilled: 
@@ -612,11 +573,11 @@ void MatchHMP::doMatching()
           hmpTrk = nullptr;
           delete hmpTrkConstrained;
           hmpTrkConstrained = nullptr; */
-       	  LOGP(info, "!bestHmpCluster");
+
           continue;
         }
 
-				LOGP(info," MatchHMP.cxx : found new BestCLuster");
+
 
         double Dist = TMath::Sqrt((xPc - bestHmpCluster->x()) * (xPc - bestHmpCluster->x()) + (yPc - bestHmpCluster->y()) * (yPc - bestHmpCluster->y()));
 
@@ -731,7 +692,9 @@ void MatchHMP::doMatching()
         // should this be befoer or after the if (!isMatched) { ?? TODO: ef:
 				matching->setRefIndex(nmean);
 				matching->setChamber(iCh);
-				matching->setEventNumber(iEvent);
+				
+				// set eventID for track from oneEventCluster
+				matching->setEventNumber(eventID); // 				matching->setEventNumber(iEvent);
 
 
         if (!isMatched) {
