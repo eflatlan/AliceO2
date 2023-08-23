@@ -414,12 +414,12 @@ void MatchHMP::doMatching()
 		for (size_t  j = firstEntry; j <= lastEntry; j++) { // event clusters loop
 
 			if( j >= mHMPClustersArray.size()) {
-				LOGP(info, "j{} > mHMPClustersArray.size() {}", j, mHMPClustersArray.size());
+				
 			}
-			LOGP(info, "Accesing cluster from mHMPClustersArray[{}]", j);
+
 			//const auto& cluster = (o2::hmpid::Cluster&)mHMPClustersArray[j];
 			auto& cluster = (o2::hmpid::Cluster&)mHMPClustersArray[j];
-			LOGP(info, " cluster --> Chamber{}", cluster.ch());
+
 
 
 			//oneEventClusters.push_back(cluster);
@@ -471,9 +471,9 @@ void MatchHMP::doMatching()
 
         Int_t iCh = intTrkCha(&trefTrk, xPc, yPc, xRa, yRa, theta, phi, bz); // find the intersected chamber for this track
 
-        LOGP(info, "MatchHMP.cxx Event {}: Track {} Chamber {}" , iEvent, itrk, iCh);
+        // LOGP(info, "MatchHMP.cxx Event {}: Track {} Chamber {}" , iEvent, itrk, iCh);
         if (iCh <= 0 || iCh >= 7) {
-        	LOGP(info, "MatchHMP.cxx  \n\n NBNBNB!!! \n\n *******  Chamber {} ***** \n\n" , iCh);
+
           continue;
         } // no intersection at all, go next track
 
@@ -518,9 +518,9 @@ void MatchHMP::doMatching()
         for (int j = event.getFirstEntry(); j <= event.getLastEntry(); j++) { // event clusters loop
 
 	  			if( j >= mHMPClustersArray.size()) {
-	    			LOGP(info, "j{} > mHMPClustersArray.size() {}", j, mHMPClustersArray.size());
+	    			
           }
-	  			LOGP(info, "Accesing cluster from mHMPClustersArray[{}]", j);
+
           //const auto& cluster = (o2::hmpid::Cluster&)mHMPClustersArray[j];
           auto& cluster = (o2::hmpid::Cluster&)mHMPClustersArray[j];
 
@@ -638,6 +638,18 @@ void MatchHMP::doMatching()
         matching->setIdxHMPClus(iCh, index + 1000 * cluSize); // set chamber, index of cluster + cluster size
 
 
+
+
+
+        matching->setMipClusPDG(bestHmpCluster->getPDG()); // ef: set event number from cluster
+
+	matching->setMipClusEvent(bestHmpCluster->getEventNumber()); // ef: set event number from cluster
+
+
+	matching->setMipClusCharge(bestHmpCluster->q()); // ef: set event number from cluster
+
+
+
         //matching->setMIPindex(index); // the position of the MIP in the qrray of clusters
 
 
@@ -717,7 +729,7 @@ void MatchHMP::doMatching()
 
 
           mMLTracks[type].push_back(mlTrack);
-          LOGP(info, "MatchHMP.cxx emplacing mlTrack in mMLTracks : refIndex {} | chamber {} | xRa {} | yRa {}", mlTrack.getRefIndex(), iCh, xRa, yRa);
+          //LOGP(info, "MatchHMP.cxx emplacing mlTrack in mMLTracks : refIndex {} | chamber {} | xRa {} | yRa {}", mlTrack.getRefIndex(), iCh, xRa, yRa);
         }  
 
         mMatchedTracks[type].push_back(*matching);
@@ -734,13 +746,13 @@ void MatchHMP::doMatching()
 
       } // if matching in time
 
-      LOGP(info," MatchHMP.cxx : end track");
+      // LOGP(info," MatchHMP.cxx : end track");
     }   // tracks loop
 
 
     // ef: add this event to the vectors of events
     //mMLEvents.push_back(*mlEvent);
-      LOGP(info," MatchHMP.cxx : end event");
+      // LOGP(info," MatchHMP.cxx : end event");
   }     // events loop
   LOGP(info," MatchHMP.cxx : finished all events");
 }

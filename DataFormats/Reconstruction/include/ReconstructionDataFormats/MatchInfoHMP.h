@@ -67,6 +67,15 @@ class MatchInfoHMP
     }
   }
 
+  void setMipClusPDG(int pdg) { mMipCluPDG = pdg; }
+  int getMipClusEventPDG() const { return mMipCluPDG; }
+
+  void setMipClusEvent(int event) { mMipCluEvent = event; }
+  int getMipClusEvent() const { return mMipCluEvent; }
+
+  void setMipClusCharge(int size) { mMipCluCharge = size; }
+  int getMipClusCharge() const { return mMipCluCharge; }
+
   void setMipClusSize(int size) { mMipCluSize = size; }
   int getMipClusSize() const { return mMipCluSize; }
 
@@ -195,8 +204,31 @@ class MatchInfoHMP
 	int mEvent;
 	int miCh;
 
- protected:
 
+
+ /*
+
+
+
+  void setMipClusPDG(int pdg) { mMipCluPDG = pdg; }
+  int getMipClusEventPDG() const { return mMipCluPDG; }
+
+  void setMipClusEvent(int event) { mMipCluEvent = event; }
+  int getMipClusEvent() const { return mMipCluEvent; }
+
+  void setMipClusCharge(int size) { mMipCluCharge = size; }
+  int getMipClusCharge() const { return mMipCluCharge; }
+
+  void setMipClusSize(int size) { mMipCluSize = size; }
+  int getMipClusSize() const { return mMipCluSize; }
+
+*/ 
+
+ 
+ protected:
+  int mMipCluPDG;      // for sim: the PDG code of the MIP matched w track
+  int mMipCluEvent;      // for sim: the Evnet of the  MIP matched w track
+  int mMipCluCharge;      // for sim: the charge of the MIP matched w track
   int mParticlePdg;      // for sim: the PDG code of the track
   int mIdxHMPClus;       // Idx for HMP cluster
   GTrackID mIdxTrack;    // Idx for track

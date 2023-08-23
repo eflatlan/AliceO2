@@ -88,7 +88,7 @@ bool Detector::ProcessHits(FairVolume* v)
 
   //Treat photons
   //photon (Ckov or feedback) hits on module PC (Hpad)
-  if ((fMC->TrackPid() == 50000050 || fMC->TrackPid() == 50000051)/* && (volID == mHpad0VolID || volID == mHpad1VolID || volID == mHpad2VolID || volID == mHpad3VolID || volID == mHpad4VolID || volID == mHpad5VolID || volID == mHpad6VolID)*/) {
+  if ((fMC->TrackPid() == 50000050 || fMC->TrackPid() == 50000051)/* && (volID == mHpad0VolID || volID == mHpad1VolID || volID == mHpad2VolID || volID == mHpad3VolID || volID == mHpad4VolID || volID == mHpad5VolID || volID == mHpad6VolID)*/) { 
     if (fMC->Edep() > 0) { //photon survided QE test i.e. produces electron
       if (IsLostByFresnel()) {
         fMC->StopTrack();
@@ -122,7 +122,7 @@ bool Detector::ProcessHits(FairVolume* v)
       AddHit(x[0], x[1], x[2], hitTime, etot, tid, idch, particlePdg, motherTrackId, event); //HIT for photon, position at P, etot will be set to Q
       GenFee(etot);                                       //generate feedback photons etot is modified in hit ctor to Q of hit
       stack->addHit(GetDetId());
-	LOGP(info, "photon, event {}", event);
+	LOGP(info, "photon {}, event {}", particlePdg, event);
     } //photon hit PC and DE >0
     return kTRUE;
   } //photon hit PC
@@ -226,7 +226,7 @@ bool Detector::ProcessHits(FairVolume* v)
         eloss = 0;
  	//printParticleInfo(stack);
 
-	LOGP(info, "Charged, event {}", event);
+	LOGP(info, "Charged {}, event {}", particlePdg, event);
 }
 } else {
 //just going inside
@@ -246,6 +246,8 @@ return kTRUE;
 o2::hmpid::HitType* Detector::AddHit(float x, float y, float z, float time, float energy, Int_t trackId, Int_t detId, Int_t particlePdg, int motherTrackId, int event)
 {
   mHits->emplace_back(x, y, z, time, energy, trackId, detId, particlePdg, motherTrackId, event);
+
+  // LOGP(info, "Emplacing mDigits; (from hit : event {}) mEventID {}",
   return &(mHits->back());
 }
 //*********************************************************************************************************
