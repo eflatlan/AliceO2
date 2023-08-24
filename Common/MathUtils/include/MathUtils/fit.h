@@ -21,6 +21,7 @@
 #include <vector>
 #include <array>
 
+//#include "FairLogger.h"
 #include "Rtypes.h"
 #include "TLinearFitter.h"
 #include "TVectorD.h"
@@ -112,7 +113,7 @@ TFitResultPtr fit(const size_t nBins, const T* arr, const T xMin, const T xMax, 
   // standard least square fit
   const bool fitok = fitter.Fit(fitdata, fitOption.ExecPolicy);
   if (!fitok) {
-    LOGP(warning, "bad fit");
+    //LOGP(warning, "bad fit");
   }
 
   return TFitResultPtr(tfr);
@@ -417,7 +418,7 @@ double fitGaus(size_t nBins, const T* arr, const T xMin, const T xMax, std::arra
   auto m33i = m33.Inverse(res);
   if (res) {
     recover();
-    LOG(error) << np << " points collected, matrix inversion failed " << m33;
+    //LOG(error) << np << " points collected, matrix inversion failed " << m33;
     return -10;
   }
   auto v = m33i * v3;
@@ -539,7 +540,7 @@ template <typename T>
 void SortData(std::vector<T> const& values, std::vector<size_t>& index)
 {
   if (values.size() != index.size()) {
-    LOG(error) << "Vector with values must have same size as vector for indices";
+    //LOG(error) << "Vector with values must have same size as vector for indices";
     return;
   }
   std::iota(index.begin(), index.end(), static_cast<size_t>(0));
@@ -609,7 +610,7 @@ bool LTMUnbinned(const std::vector<T>& data, std::vector<size_t>& index, std::ar
   }
   //
   if (params[2] < 0) {
-    LOG(error) << "Rounding error: RMS = " << params[2] << " < 0";
+    //LOG(error) << "Rounding error: RMS = " << params[2] << " < 0";
     return false;
   }
   params[2] = std::sqrt(params[2]);
@@ -626,7 +627,7 @@ void Reorder(std::vector<T>& data, const std::vector<size_t>& index)
 {
   // rearange data in order given by index
   if (data.size() != index.size()) {
-    LOG(error) << "Reordering not possible if number of elements in index container different from the data container";
+    //LOG(error) << "Reordering not possible if number of elements in index container different from the data container";
     return;
   }
   std::vector<T> tmp(data);

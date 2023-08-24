@@ -16,7 +16,7 @@
 #include "CommonDataFormat/RangeReference.h"
 #include "DataFormatsHMP/Digit.h"
 #include "HMPIDBase/Param.h"
-
+#include "FairLogger.h"
 namespace o2
 {
 namespace hmpid
@@ -107,9 +107,11 @@ class Cluster
 		  const size_t digSize = mDigs->size();
 
 			//topVector.reserve(digSize);
-
+			LOGP(info, "======================");
 		  for(const auto& dig : *mDigs) {
 					if(dig) {			
+					
+
 						const auto& posX = dig->getX(); // pos of digit
 						const auto& posY = dig->getY() ;
 						const auto& ph = dig->getPh() ;
@@ -118,7 +120,10 @@ class Cluster
 						const auto& tid = dig->mTrackId;
 						const auto& mid = dig->getMotherId();
 						const auto& eid = dig->getEventNumber();
-
+	
+						if(pdg!=50000050 && pdg!=22) setPDG(pdg);
+	
+						LOGP(info, "pdg dig {}", pdg);
 						int pdgCat = 0;
 						if(pdg == 50000050 || pdg == 50000051) {
 							pdgCat = 4;
@@ -132,7 +137,7 @@ class Cluster
 							pdgCat = 0;
 						}
 
-      			topVector.emplace_back(o2::hmpid::Topology{posX, posY, ph, q, pdgCat, tid, mid, eid, currCluVecSize});
+      			topVector.emplace_back(o2::hmpid::Topology{posX, posY, ph, q, pdg, tid, mid, eid, currCluVecSize});
 					}
 		  }
 			//return topVector;
