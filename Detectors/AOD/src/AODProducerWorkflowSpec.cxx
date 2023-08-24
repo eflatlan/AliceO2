@@ -1241,6 +1241,15 @@ void AODProducerWorkflowDPL::fillHMPID(const o2::globaltracking::RecoContainer& 
 {
   auto hmpMatches = recoData.getHMPMatches();
   auto hmpClusters = recoData.getHMPClusters();
+  auto hmpMCTruthMatch = recoData.getHMPMatchesMCLabels();
+
+
+  auto hmpCluTriggers = recoData.getHMPClusterTriggers();
+  auto hmpMCTruthClu = recoData.getHMPClustersMCLabels();
+
+
+
+
 
   hmpCursor.reserve(hmpMatches.size());
 
@@ -1255,7 +1264,7 @@ void AODProducerWorkflowDPL::fillHMPID(const o2::globaltracking::RecoContainer& 
   //for (size_t iHmp = 0; iHmp < hmpMatches.size(); iHmp++) {
   //  const auto& match = hmpMatches[iHmp];
   for (const auto& match : hmpMatches) {
-    LOGP(info, "fillHMPID :: 1st event");
+
     float xRa, yRa, xTrk, yTrk, theta, phi;
     float xMip, yMip;
     int charge, nph;
@@ -1266,6 +1275,17 @@ void AODProducerWorkflowDPL::fillHMPID(const o2::globaltracking::RecoContainer& 
     //getHMPIDtrk(float& xRad, float& yRad, float& xPc, float& yPc, float& th, float& ph); 
 
     match.getHMPIDmip(xMip, yMip, charge, nph);
+
+
+
+    LOGP(info, " xRa{} xPc{} xMIP{} ", xRa, xTrk, xMip);
+    LOGP(info, " yRa{} yPc{} yMIP{} ", yRa, yTrk, yMip);
+
+    TVector2 rad(xRa, yRa);    TVector2 pc(xTrk, yTrk); TVector2 mip(xMip, yMip);
+
+    LOGP(info, "  Actual phi {} | Phi Rad2PC {} | Phi Rad2MIP {}", phi, (rad-pc).Phi(), (rad-mip).Phi());
+
+
 
     auto photChargeVec = match.getPhotCharge();
 
