@@ -26,7 +26,7 @@ namespace hmpid
 template <typename T>
 using BranchDefinition = framework::MakeRootTreeWriterSpec::BranchDefinition<T>;
 
-o2::framework::DataProcessorSpec getClusterWriterSpec()
+o2::framework::DataProcessorSpec getClusterWriterSpec(bool useMC)
 {
   using InputSpec = framework::InputSpec;
   using MakeRootTreeWriterSpec = framework::MakeRootTreeWriterSpec;
@@ -35,7 +35,10 @@ o2::framework::DataProcessorSpec getClusterWriterSpec()
                                 "hmpidclusters.root",
                                 MakeRootTreeWriterSpec::TreeAttributes{"o2hmp", "Tree with HMPID clusters"},
                                 BranchDefinition<std::vector<o2::hmpid::Cluster>>{InputSpec{"hmpclusterinput", "HMP", "CLUSTERS"}, "HMPIDclusters"},
-BranchDefinition<std::vector<o2::hmpid::Topology>>{InputSpec{"hmpdigittopology", "HMP", "DIGITTOPOLOGY"}, "HMPIDDigitTopology"},                                BranchDefinition<std::vector<o2::hmpid::Trigger>>{InputSpec{"hmpinteractionrecords", "HMP", "INTRECORDS1"}, "InteractionRecords"})();
+BranchDefinition<std::vector<o2::hmpid::Topology>>{InputSpec{"hmpdigittopology", "HMP", "DIGITTOPOLOGY"}, "HMPIDDigitTopology"},                                BranchDefinition<std::vector<o2::hmpid::Trigger>>{InputSpec{"hmpinteractionrecords", "HMP", "INTRECORDS1"}, "InteractionRecords"},
+                              BranchDefinition<o2::dataformats::MCTruthContainer<o2::MCCompLabel>>{InputSpec{"clusterlabels", "HMP", "CLUSTERLBL"}, "HMPClusterLabels", useMC ? 1 : 0})();
+
+
 }
 
 } // end namespace hmpid

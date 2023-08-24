@@ -22,7 +22,7 @@ namespace o2
 namespace hmpid
 {
 
-o2::framework::DataProcessorSpec getClusterWriterSpec();
+o2::framework::DataProcessorSpec getClusterWriterSpec(bool useMc);
 
 } // end namespace hmpid
 } // end namespace o2

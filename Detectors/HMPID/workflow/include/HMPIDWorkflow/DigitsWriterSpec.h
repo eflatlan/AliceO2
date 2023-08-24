@@ -50,9 +50,14 @@ class DigitsToRootTask : public framework::Task
   ExecutionTimer mExTimer;
   std::vector<o2::hmpid::Trigger> mTriggers;
   std::vector<o2::hmpid::Digit> mDigits;
+  std::vector<o2::MCCompLabel> mDigitLabels; // ef : added...
+  // or o2::dataformats::MCTruthContainer<o2::MCCompLabel>??
+
   TFile* mfileOut;
   TTree* mTheTree;
   std::string mOutRootFileName;
+
+                                 
 };
 
 o2::framework::DataProcessorSpec getDigitsToRootSpec(std::string inputSpec = "HMP/DIGITS");
