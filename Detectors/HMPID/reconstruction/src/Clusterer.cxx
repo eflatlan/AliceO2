@@ -33,9 +33,10 @@ using namespace o2::hmpid;
 
 /*  virtual void process(gsl::span<o2::tpc::Digit const> const& digits, o2::dataformats::ConstMCLabelContainerView const& mcDigitTruth) = 0;
 */
-
-void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::hmpid::Cluster>& clus, std::vector<o2::hmpid::Topology>& topVector, float* pUserCut, bool isUnfold, o2::dataformats::ConstMCLabelContainerView const& mcDigitTruth)
-{ 
+//, 
+//void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::hmpid::Cluster>& clus, std::vector<o2::hmpid::Topology>& topVector, float* pUserCut, bool isUnfold, o2::dataformats::ConstMCLabelContainerView const& mcDigitTruth, )
+void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::hmpid::Cluster>& clus, std::vector<o2::hmpid::Topology>& topVector, float* pUserCut, bool isUnfold, MCLabelContainer const* digitMCTruth)
+{
   // Finds all clusters for a given digits list provided not empty. Currently digits list is a list of all digits for a single chamber.
   // Puts all found clusters in separate lists, one per clusters.
   // Arguments: pDigAll     - list of digits for all chambers
@@ -85,7 +86,6 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
       // for clu, add shallowDigit corresponding to digit at index pUsedDig
       // done recursively
 
-	
       FormClu(clu, pUsedDig, digs, padMap); // form cluster starting from this digit by recursion
 
       // clu now has a vector<Digit*>* field;
@@ -105,9 +105,7 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
       clu.setCh(iCh);
 
 
-
-
-      clu.solve(&clus, topVector,pUserCut, isUnfold); // solve this cluster and add all unfolded clusters to provided list
+      clu.solve(&clus, topVector, pUserCut, isUnfold); // solve this cluster and add all unfolded clusters to provided list
 
       /*
       if(clu.dig(0)==nullptr)
@@ -161,7 +159,7 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
 } // Dig2Clu()
 */
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-void Clusterer::FormClu(Cluster& pClu, int pDig, gsl::span<const o2::hmpid::Digit> digs, TMatrixF& pDigMap)
+void Clusterer::FormClu(Cluster& pClu, int pDig, gsl::span<const o2::hmpid::Digit> digs, TMatrixF& pDigMap, MCLabelContainer const* digitMCTruth)
 {
   // Forms the initial cluster as a combination of all adjascent digits. Starts from the given digit then calls itself recursevly  for all neighbours.
   // Arguments: pClu - pointer to cluster being formed

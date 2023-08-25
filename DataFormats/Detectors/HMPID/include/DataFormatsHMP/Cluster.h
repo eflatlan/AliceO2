@@ -94,8 +94,29 @@ class Cluster
 		      return;// topVector;
 		  }
 
-		  // Assuming all digits have the same event number, so take it from the first digit
-		  setEventNumber((*mDigs)[0]->getEventNumber());
+      std::sort(mDigs->begin(), mDigs->end(), [](const o2::hmpid::Digit* a, const o2::hmpid::Digit* b) {
+          return a->getCharge() < b->getCharge();
+      });
+
+
+      std::vector<o2::hmpid::Digits> digs = *mDigs;
+      
+      std::sort(digs.begin(), digs.end(), [](const o2::hmpid::Digit* a, const o2::hmpid::Digit* b) {
+          
+          int xa, ya;
+          o2::hmpid::pad2Absolute(a->getPhC(), a->getCh(), &xa, &ya);
+
+          int xb, yb;
+          o2::hmpid::pad2Absolute(b->getPhC(), b->getCh(), &xb, &yb);
+
+          // calc dist to Clu pos
+          auto digaR = (xa - this->x()) * (xa - this->x()) + (ya - this->y()) * (ya - this->y());
+          auto digbR = (xb - this->x()) * (xb - this->x()) + (yb - this->y()) * (yb - this->y());
+
+          return digaR < digbR;
+      });
+
+      // assuming main digit now is the first...		  setEventNumber((*mDigs)[0]->getEventNumber());
       
       // ef : does this really make sense ? Can check if they are from same mtrack?
       setTrackId((*mDigs)[0]->getTrackId());
@@ -103,15 +124,16 @@ class Cluster
       setPDG((*mDigs)[0]->getPDG());
 
 
-		  // Reserve space for vectors (Optional, but can improve efficiency)
+      LOGP(info, "Based on charge : pdg {} mother {} tid {}", (*mDigs)[0]->getPDG(), (*mDigs)[0]->getMotherId(), (*mDigs)[0]->getTrackId());
+      LOGP(info, "Based on pos : pdg {} mother {} tid {}", digs[0]->getPDG(), digs[0]->getMotherId(), digs[0]->getTrackId());
+
 		  const size_t digSize = mDigs->size();
 
 			//topVector.reserve(digSize);
 			LOGP(info, "======================");
 		  for(const auto& dig : *mDigs) {
 					if(dig) {			
-					
-
+            
 						const auto& posX = dig->getX(); // pos of digit
 						const auto& posY = dig->getY() ;
 						const auto& ph = dig->getPh() ;
