@@ -100,6 +100,18 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
   /*clusters.clear();
   clusterTriggers.clear();*/ 
 
+  // ef: added
+  auto labelvector = std::make_shared<std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>>>();
+  if (mUseMC) {
+
+    // ef FIX!
+    mClsLabels.clear();
+    auto digitlabels = pc.inputs().get<std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>>*>("tofdigitlabels");
+    *labelvector.get() = std::move(*digitlabels);
+    mRec->setMCTruthContainer(&mClsLabels); 
+  }
+
+
   auto triggers = pc.inputs().get<gsl::span<o2::hmpid::Trigger>>("intrecord");
   auto digits = pc.inputs().get<gsl::span<o2::hmpid::Digit>>("digits");
 
@@ -111,7 +123,17 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
         digits.data() + trig.getFirstEntry(),
         size_t(trig.getNumberOfObjects())};
       size_t clStart = clusters.size();
-      mRec->Dig2Clu(trigDigits, clusters, topVectorVector, mSigmaCut, true);
+
+
+      if (mUseMC) {
+        // TOF mClusterer.process(mReader, mClustersArray, &(labelvector->at(i)));
+        mRec->Dig2Clu(trigDigits, clusters, topVectorVector, mSigmaCut, true, &(labelvector->at(i)));
+
+      } else {
+        // mClusterer.process(mReader, mClustersArray, nullptr);
+        mRec->Dig2Clu(trigDigits, clusters, topVectorVector, mSigmaCut, true, nullptr);
+      }
+
 
   		LOG(info) << "[HMPID DClusterization - return from dig2clu";
 
@@ -123,6 +145,12 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
        triggers.size(), digits.size(), clusterTriggers.size(), clusters.size());
   mDigitsReceived += digits.size();
   mClustersReceived += clusters.size();
+
+
+ // ef: FIX
+ if (mUseMC) {
+      pc.outputs().snapshot(o2::framework::Output{"HMP", "CLUSTERSMCTR", 0, o2::framework::Lifetime::Timeframe}, mClsLabels);
+  }
 
   pc.outputs().snapshot(o2::framework::Output{"HMP", "CLUSTERS", 0, o2::framework::Lifetime::Timeframe}, clusters);
 
@@ -155,8 +183,21 @@ o2::framework::DataProcessorSpec
   inputs.emplace_back("intrecord", o2::header::gDataOriginHMP, "INTRECORDS", 0,
                       o2::framework::Lifetime::Timeframe);
 
+
+
+  if (useMC) {
+    inputs.emplace_back("tofdigitlabels", o2::header::gDataOriginTOF, "DIGITSMCTR", 0, Lifetime::Timeframe);
+  }
+
   // define outputs
   std::vector<o2::framework::OutputSpec> outputs;
+
+
+ // ef: FIX
+  if (useMC) {
+  outputs.emplace_back("HMP", "CLUSTERSMCTR", 0,
+                       o2::framework::Lifetime::Timeframe);
+  }
 
   outputs.emplace_back("HMP", "CLUSTERS", 0,
                        o2::framework::Lifetime::Timeframe);

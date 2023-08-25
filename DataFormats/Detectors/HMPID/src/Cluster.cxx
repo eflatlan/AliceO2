@@ -259,7 +259,7 @@ void Cluster::print(Option_t* opt) const
 } // Print()
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, std::vector<Topology>& pTopVector, float* pSigmaCut, bool isTryUnfold)
+int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, std::vector<Topology>& pTopVector, float* pSigmaCut, bool isTryUnfold, )
 {
   // This methode is invoked when the cluster is formed to solve it. Solve the cluster means to try to unfold the cluster
   // into the local maxima number of clusters. This methode is invoked by AliHMPIDRconstructor::Dig2Clu() on cluster by cluster basis.
@@ -303,6 +303,14 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, std::vector<Topolog
 
     // set index of first digit topology vector
     pCluLst->back().setLastTopologyIndex(pTopVector.size());
+
+
+
+    //if(useMC) {
+    //  pCluLst->back().setDigitTruth();
+    //}
+
+
     ////pTopVector->push_back(topVec);
     pCluLst->back().cleanPointers();
     return 1; // add this raw cluster
@@ -360,7 +368,7 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, std::vector<Topolog
     mSt = kNoLoc;
     // setClusterParams(mXX, mYY, mCh); //need to fill the AliCluster3D part
     pCluLst->push_back(o2::hmpid::Cluster(*this)); // add new unfolded cluster pCluLst->push_back(o2::hmpid::Cluster(*this));
-        pCluLst->back().setClusterTopology(pTopVector, pCluLst->size());
+    pCluLst->back().setClusterTopology(pTopVector, pCluLst->size());
     ////pTopVector->push_back(topVec);
     pCluLst->back().cleanPointers();
     return mNlocMax;

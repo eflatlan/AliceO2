@@ -50,7 +50,13 @@ class Clusterer
   static void Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::hmpid::Cluster>& clus, std::vector<Topology>& topVector, float* pUserCut, bool isUnfold = kTRUE); // digits->clusters
   static void FormClu(Cluster& pClu, int pDig, gsl::span<const o2::hmpid::Digit> digs, TMatrixF& pDigMap);                                    // cluster formation recursive algorithm
   static int UseDig(int padX, int padY, TMatrixF& pDigMap);                                                                                   // use this pad's digit to form a cluster
-  inline bool IsDigSurvive(Digit* pDig) const;                                                                                                // check for sigma cut
+  inline bool IsDigSurvive(Digit* pDig) const;         
+  
+  //void setDigitTruth()
+
+  // ef FIX!                                                                                       // check for sigma cut
+  void setMCTruthContainer(o2::dataformats::MCTruthContainer<o2::MCCompLabel>* truth) { mClsLabels = truth; }
+
 
  private:
   // void processChamber(std::vector<Cluster>& clusters, MCLabelContainer const* digitMCTruth);
