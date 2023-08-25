@@ -71,6 +71,8 @@ WorkflowSpec defineDataProcessing(const ConfigContext& configcontext)
   auto disableRootInp = configcontext.options().get<bool>("disable-root-input");  // read upstream by default
   auto disableRootOut = configcontext.options().get<bool>("disable-root-output"); // write upstream by default
 
+
+  bool useMC = false; // ef fix later
   DataProcessorSpec consumer = hmpid::getDigitsToClustersSpec();
 
   specs.push_back(consumer);
@@ -84,7 +86,7 @@ WorkflowSpec defineDataProcessing(const ConfigContext& configcontext)
   // Write to Cluster-File; output file and dir can be specified using
   // --outfile and --output-dir (from MakeTreeRootWriter Class)
   if (!disableRootOut) {
-    specs.push_back(hmpid::getClusterWriterSpec());
+    specs.push_back(hmpid::getClusterWriterSpec(useMC));
   }
 
   return specs;

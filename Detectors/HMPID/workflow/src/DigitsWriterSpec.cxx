@@ -85,7 +85,7 @@ void DigitsToRootTask::init(framework::InitContext& ic)
   mTheTree->Branch("InteractionRecords", &mTriggers);
   mTheTree->Branch("HMPIDDigits", &mDigits);
   
-  if(useMC) {
+  if(false/*useMC*/) {
     mTheTree->Branch("HMPIDDigitMCTruth", &mDigitLabels);
   }
 
@@ -151,6 +151,8 @@ o2::framework::DataProcessorSpec getDigitsToRootSpec(std::string inputSpec)
   inputs.emplace_back("clusters", o2::header::gDataOriginHMP, "DIGITS", 0, Lifetime::Timeframe);
   inputs.emplace_back("intrecord", o2::header::gDataOriginHMP, "INTRECORDS", 0, Lifetime::Timeframe);
 
+
+  auto useMC = false; // ef not yet
   if(useMC) {
     inputs.emplace_back("hmplabelinput", o2::header::gDataOriginHMP, "DIGITLBL", 0, Lifetime::Timeframe);
   } // ef: do as from the steer..

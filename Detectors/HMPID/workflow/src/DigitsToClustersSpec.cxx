@@ -91,6 +91,8 @@ void DigitsToClustersTask::init(framework::InitContext& ic)
 
 void DigitsToClustersTask::run(framework::ProcessingContext& pc)
 {
+
+bool mUseMC = false; // ef do inout tu fcn
   // outputs
   std::vector<o2::hmpid::Cluster> clusters;
   std::vector<o2::hmpid::Trigger> clusterTriggers;
@@ -101,20 +103,31 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
   clusterTriggers.clear();*/ 
 
   // ef: added
+
+  /*if (mUseMC) {
+    mClsLabels.reset(new o2::dataformats::MCTruthContainer<o2::MCCompLabel>);
+  }*/ 
+
+  //bool mUseMC = false;// not yet
+
+  /*
   auto labelvector = std::make_shared<std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>>>();
   if (mUseMC) {
 
     // ef FIX!
-    mClsLabels.clear();
+    //mClsLabels.clear();
+    
     auto digitlabels = pc.inputs().get<std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>>*>("tofdigitlabels");
     *labelvector.get() = std::move(*digitlabels);
-    mRec->setMCTruthContainer(&mClsLabels); 
-  }
+    //mRec->setMCTruthContainer(mClsLabels); ef do laters
+  }*/
 
 
   auto triggers = pc.inputs().get<gsl::span<o2::hmpid::Trigger>>("intrecord");
   auto digits = pc.inputs().get<gsl::span<o2::hmpid::Digit>>("digits");
 
+
+  int i = 0;
   for (const auto& trig : triggers) {
     if (trig.getNumberOfObjects()) {
 
@@ -124,14 +137,14 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
         size_t(trig.getNumberOfObjects())};
       size_t clStart = clusters.size();
 
-
+	
       if (mUseMC) {
         // TOF mClusterer.process(mReader, mClustersArray, &(labelvector->at(i)));
-        mRec->Dig2Clu(trigDigits, clusters, topVectorVector, mSigmaCut, true, &(labelvector->at(i)));
-
+        //mRec->Dig2Clu(trigDigits, clusters, topVectorVector, mSigmaCut, &(labelvector->at(i)),true); ef do this later
+        mRec->Dig2Clu(trigDigits, clusters, topVectorVector, mSigmaCut, nullptr, true);
       } else {
         // mClusterer.process(mReader, mClustersArray, nullptr);
-        mRec->Dig2Clu(trigDigits, clusters, topVectorVector, mSigmaCut, true, nullptr);
+        mRec->Dig2Clu(trigDigits, clusters, topVectorVector, mSigmaCut, nullptr, true);
       }
 
 
@@ -140,6 +153,7 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
       //if(clusters.back().dig(0) == nullptr) {Printf("DigtisToClusterSpec:: dig was nullptr!!");}
       clusterTriggers.emplace_back(trig.getIr(), clStart, clusters.size() - clStart);
     }
+    i++;
   }
   LOGP(info, "Received {} triggers with {} digits -> {} triggers with {} clusters",
        triggers.size(), digits.size(), clusterTriggers.size(), clusters.size());
@@ -147,10 +161,10 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
   mClustersReceived += clusters.size();
 
 
- // ef: FIX
+ /*ef: FIX
  if (mUseMC) {
       pc.outputs().snapshot(o2::framework::Output{"HMP", "CLUSTERSMCTR", 0, o2::framework::Lifetime::Timeframe}, mClsLabels);
-  }
+  } */
 
   pc.outputs().snapshot(o2::framework::Output{"HMP", "CLUSTERS", 0, o2::framework::Lifetime::Timeframe}, clusters);
 
@@ -183,9 +197,9 @@ o2::framework::DataProcessorSpec
   inputs.emplace_back("intrecord", o2::header::gDataOriginHMP, "INTRECORDS", 0,
                       o2::framework::Lifetime::Timeframe);
 
+  bool mUseMC = false; // ef do later
 
-
-  if (useMC) {
+  if (mUseMC) {
     inputs.emplace_back("tofdigitlabels", o2::header::gDataOriginTOF, "DIGITSMCTR", 0, Lifetime::Timeframe);
   }
 
@@ -194,7 +208,7 @@ o2::framework::DataProcessorSpec
 
 
  // ef: FIX
-  if (useMC) {
+  if (mUseMC) {
   outputs.emplace_back("HMP", "CLUSTERSMCTR", 0,
                        o2::framework::Lifetime::Timeframe);
   }

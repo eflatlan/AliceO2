@@ -42,8 +42,10 @@ class DigitsToClustersTask : public framework::Task
   void init(framework::InitContext& ic) final;
   void run(framework::ProcessingContext& pc) final;
   void endOfStream(framework::EndOfStreamContext& ec) override;
-
+  bool mUseMC = false; // ef do later
  private:
+
+
   bool mReadFile = false;
   std::string mSigmaCutPar;
   float mSigmaCut[7] = {4, 4, 4, 4, 4, 4, 4};
@@ -56,6 +58,9 @@ class DigitsToClustersTask : public framework::Task
   long mClustersReceived;
 
   void initFileIn(const std::string& fileName);
+
+  //o2::dataformats::MCTruthContainer<o2::MCCompLabel>* mClsLabels; // ef added
+
 
   ExecutionTimer mExTimer;
   void strToFloatsSplit(std::string s, std::string delimiter, float* res,

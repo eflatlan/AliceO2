@@ -31,12 +31,15 @@ namespace hmpid
 {
 class Clusterer
 {
-  using MCLabelContainer = o2::dataformats::MCTruthContainer<o2::MCCompLabel>;
+
   using Cluster = o2::hmpid::Cluster;
   using Topology = o2::hmpid::Topology;
   using Digit = o2::hmpid::Digit;
 
  public:
+
+  using MCLabelContainer = o2::dataformats::MCTruthContainer<o2::MCCompLabel>;
+
   Clusterer() = default;
   ~Clusterer() = default;
 
@@ -47,7 +50,7 @@ class Clusterer
 
   // void setMCTruthContainer(o2::dataformats::MCTruthContainer<o2::MCCompLabel>* truth) { mClsLabels = truth; }
 
-  static void Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::hmpid::Cluster>& clus, std::vector<Topology>& topVector, float* pUserCut, bool isUnfold = kTRUE); // digits->clusters
+  static void Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::hmpid::Cluster>& clus, std::vector<Topology>& topVector, float* pUserCut, MCLabelContainer const* digitMCTruth, bool isUnfold = kTRUE); // digits->clusters
   static void FormClu(Cluster& pClu, int pDig, gsl::span<const o2::hmpid::Digit> digs, TMatrixF& pDigMap);                                    // cluster formation recursive algorithm
   static int UseDig(int padX, int padY, TMatrixF& pDigMap);                                                                                   // use this pad's digit to form a cluster
   inline bool IsDigSurvive(Digit* pDig) const;         
@@ -64,7 +67,7 @@ class Clusterer
 
 
   // ef : added : 
-  std::unique_ptr<const o2::dataformats::ConstMCLabelContainerView> mDigitMCTruthArray; ///< Array for MCTruth information associated to digits in mDigitsArrray
+  //std::unique_ptr<const o2::dataformats::ConstMCLabelContainerView> mDigitMCTruthArray; ///< Array for MCTruth information associated to digits in mDigitsArrray
 
 
   // ef : added : 

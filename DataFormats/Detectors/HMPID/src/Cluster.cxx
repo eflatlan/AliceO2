@@ -259,7 +259,7 @@ void Cluster::print(Option_t* opt) const
 } // Print()
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, std::vector<Topology>& pTopVector, float* pSigmaCut, bool isTryUnfold, )
+int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, std::vector<Topology>& pTopVector, float* pSigmaCut, bool isTryUnfold/*,*/)
 {
   // This methode is invoked when the cluster is formed to solve it. Solve the cluster means to try to unfold the cluster
   // into the local maxima number of clusters. This methode is invoked by AliHMPIDRconstructor::Dig2Clu() on cluster by cluster basis.

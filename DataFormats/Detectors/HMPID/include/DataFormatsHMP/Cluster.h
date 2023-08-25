@@ -99,19 +99,24 @@ class Cluster
       });
 
 
-      std::vector<o2::hmpid::Digits> digs = *mDigs;
-      
-      std::sort(digs.begin(), digs.end(), [](const o2::hmpid::Digit* a, const o2::hmpid::Digit* b) {
-          
-          int xa, ya;
-          o2::hmpid::pad2Absolute(a->getPhC(), a->getCh(), &xa, &ya);
 
-          int xb, yb;
-          o2::hmpid::pad2Absolute(b->getPhC(), b->getCh(), &xb, &yb);
+      const int clux = this->x(); 
+      const int cluy = this->y();
+      std::vector<const o2::hmpid::Digit*> digs = *mDigs;
+
+
+      std::sort(digs.begin(), digs.end(), [clux, cluy](const o2::hmpid::Digit* a, const o2::hmpid::Digit* b) {
+          
+          int xa, ya; 
+	  int cha;
+          o2::hmpid::Digit::pad2Absolute(a->getPadID(), &cha, &xa, &ya);
+
+          int xb, yb, chb;
+          o2::hmpid::Digit::pad2Absolute(b->getPadID(), &chb, &xb, &yb);
 
           // calc dist to Clu pos
-          auto digaR = (xa - this->x()) * (xa - this->x()) + (ya - this->y()) * (ya - this->y());
-          auto digbR = (xb - this->x()) * (xb - this->x()) + (yb - this->y()) * (yb - this->y());
+          auto digaR = (xa - clux) * (xa - clux) + (ya - cluy) * (ya - cluy);
+          auto digbR = (xb - clux) * (xb - clux) + (yb - cluy) * (yb - cluy);
 
           return digaR < digbR;
       });
