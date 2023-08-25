@@ -653,7 +653,7 @@ void MatchHMP::doMatching()
         //matching->setMIPindex(index); // the position of the MIP in the qrray of clusters
 
 
-        matching->setHMPIDtrk(xRa, yRa,xPc, yPc, theta, phi);
+        matching->setHMPIDtrk(xRa, yRa, xPc, yPc, theta, phi);
 
 
 

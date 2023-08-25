@@ -1282,10 +1282,28 @@ void AODProducerWorkflowDPL::fillHMPID(const o2::globaltracking::RecoContainer& 
 
 
 
+
+    double radThick = 1.5, winThick = 0.5, gapThick = 8.0; 
+
+    auto dx = (radThick/2 + winThick + gapThick) * TMath::Cos(phi) * TMath::Tan(theta);
+    auto dy = (radThick/2 + winThick + gapThick) * TMath::Sin(phi) * TMath::Tan(theta);
+    double xRa2 = xTrk - dx; // just linear extrapolation back to RAD
+    double yRa2 = yTrk - dy;
+    
+    double xTrk2 = xRa + dx; // just linear extrapolation back to RAD
+    double yTrk2 =  yRa + dy;
+
+    LOGP(info, " ============== \n Theta = {}  ", theta);
     LOGP(info, " xRa{} xPc{} xMIP{} ", xRa, xTrk, xMip);
     LOGP(info, " yRa{} yPc{} yMIP{} ", yRa, yTrk, yMip);
 
-    TVector2 rad(xRa, yRa);    TVector2 pc(xTrk, yTrk); TVector2 mip(xMip, yMip);
+    LOGP(info, " Checking RA :xRa{} xRa2 {}  yRa{} yRa2 {} ", xRa, xRa2, yRa, yRa2);
+    LOGP(info, " Checking PC :xTrk{} xTrk2 {}  yTrk{} yTrk2 {} ", xTrk, xTrk2, yTrk, yTrk2);
+   LOGP(info, "dx {} dy {}", dx, dy);
+
+    TVector2 rad(xRa, yRa);    
+    TVector2 pc(xTrk, yTrk); 
+    TVector2 mip(xMip, yMip);
 
     LOGP(info, "  Actual phi {} | Phi Rad2PC {} | Phi Rad2MIP {}", phi, (rad-pc).Phi(), (rad-mip).Phi());
 
