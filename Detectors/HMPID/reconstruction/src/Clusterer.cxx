@@ -30,7 +30,11 @@ using namespace o2::hmpid;
   // mClus = {nullptr};
 }*/
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::hmpid::Cluster>& clus, std::vector<o2::hmpid::Topology>& topVector, float* pUserCut, bool isUnfold)
+
+/*  virtual void process(gsl::span<o2::tpc::Digit const> const& digits, o2::dataformats::ConstMCLabelContainerView const& mcDigitTruth) = 0;
+*/
+
+void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::hmpid::Cluster>& clus, std::vector<o2::hmpid::Topology>& topVector, float* pUserCut, bool isUnfold, o2::dataformats::ConstMCLabelContainerView const& mcDigitTruth)
 { 
   // Finds all clusters for a given digits list provided not empty. Currently digits list is a list of all digits for a single chamber.
   // Puts all found clusters in separate lists, one per clusters.
