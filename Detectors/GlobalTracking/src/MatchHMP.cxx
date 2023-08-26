@@ -629,6 +629,8 @@ void MatchHMP::doMatching()
 
         // 5. Propagation in the last 10 cm with the fast method
 
+
+						
         double xPc0 = 0., yPc0 = 0.;
         intTrkCha(iCh, hmpTrkConstrained.get(), xPc0, yPc0, xRa, yRa, theta, phi, bz);
         
@@ -653,8 +655,6 @@ void MatchHMP::doMatching()
 
 
 				matching->setMipClusCharge(bestHmpCluster->q()); // ef: set event number from cluster
-
-
 
         //matching->setMIPindex(index); // the position of the MIP in the qrray of clusters
 
@@ -701,7 +701,7 @@ void MatchHMP::doMatching()
           isMatched = kTRUE;
         } // MIP-Track matched !!
 
-        Printf("6. : intTrkCha  xPc %.2f, yPc %.2f, xRa %.2f, yRa %.2f : BestMIP %.2f %.2f \n\n", xPc, yPc, xRa, yRa,bestHmpCluster->x(),bestHmpCluster->y());
+        Printf("6. : intTrkCha  xPc0 %.2f, yPc0 %.2f, xRa %.2f, yRa %.2f : BestMIP %.2f %.2f \n\n", xPc0, yPc0, xRa, yRa,bestHmpCluster->x(),bestHmpCluster->y());
 
 
 
@@ -737,7 +737,16 @@ void MatchHMP::doMatching()
         } // If matched continue...
 							//mlEvent->addTrack(mlTrack);
 
-        // TODO : make copy ctor
+        Printf("bestHmpCluster  x %.2f y %.2f q %d", bestHmpCluster->x(),bestHmpCluster->y(), bestHmpCluster->q());
+        
+        matching->setMipX(bestHmpCluster->x()); 
+        matching->setMipY(bestHmpCluster->y());
+        matching->setMipClusCharge(bestHmpCluster->q());
+        matching->setMipClusSize(bestHmpCluster->size());
+        matching->setMipClusEvent(bestHmpCluster->getEventNumber());
+        
+                
+        Printf("Track::get  x %.2f y %.2f q %d", matching->getMipX(),matching->getMipY(), matching->getMipClusCharge());
 
 	
         if(&mlTrack != nullptr && mlTrack.getRefIndex() > 0 && mlTrack.getEvent() > 0) {
@@ -755,7 +764,7 @@ void MatchHMP::doMatching()
 				matching->setMatchTrue();
         mMatchedTracks[type].push_back(*matching);
         
-        Printf("MATCHED TRUE : intTrkCha  xPc %.2f, yPc %.2f, xRa %.2f, yRa %.2f : BestMIP %.2f %.2f \n\n", xPc, yPc, xRa, yRa,bestHmpCluster->x(),bestHmpCluster->y());
+        Printf("MATCHED TRUE : intTrkCha  xPc0 %.2f, yPc0 %.2f, xRa %.2f, yRa %.2f : BestMIP %.2f %.2f \n\n", xPc0, yPc0, xRa, yRa,bestHmpCluster->x(),bestHmpCluster->y());
         oneEventClusters.clear();
 
 
