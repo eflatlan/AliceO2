@@ -10,6 +10,7 @@
 // or submit itself to any jurisdiction.
 
 /// @file   AODProducerWorkflowSpec.cxx
+#include <iomanip> // for std::setprecision and std::fixed
 
 #include "AODProducerWorkflow/AODProducerWorkflowSpec.h"
 #include "DataFormatsEMCAL/TriggerRecord.h"
@@ -1283,29 +1284,40 @@ void AODProducerWorkflowDPL::fillHMPID(const o2::globaltracking::RecoContainer& 
 
 
 
-    double radThick = 1.5, winThick = 0.5, gapThick = 8.0; 
+  double radThick = 1.5, winThick = 0.5, gapThick = 8.0; 
 
-    auto dx = (radThick/2 + winThick + gapThick) * TMath::Cos(phi) * TMath::Tan(theta);
-    auto dy = (radThick/2 + winThick + gapThick) * TMath::Sin(phi) * TMath::Tan(theta);
-    double xRa2 = xTrk - dx; // just linear extrapolation back to RAD
-    double yRa2 = yTrk - dy;
-    
-    double xTrk2 = xRa + dx; // just linear extrapolation back to RAD
-    double yTrk2 =  yRa + dy;
+  auto dx = (radThick/2 + winThick + gapThick) * TMath::Cos(phi) * TMath::Tan(theta);
+  auto dy = (radThick/2 + winThick + gapThick) * TMath::Sin(phi) * TMath::Tan(theta);
+  double xRa2 = xTrk - dx; // just linear extrapolation back to RAD
+  double yRa2 = yTrk - dy;
+  
+  double xTrk2 = xRa + dx; // just linear extrapolation back to RAD
+  double yTrk2 = yRa + dy;
 
-    LOGP(info, " ============== \n Theta = {}  ", theta);
-    LOGP(info, " xRa{} xPc{} xMIP{} ", xRa, xTrk, xMip);
-    LOGP(info, " yRa{} yPc{} yMIP{} ", yRa, yTrk, yMip);
+	// Assuming LOGP is your custom logging function, you'll have to adapt it to use printf internally.
+	printf(" ============================\n");
+	printf(" Matched Status %d \n", match.getMatchStatus());
+	printf(" =Track Chamber %d Momentum %.2f, Mip charge %d \n Theta = %.3f  \n", match.getChamber (), match.getHmpMom(), charge, theta);
+	
 
-    LOGP(info, " Checking RA :xRa{} xRa2 {}  yRa{} yRa2 {} ", xRa, xRa2, yRa, yRa2);
-    LOGP(info, " Checking PC :xTrk{} xTrk2 {}  yTrk{} yTrk2 {} ", xTrk, xTrk2, yTrk, yTrk2);
-   LOGP(info, "dx {} dy {}", dx, dy);
+	printf("getMipX %.3f  getMipY %.3f \n", match.getMipX(), match.getMipY());	
+	printf("PDG | MIP : %d  track : %d \n", match.getMipClusEventPDG(), match.getParticlePdg());
+	
 
-    TVector2 rad(xRa, yRa);    
-    TVector2 pc(xTrk, yTrk); 
-    TVector2 mip(xMip, yMip);
+	printf(" xRa %.3f xPc %.3f xMIP %.3f \n", xRa, xTrk, xMip);
+	printf(" yRa %.3f yPc %.3f yMIP %.3f \n", yRa, yTrk, yMip);
 
-    LOGP(info, "  Actual phi {} | Phi Rad2PC {} | Phi Rad2MIP {}", phi, (rad-pc).Phi(), (rad-mip).Phi());
+	printf(" Checking RA :xRa %.3f xRa2 %.3f  yRa %.3f yRa2 %.3f \n", xRa, xRa2, yRa, yRa2);
+	printf(" Checking PC :xTrk %.3f xTrk2 %.3f  yTrk %.3f yTrk2 %.3f \n", xTrk, xTrk2, yTrk, yTrk2);
+
+	printf("dx %.3f dy %.3f\n", dx, dy);
+
+	// The TVector2 parts can stay as they are since they're not directly related to the printing.
+	TVector2 rad(xRa, yRa);    
+	TVector2 pc(xTrk, yTrk); 
+	TVector2 mip(xMip, yMip);
+
+	printf("  Actual phi %f | Phi Rad2PC %f | Phi Rad2MIP %f\n", phi, (rad-pc).Phi(), (rad-mip).Phi());
 
 
 

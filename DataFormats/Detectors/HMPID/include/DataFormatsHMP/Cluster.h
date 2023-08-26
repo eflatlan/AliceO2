@@ -128,14 +128,14 @@ class Cluster
       setMotherId((*mDigs)[0]->getMotherId());
       setPDG((*mDigs)[0]->getPDG());
 
-
+      LOGP(info, "======================");
       LOGP(info, "Based on charge : pdg {} mother {} tid {}", (*mDigs)[0]->getPDG(), (*mDigs)[0]->getMotherId(), (*mDigs)[0]->getTrackId());
       LOGP(info, "Based on pos : pdg {} mother {} tid {}", digs[0]->getPDG(), digs[0]->getMotherId(), digs[0]->getTrackId());
 
 		  const size_t digSize = mDigs->size();
 
 			//topVector.reserve(digSize);
-			LOGP(info, "======================");
+
 		  for(const auto& dig : *mDigs) {
 					if(dig) {			
             

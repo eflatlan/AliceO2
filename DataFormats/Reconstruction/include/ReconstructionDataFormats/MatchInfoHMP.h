@@ -195,8 +195,15 @@ class MatchInfoHMP
 
   void print() const;
 
+  void setMatchTrue()  { isMatched = true; }
+
+  bool getMatchStatus() const { return isMatched; }
+
+
  private:
 
+
+  bool isMatched = false;
 	float mxRa, myRa;
 
 

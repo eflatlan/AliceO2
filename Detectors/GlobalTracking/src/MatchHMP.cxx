@@ -470,6 +470,10 @@ void MatchHMP::doMatching()
         double xPc, yPc, xRa, yRa, theta, phi;
 
         Int_t iCh = intTrkCha(&trefTrk, xPc, yPc, xRa, yRa, theta, phi, bz); // find the intersected chamber for this track
+        
+        
+        Printf("intTrkCha  xPc %.2f, yPc %.2f, xRa %.2f, yRa %.2f", xPc, yPc, xRa, yRa);
+
 
         // LOGP(info, "MatchHMP.cxx Event {}: Track {} Chamber {}" , iEvent, itrk, iCh);
         if (iCh <= 0 || iCh >= 7) {
@@ -486,11 +490,9 @@ void MatchHMP::doMatching()
         matching->setHMPsignal(Recon::kNotPerformed); // ring reconstruction not yet performed
         matching->setIdxTrack(trackGid);
 
-        matching->setHMPIDtrk(xPc, yPc, theta, phi); // store initial infos
+        matching->setHMPIDtrk(xRa, yRa, xPc, yPc, theta, phi);
         matching->setIdxHMPClus(iCh, 9999);          // set chamber, index of cluster + cluster size
 
-	// no, this is not correct: 
-        //matching->setParticlePdg(trefTrk.getPID());
 
 
         int index = -1;
@@ -629,7 +631,11 @@ void MatchHMP::doMatching()
 
         double xPc0 = 0., yPc0 = 0.;
         intTrkCha(iCh, hmpTrkConstrained.get(), xPc0, yPc0, xRa, yRa, theta, phi, bz);
-
+        
+        Printf("5. intTrkCha  xPc0 %.2f, yPc0 %.2f, xRa %.2f, yRa %.2f", xPc0, yPc0, xRa, yRa);
+        
+        // the pc values seem ok until here??
+        
         // 6. Set match information
 
         int cluSize = bestHmpCluster->size();
@@ -643,20 +649,25 @@ void MatchHMP::doMatching()
 
         matching->setMipClusPDG(bestHmpCluster->getPDG()); // ef: set event number from cluster
 
-	matching->setMipClusEvent(bestHmpCluster->getEventNumber()); // ef: set event number from cluster
+				matching->setMipClusEvent(bestHmpCluster->getEventNumber()); // ef: set event number from cluster
 
 
-	matching->setMipClusCharge(bestHmpCluster->q()); // ef: set event number from cluster
+				matching->setMipClusCharge(bestHmpCluster->q()); // ef: set event number from cluster
 
 
 
         //matching->setMIPindex(index); // the position of the MIP in the qrray of clusters
 
 
-        matching->setHMPIDtrk(xRa, yRa, xPc, yPc, theta, phi);
+
+				// ef : wrong to use xPc, yPc here? should be xPc0, yPc0??			
+        matching->setHMPIDtrk(xRa, yRa, xPc0, yPc0, theta, phi);
+        //matching->setHMPIDtrk(xRa, yRa, xPc, yPc, theta, phi);
 
 
+        
 
+        
         matching->setHMPsignal(pParam->kMipQdcCut);
 
         if (!isOkQcut) {/*
@@ -669,7 +680,13 @@ void MatchHMP::doMatching()
 
         // dmin recalculated
 
-        dmin = TMath::Sqrt((xPc - bestHmpCluster->x()) * (xPc - bestHmpCluster->x()) + (yPc - bestHmpCluster->y()) * (yPc - bestHmpCluster->y()));
+
+				// ef: should be xPc0 here ? 
+        
+        //dmin = TMath::Sqrt((xPc - bestHmpCluster->x()) * (xPc - bestHmpCluster->x()) + (yPc - bestHmpCluster->y()) * (yPc - bestHmpCluster->y()));
+        
+        dmin = TMath::Sqrt((xPc0 - bestHmpCluster->x()) * (xPc0 - bestHmpCluster->x()) + (yPc0 - bestHmpCluster->y()) * (yPc0 - bestHmpCluster->y()));
+
 
         if (dmin < 6.) {
           isOkDcut = kTRUE;
@@ -684,6 +701,7 @@ void MatchHMP::doMatching()
           isMatched = kTRUE;
         } // MIP-Track matched !!
 
+        Printf("6. : intTrkCha  xPc %.2f, yPc %.2f, xRa %.2f, yRa %.2f : BestMIP %.2f %.2f \n\n", xPc, yPc, xRa, yRa,bestHmpCluster->x(),bestHmpCluster->y());
 
 
 
@@ -732,8 +750,12 @@ void MatchHMP::doMatching()
           //LOGP(info, "MatchHMP.cxx emplacing mlTrack in mMLTracks : refIndex {} | chamber {} | xRa {} | yRa {}", mlTrack.getRefIndex(), iCh, xRa, yRa);
         }  
 
-        mMatchedTracks[type].push_back(*matching);
 
+				// add value indicating matched properly?
+				matching->setMatchTrue();
+        mMatchedTracks[type].push_back(*matching);
+        
+        Printf("MATCHED TRUE : intTrkCha  xPc %.2f, yPc %.2f, xRa %.2f, yRa %.2f : BestMIP %.2f %.2f \n\n", xPc, yPc, xRa, yRa,bestHmpCluster->x(),bestHmpCluster->y());
         oneEventClusters.clear();
 
 
