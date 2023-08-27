@@ -348,30 +348,11 @@ void MatchHMP::doMatching()
 {
 
 
-
-  /*
-
-  for(const auto& clu : mHMPClustersArray) {
-    Printf("Clu %d clus event Number %d", jj++,clu.getEventNumber());
-
-
-    //o2::hmpid::Cluster cluster2(clu); // This uses the copy constructor
-    //Printf("made copy");
-    try {
-	oneEventArray[jj] = clu;
-	Printf("pushback");
-	oneEventClustersTest.push_back(clu);
-    } catch (const std::exception& e) {
-	// This is a generic exception catch. You can narrow it down to specific exceptions like std::out_of_range.
-	Printf("Exception during assignment: %s", e.what());
-    }
-
-  } */ 
-
-
   o2::globaltracking::MatchHMP::trackType type = o2::globaltracking::MatchHMP::trackType::CONSTR;
   o2::base::Propagator::MatCorrType matCorr = o2::base::Propagator::MatCorrType::USEMatCorrLUT; // material correction method
   Recon* recon = new o2::hmpid::Recon();
+
+
   o2::hmpid::Param* pParam = o2::hmpid::Param::instance();
 
   const float kdRadiator = 10.; // distance between radiator and the plane
@@ -400,6 +381,10 @@ void MatchHMP::doMatching()
    
   for (int iEvent = 0; iEvent < cacheTriggerHMP.size(); iEvent++) { // events loop
 
+		auto indexEvent = cacheTriggerHMP[iEvent];
+	  Printf("Event number %d   %d ",iEvent, indexEvent);
+
+
     auto& event = mHMPTriggersWork[cacheTriggerHMP[iEvent]];
     auto evtTime = o2::InteractionRecord::bc2ns(event.getBc(), event.getOrbit()); // event(trigger) time in ns
 
@@ -409,7 +394,7 @@ void MatchHMP::doMatching()
 		const int firstEntry = event.getFirstEntry();
 		const int lastEntry = event.getLastEntry();
 
-		LOGP(info, "1st entry last entry", mHMPClustersArray.size());
+		LOGP(info, "1st entry last entry {}", mHMPClustersArray.size());
 		LOGP(info, "mHMPClustersArray Size  {}", mHMPClustersArray.size());
 		for (size_t  j = firstEntry; j <= lastEntry; j++) { // event clusters loop
 
@@ -440,6 +425,11 @@ void MatchHMP::doMatching()
       auto& trackWork = mTracksWork[type][cacheTrk[itrk]];
       auto& trackGid = mTrackGid[type][cacheTrk[itrk]];
       auto& trefTrk = trackWork.first;
+
+
+			auto indexEvent = cacheTriggerHMP[iEvent];
+	  	Printf("Event %d  Track %d ",iEvent, cacheTrk[itrk]);
+
 
       prop->getFieldXYZ(trefTrk.getXYZGlo(), bxyz);
       Double_t bz = -bxyz[2];
@@ -472,7 +462,7 @@ void MatchHMP::doMatching()
         Int_t iCh = intTrkCha(&trefTrk, xPc, yPc, xRa, yRa, theta, phi, bz); // find the intersected chamber for this track
         
         
-        Printf("intTrkCha  xPc %.2f, yPc %.2f, xRa %.2f, yRa %.2f", xPc, yPc, xRa, yRa);
+        //Printf("intTrkCha  xPc %.2f, yPc %.2f, xRa %.2f, yRa %.2f", xPc, yPc, xRa, yRa);
 
 
         // LOGP(info, "MatchHMP.cxx Event {}: Track {} Chamber {}" , iEvent, itrk, iCh);
@@ -515,6 +505,8 @@ void MatchHMP::doMatching()
     		//oneEventClusters.clear();
     		//oneEventClusters.reserve(mHMPClustersArray.size());
 
+
+				int eventIDClu = -1; // eventID from clusters 
 				int eventID = -1; // eventID from clusters 
 				LOGP(info, "mHMPClustersArray Size  {}", mHMPClustersArray.size());
         for (int j = event.getFirstEntry(); j <= event.getLastEntry(); j++) { // event clusters loop
@@ -526,7 +518,7 @@ void MatchHMP::doMatching()
           //const auto& cluster = (o2::hmpid::Cluster&)mHMPClustersArray[j];
           auto& cluster = (o2::hmpid::Cluster&)mHMPClustersArray[j];
 
-					eventID = cluster.getEventNumber();
+					eventIDClu = cluster.getEventNumber();
 
           if (cluster.ch() != iCh) {
             // LOGP(info, "cluster.ch() != iCh");
@@ -724,7 +716,13 @@ void MatchHMP::doMatching()
 				matching->setChamber(iCh);
 				
 				// set eventID for track from oneEventCluster
-				matching->setEventNumber(eventID); // 				matching->setEventNumber(iEvent);
+
+				matching->setMipClusEvent(eventIDClu); 
+
+
+        
+				matching->setEventNumber(indexEvent); // 				matching->setEventNumber(iEvent);
+
 
 
         if (!isMatched) {
@@ -743,8 +741,13 @@ void MatchHMP::doMatching()
         matching->setMipY(bestHmpCluster->y());
         matching->setMipClusCharge(bestHmpCluster->q());
         matching->setMipClusSize(bestHmpCluster->size());
-        matching->setMipClusEvent(bestHmpCluster->getEventNumber());
+        //matching->setMipClusEvent(bestHmpCluster->getEventNumber());
         
+        matching->setMipClusEvent(bestHmpCluster->getEventNumber());
+				Printf("eventNumber from clu : MIP %d from track : %d", eventIDClu, indexEvent);
+
+			Printf("Calling match :eventNumber from clu : %d  from track : %d", matching->getMipClusEvent(), matching->getEvent());
+
                 
         Printf("Track::get  x %.2f y %.2f q %d", matching->getMipX(),matching->getMipY(), matching->getMipClusCharge());
 

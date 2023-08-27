@@ -204,9 +204,12 @@ class MatchHMP
   ///< working copy of the input tracks
   std::vector<matchTrack> mTracksWork[o2::globaltracking::MatchHMP::trackType::SIZE]; ///< track params prepared for matching + time value
   std::vector<Trigger> mHMPTriggersWork;
+
+
   std::vector<o2::MCCompLabel> mTracksLblWork[o2::globaltracking::MatchHMP::trackType::SIZE]; ///< track labels
 
   std::vector<int> mTracksIndexCache[o2::globaltracking::MatchHMP::trackType::SIZE]; ///< indices of track entry in mTracksWork
+
   std::vector<int> mHMPTriggersIndexCache;                                           ///< indices of track entry in mHMPTriggersWork
 
   ///< array of matched HMPCluster with matching information

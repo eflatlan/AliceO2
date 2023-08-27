@@ -87,12 +87,12 @@ class Cluster
 	void setClusterTopology(std::vector<o2::hmpid::Topology>& topVector, const int currCluVecSize)
 	{ 
       
-		  //std::vector<o2::hmpid::Topology> topVector;
-		  // Check for null or empty mDigs
-		  if(!mDigs || mDigs->empty()) {
-		      setEventNumber(-1);
-		      return;// topVector;
-		  }
+	  //std::vector<o2::hmpid::Topology> topVector;
+	  // Check for null or empty mDigs
+	  if(!mDigs || mDigs->empty()) {
+	      setEventNumber(-1);
+	      return;// topVector;
+	  }
 
       std::sort(mDigs->begin(), mDigs->end(), [](const o2::hmpid::Digit* a, const o2::hmpid::Digit* b) {
           return a->getCharge() < b->getCharge();
@@ -121,8 +121,11 @@ class Cluster
           return digaR < digbR;
       });
 
-      // assuming main digit now is the first...		  setEventNumber((*mDigs)[0]->getEventNumber());
+
+      setEventNumber((*mDigs)[0]->getEventNumber());
       
+
+      // assuming main digit now is the first...		  
       // ef : does this really make sense ? Can check if they are from same mtrack?
       setTrackId((*mDigs)[0]->getTrackId());
       setMotherId((*mDigs)[0]->getMotherId());

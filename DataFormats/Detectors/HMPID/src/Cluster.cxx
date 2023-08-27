@@ -304,8 +304,6 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, std::vector<Topolog
     // set index of first digit topology vector
     pCluLst->back().setLastTopologyIndex(pTopVector.size());
 
-
-
     //if(useMC) {
     //  pCluLst->back().setDigitTruth();
     //}
@@ -435,7 +433,7 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, std::vector<Topolog
       }
       // setClusterParams(mXX, mYY, mCh); //need to fill the AliCluster3D part
       pCluLst->push_back(o2::hmpid::Cluster(*this)); // add new unfolded cluster
-          pCluLst->back().setClusterTopology(pTopVector, pCluLst->size());
+      pCluLst->back().setClusterTopology(pTopVector, pCluLst->size());
       ////pTopVector->push_back(topVec);
       pCluLst->back().cleanPointers();
       if (mNlocMax > 1) {
