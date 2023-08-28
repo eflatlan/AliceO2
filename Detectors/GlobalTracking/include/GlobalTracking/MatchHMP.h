@@ -82,6 +82,13 @@ class MatchHMP
   using matchTrack = std::pair<o2::track::TrackParCov, timeEst>;
 
  public:
+
+
+  MatchHMP()
+  { 
+    pParam.reset(o2::hmpid::Param::instance());
+  } 
+
   ///< perform matching for provided input
   void run(const o2::globaltracking::RecoContainer& inp);
 
@@ -125,6 +132,9 @@ class MatchHMP
     mTimestamp = creationTime;
   }
   unsigned long getTS() const { return mTimestamp; }
+
+  std::unique_ptr<o2::hmpid::Param> pParam;
+  
 
  private:
 

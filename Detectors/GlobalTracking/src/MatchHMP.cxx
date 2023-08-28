@@ -344,17 +344,27 @@ bool MatchHMP::prepareHMPClusters()
   return true;
 }
 //==================================================================================================================================================
+
+
+
+
+// 
 void MatchHMP::doMatching()
 {
 
 
   o2::globaltracking::MatchHMP::trackType type = o2::globaltracking::MatchHMP::trackType::CONSTR;
   o2::base::Propagator::MatCorrType matCorr = o2::base::Propagator::MatCorrType::USEMatCorrLUT; // material correction method
-  Recon* recon = new o2::hmpid::Recon();
 
 
-  o2::hmpid::Param* pParam = o2::hmpid::Param::instance();
+  std::unique_ptr<Recon> recon; 
+  recon.reset(new o2::hmpid::Recon());
 
+
+  //777o2::hmpid::Param* pParam = o2::hmpid::Param::instance();
+  // ef moved to init in h
+  /*std::unique_ptr<o2::hmpid::Param> pParam;
+  pParam->reset(o2::hmpid::Param::instance());*/ 
   const float kdRadiator = 10.; // distance between radiator and the plane
 
   //< do the real matching
@@ -796,17 +806,14 @@ int MatchHMP::intTrkCha(o2::track::TrackParCov* pTrk, double& xPc, double& yPc, 
   // Static method to find intersection in between given track and HMPID chambers
   // Arguments: pTrk- ESD track; xPc,yPc- track intersection with PC in LORS [cm]
   // Returns: intersected chamber ID or -1
-  TrackHMP* hmpTrk = new TrackHMP(*pTrk);                                        // create a hmpid track to be used for propagation and matching
+  std::unique_ptr<TrackHMP> hmpTrk;  
+  hmpTrk.reset(new TrackHMP(*pTrk));                                        // create a hmpid track to be used for propagation and matching
   for (Int_t i = o2::hmpid::Param::kMinCh; i <= o2::hmpid::Param::kMaxCh; i++) { // chambers loop
-    Int_t chInt = intTrkCha(i, hmpTrk, xPc, yPc, xRa, yRa, theta, phi, bz);
+    Int_t chInt = intTrkCha(i, hmpTrk.get(), xPc, yPc, xRa, yRa, theta, phi, bz);
     if (chInt >= 0) {
-      delete hmpTrk;
-      hmpTrk = nullptr;
       return chInt;
     }
   } // chambers loop
-  delete hmpTrk;
-  hmpTrk = nullptr;
   return -1; // no intersection with HMPID chambers
 } // IntTrkCha()
 //==================================================================================================================================================
@@ -815,13 +822,22 @@ int MatchHMP::intTrkCha(int ch, o2::dataformats::TrackHMP* pHmpTrk, double& xPc,
   // Static method to find intersection in between given track and HMPID chambers
   // Arguments: pTrk- HMPID track; xPc,yPc- track intersection with PC in LORS [cm]
   //   Returns: intersected chamber ID or -1
-  o2::hmpid::Param* pParam = o2::hmpid::Param::instance();
+
+
+  // ef moved to init in h
+  std::unique_ptr<o2::hmpid::Param> pParam2;
+
+  pParam2.reset(o2::hmpid::Param::instance()); 
+
+
+
+  //o2::hmpid::Param* pParam = o2::hmpid::Param::instance();
   Double_t p1[3], n1[3];
-  pParam->norm(ch, n1);
-  pParam->point(ch, p1, o2::hmpid::Param::kRad); // point & norm  for middle of radiator plane
+  pParam2->norm(ch, n1);
+  pParam2->point(ch, p1, o2::hmpid::Param::kRad); // point & norm  for middle of radiator plane
   Double_t p2[3], n2[3];
-  pParam->norm(ch, n2);
-  pParam->point(ch, p2, o2::hmpid::Param::kPc); // point & norm  for entrance to PC plane
+  pParam2->norm(ch, n2);
+  pParam2->point(ch, p2, o2::hmpid::Param::kPc); // point & norm  for entrance to PC plane
 
   if (pHmpTrk->intersect(p1, n1, bz) == kFALSE) {
     return -1;
@@ -829,11 +845,11 @@ int MatchHMP::intTrkCha(int ch, o2::dataformats::TrackHMP* pHmpTrk, double& xPc,
   if (pHmpTrk->intersect(p2, n2, bz) == kFALSE) {
     return -1;
   }
-  pParam->mars2LorsVec(ch, n1, theta, phi); // track angles at RAD
-  pParam->mars2Lors(ch, p1, xRa, yRa);      // TRKxRAD position
-  pParam->mars2Lors(ch, p2, xPc, yPc);      // TRKxPC position
+  pParam2->mars2LorsVec(ch, n1, theta, phi); // track angles at RAD
+  pParam2->mars2Lors(ch, p1, xRa, yRa);      // TRKxRAD position
+  pParam2->mars2Lors(ch, p2, xPc, yPc);      // TRKxPC position
 
-  if (pParam->isInside(xPc, yPc, pParam->distCut()) == kTRUE) {
+  if (pParam2->isInside(xPc, yPc, pParam2->distCut()) == kTRUE) {
     return ch;
   }          // return intersected chamber
   return -1; // no intersection with HMPID chambers
