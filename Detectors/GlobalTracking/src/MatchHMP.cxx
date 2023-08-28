@@ -365,6 +365,9 @@ void MatchHMP::doMatching()
   // ef moved to init in h
   /*std::unique_ptr<o2::hmpid::Param> pParam;
   pParam->reset(o2::hmpid::Param::instance());*/ 
+
+  o2::hmpid::Param* pParam = o2::hmpid::Param::instance();
+
   const float kdRadiator = 10.; // distance between radiator and the plane
 
   //< do the real matching
@@ -825,19 +828,18 @@ int MatchHMP::intTrkCha(int ch, o2::dataformats::TrackHMP* pHmpTrk, double& xPc,
 
 
   // ef moved to init in h
-  std::unique_ptr<o2::hmpid::Param> pParam2;
 
-  pParam2.reset(o2::hmpid::Param::instance()); 
+  o2::hmpid::Param* pParam = o2::hmpid::Param::instance();
 
 
 
   //o2::hmpid::Param* pParam = o2::hmpid::Param::instance();
   Double_t p1[3], n1[3];
-  pParam2->norm(ch, n1);
-  pParam2->point(ch, p1, o2::hmpid::Param::kRad); // point & norm  for middle of radiator plane
+  pParam->norm(ch, n1);
+  pParam->point(ch, p1, o2::hmpid::Param::kRad); // point & norm  for middle of radiator plane
   Double_t p2[3], n2[3];
-  pParam2->norm(ch, n2);
-  pParam2->point(ch, p2, o2::hmpid::Param::kPc); // point & norm  for entrance to PC plane
+  pParam->norm(ch, n2);
+  pParam->point(ch, p2, o2::hmpid::Param::kPc); // point & norm  for entrance to PC plane
 
   if (pHmpTrk->intersect(p1, n1, bz) == kFALSE) {
     return -1;
@@ -845,11 +847,11 @@ int MatchHMP::intTrkCha(int ch, o2::dataformats::TrackHMP* pHmpTrk, double& xPc,
   if (pHmpTrk->intersect(p2, n2, bz) == kFALSE) {
     return -1;
   }
-  pParam2->mars2LorsVec(ch, n1, theta, phi); // track angles at RAD
-  pParam2->mars2Lors(ch, p1, xRa, yRa);      // TRKxRAD position
-  pParam2->mars2Lors(ch, p2, xPc, yPc);      // TRKxPC position
+  pParam->mars2LorsVec(ch, n1, theta, phi); // track angles at RAD
+  pParam->mars2Lors(ch, p1, xRa, yRa);      // TRKxRAD position
+  pParam->mars2Lors(ch, p2, xPc, yPc);      // TRKxPC position
 
-  if (pParam2->isInside(xPc, yPc, pParam2->distCut()) == kTRUE) {
+  if (pParam->isInside(xPc, yPc, pParam->distCut()) == kTRUE) {
     return ch;
   }          // return intersected chamber
   return -1; // no intersection with HMPID chambers

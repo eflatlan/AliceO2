@@ -84,11 +84,6 @@ class MatchHMP
  public:
 
 
-  MatchHMP()
-  { 
-    pParam.reset(o2::hmpid::Param::instance());
-  } 
-
   ///< perform matching for provided input
   void run(const o2::globaltracking::RecoContainer& inp);
 
@@ -133,7 +128,7 @@ class MatchHMP
   }
   unsigned long getTS() const { return mTimestamp; }
 
-  std::unique_ptr<o2::hmpid::Param> pParam;
+
   
 
  private:
