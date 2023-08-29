@@ -24,5 +24,6 @@ o2_target_root_dictionary(DataFormatsHMP
                                   include/DataFormatsHMP/Digit.h
                                   include/DataFormatsHMP/Trigger.h
                                   include/DataFormatsHMP/Cluster.h
+                                  include/DataFormatsHMP/ClusterCandidate.h
                                   include/DataFormatsHMP/Hit.h
                                   include/DataFormatsHMP/CTF.h)
