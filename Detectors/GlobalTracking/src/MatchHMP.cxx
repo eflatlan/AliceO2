@@ -686,11 +686,10 @@ void MatchHMP::doMatching()
         // dmin recalculated
 
 
-				// ef: should be xPc0 here ? 
+
         
-        //dmin = TMath::Sqrt((xPc - bestHmpCluster->x()) * (xPc - bestHmpCluster->x()) + (yPc - bestHmpCluster->y()) * (yPc - bestHmpCluster->y()));
+        dmin = TMath::Sqrt((xPc - bestHmpCluster->x()) * (xPc - bestHmpCluster->x()) + (yPc - bestHmpCluster->y()) * (yPc - bestHmpCluster->y()));
         
-        dmin = TMath::Sqrt((xPc0 - bestHmpCluster->x()) * (xPc0 - bestHmpCluster->x()) + (yPc0 - bestHmpCluster->y()) * (yPc0 - bestHmpCluster->y()));
 
 
         if (dmin < 6.) {
@@ -709,18 +708,10 @@ void MatchHMP::doMatching()
         Printf("6. : intTrkCha  xPc0 %.2f, yPc0 %.2f, xRa %.2f, yRa %.2f : BestMIP %.2f %.2f \n\n", xPc0, yPc0, xRa, yRa,bestHmpCluster->x(),bestHmpCluster->y());
 
 
-
-
         // 7. Calculate the Cherenkov angle
 
         recon->setImpPC(xPc, yPc);                                            // store track impact to PC
         recon->ckovAngle(matching.get(), oneEventClusters, index, nmean, xRa, yRa); // search for Cerenkov angle of this track
-
-
-
-        //auto mlTrackPtr = std::make_unique<MLinfoHMP>(matching, xRa, yRa); // TODO: add refractive index from calibration
-
-				o2::dataformats::MLinfoHMP mlTrack(matching.get(), iCh, xRa, yRa, nmean, iEvent);
 
 
 
@@ -739,14 +730,10 @@ void MatchHMP::doMatching()
 
 
         if (!isMatched) {
-          mMatchedTracks[type].push_back(*matching);/*
-          delete hmpTrk;
-          hmpTrk = nullptr;
-          delete hmpTrkConstrained;
-          hmpTrkConstrained = nullptr; */
+          mMatchedTracks[type].push_back(*matching);
           continue;
         } // If matched continue...
-							//mlEvent->addTrack(mlTrack);
+	
 
         Printf("bestHmpCluster  x %.2f y %.2f q %d", bestHmpCluster->x(),bestHmpCluster->y(), bestHmpCluster->q());
         
@@ -754,7 +741,7 @@ void MatchHMP::doMatching()
         matching->setMipY(bestHmpCluster->y());
         matching->setMipClusCharge(bestHmpCluster->q());
         matching->setMipClusSize(bestHmpCluster->size());
-        //matching->setMipClusEvent(bestHmpCluster->getEventNumber());
+
         
         matching->setMipClusEvent(bestHmpCluster->getEventNumber());
 				Printf("eventNumber from clu : MIP %d from track : %d", eventIDClu, indexEvent);
@@ -763,18 +750,6 @@ void MatchHMP::doMatching()
 
                 
         Printf("Track::get  x %.2f y %.2f q %d", matching->getMipX(),matching->getMipY(), matching->getMipClusCharge());
-
-	
-        if(&mlTrack != nullptr && mlTrack.getRefIndex() > 0 && mlTrack.getEvent() > 0) {
-
-          // ef: add other fields, find more suitable name pls
-	        //mlEvent.addTrack(std::move(mlTrackPtr));
-
-
-          mMLTracks[type].push_back(mlTrack);
-          //LOGP(info, "MatchHMP.cxx emplacing mlTrack in mMLTracks : refIndex {} | chamber {} | xRa {} | yRa {}", mlTrack.getRefIndex(), iCh, xRa, yRa);
-        }  
-
 
 				// add value indicating matched properly?
 				matching->setMatchTrue();
@@ -785,11 +760,6 @@ void MatchHMP::doMatching()
 
 
 
-	      /*
-        delete hmpTrk;
-        hmpTrk = nullptr;
-        delete hmpTrkConstrained;
-        hmpTrkConstrained = nullptr; */
 
       } // if matching in time
 
@@ -797,9 +767,6 @@ void MatchHMP::doMatching()
     }   // tracks loop
 
 
-    // ef: add this event to the vectors of events
-    //mMLEvents.push_back(*mlEvent);
-      // LOGP(info," MatchHMP.cxx : end event");
   }     // events loop
   LOGP(info," MatchHMP.cxx : finished all events");
 }
