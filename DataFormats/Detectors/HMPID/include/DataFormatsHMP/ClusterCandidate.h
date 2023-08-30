@@ -10,6 +10,7 @@ class ClusterCandidate : public TObject {
 
   public:
    
+    int mSize = 0;
     int mCh = 0;
     double mX = 0., mY = 0.;
     int mQ = 0;
@@ -36,9 +37,9 @@ class ClusterCandidate : public TObject {
 
     // Constructor based on the order and types you provided
     ClusterCandidate(int ch, double x, double y, int q, double chi2, 
-                     double xe, double ye, /*std::vector<Topology>* topologyVector,*/ int pdg) 
+                     double xe, double ye, /*std::vector<Topology>* topologyVector,*/ int pdg, int size) 
         : mCh(ch), mX(x), mY(y), mQ(q), mChi2(chi2), mXe(xe), mYe(ye), 
-          /*mTopologyVector(topologyVector),*/ mPDG(pdg) {}
+          /*mTopologyVector(topologyVector),*/ mPDG(pdg), mSize(size) {}
 
 
     //obj.ch, obj.x, obj.y, obj.q, shallowDigits, obj.chi2, obj.xE, obj.yE, candStatus
