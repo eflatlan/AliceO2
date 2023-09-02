@@ -88,7 +88,9 @@ bool Detector::ProcessHits(FairVolume* v)
 
   //Treat photons
   //photon (Ckov or feedback) hits on module PC (Hpad)
-  if ((fMC->TrackPid() == 50000050 || fMC->TrackPid() == 50000051)/* && (volID == mHpad0VolID || volID == mHpad1VolID || volID == mHpad2VolID || volID == mHpad3VolID || volID == mHpad4VolID || volID == mHpad5VolID || volID == mHpad6VolID)*/) { 
+  if ((fMC->TrackPid() == 50000050 || fMC->TrackPid() == 50000051) && (volID == mHpad0VolID || volID == mHpad1VolID || volID == mHpad2VolID || volID == mHpad3VolID || volID == mHpad4VolID || volID == mHpad5VolID || volID == mHpad6VolID)) { 
+	
+
     if (fMC->Edep() > 0) { //photon survided QE test i.e. produces electron
       if (IsLostByFresnel()) {
         fMC->StopTrack();
@@ -122,7 +124,19 @@ bool Detector::ProcessHits(FairVolume* v)
       AddHit(x[0], x[1], x[2], hitTime, etot, tid, idch, particlePdg, motherTrackId, event); //HIT for photon, position at P, etot will be set to Q
       GenFee(etot);                                       //generate feedback photons etot is modified in hit ctor to Q of hit
       stack->addHit(GetDetId());
-	LOGP(info, "photon {}, event {}", particlePdg, event);
+      //LOGP(info, "photon {}, chamber {}, event {}, volID {}", particlePdg, idch, event, volID);
+
+	printf("|Photon volID: %d | VolName %s|\n", volID, fMC->CurrentVolName());
+    	//printf("mHpadXVolID: %d || %d || %d || %d || %d || %d || %d\n",mHpad0VolID, mHpad1VolID, mHpad2VolID, mHpad3VolID, mHpad4VolID, mHpad5VolID, mHpad6VolID);
+
+
+
+
+
+	//printf("volID: %d | ", volID);
+    	//printf("mHpadXVolID: %d || %d || %d || %d || %d || %d || %d\n",mHpad0VolID, mHpad1VolID, mHpad2VolID, mHpad3VolID, mHpad4VolID, mHpad5VolID, mHpad6VolID);
+
+
     } //photon hit PC and DE >0
     return kTRUE;
   } //photon hit PC
@@ -226,7 +240,12 @@ bool Detector::ProcessHits(FairVolume* v)
         eloss = 0;
  	//printParticleInfo(stack);
 
-	LOGP(info, "Charged {}, event {}", particlePdg, event);
+	Float_t px, py, pz, etot;
+ 	fMC->TrackMomentum(px, py, pz, etot);
+
+		
+	printf("|Charged volID: %d | VolName %s | p %.2f %.2f %.2f|\n", volID, fMC->CurrentVolName(), px, py, pz);
+	//LOGP(info, "Charged {}, event {}", particlePdg, event);
 }
 } else {
 //just going inside

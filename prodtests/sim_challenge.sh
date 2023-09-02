@@ -31,7 +31,7 @@ generPP="pythia8pp"
 generPbPb="pythia8hi"
 
 # default sim engine
-engine="TGeant3"
+engine="TGeant4"
 
 # options to pass to every workflow
 gloOpt=" -b --run --shm-segment-size $SHMSIZE"
@@ -47,14 +47,15 @@ tpcLanes=""
 
 Usage()
 {
-  echo "Usage: ${0##*/} [-s system /pp[Def] or pbpb/] [-r IR(kHz) /Def = $intRatePP(pp)/$intRatePbPb(pbpb)] [-n Number of events /Def = $nevPP(pp) or $nevPbPb(pbpb)/] [-e TGeant3|TGeant4] [-t startTime/Def = $startTimeDef] [-run runNumber/Def = $runNumDef] [-f fromstage sim|digi|reco /Def = sim]"
+  echo "Usage: ${0##*/} [-s system /pp[Def] or pbpb/] [-r IR(kHz) /Def = $intRatePP(pp)/$intRatePbPb(pbpb)] [-n Number of events /Def = $nevPP(pp) or $nevPbPb(pbpb)/] [-e TGeant3|TGeant4] [-t startTime/Def = $startTimeDef] [-run runNumber/Def = $runNumDef] [-f fromstage sim|sim|digi|reco /Def = sim] [-pdg  211 | 321 |2212 /Def = 2212]"
   exit
 }
 
 fromstage="sim"
 while [ $# -gt 0 ] ; do
   case $1 in
-    -n) nev=$2;  shift 2 ;;
+    -n) nev=$2;  shift 2 ;; 
+    -pdg) pdg=$2; shift 2 ;;
     -s) collSyst=$2; shift 2 ;;
     -r) intRate=$2; shift 2 ;;
     -e) engine=$2; shift 2 ;;
@@ -87,13 +88,20 @@ fi
 [[ -z $startTime ]] && startTime=$startTimeDef
 [[ -z $runNumber ]] && runNumber=$runNumDef
 
+
+dosimG="0"
 dosim="0"
 dodigi="0"
 dotrdtrap="0"
 doreco="0"
 # convert to lowercase
 fromstage=`echo "$fromstage" | awk '{print tolower($0)}'`
-if [ "$fromstage" == "sim" ]; then
+if [ "$fromstage" == "simg" ]; then
+  dosimG="1"
+  dodigi="1"
+  dotrdtrap="1"
+  doreco="1"
+elif [ "$fromstage" == "sim" ]; then
   dosim="1"
   dodigi="1"
   dotrdtrap="1"
@@ -107,6 +115,24 @@ elif [ "$fromstage" == "reco" ]; then
 else
   echo "Wrong stage string $fromstage provided, should be sim or digi or reco"
   Usage
+fi
+
+if [ "$dosimG" == "1" ]; then
+  #---- GRP creation ------
+  echo "Creating GRPs ... and publishing in local CCDB overwrite"
+  taskwrapper grp.log o2-grp-simgrp-tool createGRPs --run ${runNumber} --publishto GRP -o mcGRP
+
+  #---------------------------------------------------
+  echo "Running simulation for $nev $collSyst events with $gener generator and engine $engine and run number $runNumber"
+  #o2-sim -n"$nev" -g boxgen --configKeyValues "BoxGun.pdg=211;BoxGun.number=1;BoxGun.phirange[0]=27.00;BoxGun.phirange[1]=27.01;BoxGun.eta[0]=-0.0001;BoxGun.eta[1]=0.0001;BoxGun.prange[0]=4.5;BoxGun.prange[1]=4.51" -e TGeant3  --run 300000
+  
+  o2-sim -n"$nev" -g boxgen --configKeyValues "BoxGun.pdg="$pdg";BoxGun.number=2;BoxGun.phirange[0]=-5;BoxGun.phirange[1]=60;BoxGun.eta[0]=-0.5;BoxGun.eta[1]=0.5;BoxGun.prange[0]=1;BoxGun.prange[1]=5" -e TGeant4  --run 300000  
+  
+  #taskwrapper sim.log o2-sim -n"$nev" -g boxgen --configKeyValues "BoxGun.pdg=211;BoxGun.number=50;BoxGun.phirange[0]=0;BoxGun.phirange[1]=60;BoxGun.eta[0]=-0.5;BoxGun.eta[1]=0.5;BoxGun.prange[0]=4.5;BoxGun.prange[1]=4.51" -e "$engine" $simWorker --run ${runNumber}
+  #taskwrapper sim.log o2-sim -n"$nev"  -g boxgen --configKeyValues "BoxGun.number=30 BoxGun.pdg=211" -e "$engine" $simWorker --run ${runNumber}
+
+  ##------ extract number of hits
+  taskwrapper hitstats.log root -q -b -l ${O2_ROOT}/share/macro/analyzeHits.C
 fi
 
 

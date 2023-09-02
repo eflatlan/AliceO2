@@ -325,6 +325,8 @@ bool MatchHMP::prepareHMPClusters()
     mHMPTriggersWork.emplace_back(clOrig);
     //  cache work track index
     mHMPTriggersIndexCache.push_back(mHMPTriggersWork.size() - 1);
+
+    LOG(info) << "mHMPTriggersIndexCache it = " << it;
   }
 
   // sort hmp events according to their time (increasing in time)
@@ -380,6 +382,9 @@ void MatchHMP::doMatching()
     return;
   }
 
+  for(const auto& c : cacheTriggerHMP) {
+    Printf("const auto& c : cacheTriggerHMP %d", c);
+  }
   auto prop = o2::base::Propagator::Instance();
 
   float bxyz[3];
@@ -394,7 +399,7 @@ void MatchHMP::doMatching()
    
   for (int iEvent = 0; iEvent < cacheTriggerHMP.size(); iEvent++) { // events loop
 
-		auto indexEvent = cacheTriggerHMP[iEvent];
+	  auto indexEvent = cacheTriggerHMP[iEvent];
 	  Printf("Event number %d   %d ",iEvent, indexEvent);
 
 
@@ -440,8 +445,8 @@ void MatchHMP::doMatching()
       auto& trefTrk = trackWork.first;
 
 
-			auto indexEvent = cacheTriggerHMP[iEvent];
-	  	Printf("Event %d  Track %d ",iEvent, cacheTrk[itrk]);
+	auto indexEvent = cacheTriggerHMP[iEvent];
+  	//Printf("Event %d  Track %d ",iEvent, cacheTrk[itrk]);
 
 
       prop->getFieldXYZ(trefTrk.getXYZGlo(), bxyz);
