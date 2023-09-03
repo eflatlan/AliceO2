@@ -83,17 +83,32 @@ bool Detector::ProcessHits(FairVolume* v)
 
   }
 
+
+
   TParticle* currentParticleTrack = stack->GetCurrentTrack();
   const auto motherTrackId = currentParticleTrack->GetFirstMother();
 
   //Treat photons
   //photon (Ckov or feedback) hits on module PC (Hpad)
-  if ((fMC->TrackPid() == 50000050 || fMC->TrackPid() == 50000051) && (volID == mHpad0VolID || volID == mHpad1VolID || volID == mHpad2VolID || volID == mHpad3VolID || volID == mHpad4VolID || volID == mHpad5VolID || volID == mHpad6VolID)) { 
-	
 
+  bool isTrackEnteringPad = (volID == mHpad0VolID || volID == mHpad1VolID || volID == mHpad2VolID || volID == mHpad3VolID || volID == mHpad4VolID || volID == mHpad5VolID || volID == mHpad6VolID);
+
+
+  if(isTrackEnteringPad)
+  {
+    //printf(" %d Incoming %d | volID: %d | VolName %s|\n", isTrackEnteringPad, fMC->TrackPid(), volID, fMC->CurrentVolName());
+  }
+
+
+
+
+  if ((fMC->TrackPid() == 50000050 || fMC->TrackPid() == 50000051 || fMC->TrackPid() == 22) && isTrackEnteringPad) { 
+	
+	printf("|Photon %d| volID: %d | VolName %s|\n", fMC->TrackPid(), volID, fMC->CurrentVolName());
     if (fMC->Edep() > 0) { //photon survided QE test i.e. produces electron
       if (IsLostByFresnel()) {
         fMC->StopTrack();
+        printf("IsLostByFresnel");
         return false;
       }                                                     //photon lost due to fersnel reflection on PC
       Int_t tid = fMC->GetStack()->GetCurrentTrackNumber(); //take TID
@@ -126,7 +141,7 @@ bool Detector::ProcessHits(FairVolume* v)
       stack->addHit(GetDetId());
       //LOGP(info, "photon {}, chamber {}, event {}, volID {}", particlePdg, idch, event, volID);
 
-	printf("|Photon volID: %d | VolName %s|\n", volID, fMC->CurrentVolName());
+	printf("|Photon volID: %d | VolName %s | chamber %d |\n", volID, fMC->CurrentVolName(), idch);
     	//printf("mHpadXVolID: %d || %d || %d || %d || %d || %d || %d\n",mHpad0VolID, mHpad1VolID, mHpad2VolID, mHpad3VolID, mHpad4VolID, mHpad5VolID, mHpad6VolID);
 
 
@@ -138,6 +153,7 @@ bool Detector::ProcessHits(FairVolume* v)
 
 
     } //photon hit PC and DE >0
+    else {printf("DE less 0");}
     return kTRUE;
   } //photon hit PC
 
@@ -190,7 +206,9 @@ bool Detector::ProcessHits(FairVolume* v)
   static Float_t eloss; //need to store mip parameters between different steps
   static Double_t in[3];
 
-  if (fMC->IsTrackEntering() && fMC->TrackCharge() && (volID == mHpad0VolID || volID == mHpad1VolID || volID == mHpad2VolID || volID == mHpad3VolID || volID == mHpad4VolID || volID == mHpad5VolID || volID == mHpad6VolID)) {
+
+
+  if (fMC->IsTrackEntering() && fMC->TrackCharge() && isTrackEnteringPad) {
     //Trackref stored when entering in the pad volume
     o2::TrackReference tr(*fMC, GetDetId());
     tr.setTrackID(stack->GetCurrentTrackNumber());
@@ -198,7 +216,10 @@ bool Detector::ProcessHits(FairVolume* v)
     stack->addTrackReference(tr);
   } 
 
-  if (fMC->TrackCharge() && (volID == mHcel0VolID || volID == mHcel1VolID || volID == mHcel2VolID || volID == mHcel3VolID || volID == mHcel4VolID || volID == mHcel5VolID || volID == mHcel6VolID)) {
+  bool isTrackEnteringCell = (volID == mHcel0VolID || volID == mHcel1VolID || volID == mHcel2VolID || volID == mHcel3VolID || volID == mHcel4VolID || volID == mHcel5VolID || volID == mHcel6VolID);
+
+
+  if (fMC->TrackCharge() && isTrackEnteringCell) {
     // charged particle in amplification gap (Hcel)
     if (fMC->IsTrackEntering() || fMC->IsNewTrack()) {                                     //entering or newly created
       eloss = 0;                                                                           //reset Eloss collector
