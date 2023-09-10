@@ -1297,7 +1297,7 @@ void AODProducerWorkflowDPL::fillHMPID(const o2::globaltracking::RecoContainer& 
 	// Assuming LOGP is your custom logging function, you'll have to adapt it to use printf internally.
 	printf(" ============================\n");
 	printf(" Matched Status %d \n", match.getMatchStatus());
-	printf(" =Track Chamber %d Momentum %.2f, Mip charge %d \n Theta = %.3f  \n", match.getChamber (), match.getHmpMom(), charge, theta);
+	printf(" =Track Chamber %d Momentum %.2f, Mip charge INT %d  Mip charge %.2f \n Theta = %.3f  \n", match.getChamber (), match.getHmpMom(), charge, match.getMipClusQ(), theta);
 	
 
 	printf("getMipX %.3f  getMipY %.3f \n", match.getMipX(), match.getMipY());	

@@ -445,8 +445,8 @@ void MatchHMP::doMatching()
       auto& trefTrk = trackWork.first;
 
 
-	auto indexEvent = cacheTriggerHMP[iEvent];
-  	//Printf("Event %d  Track %d ",iEvent, cacheTrk[itrk]);
+		  auto indexEvent = cacheTriggerHMP[iEvent];
+  	  //Printf("Event %d  Track %d ",iEvent, cacheTrk[itrk]);
 
 
       prop->getFieldXYZ(trefTrk.getXYZGlo(), bxyz);
@@ -458,7 +458,7 @@ void MatchHMP::doMatching()
       float maxTrkTime = (trackWork.second.getTimeStamp() + mSigmaTimeCut * timeUncert) * 1.E3; // maximum track time in ns
 
       if (evtTime < (maxTrkTime + timeFromTF) && evtTime > (minTrkTime + timeFromTF)) {
-
+				Printf("==================================== NEW TRACK ==================");
         evtTracks++;
 
 
@@ -498,6 +498,8 @@ void MatchHMP::doMatching()
         matching->setHMPsignal(Recon::kNotPerformed); // ring reconstruction not yet performed
         matching->setIdxTrack(trackGid);
 
+
+
         matching->setHMPIDtrk(xRa, yRa, xPc, yPc, theta, phi);
         matching->setIdxHMPClus(iCh, 9999);          // set chamber, index of cluster + cluster size
 
@@ -527,6 +529,7 @@ void MatchHMP::doMatching()
 				int eventIDClu = -1; // eventID from clusters 
 				int eventID = -1; // eventID from clusters 
 				LOGP(info, "mHMPClustersArray Size  {}", mHMPClustersArray.size());
+				Printf("==================  clusters loop ==================");
         for (int j = event.getFirstEntry(); j <= event.getLastEntry(); j++) { // event clusters loop
 
 	  			if( j >= mHMPClustersArray.size()) {
@@ -553,7 +556,8 @@ void MatchHMP::doMatching()
 	  			// ef: must loop over oneEventClusters here to make sure these are fulfilled: 
           double qthre = pParam->qCut(); // ef : TODO add chargeCut from calibration!
 
-          if (cluster.q() < 150.) {
+          if (cluster.q() < 150.) { // 150
+          	Printf("Charge too low %.2f", cluster.q());
             continue;
           }
           // ef: must also check intersection with chambers : oneEventClusters
@@ -578,6 +582,7 @@ void MatchHMP::doMatching()
 
 
         LOGP(info, "Finished  event clusters loop");
+        Printf("==================   ==================");
         // 2. Propagate track to the MIP cluster using the central method
 
         if (!bestHmpCluster) {/*
@@ -590,7 +595,9 @@ void MatchHMP::doMatching()
         }
 
 
-
+        matching->setMipClusQ(bestHmpCluster->q());
+        
+        
         double Dist = TMath::Sqrt((xPc - bestHmpCluster->x()) * (xPc - bestHmpCluster->x()) + (yPc - bestHmpCluster->y()) * (yPc - bestHmpCluster->y()));
 
         TVector3 vG = pParam->lors2Mars(iCh, bestHmpCluster->x(), bestHmpCluster->y());
@@ -642,10 +649,12 @@ void MatchHMP::doMatching()
 
 						
         double xPc0 = 0., yPc0 = 0.;
-        intTrkCha(iCh, hmpTrkConstrained.get(), xPc0, yPc0, xRa, yRa, theta, phi, bz);
         
-        Printf("5. intTrkCha  xPc0 %.2f, yPc0 %.2f, xRa %.2f, yRa %.2f", xPc0, yPc0, xRa, yRa);
+        double thetaConst, phiConst;
+        intTrkCha(iCh, hmpTrkConstrained.get(), xPc0, yPc0, xRa, yRa, thetaConst, phiConst, bz);
         
+        Printf("5. intTrkCha   xRa %.2f xPc0 %.2f yRa %.2f,  yPc0 %.2f",xRa, xPc0, yRa, yPc0);
+
         // the pc values seem ok until here??
         
         // 6. Set match information
@@ -654,9 +663,6 @@ void MatchHMP::doMatching()
         matching->setHMPIDmip(bestHmpCluster->x(), bestHmpCluster->y(), bestHmpCluster->q(), 0); // store mip info in any case
         matching->setMipClusSize(bestHmpCluster->size());
         matching->setIdxHMPClus(iCh, index + 1000 * cluSize); // set chamber, index of cluster + cluster size
-
-
-
 
 
         matching->setMipClusPDG(bestHmpCluster->getPDG()); // ef: set event number from cluster
@@ -671,9 +677,8 @@ void MatchHMP::doMatching()
 
 
 				// ef : wrong to use xPc, yPc here? should be xPc0, yPc0??			
-        matching->setHMPIDtrk(xRa, yRa, xPc0, yPc0, theta, phi);
+        matching->setHMPIDtrk(xRa, yRa, xPc0, yPc0, thetaConst, phiConst);
         //matching->setHMPIDtrk(xRa, yRa, xPc, yPc, theta, phi);
-
 
         
 
@@ -690,27 +695,25 @@ void MatchHMP::doMatching()
 
         // dmin recalculated
 
-
-
         
         dmin = TMath::Sqrt((xPc - bestHmpCluster->x()) * (xPc - bestHmpCluster->x()) + (yPc - bestHmpCluster->y()) * (yPc - bestHmpCluster->y()));
-        
 
-
-        if (dmin < 6.) {
+	const auto maxDistAcc = 1.;
+        if (dmin < maxDistAcc) {
           isOkDcut = kTRUE;
         }
         // isOkDcut = kTRUE; // switch OFF cut
 
         if (!isOkDcut) {
           matching->setHMPsignal(pParam->kMipDistCut); // closest cluster with enough charge is still too far from intersection
+          Printf("dmin too high %.2f", dmin);
         }
 
         if (isOkQcut * isOkDcut) {
           isMatched = kTRUE;
         } // MIP-Track matched !!
 
-        Printf("6. : intTrkCha  xPc0 %.2f, yPc0 %.2f, xRa %.2f, yRa %.2f : BestMIP %.2f %.2f \n\n", xPc0, yPc0, xRa, yRa,bestHmpCluster->x(),bestHmpCluster->y());
+        Printf("6. : intTrkCha iCh %d || xRa %.2f , xPc0 %.2f ,xMIP %.2f ||  yRa %.2f  yPc0 %.2f  yMIP %.2f \n\n", iCh, xRa, xPc0 ,bestHmpCluster->x(), yRa, yPc0, bestHmpCluster->y());
 
 
         // 7. Calculate the Cherenkov angle
@@ -751,20 +754,35 @@ void MatchHMP::doMatching()
         matching->setMipClusEvent(bestHmpCluster->getEventNumber());
 				Printf("eventNumber from clu : MIP %d from track : %d", eventIDClu, indexEvent);
 
-			Printf("Calling match :eventNumber from clu : %d  from track : %d", matching->getMipClusEvent(), matching->getEvent());
+			  Printf("Calling match :eventNumber from clu : %d  from track : %d", matching->getMipClusEvent(), matching->getEvent());
 
                 
-        Printf("Track::get  x %.2f y %.2f q %d", matching->getMipX(),matching->getMipY(), matching->getMipClusCharge());
+        Printf("Track::getMIP  x %.2f y %.2f Q %.2f", matching->getMipX(), matching->getMipY(), matching->getMipClusQ());
 
 				// add value indicating matched properly?
 				matching->setMatchTrue();
         mMatchedTracks[type].push_back(*matching);
         
-        Printf("MATCHED TRUE : intTrkCha  xPc0 %.2f, yPc0 %.2f, xRa %.2f, yRa %.2f : BestMIP %.2f %.2f \n\n", xPc0, yPc0, xRa, yRa,bestHmpCluster->x(),bestHmpCluster->y());
+        Printf("MATCHED TRUE : CONSTRAINED  xPc0 %.2f, yPc0 %.2f, xRa %.2f, yRa %.2f : BestMIP %.2f %.2f ", xPc0, yPc0, xRa, yRa,bestHmpCluster->x(),bestHmpCluster->y());
         oneEventClusters.clear();
 
 
+        Printf("MATCHED TRUE : UNCONSTRAINED  xPc %.2f, yPc %.2f ", xPc, yPc);
 
+
+  			double radThick = 1.5, winThick = 0.5, gapThick = 8.0; 
+				auto dx = (radThick/2 + winThick + gapThick) * TMath::Cos(phiConst) * TMath::Tan(thetaConst);
+				
+				auto dy = (radThick/2 + winThick + gapThick) * TMath::Sin(phiConst) * TMath::Tan(thetaConst);
+  
+  
+				double xPcProp = xRa + dx; 
+				double yPcProp = yRa + dy;
+
+
+				Printf("MATCHED TRUE : CONSTRAINED prop xPcProp %.2f, yPcProp %.2f ", xPcProp, yPcProp);
+
+        Printf("Constrained versus unconstrained :  thetaConst %.2f, phiConst %.2f, theta %.2f, phi %.2f \n\n\n\n", thetaConst, phiConst, theta, phi);
 
       } // if matching in time
 

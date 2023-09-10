@@ -77,11 +77,6 @@ bool Detector::ProcessHits(FairVolume* v)
 
   const int particlePdg = fMC->TrackPid();
   const int charge = TMath::Abs(particlePdg);  
-  const bool isKaonProtonPion = (charge == 211 || charge == 111 || charge == 311 || charge == 321 || charge == 2212);
-  if(isKaonProtonPion) {
-    //printMotherInfo();
-
-  }
 
 
 
@@ -94,21 +89,12 @@ bool Detector::ProcessHits(FairVolume* v)
   bool isTrackEnteringPad = (volID == mHpad0VolID || volID == mHpad1VolID || volID == mHpad2VolID || volID == mHpad3VolID || volID == mHpad4VolID || volID == mHpad5VolID || volID == mHpad6VolID);
 
 
-  if(isTrackEnteringPad)
-  {
-    //printf(" %d Incoming %d | volID: %d | VolName %s|\n", isTrackEnteringPad, fMC->TrackPid(), volID, fMC->CurrentVolName());
-  }
-
-
-
-
-  if ((fMC->TrackPid() == 50000050 || fMC->TrackPid() == 50000051 || fMC->TrackPid() == 22) && isTrackEnteringPad) { 
+  if ((fMC->TrackPid() == 50000050 || fMC->TrackPid() == 50000051 ) && isTrackEnteringPad) { 
 	
-	printf("|Photon %d| volID: %d | VolName %s|\n", fMC->TrackPid(), volID, fMC->CurrentVolName());
+    // printf("|Photon %d| volID: %d | VolName %s|\n", fMC->TrackPid(), volID, fMC->CurrentVolName());
     if (fMC->Edep() > 0) { //photon survided QE test i.e. produces electron
       if (IsLostByFresnel()) {
         fMC->StopTrack();
-        printf("IsLostByFresnel");
         return false;
       }                                                     //photon lost due to fersnel reflection on PC
       Int_t tid = fMC->GetStack()->GetCurrentTrackNumber(); //take TID
@@ -139,21 +125,10 @@ bool Detector::ProcessHits(FairVolume* v)
       AddHit(x[0], x[1], x[2], hitTime, etot, tid, idch, particlePdg, motherTrackId, event); //HIT for photon, position at P, etot will be set to Q
       GenFee(etot);                                       //generate feedback photons etot is modified in hit ctor to Q of hit
       stack->addHit(GetDetId());
-      //LOGP(info, "photon {}, chamber {}, event {}, volID {}", particlePdg, idch, event, volID);
-
-	printf("|Photon volID: %d | VolName %s | chamber %d |\n", volID, fMC->CurrentVolName(), idch);
-    	//printf("mHpadXVolID: %d || %d || %d || %d || %d || %d || %d\n",mHpad0VolID, mHpad1VolID, mHpad2VolID, mHpad3VolID, mHpad4VolID, mHpad5VolID, mHpad6VolID);
-
-
-
-
-
-	//printf("volID: %d | ", volID);
-    	//printf("mHpadXVolID: %d || %d || %d || %d || %d || %d || %d\n",mHpad0VolID, mHpad1VolID, mHpad2VolID, mHpad3VolID, mHpad4VolID, mHpad5VolID, mHpad6VolID);
-
+	//printf("|Photon volID: %d | VolName %s | chamber %d |\n", volID, fMC->CurrentVolName(), idch);
 
     } //photon hit PC and DE >0
-    else {printf("DE less 0");}
+
     return kTRUE;
   } //photon hit PC
 
@@ -265,7 +240,7 @@ bool Detector::ProcessHits(FairVolume* v)
  	fMC->TrackMomentum(px, py, pz, etot);
 
 		
-	printf("|Charged volID: %d | VolName %s | p %.2f %.2f %.2f|\n", volID, fMC->CurrentVolName(), px, py, pz);
+	//printf("|Charged volID: %d | VolName %s | p %.2f %.2f %.2f|\n", volID, fMC->CurrentVolName(), px, py, pz);
 	//LOGP(info, "Charged {}, event {}", particlePdg, event);
 }
 } else {

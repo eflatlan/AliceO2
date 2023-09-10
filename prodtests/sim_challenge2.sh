@@ -31,7 +31,7 @@ generPP="pythia8pp"
 generPbPb="pythia8hi"
 
 # default sim engine
-engine="TGeant3"
+engine="TGeant4"
 
 # options to pass to every workflow
 gloOpt=" -b --run --shm-segment-size $SHMSIZE"
@@ -127,7 +127,7 @@ if [ "$dosimG" == "1" ]; then
   #o2-sim -n"$nev" -g boxgen --configKeyValues "BoxGun.pdg=211;BoxGun.number=1;BoxGun.phirange[0]=27.00;BoxGun.phirange[1]=27.01;BoxGun.eta[0]=-0.0001;BoxGun.eta[1]=0.0001;BoxGun.prange[0]=4.5;BoxGun.prange[1]=4.51" -e TGeant3  --run 300000
   
 
-o2-sim -n10 -e TGeant3 -g boxgen --configKeyValues "BoxGun.pdg=211; BoxGun.phirange[0]=-5; BoxGun.phirange[1]=60; BoxGun.number=3; BoxGun.eta[0]=-0.5 ; BoxGun.eta[1]=0.5; BoxGun.prange[0]=5.5; BoxGun.prange[1]=5.51;"
+o2-sim -n10 -e TGeant3 -g boxgen --configKeyValues 'BoxGun.pdg=211; BoxGun.phirange[0]=-5; BoxGun.phirange[1]=60; BoxGun.number=3; BoxGun.eta[0]=-0.5 ; BoxGun.eta[1]=0.5; BoxGun.prange[0]=5.5; BoxGun.prange[1]=5.51;'
 
 
 

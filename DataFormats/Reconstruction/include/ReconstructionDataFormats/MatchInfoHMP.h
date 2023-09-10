@@ -54,6 +54,9 @@ class MatchInfoHMP
   void setTrkX(float x) { mTrkX = x; }
   float getTrkX() const { return mTrkX; }
 
+  void setMipClusQ(float q) { mMipCluQ = q; }
+  float getMipClusQ() const { return mMipCluQ; }
+
   void setTrkY(float y) { mTrkY = y; }
   float getTrkY() const { return mTrkY; }
 
@@ -233,6 +236,9 @@ class MatchInfoHMP
 
  
  protected:
+
+  float mMipCluQ = 0.0;  // MIP cluster charge
+
   int mMipCluPDG;      // for sim: the PDG code of the MIP matched w track
   int mMipCluEvent;      // for sim: the Evnet of the  MIP matched w track
   int mMipCluCharge;      // for sim: the charge of the MIP matched w track
