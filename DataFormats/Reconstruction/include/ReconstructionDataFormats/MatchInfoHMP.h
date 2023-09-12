@@ -70,6 +70,16 @@ class MatchInfoHMP
     }
   }
 
+  void setDistCut(float dist, float distThre) {mDist = dist; mDistThre = distThre;}
+  void getDistCut(float &dist, float& distThre) const {dist = mDist; distThre = mDistThre;}
+
+
+
+
+  void setUnconstrainedPc(float x, float y) {xPcUnc = x; yPcUnc = y;}
+  void getUnconstrainedPc(float &x, float& y) const {x = xPcUnc; y = yPcUnc;}
+
+
   void setMipClusPDG(int pdg) { mMipCluPDG = pdg; }
   int getMipClusEventPDG() const { return mMipCluPDG; }
 
@@ -214,8 +224,9 @@ class MatchInfoHMP
 	int mEvent;
 	int miCh;
 
+  float mDist = -1., mDistThre = -1.; // distance to MIP, cut for distance used
 
-
+  float xPcUnc = -1., yPcUnc = -1.;
  /*
 
 

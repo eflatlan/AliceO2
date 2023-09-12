@@ -499,7 +499,7 @@ void MatchHMP::doMatching()
         matching->setIdxTrack(trackGid);
 
 
-
+        matching->setUnconstrainedPc(xPc, yPc);
         matching->setHMPIDtrk(xRa, yRa, xPc, yPc, theta, phi);
         matching->setIdxHMPClus(iCh, 9999);          // set chamber, index of cluster + cluster size
 
@@ -698,7 +698,7 @@ void MatchHMP::doMatching()
         
         dmin = TMath::Sqrt((xPc - bestHmpCluster->x()) * (xPc - bestHmpCluster->x()) + (yPc - bestHmpCluster->y()) * (yPc - bestHmpCluster->y()));
 
-	const auto maxDistAcc = 1.;
+	const auto maxDistAcc = 2.;
         if (dmin < maxDistAcc) {
           isOkDcut = kTRUE;
         }
@@ -726,7 +726,11 @@ void MatchHMP::doMatching()
         // should this be befoer or after the if (!isMatched) { ?? TODO: ef:
 				matching->setRefIndex(nmean);
 				matching->setChamber(iCh);
-				
+
+
+
+
+
 				// set eventID for track from oneEventCluster
 
 				matching->setMipClusEvent(eventIDClu); 
@@ -735,6 +739,7 @@ void MatchHMP::doMatching()
         
 				matching->setEventNumber(indexEvent); // 				matching->setEventNumber(iEvent);
 
+				matching->setDistCut(dmin, maxDistAcc); 
 
 
         if (!isMatched) {

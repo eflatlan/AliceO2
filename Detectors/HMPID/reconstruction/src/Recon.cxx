@@ -442,6 +442,8 @@ double Recon::findRingCkov(int)
 
 } // FindCkovRing()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+//int iNrec = flagPhot(houghResponse(), clusters, photCharge); // flag photons according to
 int Recon::flagPhot(double ckov, const std::vector<o2::hmpid::Cluster> clusters, float* photChargeVec)
 // int Recon::flagPhot(double ckov, const std::vector<o2::hmpid::Cluster> clusters)
 {
@@ -467,10 +469,15 @@ int Recon::flagPhot(double ckov, const std::vector<o2::hmpid::Cluster> clusters,
     fPhotFlag[i] = 0;
     if (fPhotCkov[i] >= tmin && fPhotCkov[i] <= tmax) {
       fPhotFlag[i] = 2;
+
+
+
+
       o2::hmpid::Cluster cluster = clusters.at(fPhotClusIndex[i]);
       float charge = cluster.q();
       if (iInsideCnt < 10) {
         photChargeVec[iInsideCnt] = charge;
+	//fPhotCkovStored[iInsideCnt] = etaCkov;
       } // AddObjectToFriends(pCluLst,i,pTrk);
       iInsideCnt++;
     }
@@ -530,7 +537,9 @@ void Recon::refract(TVector3& dir, double n1, double n2) const
 double Recon::houghResponse()
 {
   //    fIdxMip = mipId;
-
+  // Photon Flag:  Flag = 0 initial set;
+  //               Flag = 1 good candidate (charge compatible with photon);
+  //               Flag = 2 photon used for the ring;
   Double_t kThetaMax = 0.75;
   Int_t nChannels = (Int_t)(kThetaMax / fDTheta + 0.5);
   TH1D* phots = new TH1D("Rphot", "phots", nChannels, 0, kThetaMax);
@@ -572,7 +581,13 @@ double Recon::houghResponse()
     if (bin2 > nBin) {
       bin2 = nBin;
     }
+
+
+
     Double_t sumPhots = phots->Integral(bin1, bin2);
+
+	
+
     if (sumPhots < 3) {
       continue;
     } // if less then 3 photons don't trust to this ring
