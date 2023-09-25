@@ -45,6 +45,9 @@ simWorker=""
 # option to set the number of tpc-lanes
 tpcLanes=""
 
+#
+pdg = 211
+
 Usage()
 {
   echo "Usage: ${0##*/} [-s system /pp[Def] or pbpb/] [-r IR(kHz) /Def = $intRatePP(pp)/$intRatePbPb(pbpb)] [-n Number of events /Def = $nevPP(pp) or $nevPbPb(pbpb)/] [-e TGeant3|TGeant4] [-t startTime/Def = $startTimeDef] [-run runNumber/Def = $runNumDef] [-f fromstage sim|digi|reco /Def = sim]"
@@ -62,6 +65,7 @@ while [ $# -gt 0 ] ; do
     -j) simWorker="-j $2"; shift 2 ;;
     -l) tpcLanes="--tpc-lanes $2"; shift 2 ;;
     -t) startTime=$2; shift 2 ;;
+    -p) pdg=$2; shift 2 ;;
     -run) runNumber=$2; shift 2 ;;
     -h) Usage ;;
     *) echo "Wrong input"; Usage;
@@ -87,14 +91,26 @@ fi
 [[ -z $startTime ]] && startTime=$startTimeDef
 [[ -z $runNumber ]] && runNumber=$runNumDef
 
-dosim="0"
+dosimp="0"
+dosimk="0"
+dosimpr="0"
 dodigi="0"
 dotrdtrap="0"
 doreco="0"
 # convert to lowercase
 fromstage=`echo "$fromstage" | awk '{print tolower($0)}'`
-if [ "$fromstage" == "sim" ]; then
-  dosim="1"
+if [ "$fromstage" == "simp" ]; then
+  dosimp="1"
+  dodigi="1"
+  dotrdtrap="1"
+  doreco="1"
+elif [ "$fromstage" == "simk" ]; then
+  dosimk="1"
+  dodigi="1"
+  dotrdtrap="1"
+  doreco="1"
+elif [ "$fromstage" == "simpr" ]; then
+  dosimpr="1"
   dodigi="1"
   dotrdtrap="1"
   doreco="1"
@@ -110,14 +126,54 @@ else
 fi
 
 
-if [ "$dosim" == "1" ]; then
+if [ "$dosimp" == "1" ]; then
   #---- GRP creation ------
   echo "Creating GRPs ... and publishing in local CCDB overwrite"
   taskwrapper grp.log o2-grp-simgrp-tool createGRPs --run ${runNumber} --publishto GRP -o mcGRP
 
   #---------------------------------------------------
-  echo "Running simulation for $nev $collSyst events with $gener generator and engine $engine and run number $runNumber"
-  taskwrapper sim.log o2-sim -n"$nev" --configKeyValues "Diamond.width[2]=6." -g "$gener" -e "$engine" $simWorker --run ${runNumber}
+  echo "Running Pion gun simulation for $nev  "
+  #taskwrapper sim.log o2-sim -n"$nev" --configKeyValues "Diamond.width[2]=6." -g "$gener" -e "$engine" $simWorker --run ${runNumber}
+
+o2-sim -n"$nev" -e TGeant3 -g boxgen --configKeyValues "BoxGun.pdg=211; BoxGun.phirange[0]=-5; BoxGun.phirange[1]=60; BoxGun.number=120; BoxGun.eta[0]=-0.5 ; BoxGun.eta[1]=0.5; BoxGun.prange[0]=2.8; BoxGun.prange[1]=2.83;" $simWorker --run ${runNumber}
+
+
+
+  ##------ extract number of hits
+  taskwrapper hitstats.log root -q -b -l ${O2_ROOT}/share/macro/analyzeHits.C
+fi
+
+if [ "$dosimk" == "1" ]; then
+  #---- GRP creation ------
+  echo "Creating GRPs ... and publishing in local CCDB overwrite"
+  taskwrapper grp.log o2-grp-simgrp-tool createGRPs --run ${runNumber} --publishto GRP -o mcGRP
+
+  #---------------------------------------------------
+  echo "Running Ka gun simulation for $nev  "
+  #taskwrapper sim.log o2-sim -n"$nev" --configKeyValues "Diamond.width[2]=6." -g "$gener" -e "$engine" $simWorker --run ${runNumber}
+
+o2-sim -n"$nev" -e TGeant3 -g boxgen --configKeyValues "BoxGun.pdg=321; BoxGun.phirange[0]=-5; BoxGun.phirange[1]=60; BoxGun.number=120; BoxGun.eta[0]=-0.5 ; BoxGun.eta[1]=0.5; BoxGun.prange[0]=2.8; BoxGun.prange[1]=2.83;" $simWorker --run ${runNumber}
+
+
+
+  ##------ extract number of hits
+  taskwrapper hitstats.log root -q -b -l ${O2_ROOT}/share/macro/analyzeHits.C
+fi
+
+
+
+if [ "$dosimpr" == "1" ]; then
+  #---- GRP creation ------
+  echo "Creating GRPs ... and publishing in local CCDB overwrite"
+  taskwrapper grp.log o2-grp-simgrp-tool createGRPs --run ${runNumber} --publishto GRP -o mcGRP
+
+  #---------------------------------------------------
+  echo "Running Proton gun simulation for $nev  "
+  #taskwrapper sim.log o2-sim -n"$nev" --configKeyValues "Diamond.width[2]=6." -g "$gener" -e "$engine" $simWorker --run ${runNumber}
+
+o2-sim -n"$nev" -e TGeant3 -g boxgen --configKeyValues "BoxGun.pdg=2212; BoxGun.phirange[0]=-5; BoxGun.phirange[1]=60; BoxGun.number=120; BoxGun.eta[0]=-0.5 ; BoxGun.eta[1]=0.5; BoxGun.prange[0]=2.8; BoxGun.prange[1]=2.83;" $simWorker --run ${runNumber}
+
+
 
   ##------ extract number of hits
   taskwrapper hitstats.log root -q -b -l ${O2_ROOT}/share/macro/analyzeHits.C
