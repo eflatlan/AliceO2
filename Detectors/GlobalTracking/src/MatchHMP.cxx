@@ -553,10 +553,10 @@ void MatchHMP::doMatching()
 
 
 
-	  			// ef: must loop over oneEventClusters here to make sure these are fulfilled: 
+	  // ef: must loop over oneEventClusters here to make sure these are fulfilled: 
           double qthre = pParam->qCut(); // ef : TODO add chargeCut from calibration!
 
-          if (cluster.q() < 200.) { // 150
+          if (cluster.q() < 150.) { // 150
           	Printf("Charge too low %.2f", cluster.q());
             continue;
           }
@@ -705,7 +705,7 @@ void MatchHMP::doMatching()
         
         dmin = TMath::Sqrt((xPc - bestHmpCluster->x()) * (xPc - bestHmpCluster->x()) + (yPc - bestHmpCluster->y()) * (yPc - bestHmpCluster->y()));
 
-	const auto maxDistAcc = 1.;
+	const auto maxDistAcc = 1.5;
         if (dmin < maxDistAcc) {
           isOkDcut = kTRUE;
         }
