@@ -432,8 +432,16 @@ void MatchHMP::doMatching()
 
     int evtTracks = 0;
 
-    double nmean = pParam->meanIdxRad(); // ef TODO: get this from calibration
 
+
+		// accoutn for 25C -- 20 C in simulation; 
+		// dont understand which value to use ..
+		// 1.29197 if using mRefIdx(1.28947) + .0005 *(25-5)
+		// 1.29044 if using nIdxRad(double eV = 6.675, double temp = 20)
+    // double nmean = pParam->meanIdxRad() - 0.0005; // ef TODO: get this from calibration
+    double nmean = (1.29197 + 1.29044 )/2.; // ef TODO: get this from calibration
+    
+    
     //auto mlEvent = std::make_unique<HmpMLVector>(&oneEventClusters, iEvent, nmean); // ef: initialize as int of Event and clusters relevant to the event
 
     for (int itrk = 0; itrk < cacheTrk.size(); itrk++) { // tracks loop
