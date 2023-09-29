@@ -9,7 +9,7 @@ class ClusterCandidate : public TObject {
 
 
   public:
-   
+    float mPhotEnergy[12] = {}; // array of photon energy [GeV] per digit
     int mSize = 0;
     int mCh = 0;
     double mX = 0., mY = 0.;
@@ -25,9 +25,11 @@ class ClusterCandidate : public TObject {
     int mCandidateStatus = 0;// = {{0,0}}; do not initialize
     int trackNumber = 0;// = {{0,0}}; do not initialize
     
-    
-    
-    
+    void setPhotEnergy(const float (&photEnergy)[12]) {
+        for (int i = 0; i < 12; ++i) {
+            mPhotEnergy[i] = photEnergy[i];
+        }
+    }
     // std::vector<o2::hmpid::Cluster::Topology> mTopologyVector = nullptr;
 
 

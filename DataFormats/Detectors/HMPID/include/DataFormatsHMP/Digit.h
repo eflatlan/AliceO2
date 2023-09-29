@@ -74,7 +74,11 @@ class Digit
   Digit() = default;
 
 
-  Digit(int pad, uint16_t charge,  int particlePdg, Int_t trackId, int motherTrack, int eventId, int sourceId);
+  Digit(int pad, uint16_t charge,  int particlePdg, Int_t trackId, int motherTrack, int eventId, int sourceId, float energy);
+
+//        mDigits.emplace_back(pad, totalQ * fraction, hit.getParticlePdg(), hit.getTrackId(),  hit.getMother(), /*hit.getEventNumber()*/ mEventID, mSrcID,  hit.getMother(),  hit.getEnergy());
+  
+
   Digit(int chamber, int photo, int x, int y, uint16_t charge, int particlePdg);
   Digit(uint16_t charge, int equipment, int column, int dilogic, int channel, int particlePdg);
   Digit(uint16_t charge, int module, int x, int y, int particlePdg);
@@ -135,7 +139,7 @@ class Digit
   uint8_t getPh() const { return mPh; }
   uint8_t getX() const { return mX; }
   uint8_t getY() const { return mY; }
-
+  float getEnergy() const { return mEnergy; }
  public:
   // Members
 
@@ -149,6 +153,8 @@ class Digit
   uint8_t mPh = 0;
   uint8_t mX = 0;
   uint8_t mY = 0;
+
+  float mEnergy = 0; // energy in GeV
 
   // The Pad Unique Id, code a pad inside one HMPID chamber.
   // Bit Map : 0000.0000.cccc.pppp.xxxx.xxxx.yyyy.yyyy

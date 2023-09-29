@@ -62,6 +62,11 @@ class Cluster
 
  public:
 
+
+  float getEnergy() const { return mEnergy; }
+  void setEnergy(float energy)  { mEnergy = energy; }
+
+
   void setLastTopologyIndex(int index) { mLastTopIndex = index;} 
   void setFirstTopologyIndex(int index) { mFirstTopIndex = index;} 
 
@@ -182,6 +187,17 @@ class Cluster
   static void fitFunc(int& iNpars, double* deriv, double& chi2, double* par, int iflag); // fit function to be used by MINUIT
   void cleanPointers()
   {
+
+    // set the photon energy from the digits :
+		
+
+    size_t size = std::min(mDigs->size(), (size_t)12);
+    for(size_t i = 0; i < size; ++i) {
+        mPhotEnergy[i] = (*mDigs)[i]->getEnergy();
+    }
+
+
+
     mDigs = nullptr;
   }
 
@@ -252,8 +268,18 @@ class Cluster
   double mChi2;                               // some estimator of the fit quality
   std::vector<const o2::hmpid::Digit*>* mDigs = nullptr; //! list of digits forming this cluster
   //std::vector<Topology> mTopologyVector;
+  float mEnergy = 0; // energy in GeV
+
+
+
 
   public  : 
+  float mPhotEnergy[12] = {}; // array of photon energy [GeV] per digit
+	const float (&getPhotEnergy() const)[12] {
+		  return mPhotEnergy;
+	}
+
+
 	int box() const { return mBox; }     // Dimension of the cluster
 	int ch() const { return mCh; }       // chamber number
 	int size() const { return mSi; }     // returns number of pads in formed cluster

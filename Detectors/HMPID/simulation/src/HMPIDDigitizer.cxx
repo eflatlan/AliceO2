@@ -125,7 +125,7 @@ void HMPIDDigitizer::process(std::vector<o2::hmpid::HitType> const& hits, std::v
 
 	// ef: corrected to take from hits to mEventId -- > mEventId is set in HMPIDDigitezerSpec
 	LOGP(info, "Emplacing mDigits; (from hit : event {}) mEventID {}", hit.getEventNumber(), mEventID);
-        mDigits.emplace_back(pad, totalQ * fraction, hit.getParticlePdg(), hit.getTrackId(),  hit.getMother(), /*hit.getEventNumber()*/ mEventID, mSrcID);
+        mDigits.emplace_back(pad, totalQ * fraction, hit.getParticlePdg(), hit.getTrackId(),  hit.getMother(), /*hit.getEventNumber()*/ mEventID, mSrcID, hit.getEnergy());
         mIndexForPad[pad] = mDigits.size() - 1;
         mInvolvedPads.emplace_back(pad);
 

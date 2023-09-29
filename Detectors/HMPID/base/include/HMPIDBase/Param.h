@@ -141,6 +141,8 @@ class Param
   {
     return TMath::Sqrt(1 + 0.554 * (1239.84 / eV) * (1239.84 / eV) / ((1239.84 / eV) * (1239.84 / eV) - 5769)) - 0.0005 * (temp - 20);
   }
+
+
   static double nIdxWin(double eV) { return TMath::Sqrt(1 + 46.411 / (10.666 * 10.666 - eV * eV) + 228.71 / (18.125 * 18.125 - eV * eV)); }
   static double nMgF2Idx(double eV) { return 1.7744 - 2.866e-3 * (1239.842609 / eV) + 5.5564e-6 * (1239.842609 / eV) * (1239.842609 / eV); } // MgF2 idx of trasparency system
   static double nIdxGap(double eV) { return 1 + 0.12489e-6 / (2.62e-4 - eV * eV / 1239.84 / 1239.84); }

@@ -43,7 +43,7 @@ namespace hmpid
 
 
 
-Digit::Digit(int pad, uint16_t charge,  int particlePdg, Int_t trackId, int motherTrack, int eventId, int sourceId)
+Digit::Digit(int pad, uint16_t charge,  int particlePdg, Int_t trackId, int motherTrack, int eventId, int sourceId, float energy)
 {
   mQ = charge > 0x0FFF ? 0x0FFF : charge;
   mCh = a2C(pad);
@@ -55,6 +55,7 @@ Digit::Digit(int pad, uint16_t charge,  int particlePdg, Int_t trackId, int moth
   mMotherTrackId = motherTrack;
   mEventNumber = eventId;
   mSourceId = sourceId;
+  mEnergy = energy;
 }
 
 

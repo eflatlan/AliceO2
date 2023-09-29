@@ -37,6 +37,8 @@ class HitType : public o2::BasicXYZEHit<float>
   int mMotherTrack; // ef: added particlePdg
   Int_t mEvent;
   Int_t mTrackId;
+	
+  float energy;
  public:
   
 
@@ -44,7 +46,7 @@ class HitType : public o2::BasicXYZEHit<float>
   Int_t getParticlePdg() const { return mParticlePdg;}
   Int_t getTrackId() const { return mTrackId;}
   Int_t getMother() const { return mMotherTrack;}
-  
+  float getEnergy() const { return energy;}// ef: added 
   HitType() = default;
   inline HitType(
 	float x, 

@@ -92,7 +92,7 @@ void DigitsToClustersTask::init(framework::InitContext& ic)
 void DigitsToClustersTask::run(framework::ProcessingContext& pc)
 {
 
-bool mUseMC = false; // ef do inout tu fcn
+	bool mUseMC = false; // ef do inout tu fcn
   // outputs
   std::vector<o2::hmpid::Cluster> clusters;
   std::vector<o2::hmpid::Trigger> clusterTriggers;
@@ -148,7 +148,7 @@ bool mUseMC = false; // ef do inout tu fcn
       }
 
 
-  		LOG(info) << "[HMPID DClusterization - return from dig2clu";
+       LOG(info) << "[HMPID DClusterization - return from dig2clu";
 
       //if(clusters.back().dig(0) == nullptr) {Printf("DigtisToClusterSpec:: dig was nullptr!!");}
       clusterTriggers.emplace_back(trig.getIr(), clStart, clusters.size() - clStart);
