@@ -22,8 +22,16 @@ class ClusterCandidate : public TObject {
     int trackId = -1;
     bool isMip = false;
 
+
+    int mCandidateStatusCkov = 0;// = {{0,0}}; do not initialize
     int mCandidateStatus = 0;// = {{0,0}}; do not initialize
     int trackNumber = 0;// = {{0,0}}; do not initialize
+    
+    
+    
+    double mThetaCer = -13., mPhiCer = -13., mSigmaRing = -13.;
+    
+    void setCandidateStatusCkov(int ckovStat) {mCandidateStatusCkov = ckovStat; }
     
     void setPhotEnergy(const float (&photEnergy)[12]) {
         for (int i = 0; i < 12; ++i) {
