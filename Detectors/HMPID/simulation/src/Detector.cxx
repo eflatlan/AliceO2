@@ -129,7 +129,7 @@ bool Detector::ProcessHits(FairVolume* v)
       }
       Double_t xl, yl;
       const int particlePdg = fMC->TrackPid(); 
-      //printf("|Photon volID: %d | VolName %s | chamber %d  | energy %.8f | energy %.8f  |\n", volID, fMC->CurrentVolName(), idch, etot* 1000000000, energy* 1000000000); 
+      printf("|Photon volID: %d | VolName %s | chamber %d  | energy %.8f | energy %.8f  |\n", volID, fMC->CurrentVolName(), idch, etot* 1000000000, energy* 1000000000); 
       o2::hmpid::Param::instance()->mars2Lors(idch, x, xl, yl); //take LORS position
       AddHit(x[0], x[1], x[2], hitTime, etot, tid, idch, particlePdg, motherTrackId, event); //HIT for photon, position at P, etot will be set to Q
       GenFee(etot);                                       //generate feedback photons etot is modified in hit ctor to Q of hit
@@ -197,9 +197,9 @@ bool Detector::ProcessHits(FairVolume* v)
         // HIT for MIP, position near anod plane, eloss will be set to Q
 
 
-				TParticle* currentParticleTrack = stack->GetCurrentTrack();
-				const auto motherTrackId = currentParticleTrack->GetFirstMother();
-				auto energy = currentParticleTrack->Energy();
+	TParticle* currentParticleTrack = stack->GetCurrentTrack();
+	const auto motherTrackId = currentParticleTrack->GetFirstMother();
+	auto energy = currentParticleTrack->Energy();
 
 
         AddHit(out[0], out[1], out[2], hitTime, eloss, tid, idch, particlePdg, motherTrackId, event);
@@ -217,7 +217,7 @@ bool Detector::ProcessHits(FairVolume* v)
 
 
 
-	//printf("|Charged volID: %d | VolName %s | eloss %.2f | energy %.2f  |  GetNDaughters %d   | \n", volID, fMC->CurrentVolName(), idch, eloss* 1000000000, energy* 1000000000, currentParticleTrack->GetNDaughters()); 
+	// printf("|Charged volID: %d | VolName %s | eloss %.2f | photon-energy %.2f  |  GetNDaughters %d   | \n", volID, fMC->CurrentVolName(), idch, eloss* 1000000000, energy* 1000000000, currentParticleTrack->GetNDaughters()); 
 
 
 

@@ -440,8 +440,17 @@ void MatchHMP::doMatching()
 		// 1.29044 if using nIdxRad(double eV = 6.675, double temp = 20)
     // double nmean = pParam->meanIdxRad() - 0.0005; // ef TODO: get this from calibration
     double nmean = (1.29197 + 1.29044 )/2.; // ef TODO: get this from calibration
+    nmean = 1.2928  - 0.0025; //  ef ; changed ti this to match CkovToolsSingle
     
+
     
+    // collecting all pgoton energies and taking mean : eMean = 6.82 ikke 6.675...
+    
+	    //nF = 1.2928  - 0.0025; // ef got this from 1 run .. assuming T = 20 for sim 
+	     // 1.2928 hvis T = 20; 1.2903 hvis T = 25
+	    // np.sqrt(1 + 0.554 * (1239.84 / eV) * (1239.84 / eV) / ((1239.84 / eV) * (1239.84 / eV) - 5769)) - 0.0005 * (temp - 20)
+	       
+       
     //auto mlEvent = std::make_unique<HmpMLVector>(&oneEventClusters, iEvent, nmean); // ef: initialize as int of Event and clusters relevant to the event
 
     for (int itrk = 0; itrk < cacheTrk.size(); itrk++) { // tracks loop
