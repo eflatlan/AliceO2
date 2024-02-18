@@ -134,8 +134,10 @@ class PropagatorImpl
   GPUd() void setGPUField(const o2::gpu::GPUTPCGMPolynomialField* field) { mGPUField = field; }
   GPUd() const o2::gpu::GPUTPCGMPolynomialField* getGPUField() const { return mGPUField; }
   GPUd() void setBz(value_type bz) { mBz = bz; }
+  GPUd() bool hasMagFieldSet() const { return mField != nullptr; }
 
   GPUd() void estimateLTFast(o2::track::TrackLTIntegral& lt, const o2::track::TrackParametrization<value_type>& trc) const;
+  GPUd() float estimateLTIncrement(const o2::track::TrackParametrization<value_type>& trc, const o2::math_utils::Point3D<value_type>& postStart, const o2::math_utils::Point3D<value_type>& posEnd) const;
 
 #ifndef GPUCA_GPUCODE
   static PropagatorImpl* Instance(bool uninitialized = false)

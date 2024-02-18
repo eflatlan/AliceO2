@@ -12,10 +12,10 @@
 #include "Framework/DataDescriptorMatcher.h"
 #include "Framework/DataMatcherWalker.h"
 #include "Framework/VariantHelpers.h"
-#include "Framework/Logger.h"
 #include "Framework/RuntimeError.h"
 #include "Headers/DataHeaderHelpers.h"
 
+#include <fmt/format.h>
 #include <cstring>
 #include <cinttypes>
 #include <regex>
@@ -516,7 +516,7 @@ DataDescriptorMatcher DataSpecUtils::dataDescriptorMatcherFrom(ConcreteDataMatch
         SubSpecificationTypeValueMatcher{concrete.subSpec},
         std::make_unique<DataDescriptorMatcher>(DataDescriptorMatcher::Op::Just,
                                                 StartTimeValueMatcher{ContextRef{0}})))};
-  return std::move(matchEverything);
+  return matchEverything;
 }
 
 DataDescriptorMatcher DataSpecUtils::dataDescriptorMatcherFrom(ConcreteDataTypeMatcher const& dataType)
@@ -526,10 +526,10 @@ DataDescriptorMatcher DataSpecUtils::dataDescriptorMatcherFrom(ConcreteDataTypeM
     DescriptionValueMatcher{dataType.description.as<std::string>()},
     std::make_unique<DataDescriptorMatcher>(DataDescriptorMatcher::Op::Just,
                                             StartTimeValueMatcher{ContextRef{0}}));
-  return std::move(DataDescriptorMatcher(
+  return DataDescriptorMatcher(
     DataDescriptorMatcher::Op::And,
     OriginValueMatcher{dataType.origin.as<std::string>()},
-    std::move(timeDescriptionMatcher)));
+    std::move(timeDescriptionMatcher));
 }
 
 DataDescriptorMatcher DataSpecUtils::dataDescriptorMatcherFrom(header::DataOrigin const& origin)
@@ -547,7 +547,7 @@ DataDescriptorMatcher DataSpecUtils::dataDescriptorMatcherFrom(header::DataOrigi
         SubSpecificationTypeValueMatcher{ContextRef{2}},
         std::make_unique<DataDescriptorMatcher>(DataDescriptorMatcher::Op::Just,
                                                 StartTimeValueMatcher{ContextRef{0}})))};
-  return std::move(matchOnlyOrigin);
+  return matchOnlyOrigin;
 }
 
 DataDescriptorMatcher DataSpecUtils::dataDescriptorMatcherFrom(header::DataDescription const& description)
@@ -565,7 +565,7 @@ DataDescriptorMatcher DataSpecUtils::dataDescriptorMatcherFrom(header::DataDescr
         SubSpecificationTypeValueMatcher{ContextRef{2}},
         std::make_unique<DataDescriptorMatcher>(DataDescriptorMatcher::Op::Just,
                                                 StartTimeValueMatcher{ContextRef{0}})))};
-  return std::move(matchOnlyOrigin);
+  return matchOnlyOrigin;
 }
 
 std::optional<framework::ConcreteDataMatcher> DataSpecUtils::optionalConcreteDataMatcherFrom(data_matcher::DataDescriptorMatcher const& matcher)
@@ -792,6 +792,22 @@ void DataSpecUtils::updateInputList(std::vector<InputSpec>& list, InputSpec&& in
   } else {
     // add entry
     list.emplace_back(std::move(input));
+  }
+}
+
+void DataSpecUtils::updateOutputList(std::vector<OutputSpec>& list, OutputSpec&& spec)
+{
+  auto locate = std::find(list.begin(), list.end(), spec);
+  if (locate != list.end()) {
+    // amend entry
+    auto& entryMetadata = locate->metadata;
+    entryMetadata.insert(entryMetadata.end(), spec.metadata.begin(), spec.metadata.end());
+    std::sort(entryMetadata.begin(), entryMetadata.end(), [](ConfigParamSpec const& a, ConfigParamSpec const& b) { return a.name < b.name; });
+    auto new_end = std::unique(entryMetadata.begin(), entryMetadata.end(), [](ConfigParamSpec const& a, ConfigParamSpec const& b) { return a.name == b.name; });
+    entryMetadata.erase(new_end, entryMetadata.end());
+  } else {
+    // add entry
+    list.emplace_back(std::move(spec));
   }
 }
 

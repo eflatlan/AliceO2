@@ -133,12 +133,12 @@ AlgorithmSpec AODJAlienReaderHelpers::rootFileReaderCallback()
     stats.updateStats({static_cast<short>(ProcessingStatsId::ARROW_MESSAGES_DESTROYED), DataProcessingStats::Op::Set, 0});
     stats.updateStats({static_cast<short>(ProcessingStatsId::ARROW_BYTES_EXPIRED), DataProcessingStats::Op::Set, 0});
 
-    if (!options.isSet("aod-file-private")) {
+    if (!options.isSet("aod-file")) {
       LOGP(fatal, "No input file defined!");
       throw std::runtime_error("Processing is stopped!");
     }
 
-    auto filename = options.get<std::string>("aod-file-private");
+    auto filename = options.get<std::string>("aod-file");
 
     std::string parentFileReplacement;
     if (options.isSet("aod-parent-base-path-replacement")) {
@@ -246,11 +246,11 @@ AlgorithmSpec AODJAlienReaderHelpers::rootFileReaderCallback()
             // get first folder of next file
             ntf = 0;
             if (!didir->readTree(outputs, dh, fcnt, ntf, totalSizeCompressed, totalSizeUncompressed)) {
-              LOGP(fatal, "Can not retrieve tree for table {}: fileCounter {}, timeFrame {}", concrete.origin, fcnt, ntf);
+              LOGP(fatal, "Can not retrieve tree for table {}: fileCounter {}, timeFrame {}", concrete.origin.as<std::string>(), fcnt, ntf);
               throw std::runtime_error("Processing is stopped!");
             }
           } else {
-            LOGP(fatal, "Can not retrieve tree for table {}: fileCounter {}, timeFrame {}", concrete.origin, fcnt, ntf);
+            LOGP(fatal, "Can not retrieve tree for table {}: fileCounter {}, timeFrame {}", concrete.origin.as<std::string>(), fcnt, ntf);
             throw std::runtime_error("Processing is stopped!");
           }
         }

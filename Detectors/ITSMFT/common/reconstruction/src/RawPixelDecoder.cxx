@@ -225,7 +225,7 @@ void RawPixelDecoder<Mapping>::setupLinks(InputRecord& inputs)
   auto nLinks = mGBTLinks.size();
   auto origin = (mUserDataOrigin == o2::header::gDataOriginInvalid) ? mMAP.getOrigin() : mUserDataOrigin;
   auto datadesc = (mUserDataDescription == o2::header::gDataDescriptionInvalid) ? o2::header::gDataDescriptionRawData : mUserDataDescription;
-  std::vector<InputSpec> filter{InputSpec{"filter", ConcreteDataTypeMatcher{origin, datadesc}, Lifetime::Timeframe}};
+  std::vector<InputSpec> filter{InputSpec{"filter", ConcreteDataTypeMatcher{origin, datadesc}}};
 
   // if we see requested data type input with 0xDEADBEEF subspec and 0 payload this means that the "delayed message"
   // mechanism created it in absence of real data from upstream. Processor should send empty output to not block the workflow
@@ -375,10 +375,10 @@ ChipPixelData* RawPixelDecoder<Mapping>::getNextChipData(std::vector<ChipPixelDa
       //      assert(mLastReadChipID < chipData.getChipID());
       if (mLastReadChipID >= chipData.getChipID()) {
         if (!mROFRampUpStage) {
-          const int MaxErrLog = 5;
+          const int MaxErrLog = 2;
           static int errLocCount = 0;
           if (errLocCount < MaxErrLog) {
-            LOGP(error, "Wrong order/duplication: encountered chip {} after processing chip {}, skippin. Inform PDP (message {} of max {} allowed)",
+            LOGP(warn, "Wrong order/duplication: encountered chip {} after processing chip {}, skipping.",
                  chipData.getChipID(), mLastReadChipID, ++errLocCount, MaxErrLog);
           }
         }

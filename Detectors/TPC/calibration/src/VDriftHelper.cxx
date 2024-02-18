@@ -43,7 +43,8 @@ VDriftHelper::VDriftHelper()
   if (o2::conf::ConfigurableParam::getProvenance("TPCDetParam.DriftTimeOffset") == o2::conf::ConfigurableParam::EParamProvenance::kRT) { // we stick to this value
     mVD.creationTime = std::numeric_limits<long>::max();
     mForceParamOffset = true;
-    LOGP(info, "TPC dridt time offset was set from command line to {} mus ({} TB}, will neglect update from CCDB", mVD.refTimeOffset, detpar.DriftTimeOffset);
+    LOGP(info, "TPC dridt time offset was set from command line to {} mus ({} TB), will neglect update from CCDB",
+         mVD.refTimeOffset, detpar.DriftTimeOffset);
   }
 
   mUpdated = true;
@@ -58,7 +59,7 @@ void VDriftHelper::accountLaserCalibration(const LtrCalibData* calib, long fallB
   }
   // old entries of laser calib have no update time assigned
   long updateTS = calib->creationTime > 0 ? calib->creationTime : fallBackTimeStamp;
-  LOG(info) << "accountLaserCalibration " << calib->getDriftVCorrection() << " t " << updateTS << " vs " << mVDLaser.creationTime;
+  LOG(info) << "accountLaserCalibration " << calib->refVDrift << " / " << calib->getDriftVCorrection() << " t " << updateTS << " vs " << mVDLaser.creationTime;
   // old entries of laser calib have no reference assigned
   float ref = calib->refVDrift > 0. ? calib->refVDrift : o2::tpc::ParameterGas::Instance().DriftV;
   float corr = calib->getDriftVCorrection();
@@ -71,7 +72,7 @@ void VDriftHelper::accountLaserCalibration(const LtrCalibData* calib, long fallB
     mUpdated = true;
     mSource = Source::Laser;
     if (mMayRenormSrc & (0x1U << Source::Laser)) { // this was 1st setting?
-      if (corr != 1.f) { // this may happen if old-style (non-normalized) standalone or non-normalized run-time laset calibration is used
+      if (corr != 1.f) {                           // this may happen if old-style (non-normalized) standalone or non-normalized run-time laset calibration is used
         LOGP(warn, "VDriftHelper: renorming initinal TPC refVDrift={}/correction={} to {}/1.0, source: {}", mVDLaser.refVDrift, mVDLaser.corrFact, mVDLaser.getVDrift(), getSourceName(mSource));
         mVDLaser.normalize(); // renorm reference to have correction = 1.
       }
@@ -95,7 +96,7 @@ void VDriftHelper::accountDriftCorrectionITSTPCTgl(const VDriftCorrFact* calib)
   mVDTPCITSTgl = *calib;
   mUpdated = true;
   mSource = Source::ITSTPCTgl;
-  if (mMayRenormSrc & (0x1U << Source::ITSTPCTgl)) { // this was 1st setting?
+  if (mMayRenormSrc & (0x1U << Source::ITSTPCTgl)) {         // this was 1st setting?
     if (!mForceParamDrift && mVDTPCITSTgl.corrFact != 1.f) { // this may happen if calibration from prevous run is used
       LOGP(warn, "VDriftHelper: renorming initinal TPC refVDrift={}/correction={} to {}/1.0, source: {}", mVDTPCITSTgl.refVDrift, mVDTPCITSTgl.corrFact, mVDTPCITSTgl.getVDrift(), getSourceName(mSource));
       mVDTPCITSTgl.normalize(); // renorm reference to have correction = 1.
@@ -112,7 +113,7 @@ void VDriftHelper::accountDriftCorrectionITSTPCTgl(const VDriftCorrFact* calib)
     }
     if (!mForceParamOffset && mVDTPCITSTgl.refTimeOffset != prevRefTOffs) { // we want to keep the same reference over the run, this should not happen!
       LOGP(warn, "VDriftHelper: renorming updated TPC refTimeOffset={}/correction={} previous refTimeOffset {}, source: {}", mVDTPCITSTgl.refTimeOffset, mVDTPCITSTgl.timeOffsetCorr, prevRefTOffs, getSourceName());
-      mVDTPCITSTgl.normalize(prevRefTOffs);
+      mVDTPCITSTgl.normalizeOffset(prevRefTOffs);
     }
   }
 }

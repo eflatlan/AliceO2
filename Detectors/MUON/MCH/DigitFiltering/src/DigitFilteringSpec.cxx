@@ -88,7 +88,7 @@ class DigitFilteringTask
 
       if (!isOK(error)) {
         if (error.nofOutOfBounds > 0) {
-          LOGP(error, asString(error));
+          LOGP(error, "{}", asString(error));
           LOGP(error, "in a TF with {} rofs and {} digits", iRofs.size(), iDigits.size());
           abort = true;
         }
@@ -193,7 +193,6 @@ framework::DataProcessorSpec
   bool useStatusMap = DigitFilterParam::Instance().statusMask != 0;
 
   if (useStatusMap) {
-    // input += ";statusmap:MCH/STATUSMAP/0?lifetime=sporadic";
     input += ";statusmap:MCH/STATUSMAP/0";
   }
 

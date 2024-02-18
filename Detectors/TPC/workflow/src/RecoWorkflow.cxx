@@ -19,8 +19,10 @@
 #include "Framework/Logger.h"
 #include "DPLUtils/MakeRootTreeWriterSpec.h"
 #include "TPCWorkflow/RecoWorkflow.h"
+#include "TPCWorkflow/TPCTriggerWriterSpec.h"
 #include "TPCReaderWorkflow/PublisherSpec.h"
 #include "TPCWorkflow/ClustererSpec.h"
+#include "TPCWorkflow/TPCScalerSpec.h"
 #include "TPCWorkflow/ClusterDecoderRawSpec.h"
 #include "GPUWorkflow/GPUWorkflowSpec.h"
 #include "TPCWorkflow/EntropyEncoderSpec.h"
@@ -40,7 +42,9 @@
 #include "DataFormatsTPC/Helpers.h"
 #include "DataFormatsTPC/ZeroSuppression.h"
 #include "TPCReaderWorkflow/ClusterReaderSpec.h"
-
+#include "TPCReaderWorkflow/TriggerReaderSpec.h"
+#include "TPCCalibration/CorrectionMapsLoader.h"
+#include "CTPWorkflowIO/DigitReaderSpec.h"
 #include <string>
 #include <stdexcept>
 #include <fstream>
@@ -91,11 +95,12 @@ const std::unordered_map<std::string, OutputType> OutputMap{
   {"send-clusters-per-sector", OutputType::SendClustersPerSector},
   {"zsraw", OutputType::ZSRaw},
   {"qa", OutputType::QA},
-  {"no-shared-cluster-map", OutputType::NoSharedClusterMap}};
+  {"no-shared-cluster-map", OutputType::NoSharedClusterMap},
+  {"tpc-triggers", OutputType::TPCTriggers}};
 
 framework::WorkflowSpec getWorkflow(CompletionPolicyData* policyData, std::vector<int> const& tpcSectors, unsigned long tpcSectorMask, std::vector<int> const& laneConfiguration,
-                                    bool propagateMC, unsigned nLanes, std::string const& cfgInput, std::string const& cfgOutput, bool disableRootInput,
-                                    int caClusterer, int zsOnTheFly, bool askDISTSTF, bool selIR, bool filteredInp, bool requireCTPLumi)
+                                    const o2::tpc::CorrectionMapsLoaderGloOpts& sclOpts, bool propagateMC, unsigned nLanes, std::string const& cfgInput, std::string const& cfgOutput, bool disableRootInput,
+                                    int caClusterer, int zsOnTheFly, bool askDISTSTF, bool selIR, bool filteredInp, int deadMapSources)
 {
   InputType inputType;
   try {
@@ -168,7 +173,6 @@ framework::WorkflowSpec getWorkflow(CompletionPolicyData* policyData, std::vecto
     }
     return false;
   }};
-
   if (!disableRootInput || inputType == InputType::PassThrough) {
     // The OutputSpec of the PublisherSpec is configured depending on the input
     // type. Note that the configuration of the dispatch trigger in the main file
@@ -189,6 +193,12 @@ framework::WorkflowSpec getWorkflow(CompletionPolicyData* policyData, std::vecto
                                                            laneConfiguration,
                                                            &hook},
                                                          propagateMC));
+      if (sclOpts.needTPCScalersWorkflow()) { // for standalone tpc-reco workflow
+        specs.emplace_back(o2::tpc::getTPCScalerSpec(sclOpts.lumiType == 2, sclOpts.enableMShapeCorrection));
+      }
+      if (sclOpts.requestCTPLumi) { // need CTP digits (lumi) reader
+        specs.emplace_back(o2::ctp::getDigitsReaderSpec(false));
+      }
     } else if (inputType == InputType::ClustersHardware) {
       specs.emplace_back(o2::tpc::getPublisherSpec(PublisherConf{
                                                      "tpc-clusterhardware-reader",
@@ -204,6 +214,15 @@ framework::WorkflowSpec getWorkflow(CompletionPolicyData* policyData, std::vecto
                                                    propagateMC));
     } else if (inputType == InputType::Clusters) {
       specs.emplace_back(o2::tpc::getClusterReaderSpec(propagateMC, &tpcSectors, &laneConfiguration));
+      if (!getenv("DPL_DISABLE_TPC_TRIGGER_READER") || atoi(getenv("DPL_DISABLE_TPC_TRIGGER_READER")) != 1) {
+        specs.emplace_back(o2::tpc::getTPCTriggerReaderSpec());
+      }
+      if (sclOpts.needTPCScalersWorkflow()) { // for standalone tpc-reco workflow
+        specs.emplace_back(o2::tpc::getTPCScalerSpec(sclOpts.lumiType == 2, sclOpts.enableMShapeCorrection));
+      }
+      if (sclOpts.requestCTPLumi) { // need CTP digits (lumi) reader
+        specs.emplace_back(o2::ctp::getDigitsReaderSpec(false));
+      }
     } else if (inputType == InputType::CompClusters) {
       // TODO: need to check if we want to store the MC labels alongside with compressed clusters
       // for the moment reading of labels is disabled (last parameter is false)
@@ -414,6 +433,10 @@ framework::WorkflowSpec getWorkflow(CompletionPolicyData* policyData, std::vecto
                                    (caClusterer || decompressTPC || inputType == InputType::PassThrough) && !isEnabled(OutputType::SendClustersPerSector)));
   }
 
+  if ((isEnabled(OutputType::TPCTriggers) || caClusterer) && !isEnabled(OutputType::DisableWriter)) {
+    specs.push_back(o2::tpc::getTPCTriggerWriterSpec());
+  }
+
   if (zsOnTheFly) {
     specs.emplace_back(o2::tpc::getZSEncoderSpec(tpcSectors, outRaw, tpcSectorMask));
   }
@@ -430,7 +453,10 @@ framework::WorkflowSpec getWorkflow(CompletionPolicyData* policyData, std::vecto
   if (runGPUReco) {
     o2::gpu::GPURecoWorkflowSpec::Config cfg;
     cfg.runTPCTracking = true;
-    cfg.requireCTPLumi = requireCTPLumi;
+    cfg.lumiScaleType = sclOpts.lumiType;
+    cfg.lumiScaleMode = sclOpts.lumiMode;
+    cfg.enableMShape = sclOpts.enableMShapeCorrection;
+    cfg.enableCTPLumi = sclOpts.requestCTPLumi;
     cfg.decompressTPC = decompressTPC;
     cfg.decompressTPCFromROOT = decompressTPC && inputType == InputType::CompClusters;
     cfg.caClusterer = caClusterer;
@@ -445,6 +471,8 @@ framework::WorkflowSpec getWorkflow(CompletionPolicyData* policyData, std::vecto
     cfg.processMC = propagateMC;
     cfg.sendClustersPerSector = isEnabled(OutputType::SendClustersPerSector);
     cfg.askDISTSTF = askDISTSTF;
+    cfg.tpcTriggerHandling = isEnabled(OutputType::TPCTriggers) || cfg.caClusterer;
+    cfg.tpcDeadMapSources = deadMapSources;
 
     Inputs ggInputs;
     auto ggRequest = std::make_shared<o2::base::GRPGeomRequest>(false, true, false, true, true, o2::base::GRPGeomRequest::Aligned, ggInputs, true);

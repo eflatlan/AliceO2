@@ -42,14 +42,10 @@ struct DummyLogger {
   {                                     \
     printf(string "\n", ##__VA_ARGS__); \
   }
-#define LOGP(type, string, ...) \
-  {                             \
-    printf(string "\n");        \
-  }
+#define LOGP(...)
+// #define LOGP(...) static_assert(false, "LOGP(...) unsupported in GPU code");
 
-#elif defined(GPUCA_STANDALONE) || \
-  defined(GPUCA_ALIROOT_LIB) ||    \
-  (!defined(__cplusplus) || __cplusplus < 201703L)
+#elif defined(GPUCA_STANDALONE) || defined(GPUCA_ALIROOT_LIB) || (!defined(__cplusplus) || __cplusplus < 201703L)
 #include <iostream>
 #include <cstdio>
 #define LOG(type) std::cout
@@ -57,15 +53,10 @@ struct DummyLogger {
   {                                     \
     printf(string "\n", ##__VA_ARGS__); \
   }
-#ifdef GPUCA_ALIROOT_LIB
-#define LOGP(...)
-#else
 #define LOGP(type, string, ...) \
   {                             \
-    printf("%s", string);       \
-    printf("\n");               \
+    printf("%s\n", string);     \
   }
-#endif
 
 #else
 #include <Framework/Logger.h>

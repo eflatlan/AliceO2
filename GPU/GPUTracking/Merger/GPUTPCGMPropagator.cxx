@@ -323,7 +323,7 @@ GPUd() int GPUTPCGMPropagator::PropagateToXAlpha(float posX, float posAlpha, boo
 
 GPUd() int GPUTPCGMPropagator::PropagateToXAlphaBz(float posX, float posAlpha, bool inFlyDirection)
 {
-  if (CAMath::Abs(posAlpha - mAlpha) > 1.e-4) {
+  if (CAMath::Abs(posAlpha - mAlpha) > 1.e-4f) {
     if (RotateToAlpha(posAlpha) != 0) {
       return -2;
     }
@@ -597,21 +597,31 @@ GPUd() int GPUTPCGMPropagator::GetPropagatedYZ(float x, float& GPUrestrict() pro
   return 0;
 }
 
-GPUd() void GPUTPCGMPropagator::GetErr2(float& GPUrestrict() err2Y, float& GPUrestrict() err2Z, const GPUParam& GPUrestrict() param, float posZ, int iRow, short clusterState) const
+GPUd() void GPUTPCGMPropagator::GetErr2(float& GPUrestrict() err2Y, float& GPUrestrict() err2Z, const GPUParam& GPUrestrict() param, float posZ, int iRow, short clusterState, bool sideC) const
 {
-  if (!mSeedingErrors) {
-    param.GetClusterErrors2(iRow, posZ, mT0.GetSinPhi(), mT0.DzDs(), err2Y, err2Z);
-  } else {
-    param.GetClusterErrorsSeeding2(iRow, posZ, mT0.GetSinPhi(), mT0.DzDs(), err2Y, err2Z);
-  }
-  param.UpdateClusterError2ByState(clusterState, err2Y, err2Z);
-  mStatErrors.GetOfflineStatisticalErrors(err2Y, err2Z, mT0.SinPhi(), mT0.DzDs(), clusterState);
+  GetErr2(err2Y, err2Z, param, mT0.GetSinPhi(), mT0.DzDs(), posZ, mT->GetX(), iRow, clusterState, sideC);
 }
 
-GPUd() float GPUTPCGMPropagator::PredictChi2(float posY, float posZ, int iRow, const GPUParam& GPUrestrict() param, short clusterState) const
+GPUd() void GPUTPCGMPropagator::GetErr2(float& GPUrestrict() err2Y, float& GPUrestrict() err2Z, const GPUParam& GPUrestrict() param, float snp, float tgl, float posZ, float x, int iRow, short clusterState, bool sideC)
+{
+#ifndef GPUCA_TPC_GEOMETRY_O2
+  if (mSeedingErrors) {
+    param.GetClusterErrorsSeeding2(iRow, posZ, snp, tgl, err2Y, err2Z);
+  } else
+#endif
+  {
+    param.GetClusterErrors2(iRow, posZ, snp, tgl, err2Y, err2Z);
+  }
+  param.UpdateClusterError2ByState(clusterState, err2Y, err2Z);
+  float statErr2 = param.GetSystematicClusterErrorIFC2(x, posZ, sideC);
+  err2Y += statErr2;
+  err2Z += statErr2;
+}
+
+GPUd() float GPUTPCGMPropagator::PredictChi2(float posY, float posZ, int iRow, const GPUParam& GPUrestrict() param, short clusterState, bool sideC) const
 {
   float err2Y, err2Z;
-  GetErr2(err2Y, err2Z, param, posZ, iRow, clusterState);
+  GetErr2(err2Y, err2Z, param, posZ, iRow, clusterState, sideC);
   return PredictChi2(posY, posZ, err2Y, err2Z);
 }
 
@@ -642,10 +652,10 @@ GPUd() float GPUTPCGMPropagator::PredictChi2(float posY, float posZ, float err2Y
   }
 }
 
-GPUd() int GPUTPCGMPropagator::Update(float posY, float posZ, int iRow, const GPUParam& GPUrestrict() param, short clusterState, char rejectChi2, gputpcgmmergertypes::InterpolationErrorHit* inter, bool refit GPUCA_DEBUG_STREAMER_CHECK(, int iTrk))
+GPUd() int GPUTPCGMPropagator::Update(float posY, float posZ, int iRow, const GPUParam& GPUrestrict() param, short clusterState, char rejectChi2, gputpcgmmergertypes::InterpolationErrorHit* inter, bool refit, bool sideC GPUCA_DEBUG_STREAMER_CHECK(, int iTrk))
 {
   float err2Y, err2Z;
-  GetErr2(err2Y, err2Z, param, posZ, iRow, clusterState);
+  GetErr2(err2Y, err2Z, param, posZ, iRow, clusterState, sideC);
 
   if (rejectChi2 >= 2) {
     if (rejectChi2 == 3 && inter->errorY < (GPUCA_MERGER_INTERPOLATION_ERROR_TYPE)0) {
@@ -782,7 +792,7 @@ GPUd() int GPUTPCGMPropagator::Update(float posY, float posZ, short clusterState
   }
   float dChi2 = chiY + chiZ;
   // GPUInfo("hits %d chi2 %f, new %f %f (dy %f dz %f)", N, mChi2, chiY, chiZ, z0, z1);
-  if (!mSeedingErrors && rejectChi2 == 1 && RejectCluster(chiY * param->rec.tpc.clusterRejectChi2TolleranceY, chiZ * param->rec.tpc.clusterRejectChi2TolleranceZ, clusterState)) {
+  if (rejectChi2 == 1 && RejectCluster(chiY * param->rec.tpc.clusterRejectChi2TolleranceY, chiZ * param->rec.tpc.clusterRejectChi2TolleranceZ, clusterState)) {
     return 2;
   }
   mT->Chi2() += dChi2;
@@ -919,7 +929,7 @@ GPUd() void GPUTPCGMPropagator::CalculateMaterialCorrection()
 
   // Approximate energy loss fluctuation (M.Ivanov)
 
-  const float knst = 0.07f; // To be tuned.
+  const float knst = 0.0007f; // To be tuned.
   mMaterial.sigmadE2 = knst * mMaterial.EP2 * qpt;
   mMaterial.sigmadE2 = mMaterial.sigmadE2 * mMaterial.sigmadE2;
 

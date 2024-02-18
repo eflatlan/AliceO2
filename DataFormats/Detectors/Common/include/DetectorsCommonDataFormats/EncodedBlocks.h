@@ -29,17 +29,18 @@
 #include "DetectorsCommonDataFormats/CTFDictHeader.h"
 #include "DetectorsCommonDataFormats/CTFIOSize.h"
 #include "DetectorsCommonDataFormats/ANSHeader.h"
-#include "DetectorsCommonDataFormats/internal/ExternalEntropyCoder.h"
-#include "DetectorsCommonDataFormats/internal/InplaceEntropyCoder.h"
 #include "DetectorsCommonDataFormats/internal/Packer.h"
 #include "DetectorsCommonDataFormats/Metadata.h"
+#ifndef __CLING__
+#include "DetectorsCommonDataFormats/internal/ExternalEntropyCoder.h"
+#include "DetectorsCommonDataFormats/internal/InplaceEntropyCoder.h"
 #include "rANS/compat.h"
 #include "rANS/histogram.h"
 #include "rANS/serialize.h"
 #include "rANS/factory.h"
 #include "rANS/metrics.h"
-#include "rANS/serialize.h"
 #include "rANS/utils.h"
+#endif
 
 namespace o2
 {
@@ -333,10 +334,15 @@ class EncodedBlocks
  public:
   typedef EncodedBlocks<H, N, W> base;
 
+#ifndef __CLING__
   template <typename source_T>
   using dictionaryType = std::variant<rans::RenormedSparseHistogram<source_T>, rans::RenormedDenseHistogram<source_T>>;
+#endif
 
-  void setHeader(const H& h) { mHeader = h; }
+  void setHeader(const H& h)
+  {
+    mHeader = h;
+  }
   const H& getHeader() const { return mHeader; }
   H& getHeader() { return mHeader; }
   std::shared_ptr<H> cloneHeader() const { return std::shared_ptr<H>(new H(mHeader)); } // for dictionary creation
@@ -357,6 +363,7 @@ class EncodedBlocks
     return mBlocks[i];
   }
 
+#ifndef __CLING__
   template <typename source_T>
   dictionaryType<source_T> getDictionary(int i, ANSHeader ansVersion = ANSVersionUnspecified) const
   {
@@ -367,6 +374,26 @@ class EncodedBlocks
     assert(static_cast<int64_t>(std::numeric_limits<source_T>::min()) <= static_cast<int64_t>(metadata.max));
     assert(static_cast<int64_t>(std::numeric_limits<source_T>::max()) >= static_cast<int64_t>(metadata.min));
 
+    // check consistency of metadata and type
+    [&]() {
+      const int64_t sourceMin = std::numeric_limits<source_T>::min();
+      const int64_t sourceMax = std::numeric_limits<source_T>::max();
+
+      auto view = rans::trim(rans::HistogramView{block.getDict(), block.getDict() + block.getNDict(), metadata.min});
+      const int64_t dictMin = view.getMin();
+      const int64_t dictMax = view.getMax();
+      assert(dictMin >= metadata.min);
+      assert(dictMax <= metadata.max);
+
+      if ((dictMin < sourceMin) || (dictMax > sourceMax)) {
+        if (ansVersion == ANSVersionCompat && mHeader.majorVersion == 1 && mHeader.minorVersion == 0 && mHeader.dictTimeStamp < 1653192000000) {
+          LOGP(warn, "value range of dictionary and target datatype are incompatible: target type [{},{}] vs dictionary [{},{}], tolerate in compat mode for old dictionaries", sourceMin, sourceMax, dictMin, dictMax);
+        } else {
+          throw std::runtime_error(fmt::format("value range of dictionary and target datatype are incompatible: target type [{},{}] vs dictionary [{},{}]", sourceMin, sourceMax, dictMin, dictMax));
+        }
+      }
+    }();
+
     if (ansVersion == ANSVersionCompat) {
       rans::DenseHistogram<source_T> histogram{block.getDict(), block.getDict() + block.getNDict(), metadata.min};
       return rans::compat::renorm(std::move(histogram), metadata.probabilityBits);
@@ -375,7 +402,8 @@ class EncodedBlocks
       if (getANSHeader() == ANSVersionUnspecified) {
         rans::DenseHistogram<source_T> histogram{block.getDict(), block.getDict() + block.getNDict(), metadata.min};
         size_t renormingBits = rans::utils::sanitizeRenormingBitRange(metadata.probabilityBits);
-        LOG_IF(debug, renormingBits != metadata.probabilityBits) << fmt::format("While reading metadata from external dictionary, rANSV1 is rounding renorming precision from {} to {}");
+        LOG_IF(debug, renormingBits != metadata.probabilityBits)
+          << fmt::format("While reading metadata from external dictionary, rANSV1 is rounding renorming precision from {} to {}", metadata.probabilityBits, renormingBits);
         return rans::renorm(std::move(histogram), renormingBits, rans::RenormingPolicy::ForceIncompressible);
       } else {
         // dictionary is elias-delta coded inside the block
@@ -393,6 +421,7 @@ class EncodedBlocks
       throw std::runtime_error(fmt::format("Failed to load serialized Dictionary. Unsupported ANS Version: {}", static_cast<std::string>(ansVersion)));
     }
   };
+#endif
 
   void setANSHeader(const ANSHeader& h)
   {
@@ -480,8 +509,10 @@ class EncodedBlocks
   template <typename D_IT, std::enable_if_t<detail::is_iterator_v<D_IT>, bool> = true>
   o2::ctf::CTFIOSize decode(D_IT dest, int slot, const std::any& decoderExt = {}) const;
 
+#ifndef __CLING__
   /// create a special EncodedBlocks containing only dictionaries made from provided vector of frequency tables
   static std::vector<char> createDictionaryBlocks(const std::vector<rans::DenseHistogram<int32_t>>& vfreq, const std::vector<Metadata>& prbits);
+#endif
 
   /// print itself
   void print(const std::string& prefix = "", int verbosity = 1) const;
@@ -567,6 +598,7 @@ class EncodedBlocks
   template <typename input_IT, typename buffer_T>
   o2::ctf::CTFIOSize encodeRANSV1Inplace(const input_IT srcBegin, const input_IT srcEnd, int slot, Metadata::OptStore opt, buffer_T* buffer = nullptr, double_t sizeEstimateSafetyFactor = 1);
 
+#ifndef __CLING__
   template <typename input_IT, typename buffer_T>
   o2::ctf::CTFIOSize pack(const input_IT srcBegin, const input_IT srcEnd, int slot, rans::Metrics<typename std::iterator_traits<input_IT>::value_type> metrics, buffer_T* buffer = nullptr);
 
@@ -587,6 +619,7 @@ class EncodedBlocks
 
     return pack(srcBegin, srcEnd, slot, metrics, buffer);
   }
+#endif
 
   template <typename input_IT, typename buffer_T>
   o2::ctf::CTFIOSize store(const input_IT srcBegin, const input_IT srcEnd, int slot, Metadata::OptStore opt, buffer_T* buffer = nullptr);
@@ -810,7 +843,7 @@ auto EncodedBlocks<H, N, W>::getImage(const void* newHead)
   // we don't modify newHead, but still need to remove constness for relocation interface
   relocate(image.mRegistry.head, const_cast<char*>(reinterpret_cast<const char*>(newHead)), reinterpret_cast<char*>(&image));
 
-  return std::move(image);
+  return image;
 }
 
 ///_____________________________________________________________________________
@@ -913,13 +946,13 @@ CTFIOSize EncodedBlocks<H, N, W>::decode(D_IT dest,                        // it
   }
 };
 
+#ifndef __CLING__
 template <typename H, int N, typename W>
 template <typename dst_IT>
 CTFIOSize EncodedBlocks<H, N, W>::decodeCompatImpl(dst_IT dstBegin, int slot, const std::any& decoderExt) const
 {
 
   // get references to the right data
-  const auto& ansVersion = getANSHeader();
   const auto& block = mBlocks[slot];
   const auto& md = mMetadata[slot];
 
@@ -958,7 +991,6 @@ CTFIOSize EncodedBlocks<H, N, W>::decodeRansV1Impl(dst_IT dstBegin, int slot, co
 {
 
   // get references to the right data
-  const auto& ansVersion = getANSHeader();
   const auto& block = mBlocks[slot];
   const auto& md = mMetadata[slot];
 
@@ -1479,6 +1511,7 @@ std::vector<char> EncodedBlocks<H, N, W>::createDictionaryBlocks(const std::vect
   }
   return vdict;
 }
+#endif
 
 template <typename H, int N, typename W>
 void EncodedBlocks<H, N, W>::dump(const std::string& prefix, int ncol) const

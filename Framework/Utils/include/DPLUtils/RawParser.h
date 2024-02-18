@@ -25,6 +25,10 @@
 #include <stdexcept>
 #include <string>
 #include <type_traits>
+namespace o2::header
+{
+struct DataHeader;
+} // namespace o2::header
 
 // FIXME: probably moved somewhere else
 namespace o2::framework
@@ -54,14 +58,12 @@ struct RDHFormatter {
 template <>
 struct RDHFormatter<header::RAWDataHeaderV7> {
   using type = header::RAWDataHeaderV7;
-  static const char* sFormatString;
   static void apply(std::ostream&, type const&, FormatSpec, const char* = "");
 };
 
 template <>
 struct RDHFormatter<header::RAWDataHeaderV6> {
   using type = header::RAWDataHeaderV6;
-  static const char* sFormatString;
   static void apply(std::ostream&, type const&, FormatSpec, const char* = "");
 };
 
@@ -87,6 +89,7 @@ struct RawParserHelper {
   static unsigned long sErrorScale; // Exponentionally downscale verbosity.
 
   static bool checkPrintError(size_t& localCounter);
+  static void warnDeadBeef(const o2::header::DataHeader* dh);
 };
 
 /// @class ConcreteRawParser

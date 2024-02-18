@@ -13,12 +13,13 @@
 /// @author Michael Lettrich
 /// @brief  compares performance of different encoders
 
+#include "rANS/internal/common/defines.h"
+
 #include <vector>
 #include <cstring>
 #include <random>
 #include <algorithm>
-#include <version>
-#ifdef __cpp_lib_execution
+#ifdef RANS_PARALLEL_STL
 #include <execution>
 #endif
 #include <iterator>
@@ -56,11 +57,11 @@ class SourceMessageProxyBinomial
       std::binomial_distribution<source_T> dist(draws, probability);
       const size_t sourceSize = messageSize / sizeof(source_T) + 1;
       mSourceMessage.resize(sourceSize);
-#ifdef __cpp_lib_execution
+#ifdef RANS_PARALLEL_STL
       std::generate(std::execution::par_unseq, mSourceMessage.begin(), mSourceMessage.end(), [&dist, &mt]() { return dist(mt); });
 #else
       std::generate(mSourceMessage.begin(), mSourceMessage.end(), [&dist, &mt]() { return dist(mt); });
-#endif
+#endif // RANS_PARALLEL_STL
     }
 
     return mSourceMessage;
@@ -89,7 +90,7 @@ class SourceMessageProxyUniform
       std::uniform_int_distribution<source_T> dist(min, max);
       const size_t sourceSize = messageSize / sizeof(source_T) + 1;
       mSourceMessage.resize(sourceSize);
-#ifdef __cpp_lib_execution
+#ifdef RANS_PARALLEL_STL
       std::generate(std::execution::par_unseq, mSourceMessage.begin(), mSourceMessage.end(), [&dist, &mt]() { return dist(mt); });
 #else
       std::generate(mSourceMessage.begin(), mSourceMessage.end(), [&dist, &mt]() { return dist(mt); });
@@ -136,7 +137,7 @@ void ransMakeHistogramBenchmark(benchmark::State& st, Args&&... args)
   histogram_type hist{};
   hist.addSamples(gsl::span<const source_type>(inputData));
 
-  for (std::ptrdiff_t symbol = histogram.getOffset(); symbol != histogram.getOffset() + histogram.size(); ++symbol) {
+  for (std::ptrdiff_t symbol = histogram.getOffset(); symbol != histogram.getOffset() + static_cast<std::ptrdiff_t>(histogram.size()); ++symbol) {
     if (histogram[symbol] > 0) {
       LOG_IF(info, histogram[symbol] != hist[symbol]) << fmt::format("[{}]: {} != {}", symbol, hist[symbol], histogram[symbol]);
       isSame = isSame && (histogram[symbol] == hist[symbol]);
@@ -189,7 +190,7 @@ void ransAccessHistogramBenchmark(benchmark::State& st, Args&&... args)
 #endif
 
   bool isSame = true;
-  for (std::ptrdiff_t symbol = histogram.getOffset(); symbol != histogram.getOffset() + histogram.size(); ++symbol) {
+  for (std::ptrdiff_t symbol = histogram.getOffset(); symbol != histogram.getOffset() + static_cast<std::ptrdiff_t>(histogram.size()); ++symbol) {
     if (histogram[symbol] > 0) {
       LOG_IF(info, histogram[symbol] != hist[symbol]) << fmt::format("[{}]: {} != {}", symbol, hist[symbol], histogram[symbol]);
       isSame = isSame && (histogram[symbol] == hist[symbol]);

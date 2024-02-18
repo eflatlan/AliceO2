@@ -71,7 +71,7 @@ GPUd() int GPUTPCGlobalTracking::PerformGlobalTrackingRun(GPUTPCTracker& tracker
 
   calink rowHits[GPUCA_ROW_COUNT];
   int nHits = GPUTPCTrackletConstructor::GPUTPCTrackletConstructorGlobalTracking(tracker, smem, tParam, rowIndex, direction, 0, rowHits);
-  if (nHits >= GPUCA_GLOBAL_TRACKING_MIN_HITS) {
+  if (nHits >= tracker.Param().rec.tpc.globalTrackingMinHits) {
     // GPUInfo("%d hits found", nHits);
     unsigned int hitId = CAMath::AtomicAdd(&tracker.CommonMemory()->nTrackHits, (unsigned int)nHits);
     if (hitId + nHits > tracker.NMaxTrackHits()) {
@@ -90,7 +90,7 @@ GPUd() int GPUTPCGlobalTracking::PerformGlobalTrackingRun(GPUTPCTracker& tracker
       int i = 0;
       while (i < nHits) {
         const calink rowHit = rowHits[rowIndex];
-        if (rowHit != CALINK_INVAL) {
+        if (rowHit != CALINK_INVAL && rowHit != CALINK_DEAD_CHANNEL) {
           // GPUInfo("New track: entry %d, row %d, hitindex %d", i, rowIndex, mTrackletRowHits[rowIndex * tracker.CommonMemory()->nTracklets]);
           tracker.TrackHits()[hitId + i].Set(rowIndex, rowHit);
           // if (i == 0) tParam.TransportToX(Row(rowIndex).X(), Param().constBz(), GPUCA_MAX_SIN_PHI); //Use transport with new linearisation, we have changed the track in between - NOT needed, fitting will always start at outer end of global track!
@@ -102,7 +102,7 @@ GPUd() int GPUTPCGlobalTracking::PerformGlobalTrackingRun(GPUTPCTracker& tracker
       int i = nHits - 1;
       while (i >= 0) {
         const calink rowHit = rowHits[rowIndex];
-        if (rowHit != CALINK_INVAL) {
+        if (rowHit != CALINK_INVAL && rowHit != CALINK_DEAD_CHANNEL) {
           // GPUInfo("New track: entry %d, row %d, hitindex %d", i, rowIndex, mTrackletRowHits[rowIndex * tracker.CommonMemory()->nTracklets]);
           tracker.TrackHits()[hitId + i].Set(rowIndex, rowHit);
           i--;
@@ -117,7 +117,7 @@ GPUd() int GPUTPCGlobalTracking::PerformGlobalTrackingRun(GPUTPCTracker& tracker
     track.SetLocalTrackId((sliceSource.ISlice() << 24) | sliceSource.Tracks()[iTrack].LocalTrackId());
   }
 
-  return (nHits >= GPUCA_GLOBAL_TRACKING_MIN_HITS);
+  return (nHits >= tracker.Param().rec.tpc.globalTrackingMinHits);
 }
 
 GPUd() void GPUTPCGlobalTracking::PerformGlobalTracking(int nBlocks, int nThreads, int iBlock, int iThread, const GPUTPCTracker& tracker, GPUsharedref() MEM_LOCAL(GPUSharedMemory) & smem, GPUTPCTracker& GPUrestrict() sliceTarget, bool right)
@@ -125,15 +125,15 @@ GPUd() void GPUTPCGlobalTracking::PerformGlobalTracking(int nBlocks, int nThread
   for (int i = iBlock * nThreads + iThread; i < tracker.CommonMemory()->nLocalTracks; i += nThreads * nBlocks) {
     {
       const int tmpHit = tracker.Tracks()[i].FirstHitID();
-      if (tracker.TrackHits()[tmpHit].RowIndex() >= GPUCA_GLOBAL_TRACKING_MIN_ROWS && tracker.TrackHits()[tmpHit].RowIndex() < GPUCA_GLOBAL_TRACKING_RANGE) {
+      if (tracker.TrackHits()[tmpHit].RowIndex() >= tracker.Param().rec.tpc.globalTrackingMinRows && tracker.TrackHits()[tmpHit].RowIndex() < tracker.Param().rec.tpc.globalTrackingRowRange) {
         int rowIndex = tracker.TrackHits()[tmpHit].RowIndex();
         const GPUTPCRow& GPUrestrict() row = tracker.Row(rowIndex);
         float Y = (float)tracker.Data().HitDataY(row, tracker.TrackHits()[tmpHit].HitIndex()) * row.HstepY() + row.Grid().YMin();
-        if (!right && Y < -row.MaxY() * GPUCA_GLOBAL_TRACKING_Y_RANGE_LOWER) {
+        if (!right && Y < -row.MaxY() * tracker.Param().rec.tpc.globalTrackingYRangeLower) {
           // GPUInfo("Track %d, lower row %d, left border (%f of %f)", i, mTrackHits[tmpHit].RowIndex(), Y, -row.MaxY());
           PerformGlobalTrackingRun(sliceTarget, smem, tracker, i, rowIndex, -tracker.Param().par.dAlpha, -1);
         }
-        if (right && Y > row.MaxY() * GPUCA_GLOBAL_TRACKING_Y_RANGE_LOWER) {
+        if (right && Y > row.MaxY() * tracker.Param().rec.tpc.globalTrackingYRangeLower) {
           // GPUInfo("Track %d, lower row %d, right border (%f of %f)", i, mTrackHits[tmpHit].RowIndex(), Y, row.MaxY());
           PerformGlobalTrackingRun(sliceTarget, smem, tracker, i, rowIndex, tracker.Param().par.dAlpha, -1);
         }
@@ -142,15 +142,15 @@ GPUd() void GPUTPCGlobalTracking::PerformGlobalTracking(int nBlocks, int nThread
 
     {
       const int tmpHit = tracker.Tracks()[i].FirstHitID() + tracker.Tracks()[i].NHits() - 1;
-      if (tracker.TrackHits()[tmpHit].RowIndex() < GPUCA_ROW_COUNT - GPUCA_GLOBAL_TRACKING_MIN_ROWS && tracker.TrackHits()[tmpHit].RowIndex() >= GPUCA_ROW_COUNT - GPUCA_GLOBAL_TRACKING_RANGE) {
+      if (tracker.TrackHits()[tmpHit].RowIndex() < GPUCA_ROW_COUNT - tracker.Param().rec.tpc.globalTrackingMinRows && tracker.TrackHits()[tmpHit].RowIndex() >= GPUCA_ROW_COUNT - tracker.Param().rec.tpc.globalTrackingRowRange) {
         int rowIndex = tracker.TrackHits()[tmpHit].RowIndex();
         const GPUTPCRow& GPUrestrict() row = tracker.Row(rowIndex);
         float Y = (float)tracker.Data().HitDataY(row, tracker.TrackHits()[tmpHit].HitIndex()) * row.HstepY() + row.Grid().YMin();
-        if (!right && Y < -row.MaxY() * GPUCA_GLOBAL_TRACKING_Y_RANGE_UPPER) {
+        if (!right && Y < -row.MaxY() * tracker.Param().rec.tpc.globalTrackingYRangeUpper) {
           // GPUInfo("Track %d, upper row %d, left border (%f of %f)", i, mTrackHits[tmpHit].RowIndex(), Y, -row.MaxY());
           PerformGlobalTrackingRun(sliceTarget, smem, tracker, i, rowIndex, -tracker.Param().par.dAlpha, 1);
         }
-        if (right && Y > row.MaxY() * GPUCA_GLOBAL_TRACKING_Y_RANGE_UPPER) {
+        if (right && Y > row.MaxY() * tracker.Param().rec.tpc.globalTrackingYRangeUpper) {
           // GPUInfo("Track %d, upper row %d, right border (%f of %f)", i, mTrackHits[tmpHit].RowIndex(), Y, row.MaxY());
           PerformGlobalTrackingRun(sliceTarget, smem, tracker, i, rowIndex, tracker.Param().par.dAlpha, 1);
         }

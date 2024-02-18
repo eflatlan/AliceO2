@@ -154,21 +154,25 @@ struct VariantReader : public rapidjson::BaseReaderHandler<rapidjson::UTF8<>, Va
       states.push(State::IN_ERROR);
       return true;
     } else {
-      if (states.top() == State::IN_ARRAY) {
+      if (states.top() == State::IN_ARRAY || states.top() == State::IN_ROW) {
         debug << "added to array" << std::endl;
         if constexpr (isLabeledArray<V>()) {
           if (currentKey == labels_rows_str) {
             labels_rows.push_back(str);
             return true;
-          } else if (currentKey == labels_cols_str) {
+          }
+          if (currentKey == labels_cols_str) {
             labels_cols.push_back(str);
             return true;
+          }
+        }
+        if (currentKey == "values") {
+          if constexpr (std::is_same_v<std::string, variant_array_element_type_t<V>>) {
+            accumulatedData.push_back(str);
           } else {
             states.push(State::IN_ERROR);
-            return true;
           }
-        } else {
-          accumulatedData.push_back(str);
+          return true;
         }
         return true;
       }
@@ -350,6 +354,8 @@ void writeVariant(std::ostream& o, Variant const& v)
             w.Int(array2d(i, j));
           } else if constexpr (std::is_same_v<float, T> || std::is_same_v<double, T>) {
             w.Double(array2d(i, j));
+          } else if constexpr (std::is_same_v<std::string, T>) {
+            w.String(array2d(i, j).c_str());
           }
         }
         w.EndArray();
@@ -436,6 +442,9 @@ struct VariantJSONHelpers {
         break;
       case VariantType::LabeledArrayDouble:
         writeVariant<VariantType::LabeledArrayDouble>(o, v);
+        break;
+      case VariantType::LabeledArrayString:
+        writeVariant<VariantType::LabeledArrayString>(o, v);
         break;
       case VariantType::Dict:
         writeVariant<VariantType::Dict>(o, v);

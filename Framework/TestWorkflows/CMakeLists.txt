@@ -13,12 +13,28 @@ o2_add_dpl_workflow(dummy-workflow
                   SOURCES src/o2DummyWorkflow.cxx
                   COMPONENT_NAME TestWorkflows)
 
+o2_add_dpl_workflow(detect-missing-timeframe
+                  SOURCES test/test_DetectMissingTimeframe.cxx
+                  COMPONENT_NAME TestWorkflows)
+
+o2_add_dpl_workflow(wait-until-possible
+                  SOURCES test/test_WaitUntilPossible.cxx
+                  COMPONENT_NAME TestWorkflows)
+
+o2_add_dpl_workflow(basic-arrow-workflow
+                  SOURCES src/o2BasicArrowWorkflow.cpp
+                  COMPONENT_NAME TestWorkflows)
+
 o2_add_dpl_workflow(o2rootmessage-workflow
                   SOURCES "src/test_o2RootMessageWorkflow.cxx"
                   COMPONENT_NAME TestWorkflows)
 
 o2_add_dpl_workflow(diamond-workflow
                   SOURCES src/o2DiamondWorkflow.cxx
+                  COMPONENT_NAME TestWorkflows)
+
+o2_add_dpl_workflow(dummy-calibration-workflow
+                  SOURCES src/o2DummyCalibrationWorkflow.cxx
                   COMPONENT_NAME TestWorkflows)
 
 o2_add_dpl_workflow(diamond-workflow-leaky
@@ -37,15 +53,16 @@ o2_add_dpl_workflow(sync-reconstruction-dummy
                   SOURCES src/o2SyncReconstructionDummy.cxx
                   COMPONENT_NAME TestWorkflows)
 
-o2_add_dpl_workflow(d0-analysis
-                  SOURCES src/o2D0Analysis.cxx
-                  PUBLIC_LINK_LIBRARIES O2::FrameworkRootAnalysisHelpers
-                  COMPONENT_NAME TestWorkflows)
-
-o2_add_dpl_workflow(simple-tracks-analysis
-                  SOURCES src/o2SimpleTracksAnalysis.cxx
-                  PUBLIC_LINK_LIBRARIES O2::FrameworkRootAnalysisHelpers
-                  COMPONENT_NAME TestWorkflows)
+# FIXME: renable when the new ROOT is used
+#o2_add_dpl_workflow(d0-analysis
+#                  SOURCES src/o2D0Analysis.cxx
+#                  PUBLIC_LINK_LIBRARIES O2::FrameworkRootAnalysisHelpers
+#                  COMPONENT_NAME TestWorkflows)
+#
+#o2_add_dpl_workflow(simple-tracks-analysis
+#                  SOURCES src/o2SimpleTracksAnalysis.cxx
+#                  PUBLIC_LINK_LIBRARIES O2::FrameworkRootAnalysisHelpers
+#                  COMPONENT_NAME TestWorkflows)
 
 o2_add_dpl_workflow(analysis-task-example
                   SOURCES src/o2AnalysisTaskExample.cxx
@@ -105,3 +122,7 @@ o2_add_dpl_workflow(test-ccdb-fetcher
                     SOURCES src/test_CCDBFetcher.cxx
                     PUBLIC_LINK_LIBRARIES O2::DataFormatsTOF O2::Framework
                     COMPONENT_NAME TestWorkflows)
+
+add_executable(o2-test-deadlock src/o2DeadlockReproducer.cxx)
+target_link_libraries(o2-test-deadlock PUBLIC FairMQ::FairMQ)
+add_test(NAME o2-test-deadlock COMMAND o2-test-deadlock --channel-config "name=data,type=sub,method=bind,address=ipc://127.0.0.1,rateLogging=0" --id foo --transport zeromq --control static)

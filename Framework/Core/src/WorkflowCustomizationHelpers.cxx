@@ -49,15 +49,11 @@ std::vector<ConfigParamSpec> WorkflowCustomizationHelpers::requiredWorkflowOptio
            {"workflow-suffix", VariantType::String, "", {"suffix to add to all dataprocessors"}},
 
            // options for TF rate limiting
-           {"timeframes-rate-limit-ipcid", VariantType::String, "-1", {"Suffix for IPC channel for metrix-feedback, -1 = disable"}},
+           {"timeframes-rate-limit-ipcid", VariantType::String, "-1", {"Suffix for IPC channel for metric-feedback, -1 = disable"}},
 
            // options for AOD rate limiting
            {"aod-memory-rate-limit", VariantType::Int64, 0LL, {"Rate limit AOD processing based on memory"}},
 
-           // options for the AOD reader
-           // aod-file needs to be available as workflow option, because we
-           // can configure the workflow based on the contents of the first file.
-           {"aod-file", VariantType::String, "", {"Input AOD file"}},
            // options for AOD writer
            {"aod-writer-json", VariantType::String, "", {"Name of the json configuration file"}},
            {"aod-writer-resdir", VariantType::String, "", {"Name of the output directory"}},

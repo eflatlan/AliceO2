@@ -250,6 +250,9 @@ void DataRequest::requestMFTClusters(bool mc)
 void DataRequest::requestTPCClusters(bool mc)
 {
   addInput({"clusTPC", ConcreteDataTypeMatcher{"TPC", "CLUSTERNATIVE"}, Lifetime::Timeframe});
+  if (!getenv("DPL_DISABLE_TPC_TRIGGER_READER") || atoi(getenv("DPL_DISABLE_TPC_TRIGGER_READER")) != 1) {
+    requestTPCTriggers();
+  }
   if (requestMap.find("trackTPC") != requestMap.end()) {
     addInput({"clusTPCshmap", "TPC", "CLSHAREDMAP", 0, Lifetime::Timeframe});
   }
@@ -257,6 +260,12 @@ void DataRequest::requestTPCClusters(bool mc)
     addInput({"clusTPCMC", ConcreteDataTypeMatcher{"TPC", "CLNATIVEMCLBL"}, Lifetime::Timeframe});
   }
   requestMap["clusTPC"] = mc;
+}
+
+void DataRequest::requestTPCTriggers()
+{
+  addInput({"trigTPC", "TPC", "TRIGGERWORDS", 0, Lifetime::Timeframe});
+  requestMap["trigTPC"] = false;
 }
 
 void DataRequest::requestTOFClusters(bool mc)
@@ -672,6 +681,11 @@ void RecoContainer::collectData(ProcessingContext& pc, const DataRequest& reques
     addTPCClusters(pc, req->second, reqMap.find("trackTPC") != reqMap.end());
   }
 
+  req = reqMap.find("trigTPC");
+  if (req != reqMap.end()) {
+    addTPCTriggers(pc);
+  }
+
   req = reqMap.find("clusTOF");
   if (req != reqMap.end()) {
     addTOFClusters(pc, req->second);
@@ -1055,6 +1069,12 @@ void RecoContainer::addTPCClusters(ProcessingContext& pc, bool mc, bool shmap)
 }
 
 //__________________________________________________________
+void RecoContainer::addTPCTriggers(ProcessingContext& pc)
+{
+  commonPool[GTrackID::TPC].registerContainer(pc.inputs().get<gsl::span<o2::tpc::TriggerInfoDLBZS>>("trigTPC"), MATCHES);
+}
+
+//__________________________________________________________
 void RecoContainer::addTRDTracklets(ProcessingContext& pc, bool mc)
 {
   inputsTRD = o2::trd::getRecoInputContainer(pc, nullptr, this, mc);
@@ -1102,7 +1122,9 @@ void RecoContainer::addMIDClusters(ProcessingContext& pc, bool mc)
 void RecoContainer::addCTPDigits(ProcessingContext& pc, bool mc)
 {
   commonPool[GTrackID::CTP].registerContainer(pc.inputs().get<gsl::span<o2::ctp::CTPDigit>>("CTPDigits"), CLUSTERS);
-  mCTPLumi = pc.inputs().get<o2::ctp::LumiInfo>("CTPLumi");
+  if (pc.inputs().get<gsl::span<char>>("CTPLumi").size() == sizeof(o2::ctp::LumiInfo)) {
+    mCTPLumi = pc.inputs().get<o2::ctp::LumiInfo>("CTPLumi");
+  }
   if (mc) {
     //  pc.inputs().get<const dataformats::MCTruthContainer<MCCompLabel>*>("CTPDigitsMC");
   }
@@ -1499,9 +1521,9 @@ void RecoContainer::getTrackTimeITSTPCTRD(GTrackID gid, float& t, float& tErr) c
       tErr = 5.e-3;
       const auto& trc = getITSTPCTRDTracks<o2::trd::TrackTRD>()[gid];
       if (trc.hasPileUpInfo()) { // distance to farthest collision within the pileup integration time
-        t += trc.getPileUpTimeShiftMUS();
         tErr += trc.getPileUpTimeErrorMUS();
       }
+      return;
     }
   }
 }
@@ -1517,9 +1539,9 @@ void RecoContainer::getTrackTimeTPCTRD(GTrackID gid, float& t, float& tErr) cons
       tErr = 5.e-3;
       const auto& trc = getTPCTRDTracks<o2::trd::TrackTRD>()[gid];
       if (trc.hasPileUpInfo()) { // distance to farthest collision within the pileup integration time
-        t += trc.getPileUpTimeShiftMUS();
         tErr += trc.getPileUpTimeErrorMUS();
       }
+      return;
     }
   }
 }
@@ -1548,6 +1570,7 @@ void RecoContainer::getTrackTimeITS(GTrackID gid, float& t, float& tErr) const
     if (gid.getIndex() < rof.getFirstEntry() + rof.getNEntries()) {
       t = rof.getBCData().differenceInBC(startIR) * o2::constants::lhc::LHCBunchSpacingMUS;
       tErr = 0.5;
+      return;
     }
   }
 }

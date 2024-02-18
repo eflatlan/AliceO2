@@ -74,17 +74,21 @@ void MatchHMP::run(const o2::globaltracking::RecoContainer& inp)
   mStartIR = inp.startIR;
 
   for (int i = 0; i < o2::globaltracking::MatchHMP::trackType::SIZE; i++) {
+    mTrackGid[i].clear();
     mMatchedTracks[i].clear();
     mOutHMPLabels[i].clear();
     mTracksWork[i].clear();
+    mMatchedTracksIndex[i].clear();
   }
 
   for (int it = 0; it < o2::globaltracking::MatchHMP::trackType::SIZE; it++) {
-    mMatchedTracksIndex[it].clear();
+    mTracksIndexCache[it].clear();
     if (mMCTruthON) {
       mTracksLblWork[it].clear();
     }
   }
+
+  mHMPTriggersIndexCache.clear();
 
   bool isPrepareHMPClusters = prepareHMPClusters();
 
@@ -100,7 +104,6 @@ void MatchHMP::run(const o2::globaltracking::RecoContainer& inp)
   }
 
   if (mIsITSTPCused || mIsTPCTRDused || mIsITSTPCTRDused || mIsITSTPCTOFused || mIsTPCTOFused || mIsITSTPCTRDTOFused || mIsTPCTRDTOFused) {
-    // doFastMatching();
     doMatching();
   }
 
@@ -115,17 +118,13 @@ void MatchHMP::run(const o2::globaltracking::RecoContainer& inp)
 //==================================================================================================================================================
 bool MatchHMP::prepareTracks()
 {
-  // mNotPropagatedToHMP[trkType::UNCONS] = 0;
-  // mNotPropagatedToHMP[trkType::CONSTR] = 0;
 
   auto creator = [this](auto& trk, GTrackID gid, float time0, float terr) {
     const int nclustersMin = 0;
-
     if constexpr (isTPCTrack<decltype(trk)>()) {
       if (trk.getNClusters() < nclustersMin) {
         return true;
       }
-
       if (std::abs(trk.getQ2Pt()) > mMaxInvPt) {
         return true;
       }
@@ -159,7 +158,6 @@ bool MatchHMP::prepareTracks()
   // Unconstrained tracks
   /*
     if (mIsTPCused) {
-      // LOG(debug) << "Number of UNCONSTRAINED tracks that failed to be propagated to HMPID = " << mNotPropagatedToHMP[o2::globaltracking::MatchHMP::trackType::UNCONS];
 
       // sort tracks in each sector according to their time (increasing in time)
       //  for (int sec = o2::constants::math::NSectors; sec--;) {
@@ -256,19 +254,37 @@ void MatchHMP::addTPCTOFSeed(const o2::dataformats::TrackTPCTOF& _tr, o2::datafo
 void MatchHMP::addConstrainedSeed(o2::track::TrackParCov& trc, o2::dataformats::GlobalTrackID srcGID, timeEst timeMUS)
 {
   std::array<float, 3> globalPos;
+
   // current track index
   int it = mTracksWork[o2::globaltracking::MatchHMP::trackType::CONSTR].size();
 
-  // create working copy of track param
-  mTracksWork[o2::globaltracking::MatchHMP::trackType::CONSTR].emplace_back(std::make_pair(trc, timeMUS));
+  auto prop = o2::base::Propagator::Instance();
+  float bxyz[3];
+  prop->getFieldXYZ(trc.getXYZGlo(), bxyz);
+  double bz = -bxyz[2];
 
-  mTrackGid[o2::globaltracking::MatchHMP::trackType::CONSTR].emplace_back(srcGID);
+  float pCut = 0.;
 
-  if (mMCTruthON) {
-    mTracksLblWork[o2::globaltracking::MatchHMP::trackType::CONSTR].emplace_back(mRecoCont->getTPCITSTrackMCLabel(srcGID));
+  if (TMath::Abs(bz - 5.0) < 0.5) {
+    pCut = 0.450;
   }
 
-  mTracksIndexCache[o2::globaltracking::MatchHMP::trackType::CONSTR].push_back(it);
+  if (TMath::Abs(bz - 2.0) < 0.5) {
+    pCut = 0.200;
+  }
+
+  if (trc.getP() > pCut && TMath::Abs(trc.getTgl()) < 0.544 && TMath::Abs(trc.getPhi() - TMath::Pi()) > (TMath::Pi() * 0.5)) {
+    // create working copy of track param
+    mTracksWork[o2::globaltracking::MatchHMP::trackType::CONSTR].emplace_back(std::make_pair(trc, timeMUS));
+
+    mTrackGid[o2::globaltracking::MatchHMP::trackType::CONSTR].emplace_back(srcGID);
+
+    if (mMCTruthON) {
+      mTracksLblWork[o2::globaltracking::MatchHMP::trackType::CONSTR].emplace_back(mRecoCont->getTPCITSTrackMCLabel(srcGID));
+    }
+
+    mTracksIndexCache[o2::globaltracking::MatchHMP::trackType::CONSTR].push_back(it);
+  }
 }
 //______________________________________________
 void MatchHMP::addTPCSeed(const o2::tpc::TrackTPC& _tr, o2::dataformats::GlobalTrackID srcGID, float time0, float terr)
@@ -314,6 +330,8 @@ bool MatchHMP::prepareHMPClusters()
   mMCTruthON = mHMPClusLabels && mHMPClusLabels->getNElements();
 
   mNumOfTriggers = 0;
+
+  mHMPTriggersWork.clear();
 
   int nTriggersInCurrentChunk = mHMPTriggersArray.size();
   LOG(debug) << "nTriggersInCurrentChunk = " << nTriggersInCurrentChunk;
@@ -429,6 +447,8 @@ void MatchHMP::doMatching()
 		}
 
 	
+    auto& event = mHMPTriggersWork[cacheTriggerHMP[ievt]];
+    auto evtTime = event.getIr().differenceInBCMUS(mStartIR);
 
     int evtTracks = 0;
 
@@ -467,15 +487,18 @@ void MatchHMP::doMatching()
 
 
       prop->getFieldXYZ(trefTrk.getXYZGlo(), bxyz);
-      Double_t bz = -bxyz[2];
+      double bz = -bxyz[2];
 
-      double timeUncert = 100.; //= trackWork.second.getTimeStampError();
+      double timeUncert = trackWork.second.getTimeStampError();
 
-      float minTrkTime = (trackWork.second.getTimeStamp() - mSigmaTimeCut * timeUncert) * 1.E3; // minimum track time in ns
-      float maxTrkTime = (trackWork.second.getTimeStamp() + mSigmaTimeCut * timeUncert) * 1.E3; // maximum track time in ns
+      float minTrkTime = (trackWork.second.getTimeStamp() - mSigmaTimeCut * timeUncert);
+      float maxTrkTime = (trackWork.second.getTimeStamp() + mSigmaTimeCut * timeUncert);
 
       if (evtTime < (maxTrkTime + timeFromTF) && evtTime > (minTrkTime + timeFromTF)) {
 				Printf("==================================== NEW TRACK ==================");
+      // if (evtTime < (maxTrkTime + timeFromTF) && evtTime > (minTrkTime + timeFromTF)) {
+      if (evtTime < maxTrkTime && evtTime > minTrkTime) {
+
         evtTracks++;
 
 
@@ -521,6 +544,26 @@ void MatchHMP::doMatching()
         matching->setIdxHMPClus(iCh, 9999);          // set chamber, index of cluster + cluster size
 
 
+        MatchInfo matching(999999, mTrackGid[type][cacheTrk[itrk]]);
+
+        matching.setHMPIDtrk(0, 0, 0, 0);            // no intersection found
+        matching.setHMPIDmip(0, 0, 0, 0);            // store mip info in any case
+        matching.setIdxHMPClus(99, 99999);           // chamber not found, mip not yet considered
+        matching.setHMPsignal(Recon::kNotPerformed); // ring reconstruction not yet performed
+        matching.setIdxTrack(trackGid);
+        TrackHMP hmpTrk(trefTrk); // create a hmpid track to be used for propagation and matching
+
+        hmpTrk.set(trefTrk.getX(), trefTrk.getAlpha(), trefTrk.getParams(), trefTrk.getCharge(), trefTrk.getPID());
+
+        double xPc, yPc, xRa, yRa, theta, phi;
+
+        Int_t iCh = intTrkCha(&trefTrk, xPc, yPc, xRa, yRa, theta, phi, bz); // find the intersected chamber for this track
+        if (iCh < 0) {
+          continue;
+        } // no intersection at all, go next track
+
+        matching.setHMPIDtrk(xPc, yPc, theta, phi); // store initial infos
+        matching.setIdxHMPClus(iCh, 9999);          // set chamber, index of cluster + cluster size
 
         int index = -1;
 
@@ -558,6 +601,9 @@ void MatchHMP::doMatching()
 
 					eventIDClu = cluster.getEventNumber();
 
+					eventIDClu = cluster.getEventNumber();
+
+<<<<<<< HEAD
           if (cluster.ch() != iCh) {
             // LOGP(info, "cluster.ch() != iCh");
             continue;
@@ -581,6 +627,7 @@ void MatchHMP::doMatching()
 
           if (cluster.size() < 3) { // 150
           	Printf("size too low %.2f", cluster.size());
+          if (cluster.q() < 150. || cluster.size() > 10) {
             continue;
           }
 
@@ -591,7 +638,13 @@ void MatchHMP::doMatching()
 
           cluLORS[0] = cluster.x();
           cluLORS[1] = cluster.y(); // get the LORS coordinates of the cluster
-          double dist = TMath::Sqrt((xPc - cluLORS[0]) * (xPc - cluLORS[0]) + (yPc - cluLORS[1]) * (yPc - cluLORS[1]));
+
+          double dist = 0.;
+
+          if (TMath::Abs((xPc - cluLORS[0]) * (xPc - cluLORS[0]) + (yPc - cluLORS[1]) * (yPc - cluLORS[1])) > 0.0001) {
+
+            dist = TMath::Sqrt((xPc - cluLORS[0]) * (xPc - cluLORS[0]) + (yPc - cluLORS[1]) * (yPc - cluLORS[1]));
+          }
 
           if (dist < dmin) {
             dmin = dist;
@@ -615,6 +668,8 @@ void MatchHMP::doMatching()
           delete hmpTrkConstrained;
           hmpTrkConstrained = nullptr; */
 
+        if (!bestHmpCluster) {
+          oneEventClusters.clear();
           continue;
         }
 
@@ -624,13 +679,20 @@ void MatchHMP::doMatching()
         
         double Dist = TMath::Sqrt((xPc - bestHmpCluster->x()) * (xPc - bestHmpCluster->x()) + (yPc - bestHmpCluster->y()) * (yPc - bestHmpCluster->y()));
 
+=======
+        if (!bestHmpCluster) {
+          oneEventClusters.clear();
+          continue;
+        }
+
+>>>>>>> upstream/dev
         TVector3 vG = pParam->lors2Mars(iCh, bestHmpCluster->x(), bestHmpCluster->y());
         float gx = vG.X();
         float gy = vG.Y();
         float gz = vG.Z();
         float alpha = TMath::ATan2(gy, gx);
         float radiusH = TMath::Sqrt(gy * gy + gx * gx);
-        if (!(hmpTrk->rotate(alpha))) {
+        if (!(hmpTrk.rotate(alpha))) {
           continue;
         }
 
@@ -639,12 +701,14 @@ void MatchHMP::doMatching()
           hmpTrk = nullptr;
           delete hmpTrkConstrained;
           hmpTrkConstrained = nullptr; */
+        if (!prop->PropagateToXBxByBz(hmpTrk, radiusH, o2::base::Propagator::MAX_SIN_PHI, o2::base::Propagator::MAX_STEP, matCorr)) {
+          oneEventClusters.clear();
           continue;
         }
 
         // 3. Update the track with MIP cluster (Improved angular and position resolution - to be used for Cherenkov angle calculation)
 
-        o2::track::TrackParCov trackC(*hmpTrk);
+        o2::track::TrackParCov trackC(hmpTrk);
 
         std::array<float, 2> trkPos{0, gz};
         std::array<float, 3> trkCov{0.1 * 0.1, 0., 0.1 * 0.1};
@@ -664,9 +728,16 @@ void MatchHMP::doMatching()
           delete hmpTrkConstrained;
           hmpTrkConstrained = nullptr;*/
           continue; 
+        TrackHMP hmpTrkConstrained(trackC);
+        hmpTrkConstrained.set(trackC.getX(), trackC.getAlpha(), trackC.getParams(), trackC.getCharge(), trackC.getPID());
+        if (!prop->PropagateToXBxByBz(hmpTrkConstrained, radiusH - kdRadiator, o2::base::Propagator::MAX_SIN_PHI, o2::base::Propagator::MAX_STEP, matCorr)) {
+          oneEventClusters.clear();
+          continue;
         }
 
-        matching->setHmpMom(hmpTrkConstrained->getP());
+        float hmpMom = hmpTrkConstrained.getP() * hmpTrkConstrained.getSign();
+
+        matching.setHmpMom(hmpMom);
 
         // 5. Propagation in the last 10 cm with the fast method
 
@@ -681,6 +752,8 @@ void MatchHMP::doMatching()
 
         // the pc values seem ok until here??
         
+        intTrkCha(iCh, &hmpTrkConstrained, xPc0, yPc0, xRa, yRa, theta, phi, bz);
+
         // 6. Set match information
 
         int cluSize = bestHmpCluster->size();
@@ -708,6 +781,10 @@ void MatchHMP::doMatching()
 
         
         matching->setHMPsignal(pParam->kMipQdcCut);
+        matching.setHMPIDmip(bestHmpCluster->x(), bestHmpCluster->y(), (int)bestHmpCluster->q(), 0); // store mip info in any case
+        matching.setMipClusSize(bestHmpCluster->size());
+        matching.setIdxHMPClus(iCh, index + 1000 * cluSize); // set chamber, index of cluster + cluster size
+        matching.setHMPIDtrk(xPc, yPc, theta, phi);
 
         if (!isOkQcut) {/*
           delete hmpTrk;
@@ -715,6 +792,8 @@ void MatchHMP::doMatching()
           delete hmpTrkConstrained;
           hmpTrkConstrained = nullptr; */
           continue;
+        if (!isOkQcut) {
+          matching.setHMPsignal(pParam->kMipQdcCut);
         }
 
         // dmin recalculated
@@ -731,6 +810,7 @@ void MatchHMP::doMatching()
         if (!isOkDcut) {
           matching->setHMPsignal(pParam->kMipDistCut); // closest cluster with enough charge is still too far from intersection
           Printf("dmin too high %.2f", dmin);
+          matching.setHMPsignal(pParam->kMipDistCut); // closest cluster with enough charge is still too far from intersection
         }
 
         if (isOkQcut * isOkDcut) {
@@ -766,7 +846,12 @@ void MatchHMP::doMatching()
 				matching->setDistCut(dmin, maxDistAcc); 
 
 
+<<<<<<< HEAD
+        Printf("6. : intTrkCha iCh %d || xRa %.2f , xPc0 %.2f ,xMIP %.2f ||  yRa %.2f  yPc0 %.2f  yMIP %.2f \n\n", iCh, xRa, xPc0 ,bestHmpCluster->x(), yRa, yPc0, bestHmpCluster->y());
+=======
         if (!isMatched) {
+          mMatchedTracks[type].push_back(matching);
+          oneEventClusters.clear();
           mMatchedTracks[type].push_back(*matching);
           continue;
         } // If matched continue...
@@ -793,6 +878,16 @@ void MatchHMP::doMatching()
         mMatchedTracks[type].push_back(*matching);
         
         Printf("MATCHED TRUE : CONSTRAINED  xPc0 %.2f, yPc0 %.2f, xRa %.2f, yRa %.2f : BestMIP %.2f %.2f ", xPc0, yPc0, xRa, yRa,bestHmpCluster->x(),bestHmpCluster->y());
+
+        double nmean = pParam->meanIdxRad();
+
+        // 7. Calculate the Cherenkov angle
+
+        recon->setImpPC(xPc, yPc);                                             // store track impact to PC
+        recon->ckovAngle(&matching, oneEventClusters, index, nmean, xRa, yRa); // search for Cerenkov angle of this track
+
+        mMatchedTracks[type].push_back(matching);
+
         oneEventClusters.clear();
 
 
@@ -821,6 +916,9 @@ void MatchHMP::doMatching()
 
   }     // events loop
   LOGP(info," MatchHMP.cxx : finished all events");
+
+  delete recon;
+  recon = nullptr;
 }
 //==================================================================================================================================================
 int MatchHMP::intTrkCha(o2::track::TrackParCov* pTrk, double& xPc, double& yPc, double& xRa, double& yRa, double& theta, double& phi, double bz)

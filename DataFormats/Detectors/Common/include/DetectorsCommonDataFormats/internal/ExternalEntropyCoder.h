@@ -35,7 +35,6 @@ class ExternalEntropyCoder
  public:
   using source_type = source_T;
   using encoder_type = typename rans::denseEncoder_type<source_type>;
-  using metrics_type = rans::Metrics<source_type>;
 
   ExternalEntropyCoder(const encoder_type& encoder);
 
@@ -80,7 +79,7 @@ template <typename dst_T>
   constexpr size_t Overhead = 10 * rans::utils::pow2(10); // 10KB overhead safety margin
   const double_t RelativeSafetyFactor = 2.0 * safetyFactor;
   const size_t messageSizeB = nElements * sizeof(source_type);
-  return rans::utils::nBytesTo<dst_T>(std::ceil(safetyFactor * messageSizeB) + Overhead);
+  return rans::utils::nBytesTo<dst_T>(std::ceil(RelativeSafetyFactor * messageSizeB) + Overhead);
 }
 
 template <typename source_T>

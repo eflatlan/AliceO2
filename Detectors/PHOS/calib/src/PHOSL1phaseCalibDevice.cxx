@@ -48,6 +48,10 @@ void PHOSL1phaseCalibDevice::endOfStream(o2::framework::EndOfStreamContext& ec)
   mCalibrator->checkSlotsToFinalize(o2::calibration::INFINITE_TF);
   mCalibrator->endOfStream();
 
+  if (mRunStartTime == 0 || mCalibrator->getCalibration() == 0) { // run not started || calibration was not produced
+    return;                                                       // do not create CCDB object
+  }
+
   std::vector<int> l1phase{mCalibrator->getCalibration()};
   LOG(info) << "End of stream reached, sending output to CCDB";
   // prepare all info to be sent to CCDB
@@ -67,7 +71,7 @@ void PHOSL1phaseCalibDevice::endOfStream(o2::framework::EndOfStreamContext& ec)
   ec.outputs().snapshot(Output{o2::calibration::Utils::gDataOriginCDBWrapper, "PHOS_L1phase", 0}, info);
   // Send summary to QC
   LOG(info) << "Sending histos to QC ";
-  ec.outputs().snapshot(o2::framework::Output{"PHS", "L1PHASEHISTO", 0, o2::framework::Lifetime::Sporadic}, mCalibrator->getQcHistos());
+  ec.outputs().snapshot(o2::framework::Output{"PHS", "L1PHASEHISTO", 0}, mCalibrator->getQcHistos());
 }
 
 o2::framework::DataProcessorSpec o2::phos::getPHOSL1phaseCalibDeviceSpec()

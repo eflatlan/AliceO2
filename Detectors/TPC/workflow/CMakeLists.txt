@@ -23,6 +23,7 @@ o2_add_library(TPCWorkflow
                        src/CalDetMergerPublisherSpec.cxx
                        src/KryptonClustererSpec.cxx
                        src/KryptonRawFilterSpec.cxx
+                       src/OccupancyFilterSpec.cxx
                        src/SACProcessorSpec.cxx
                        src/IDCToVectorSpec.cxx
                        src/CalibdEdxSpec.cxx
@@ -38,13 +39,18 @@ o2_add_library(TPCWorkflow
                        src/TPCIntegrateClusterReaderSpec.cxx
                        src/TPCIntegrateClusterSpec.cxx
                        src/TPCIntegrateClusterWriterSpec.cxx
+                       src/TPCTriggerWriterSpec.cxx
                        src/TPCMergeIntegrateClusterSpec.cxx
+                       src/TPCTimeSeriesSpec.cxx
+                       src/TPCTimeSeriesWriterSpec.cxx
+                       src/TPCScalerSpec.cxx
                TARGETVARNAME targetName
                PUBLIC_LINK_LIBRARIES O2::Framework O2::DataFormatsTPC
                                      O2::DPLUtils O2::TPCReconstruction
                                      O2::TPCCalibration O2::TPCSimulation
                                      O2::TPCQC O2::DetectorsCalibration
                                      O2::TPCReaderWorkflow
+                                     O2::CTPWorkflowIO
                PRIVATE_LINK_LIBRARIES O2::GPUTracking # For the Zero Suppression includes
                                       O2::GPUWorkflow
            )
@@ -170,6 +176,11 @@ o2_add_executable(krypton-raw-filter
                   SOURCES src/tpc-krypton-raw-filter.cxx
                   PUBLIC_LINK_LIBRARIES O2::TPCWorkflow)
 
+o2_add_executable(occupancy-filter
+                  COMPONENT_NAME tpc
+                  SOURCES src/tpc-occupancy-filter.cxx
+                  PUBLIC_LINK_LIBRARIES O2::TPCWorkflow)
+
 o2_add_executable(idc-to-vector
                   COMPONENT_NAME tpc
                   SOURCES src/tpc-idc-to-vector.cxx
@@ -218,6 +229,16 @@ o2_add_executable(integrate-cluster-reader-workflow
 o2_add_executable(merge-integrate-cluster-workflow
                   SOURCES src/cluster-merge-integrator.cxx
                   COMPONENT_NAME tpc
+                  PUBLIC_LINK_LIBRARIES O2::TPCWorkflow)
+
+o2_add_executable(time-series-workflow
+                  COMPONENT_NAME tpc
+                  SOURCES src/tpc-time-series.cxx
+                  PUBLIC_LINK_LIBRARIES O2::TPCWorkflow)
+
+o2_add_executable(scaler-workflow
+                  COMPONENT_NAME tpc
+                  SOURCES src/tpc-scaler.cxx
                   PUBLIC_LINK_LIBRARIES O2::TPCWorkflow)
 
 o2_add_test(workflow

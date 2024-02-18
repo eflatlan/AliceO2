@@ -26,6 +26,7 @@
 #include <TLeaf.h>
 
 #include "aodMerger.h"
+#include <cinttypes>
 
 // AOD merger with correct index rewriting
 // No need to know the datamodel because the branch names follow a canonical standard (identified by fIndex)
@@ -387,7 +388,7 @@ int main(int argc, char* argv[])
         }
       }
 
-      if (currentDirSize > maxDirSize) {
+      if (maxDirSize == 0 || currentDirSize > maxDirSize) {
         if (verbosity > 0) {
           printf("Maximum size reached: %ld. Closing folder %s.\n", currentDirSize, dfName);
         }
@@ -450,7 +451,7 @@ int main(int argc, char* argv[])
     }
     if (totalCompressed > 0 && totalUncompressed > 0) {
       for (auto const& tree : sizeCompressed) {
-        printf("  Tree %20s | Compressed: %12llu (%2.0f%%) | Uncompressed: %12llu (%2.0f%%)\n", tree.first.c_str(), tree.second, 100.0 * tree.second / totalCompressed, sizeUncompressed[tree.first], 100.0 * sizeUncompressed[tree.first] / totalUncompressed);
+        printf("  Tree %20s | Compressed: %12" PRIu64 " (%2.0f%%) | Uncompressed: %12" PRIu64 " (%2.0f%%)\n", tree.first.c_str(), tree.second, 100.0 * tree.second / totalCompressed, sizeUncompressed[tree.first], 100.0 * sizeUncompressed[tree.first] / totalUncompressed);
       }
     }
   }

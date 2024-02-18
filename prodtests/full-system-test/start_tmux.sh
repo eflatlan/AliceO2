@@ -16,7 +16,7 @@ if [[ -z "${WORKFLOW_PARAMETERS+x}" ]]; then
   else
     export WORKFLOW_PARAMETERS="${WORKFLOW_PARAMETERS},CALIB_PROXIES"
   fi
-  [[ -z $ARGS_EXTRA_PROCESS_o2_eve_export_workflow ]] && ARGS_EXTRA_PROCESS_o2_eve_export_workflow="--disable-write"
+  [[ -z $ARGS_EXTRA_PROCESS_o2_eve_export_workflow ]] && export ARGS_EXTRA_PROCESS_o2_eve_export_workflow="--disable-write"
   if [[ -z "${GEN_TOPO_WORKDIR}" ]]; then
     mkdir -p gen_topo_tmp
     export GEN_TOPO_WORKDIR=`pwd`/gen_topo_tmp
@@ -36,6 +36,7 @@ if [[ "0$FST_TMUX_NO_EPN" != "01" ]]; then
   [[ -z $GPUMEMSIZE ]] && export GPUMEMSIZE=$(( 24 << 30 ))
   [[ -z $NUMAGPUIDS ]] && export NUMAGPUIDS=1
   [[ -z $EPNPIPELINES ]] && export EPNPIPELINES=1
+  [[ -z $O2_GPU_DOUBLE_PIPELINE ]] && export O2_GPU_DOUBLE_PIPELINE=1
   [[ -z $DPL_CONDITION_BACKEND ]] && export DPL_CONDITION_BACKEND="http://localhost:8084"
   export ALL_EXTRA_CONFIG="$ALL_EXTRA_CONFIG;NameConf.mCCDBServer=${DPL_CONDITION_BACKEND};"
   export GEN_TOPO_QC_OVERRIDE_CCDB_SERVER="${DPL_CONDITION_BACKEND}"
@@ -76,10 +77,10 @@ if [ $1 == "dd" ]; then
   export GPU_NUM_MEM_REG_CALLBACKS=$(($NUM_DPL_WORKFLOWS + 3))
 elif [ $1 == "tf" ]; then
   export CMD=tf-reader.sh
-  export GPU_NUM_MEM_REG_CALLBACKS=$((NUM_DPL_WORKFLOWS + 1))
+  export GPU_NUM_MEM_REG_CALLBACKS=$((NUM_DPL_WORKFLOWS + ${NUMAGPUIDS:-0}))
 elif [ $1 == "rr" ]; then
   export CMD=raw-reader.sh
-  export GPU_NUM_MEM_REG_CALLBACKS=$(($NUM_DPL_WORKFLOWS + 1))
+  export GPU_NUM_MEM_REG_CALLBACKS=$(($NUM_DPL_WORKFLOWS + ${NUMAGPUIDS:-0}))
 fi
 
 if [ "0$FST_TMUX_NOWAIT" != "01" ]; then
@@ -108,11 +109,7 @@ else
   FST_SLEEP1=0
   FST_SLEEP2=30
 fi
-
-if [[ ! -z $FST_TMUX_SINGLENUMA ]]; then
-  eval "FST_SLEEP$((FST_TMUX_SINGLENUMA ^ 1))=\"0; echo SKIPPED; sleep 1000; exit\""
-  export GPU_NUM_MEM_REG_CALLBACKS=$(($GPU_NUM_MEM_REG_CALLBACKS - 1))
-fi
+[[ ! -z $FST_TMUX_DD_WAIT ]] && FST_SLEEP2=$FST_TMUX_DD_WAIT
 
 if workflow_has_parameter CALIB_PROXIES; then
   CALIB_COMMAND="$GEN_TOPO_MYDIR/aggregator-workflow.sh"

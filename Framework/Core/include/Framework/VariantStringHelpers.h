@@ -98,3 +98,4 @@ Array2D<T> stringToArray2D(std::string const& input)
 } // namespace o2::framework
 
 #endif // FRAMEWORK_VARIANTSTRINGHELPERS_H
+

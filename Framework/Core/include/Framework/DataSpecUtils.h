@@ -80,8 +80,23 @@ struct DataSpecUtils {
   /// @return true if the InputSpec will match at least the provided @a origin.
   static bool partialMatch(InputSpec const& spec, o2::header::DataOrigin const& origin);
 
+  /// @return true if the InputSpec will match at least one of the provided @a origins
+  template <size_t N>
+  static bool partialMatch(InputSpec const& spec, std::array<header::DataOrigin, N> const& origins)
+  {
+    return std::find_if(origins.begin(), origins.end(), [&](auto const& o) { return DataSpecUtils::asConcreteOrigin(spec) == o; }) != origins.end();
+  }
+
   /// @return true if the OutputSpec will match at least the provided @a origin.
   static bool partialMatch(OutputSpec const& spec, o2::header::DataOrigin const& origin);
+
+  /// @return true if the OutputSpec will match at least one of the provided @a origins
+  template <size_t N>
+  static bool partialMatch(OutputSpec const& spec, std::array<header::DataOrigin, N> const& origins)
+  {
+    auto dataType = DataSpecUtils::asConcreteDataTypeMatcher(spec);
+    return std::find_if(origins.begin(), origins.end(), [&](auto const& o) { return dataType.origin == o; }) != origins.end();
+  }
 
   /// @return true if the OutputSpec will match at least the provided @a description.
   static bool partialMatch(InputSpec const& spec, o2::header::DataDescription const& description);
@@ -230,6 +245,9 @@ struct DataSpecUtils {
 
   /// Updates list of InputSpecs by merging metadata
   static void updateInputList(std::vector<InputSpec>& list, InputSpec&& input);
+
+  /// Updates list of OutputSpecs by merging metadata (or adding output).
+  static void updateOutputList(std::vector<OutputSpec>& list, OutputSpec&& input);
 };
 
 } // namespace framework

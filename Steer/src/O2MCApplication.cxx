@@ -163,7 +163,7 @@ void O2MCApplicationBase::InitGeometry()
 
 bool O2MCApplicationBase::MisalignGeometry()
 {
-  for (auto det : listActiveDetectors) {
+  for (auto det : listDetectors) {
     if (dynamic_cast<o2::base::Detector*>(det)) {
       ((o2::base::Detector*)det)->addAlignableVolumes();
     }
@@ -197,6 +197,7 @@ void O2MCApplicationBase::finishEventCommon()
 
   auto header = static_cast<o2::dataformats::MCEventHeader*>(fMCEventHeader);
   header->getMCEventStats().setNSteps(mStepCounter);
+  header->setDetId2HitBitLUT(o2::base::Detector::getDetId2HitBitIndex());
 
   static_cast<o2::data::Stack*>(GetStack())->updateEventStats();
 }

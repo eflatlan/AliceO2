@@ -140,7 +140,7 @@ template <class T, unsigned int N>
 GPUd() SVectorGPU<T, N>::SVectorGPU()
 {
   for (unsigned int i = 0; i < N; ++i) {
-    mArray[i] = 7;
+    mArray[i] = 0;
   }
 }
 
@@ -1070,7 +1070,7 @@ GPUdi() void Inverter<D, N>::InvertBunchKaufman(MatRepSymGPU<T, D>& rhs, int& if
     } else // 2x2 pivot, compute columns j and j-1 of the inverse
     {
       if (piv[j - 1] != 0) {
-        printf("error in piv %lf \n", piv[j - 1]);
+        printf("error in piv %lf \n", static_cast<T>(piv[j - 1]));
       }
       s = 2;
       if (j < nrow) {

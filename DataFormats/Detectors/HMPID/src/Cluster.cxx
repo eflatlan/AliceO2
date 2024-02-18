@@ -315,7 +315,7 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, std::vector<Topolog
   }
 
   //  Phase 0. Initialise Fitter
-  double arglist[10];
+  double arglist[10]{0., 0., 0., 0., 0., 0., 0., 0., 0., 0.};
   float ierflg = 0.;
   TVirtualFitter* fitter = TVirtualFitter::Fitter((TObject*)this, 3 * 6); // initialize Fitter
   if (fitter == nullptr) {
@@ -380,10 +380,11 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, std::vector<Topolog
         pCluLst->back().setClusterTopology(pTopVector, pCluLst->size());
     //pTopVector->push_back(topVec);
     pCluLst->back().cleanPointers();
-  } else {                                         // or resonable number of local maxima to fit and user requested it
+  } else { // or resonable number of local maxima to fit and user requested it
     // Now ready for minimization step
-    arglist[0] = 500;                                       // number of steps and sigma on pads charges
-    arglist[1] = 1.;                                        //
+    arglist[0] = 500; // number of steps and sigma on pads charges
+    arglist[1] = 1.;  //
+    /*
     ierflg = fitter->ExecuteCommand("SIMPLEX", arglist, 2); // start fitting with Simplex
     if (!ierflg) {
       fitter->ExecuteCommand("MIGRAD", arglist, 2); // fitting improved by Migrad
@@ -398,6 +399,14 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, std::vector<Topolog
         }
       }
     }
+    */
+
+    double strategy = 2.;
+    ierflg = fitter->ExecuteCommand("SET STR", &strategy, 1); // change level of strategy
+    if (!ierflg) {
+      fitter->ExecuteCommand("MIGRAD", arglist, 2); // fitting improved by Migrad
+    }
+
     if (ierflg) {
       mSt = kAbn; // no convergence of the fit...
     }
@@ -412,6 +421,7 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, std::vector<Topolog
       fitter->GetParameter(3 * i + 1, sName, mYY, mErrY, dummy, dummy); // Y
       fitter->GetParameter(3 * i + 2, sName, mQ, mErrQ, dummy, dummy);  // Q
       fitter->GetStats(mChi2, edm, errdef, nvpar, nparx);               // get fit infos
+                                                                        // Printf("********************loc. max. = %i, X= %f, Y = %f, Q = %f**************************",i,mXX,mYY,mQ);
       if (mNlocMax > 1) {
         findClusterSize(i, pSigmaCut); // find clustersize for deconvoluted clusters
                                        // after this call, fSi temporarly is the calculated size. Later is set again
@@ -432,6 +442,7 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, std::vector<Topolog
         }
       }
       // setClusterParams(mXX, mYY, mCh); //need to fill the AliCluster3D part
+      // Printf("********************loc. max. = %i, X= %f, Y = %f, Q = %f**************************",i,mXX,mYY,mQ);
       pCluLst->push_back(o2::hmpid::Cluster(*this)); // add new unfolded cluster
       pCluLst->back().setClusterTopology(pTopVector, pCluLst->size());
       ////pTopVector->push_back(topVec);
@@ -471,12 +482,13 @@ Bool_t Cluster::isInPc()
   // Check if (X,Y) position is inside the PC limits
   // Arguments:
   //   Returns: True or False
+  const auto param = o2::hmpid::Param::instanceNoGeo();
   if (!mDigs) {
     LOGP(fatal, "digits are missing in the cluster");
   }
   int pc = (*mDigs)[0]->getPh(); // (o2::hmpid::Digit*)&mDigs.at(iDig)
 
-  if (mXX < Param::minPcX(pc) || mXX > Param::maxPcX(pc) || mYY < Param::minPcY(pc) || mYY > Param::maxPcY(pc)) {
+  if (mXX < param->minPcX(pc) || mXX > param->maxPcX(pc) || mYY < param->minPcY(pc) || mYY > param->maxPcY(pc)) {
     return false;
   }
 
