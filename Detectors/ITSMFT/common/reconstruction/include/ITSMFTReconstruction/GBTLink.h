@@ -94,14 +94,14 @@ struct GBTLink {
   uint8_t idInCRU = 0;    // link ID within the CRU
   uint8_t endPointID = 0; // endpoint ID of the CRU
   bool gbtErrStatUpadated = false;
-  uint16_t cruID = 0;     // CRU ID
-  uint16_t feeID = 0;     // FEE ID
-  uint16_t channelID = 0; // channel ID in the reader input
+  uint16_t cruID = 0;        // CRU ID
+  uint16_t feeID = 0;        // FEE ID
+  uint16_t channelID = 0;    // channel ID in the reader input
   uint16_t lastPageSize = 0; // size of the last CRU page
-  uint32_t lanes = 0;     // lanes served by this link
-  uint32_t subSpec = 0;   // link subspec
+  uint32_t lanes = 0;        // lanes served by this link
+  uint32_t subSpec = 0;      // link subspec
   // RS do we need this >> ? // Legacy from old data format encoder
-  int nTriggers = 0;    // number of triggers loaded (the last one might be incomplete)
+  int nTriggers = 0; // number of triggers loaded (the last one might be incomplete)
   // << ?
 
   PayLoadCont data; // data buffer used for encoding
@@ -110,14 +110,14 @@ struct GBTLink {
   int wordLength = o2::itsmft::GBTPaddedWordLength; // padded (16bytes) vs non-padded (10bytes) words
   bool expectPadding = true;
   bool rofJumpWasSeen = false; // this link had jump in ROF IR
-  uint32_t lanesActive = 0;   // lanes declared by the payload header
-  uint32_t lanesStop = 0;     // lanes received stop in the payload trailer
-  uint32_t lanesTimeOut = 0;  // lanes received timeout
-  uint32_t lanesWithData = 0; // lanes with data transmitted
-  int32_t packetCounter = -1; // current packet counter from RDH (RDH.packetCounter)
-  uint32_t trigger = 0;       // trigger word
-  uint32_t errorBits = 0;     // bits of the error code of last frame decoding (if any)
-  uint32_t hbfEntry = 0;      // entry of the current HBF page in the rawData SG list
+  uint32_t lanesActive = 0;    // lanes declared by the payload header
+  uint32_t lanesStop = 0;      // lanes received stop in the payload trailer
+  uint32_t lanesTimeOut = 0;   // lanes received timeout
+  uint32_t lanesWithData = 0;  // lanes with data transmitted
+  int32_t packetCounter = -1;  // current packet counter from RDH (RDH.packetCounter)
+  uint32_t trigger = 0;        // trigger word
+  uint32_t errorBits = 0;      // bits of the error code of last frame decoding (if any)
+  uint32_t hbfEntry = 0;       // entry of the current HBF page in the rawData SG list
   const RDH* lastRDH = nullptr;
   const PayLoadSG::SGPiece* currRawPiece = nullptr;
   o2::InteractionRecord ir;       // interaction record of the ROF
@@ -126,8 +126,8 @@ struct GBTLink {
   ChipStat chipStat;              // chip decoding statistics
   RUDecodeData* ruPtr = nullptr;  // pointer on the parent RU
 
-  PayLoadSG rawData;         // scatter-gatter buffer for cached CRU pages, each starting with RDH
-  size_t dataOffset = 0;     //
+  PayLoadSG rawData;     // scatter-gatter buffer for cached CRU pages, each starting with RDH
+  size_t dataOffset = 0; //
   //------------------------------------------------------------------------
 
   GBTLink() = default;
@@ -239,7 +239,7 @@ GBTLink::CollectedDataStatus GBTLink::collectROFCableData(const Mapping& chmap)
         RDHUtils::printRDH(rdh);
       }
       GBTLINK_DECODE_ERRORCHECK(errRes, checkErrorsRDH(*rdh)); // make sure we are dealing with RDH
-      hbfEntry = hbfEntrySav; // critical check of RDH passed
+      hbfEntry = hbfEntrySav;                                  // critical check of RDH passed
       lastRDH = rdh;
       statistics.nPackets++;
       if (RDHUtils::getPageCounter(*rdh) == 0 || irHBF.isDummy()) { // for the threshold scan data it is not guaranteed that the page0 is found)

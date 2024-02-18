@@ -244,18 +244,18 @@ class GBTFrameContainer
   std::array<std::array<short, 16>, 5> mTmpData;
 };
 
-//template<typename... Args>
-//inline
-//void GBTFrameContainer::addGBTFrame(Args&&... args)
+// template<typename... Args>
+// inline
+// void GBTFrameContainer::addGBTFrame(Args&&... args)
 //{
-//  if (!mEnableStoreGBTFrames && (mGBTFrames.size() > 1)) {
-//    mGBTFrames[0] = mGBTFrames[1];
-//    mGBTFrames[1].setData(std::forward<Args>(args)...);
-//  } else {
-//    mGBTFrames.emplace_back(std::forward<Args>(args)...);
-//  }
-//  processFrame(mGBTFrames.end()-1);
-//};
+//   if (!mEnableStoreGBTFrames && (mGBTFrames.size() > 1)) {
+//     mGBTFrames[0] = mGBTFrames[1];
+//     mGBTFrames[1].setData(std::forward<Args>(args)...);
+//   } else {
+//     mGBTFrames.emplace_back(std::forward<Args>(args)...);
+//   }
+//   processFrame(mGBTFrames.end()-1);
+// };
 
 inline void GBTFrameContainer::addGBTFrame(unsigned word3, unsigned word2, unsigned word1, unsigned word0)
 {

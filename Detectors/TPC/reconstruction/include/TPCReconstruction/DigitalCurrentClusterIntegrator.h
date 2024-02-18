@@ -27,7 +27,7 @@ namespace o2
 namespace tpc
 {
 
-//This class contains an array or all TPC pads (in selected sectors and rows), and can integrated the charges of clusters
+// This class contains an array or all TPC pads (in selected sectors and rows), and can integrated the charges of clusters
 class DigitalCurrentClusterIntegrator
 {
  public:
@@ -54,8 +54,8 @@ class DigitalCurrentClusterIntegrator
     }
     mIntegratedCurrents[sector][row][ipad] += charge;
   }
-  void clear(); //Clear all currents to 0
-  void reset(); //Free all allocated current buffers
+  void clear(); // Clear all currents to 0
+  void reset(); // Free all allocated current buffers
 
  private:
   std::unique_ptr<unsigned long long int[]> mIntegratedCurrents[constants::MAXSECTOR][constants::MAXGLOBALPADROW];

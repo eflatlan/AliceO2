@@ -208,18 +208,18 @@ class VisualisationEvent
   o2::parameters::GRPECS::RunType mRunType;
   std::size_t mPrimaryVertex;
 
-  float mMinTimeOfTracks;                           /// minimum time of tracks in the event
-  float mMaxTimeOfTracks;                           /// maximum time of tracks in the event
-  std::string mEveVersion;                          /// workflow version used to generate this Event
-  std::string mWorkflowParameters;                  /// workflow parameters used to generate this Event
-  int mEventNumber;                                 /// event number in file
-  double mEnergy;                                   /// energy of the collision
-  int mMultiplicity;                                /// number of particles reconstructed
-  std::string mCollidingSystem;                     /// colliding system (e.g. proton-proton)
-  std::string mCollisionTime;                       /// collision timestamp
-  std::vector<VisualisationTrack> mTracks;          /// an array of visualisation tracks
-  std::vector<VisualisationCluster> mClusters;      /// an array of visualisation clusters
-  std::vector<VisualisationCalo> mCalo;             /// an array of visualisation calorimeters
+  float mMinTimeOfTracks;                      /// minimum time of tracks in the event
+  float mMaxTimeOfTracks;                      /// maximum time of tracks in the event
+  std::string mEveVersion;                     /// workflow version used to generate this Event
+  std::string mWorkflowParameters;             /// workflow parameters used to generate this Event
+  int mEventNumber;                            /// event number in file
+  double mEnergy;                              /// energy of the collision
+  int mMultiplicity;                           /// number of particles reconstructed
+  std::string mCollidingSystem;                /// colliding system (e.g. proton-proton)
+  std::string mCollisionTime;                  /// collision timestamp
+  std::vector<VisualisationTrack> mTracks;     /// an array of visualisation tracks
+  std::vector<VisualisationCluster> mClusters; /// an array of visualisation clusters
+  std::vector<VisualisationCalo> mCalo;        /// an array of visualisation calorimeters
 };
 
 } // namespace event_visualisation

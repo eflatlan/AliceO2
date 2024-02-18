@@ -27,4 +27,4 @@ framework::DataProcessorSpec getDigitReaderSpec(bool useMC, const char* baseDesc
 }
 } // namespace o2
 
-#endif //O2_MID_DIGITREADERSPEC_H
+#endif // O2_MID_DIGITREADERSPEC_H

@@ -39,8 +39,8 @@ struct MatchTPCITSParams : public o2::conf::ConfigurableParamHelper<MatchTPCITSP
 
   float minTPCTrackR = 50.; ///< cut on minimal TPC tracks radius to consider for matching, 666*pt_gev*B_kgaus/5
   float minITSTrackR = 50.; ///< cut on minimal ITS tracks radius to consider for matching, 666*pt_gev*B_kgaus/5
-  int minTPCClusters = 25; ///< minimum number of clusters to consider
-  int askMinTPCRow = 15;   ///< disregard tracks starting above this row
+  int minTPCClusters = 25;  ///< minimum number of clusters to consider
+  int askMinTPCRow = 15;    ///< disregard tracks starting above this row
 
   float cutMatchingChi2 = 30.f; ///< cut on matching chi2
 
@@ -62,7 +62,7 @@ struct MatchTPCITSParams : public o2::conf::ConfigurableParamHelper<MatchTPCITSP
   float maxVDriftTrackQ2Pt = 1.0;    ///< use only tracks below this q/pt (with field only)
   float maxVDritTimeOffset = 5.;     ///< max possible TDrift offset to calibrate
 
-  float globalTimeBiasMUS = 0.; ///< global time shift to apply to assigned time, brute force way to eliminate bias wrt FIT
+  float globalTimeBiasMUS = 0.;       ///< global time shift to apply to assigned time, brute force way to eliminate bias wrt FIT
   float globalTimeExtraErrorMUS = 0.; ///< extra error to add to global time estimate
 
   //___________________ AfterBurner params

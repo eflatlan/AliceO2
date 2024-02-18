@@ -61,8 +61,8 @@ enum ContextPos {
 /// it in the O2 DataHeader, however we could add it later on.
 struct ContextElement {
   using Value = std::variant<uint32_t, uint64_t, std::string, None>;
-  char label[24];       /// The name of the variable contained in this element.
-  Value value = None{}; /// The actual contents of the element.
+  char label[24];             /// The name of the variable contained in this element.
+  Value value = None{};       /// The actual contents of the element.
   size_t commitVersion = -1;  /// The committed version of the element. Every time we commit something to it, we bump the version.
   size_t publishVersion = -1; /// The version of the element which has been published to the GUI.
 };

@@ -149,7 +149,7 @@ o2::ctf::CTFIOSize CTFCoder::decode(const CTF::base& ec, VTRG& data, LumiInfo& l
   lumi.orbit = header.lumiOrbit;
   auto itInp = bytesInput.begin();
   auto itCls = bytesClass.begin();
-  bool checkIROK = (mBCShift == 0); // need to check if CTP offset correction does not make the local time negative ?
+  bool checkIROK = (mBCShift == 0);             // need to check if CTP offset correction does not make the local time negative ?
   bool checkIROKInputs = (mBCShiftInputs == 0); // need to check if CTP offset correction does not make the local time negative ?
   for (uint32_t itrig = 0; itrig < header.nTriggers; itrig++) {
     // restore TrigRecord

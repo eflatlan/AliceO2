@@ -15,7 +15,7 @@
 /// @file   FT0CalibSlewingCollectorSpec.h
 /// @brief  Device to collect information for FT0 time slewing calibration.
 
-//#include "FT0Calibration/FT0CollectCalibInfo.h"
+// #include "FT0Calibration/FT0CollectCalibInfo.h"
 #include "FT0Calibration/FT0CalibCollector.h"
 #include "DetectorsCalibration/Utils.h"
 #include "DataFormatsFT0/FT0CalibrationInfoObject.h"

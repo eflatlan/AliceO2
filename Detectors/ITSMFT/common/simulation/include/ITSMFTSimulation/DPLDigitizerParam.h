@@ -30,11 +30,11 @@ struct DPLDigitizerParam : public o2::conf::ConfigurableParamHelper<DPLDigitizer
     return N == o2::detectors::DetID::ITS ? ParamName[0] : ParamName[1];
   }
 
-  bool continuous = true;          ///< flag for continuous simulation
+  bool continuous = true;                   ///< flag for continuous simulation
   float noisePerPixel = DEFNoisePerPixel(); ///< ALPIDE Noise per channel
-  float strobeFlatTop = 7500.;     ///< strobe shape flat top
-  float strobeMaxRiseTime = 1100.; ///< strobe max rise time
-  float strobeQRiseTime0 = 450.;   ///< q @ which strobe rise time is 0
+  float strobeFlatTop = 7500.;              ///< strobe shape flat top
+  float strobeMaxRiseTime = 1100.;          ///< strobe max rise time
+  float strobeQRiseTime0 = 450.;            ///< q @ which strobe rise time is 0
 
   double timeOffset = 0.;                 ///< time offset (in seconds!) to calculate ROFrame from hit time
   int chargeThreshold = 150;              ///< charge threshold in Nelectrons

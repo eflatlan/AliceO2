@@ -43,7 +43,7 @@ struct TopologyInfo {
   float mZsigma2 = 0.f;
   int mNpixels = 0;
   ClusterPattern mPattern; ///< Bitmask of pixels. For groups the biggest bounding box for the group is taken, with all
-                           ///the bits set to 1.
+                           /// the bits set to 1.
 };
 
 // transient structure to accumulate topology statistics

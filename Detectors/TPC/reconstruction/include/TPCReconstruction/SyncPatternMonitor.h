@@ -97,7 +97,7 @@ inline short SyncPatternMonitor::addSequence(const short hw0, const short hw1, c
   checkWord(hw1, 2);
   checkWord(hw2, 3);
   checkWord(hw3, 0);
-  return mPatternFound; //getPosition();
+  return mPatternFound; // getPosition();
 };
 
 inline void SyncPatternMonitor::checkWord(const short hw, const short pos)

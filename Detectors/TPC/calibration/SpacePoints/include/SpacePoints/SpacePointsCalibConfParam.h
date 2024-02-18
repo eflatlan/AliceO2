@@ -25,7 +25,7 @@ namespace tpc
 // These are configurable params for the TPC space point calibration
 struct SpacePointsCalibConfParam : public o2::conf::ConfigurableParamHelper<SpacePointsCalibConfParam> {
 
-  int maxTracksPerCalibSlot = 3'500'000; ///< the number of tracks which is required to obtain an average correction map
+  int maxTracksPerCalibSlot = 3'500'000;  ///< the number of tracks which is required to obtain an average correction map
   int additionalTracksITSTPC = 2'000'000; ///< will be added to maxTracksPerCalibSlot for track sample with uniform acceptance (no PHOS hole)
 
   // define track cuts for track interpolation
@@ -40,20 +40,20 @@ struct SpacePointsCalibConfParam : public o2::conf::ConfigurableParamHelper<Spac
   float minPtNoOuterPoint = 0.8f;  ///< minimum pt for ITS-TPC tracks to be considered for extrapolation
 
   // other settings for track interpolation
-  float sigYZ2TOF{.75f}; ///< for now assume cluster error for TOF equal for all clusters in both Y and Z
-  float maxSnp{.85f};    ///< max snp when propagating tracks
-  float maxStep{2.f};    ///< maximum step for propagation
+  float sigYZ2TOF{.75f};   ///< for now assume cluster error for TOF equal for all clusters in both Y and Z
+  float maxSnp{.85f};      ///< max snp when propagating tracks
+  float maxStep{2.f};      ///< maximum step for propagation
   bool debugTRDTOF{false}; ///< if true, ITS-TPC-TRD-TOF tracks and their seeding ITS-TPC-TRD track will both be interpolated and their residuals stored
 
   // steering of map creation after the residuals have already been written to file
   bool fitVdrift{true};             ///< if vDrift should be extracted (TODO: currently from unbinned residuals in macro mode only)
   bool writeBinnedResiduals{false}; ///< when creating the map from unbinned residuals store the binned residuals together with the voxel results
   bool useTrackData{true};          ///< if we have the track data available, we can redefine the above cuts for the map creation, e.g. minTPCNCls etc
-  bool timeFilter{false};   ///< consider only residuals as input from TFs with a specific time range specified via startTimeMS and endTimeMS
-  long startTimeMS{0L};     ///< the start of the time range in MS
-  long endTimeMS{1999999999999L}; ///< the end of the time range in MS
-  bool cutOnDCA{true};            ///< when creating the map from unbinned residuals cut on DCA estimated from ITS outer parameter
-  float maxDCA = 7.f;             ///< DCA cut value in cm
+  bool timeFilter{false};           ///< consider only residuals as input from TFs with a specific time range specified via startTimeMS and endTimeMS
+  long startTimeMS{0L};             ///< the start of the time range in MS
+  long endTimeMS{1999999999999L};   ///< the end of the time range in MS
+  bool cutOnDCA{true};              ///< when creating the map from unbinned residuals cut on DCA estimated from ITS outer parameter
+  float maxDCA = 7.f;               ///< DCA cut value in cm
 
   // parameters for outlier rejection
   bool skipOutlierFiltering{false};      ///< if set, the outlier filtering will not be applied at all

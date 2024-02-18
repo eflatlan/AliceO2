@@ -37,7 +37,7 @@ namespace align
 using GIndex = o2::dataformats::VtxTrackIndex;
 class Controller;
 
-//TODO(milettri) : fix possibly incompatible Detector IDs of O2 and AliROOT
+// TODO(milettri) : fix possibly incompatible Detector IDs of O2 and AliROOT
 class AlignableDetector : public DOFSet
 {
  public:
@@ -60,7 +60,7 @@ class AlignableDetector : public DOFSet
   virtual void applyAlignmentFromMPSol();
   //
   int volID2SID(int vid) const;
-  int sID2VolID(int sid) const { return sid < getNSensors() ? mSID2VolID[sid] : -1; } //todo
+  int sID2VolID(int sid) const { return sid < getNSensors() ? mSID2VolID[sid] : -1; } // todo
   int getNSensors() const { return mSensors.GetEntriesFast(); }
   int getNVolumes() const { return mVolumes.GetEntriesFast(); }
   int getVolIDMin() const { return mVolIDMin; }
@@ -199,14 +199,14 @@ class AlignableDetector : public DOFSet
   uint64_t mCalibDOF = 0; // status of calib dof
   //
   // Track selection
-  bool mDisabled[utils::NTrackTypes] = {};         // detector disabled/enabled in the track
-  bool mObligatory[utils::NTrackTypes] = {};       // detector must be present in the track
-  int mNPointsSel[utils::NTrackTypes] = {};        // min number of points to require
+  bool mDisabled[utils::NTrackTypes] = {};   // detector disabled/enabled in the track
+  bool mObligatory[utils::NTrackTypes] = {}; // detector must be present in the track
+  int mNPointsSel[utils::NTrackTypes] = {};  // min number of points to require
   //
   int mUseErrorParam = 0;   // signal that points need to be updated using track info, 0 - no
   double mAddError[2] = {}; // additional error increment for measurement
-  TObjArray mSensors;  // all sensors of the detector
-  TObjArray mVolumes;  // all volumes of the detector
+  TObjArray mSensors;       // all sensors of the detector
+  TObjArray mVolumes;       // all volumes of the detector
   //
   // this is transient info
   int mNPoints = 0; //! number of points from this detector

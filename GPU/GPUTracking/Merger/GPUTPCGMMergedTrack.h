@@ -108,7 +108,7 @@ class GPUTPCGMMergedTrack
   GPUd() gputpcgmmergertypes::GPUTPCOuterParam& OuterParam() { return mOuterParam; }
 
  private:
-  GPUTPCGMTrackParam mParam;                        //* fitted track parameters
+  GPUTPCGMTrackParam mParam;                         //* fitted track parameters
   gputpcgmmergertypes::GPUTPCOuterParam mOuterParam; //* outer param
 
   float mAlpha;                  //* alpha angle

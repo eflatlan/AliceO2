@@ -108,11 +108,11 @@ class VisualisationTrack
   // Set coordinates of the beginning of the track
   void addStartCoordinates(const float xyz[3]);
 
-  float mTime;                 /// track time
-  int mCharge;                 /// Charge of the particle
+  float mTime; /// track time
+  int mCharge; /// Charge of the particle
 
-  int mPID;                    /// PDG code of the particle
-  std::string mGID;            /// String representation of gid
+  int mPID;         /// PDG code of the particle
+  std::string mGID; /// String representation of gid
 
   float mStartCoordinates[3]; /// Vector of track's start coordinates
 

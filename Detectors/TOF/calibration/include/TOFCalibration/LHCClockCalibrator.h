@@ -22,7 +22,7 @@
 #include "CCDB/CcdbObjectInfo.h"
 #include <array>
 
-//#define DEBUGGING
+// #define DEBUGGING
 
 #ifdef DEBUGGING
 #include "TH2F.h"

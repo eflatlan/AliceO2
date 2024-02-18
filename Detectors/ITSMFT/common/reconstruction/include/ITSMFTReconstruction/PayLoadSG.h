@@ -128,8 +128,8 @@ class PayLoadSG
   size_t getNPieces() const { return mBuffer.size(); }
 
  private:
-  std::vector<SGPiece> mBuffer;   // list of pieces to fetch
-  size_t mCurrentPieceID = 0;     // current piece
+  std::vector<SGPiece> mBuffer;    // list of pieces to fetch
+  size_t mCurrentPieceID = 0;      // current piece
   size_t mCurrentEntryInPiece = 0; // offset within current piece
 
   ClassDefNV(PayLoadSG, 1);

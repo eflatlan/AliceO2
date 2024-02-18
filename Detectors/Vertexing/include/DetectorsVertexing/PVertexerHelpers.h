@@ -72,7 +72,7 @@ struct VertexSeed : public PVertex {
   {
     setNContributors(0);
     nContributorsTB = 0;
-    //setTimeStamp({0., 0.});
+    // setTimeStamp({0., 0.});
     wghSum = 0.;
     wghChi2 = 0.;
     wghSumTB = 0.;
@@ -105,22 +105,22 @@ struct TrackVF {
   enum { kUsed,
          kNoVtx = -1,
          kDiscarded = kNoVtx - 1 };
-  float x;      ///< reference X
-  float y;      ///< Y at X
-  float z;      ///< Z at X
+  float x;            ///< reference X
+  float y;            ///< Y at X
+  float z;            ///< Z at X
   float sig2YI = 0.f; ///< YY component of inverse cov.matrix
   float sig2ZI = 0.f; ///< ZZ component of inverse cov.matrix
   float sigYZI = 0.f; ///< YZ component of inverse cov.matrix
-  float tgP;    ///< tangent(phi) in tracking frame
-  float tgL;    ///< tangent(lambda)
-  float cosAlp; ///< cos of alpha frame
-  float sinAlp; ///< sin of alpha frame
+  float tgP;          ///< tangent(phi) in tracking frame
+  float tgL;          ///< tangent(lambda)
+  float cosAlp;       ///< cos of alpha frame
+  float sinAlp;       ///< sin of alpha frame
 
   TimeEst timeEst;
-  float wgh = 0.; ///< track weight wrt current vertex seed
+  float wgh = 0.;      ///< track weight wrt current vertex seed
   float wghHisto = 0.; // weight based on track errors, used for histogramming
-  int entry;      ///< track entry in the input vector
-  int32_t bin = -1; // seeds histo bin
+  int entry;           ///< track entry in the input vector
+  int32_t bin = -1;    // seeds histo bin
   GTrackID gid{};
   int vtxID = kNoVtx; ///< assigned vertex
   //

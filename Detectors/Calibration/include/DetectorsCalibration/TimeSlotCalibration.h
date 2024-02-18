@@ -227,20 +227,20 @@ class TimeSlotCalibration
   int mSlotLengthInOrbits = -1;  // optionally provided slot length in orbits
   TFType mLastClosedTF = 0;
   TFType mFirstTF = 0;
-  TFType mMaxSeenTF = 0;                        // largest TF processed
-  TFType mSlotLength = 1;                       // slot length in TFs
-  TFType mCheckIntervalInfiniteSlot = 1;        // will be used if the TF length is INFINITE_TF_int64 to decide
-                                                // when to check if to call the finalize; otherwise it is called
-                                                // at every new TF; note that this is an approximation,
-                                                // since TFs come in async order
-  TFType mLastCheckedTFInfiniteSlot = 0;        // will be used if the TF length is INFINITE_TF_int64 to book-keep
-                                                // the last TF at which we tried to calibrate
-  TFType mCheckDeltaIntervalInfiniteSlot = 1;   // will be used if the TF length is INFINITE_TF_int64 when
-                                                // the check on the statistics returned false, to determine
-                                                // after how many TF to check again.
-  float mMaxSlotsDelay = 3.0;                   // difference in slot units between the current TF and oldest slot (end TF) to account for the TF
+  TFType mMaxSeenTF = 0;                      // largest TF processed
+  TFType mSlotLength = 1;                     // slot length in TFs
+  TFType mCheckIntervalInfiniteSlot = 1;      // will be used if the TF length is INFINITE_TF_int64 to decide
+                                              // when to check if to call the finalize; otherwise it is called
+                                              // at every new TF; note that this is an approximation,
+                                              // since TFs come in async order
+  TFType mLastCheckedTFInfiniteSlot = 0;      // will be used if the TF length is INFINITE_TF_int64 to book-keep
+                                              // the last TF at which we tried to calibrate
+  TFType mCheckDeltaIntervalInfiniteSlot = 1; // will be used if the TF length is INFINITE_TF_int64 when
+                                              // the check on the statistics returned false, to determine
+                                              // after how many TF to check again.
+  float mMaxSlotsDelay = 3.0;                 // difference in slot units between the current TF and oldest slot (end TF) to account for the TF
 
-  bool mWasCheckedInfiniteSlot = false;         // flag to know whether the statistics of the infinite slot was already checked
+  bool mWasCheckedInfiniteSlot = false; // flag to know whether the statistics of the infinite slot was already checked
   bool mUpdateAtTheEndOfRunOnly = false;
   bool mFinalizeWhenReady = false; // if true: single bin is filled until ready, then closed and new one is added
 
@@ -267,7 +267,7 @@ bool TimeSlotCalibration<Container>::process(const DATA&... data)
   TFType tf = mCurrentTFInfo.tfCounter;
   uint64_t maxDelay64 = uint64_t(mSlotLength * mMaxSlotsDelay);
   TFType maxDelay = maxDelay64 > o2::calibration::INFINITE_TF ? o2::calibration::INFINITE_TF : TFType(maxDelay64);
-  if (!mUpdateAtTheEndOfRunOnly) {                                                               // if you update at the end of run only, then you accept everything
+  if (!mUpdateAtTheEndOfRunOnly) {                                                                 // if you update at the end of run only, then you accept everything
     if (tf < mLastClosedTF || (!mSlots.empty() && getLastSlot().getTFStart() > tf + maxDelay64)) { // ignore TF; note that if you have only 1 timeslot
                                                                                                    // which is INFINITE_TF wide, then maxDelay
                                                                                                    // does not matter: you won't accept TFs from the past,
@@ -320,7 +320,7 @@ void TimeSlotCalibration<Container>::checkSlotsToFinalize(TFType tf, int maxDela
         mSlots[0].setTFStart(mLastClosedTF);
         mSlots[0].setTFEnd(mMaxSeenTF);
         LOG(info) << "Finalizing slot for " << mSlots[0].getTFStart() << " <= TF <= " << mSlots[0].getTFEnd();
-        finalizeSlot(mSlots[0]);                  // will be removed after finalization
+        finalizeSlot(mSlots[0]);                                                                                              // will be removed after finalization
         mLastClosedTF = mSlots[0].getTFEnd() < INFINITE_TF ? (mSlots[0].getTFEnd() + 1) : mSlots[0].getTFEnd() < INFINITE_TF; // will not accept any TF below this
         mSlots.erase(mSlots.begin());
         // creating a new slot if we are not at the end of run

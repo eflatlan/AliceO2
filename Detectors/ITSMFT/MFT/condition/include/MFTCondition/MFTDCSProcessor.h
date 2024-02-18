@@ -40,13 +40,13 @@ using DPCOM = o2::dcs::DataPointCompositeObject;
 
 struct MFTDCSinfo {
 
-  std::pair<uint64_t, double> firstValue; // first value seen by the MFT DCS processor
-  std::pair<uint64_t, double> lastValue;  // last value seen by the MFT DCS processor
-  std::pair<uint64_t, double> meanValue;  // mean value seen by the MFT DCS processor
+  std::pair<uint64_t, double> firstValue;  // first value seen by the MFT DCS processor
+  std::pair<uint64_t, double> lastValue;   // last value seen by the MFT DCS processor
+  std::pair<uint64_t, double> meanValue;   // mean value seen by the MFT DCS processor
   std::pair<uint64_t, double> stddevValue; // standard deviation value seen by the MFT DCS processor
-  std::pair<uint64_t, double> midValue;   // mid value seen by the MFT DCS processor
-  std::pair<uint64_t, double> maxChange;  // maximum variation seen by the MFT DCS processor
-  std::pair<uint64_t, double> summary;    // number of entries by the MFT DCS processor
+  std::pair<uint64_t, double> midValue;    // mid value seen by the MFT DCS processor
+  std::pair<uint64_t, double> maxChange;   // maximum variation seen by the MFT DCS processor
+  std::pair<uint64_t, double> summary;     // number of entries by the MFT DCS processor
 
   MFTDCSinfo()
   {

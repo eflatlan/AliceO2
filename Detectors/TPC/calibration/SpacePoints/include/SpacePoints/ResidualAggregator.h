@@ -59,15 +59,15 @@ struct ResidualsContainer {
   std::array<std::vector<TrackResiduals::LocalResid>*, SECTORSPERSIDE * SIDES> residualsPtr{};
   std::array<std::vector<TrackResiduals::VoxStats>, SECTORSPERSIDE * SIDES> stats{}; ///< voxel statistics per sector
   std::array<std::vector<TrackResiduals::VoxStats>*, SECTORSPERSIDE * SIDES> statsPtr{};
-  std::vector<uint32_t> tfOrbits, *tfOrbitsPtr{&tfOrbits};                   ///< first TF orbit
-  std::vector<uint32_t> sumBinnedResid, *sumBinnedResidPtr{&sumBinnedResid}; ///< sum of binned residuals for each TF
+  std::vector<uint32_t> tfOrbits, *tfOrbitsPtr{&tfOrbits};                         ///< first TF orbit
+  std::vector<uint32_t> sumBinnedResid, *sumBinnedResidPtr{&sumBinnedResid};       ///< sum of binned residuals for each TF
   std::vector<uint32_t> sumUnbinnedResid, *sumUnbinnedResidPtr{&sumUnbinnedResid}; ///< sum of unbinned residuals for each TF
-  std::vector<o2::ctp::LumiInfo> lumi, *lumiPtr{&lumi};                      ///< luminosity information from CTP per TF
-  std::vector<UnbinnedResid> unbinnedRes, *unbinnedResPtr{&unbinnedRes};     ///< unbinned residuals which are sent to the aggregator
-  std::vector<TrackData> trkData, *trkDataPtr{&trkData};                     ///< track data and cluster ranges
-  std::vector<TrackDataCompact> trackInfo, *trackInfoPtr{&trackInfo};        ///< allows to obtain track type for each unbinned residual downstream
-  o2::ctp::LumiInfo lumiTF;                                                  ///< for each processed TF we store the lumi information in the tree of unbinned residuals
-  uint64_t timeMS;                                                           ///< for each processed TF we store its absolute time in ms in the tree of unbinned residuals
+  std::vector<o2::ctp::LumiInfo> lumi, *lumiPtr{&lumi};                            ///< luminosity information from CTP per TF
+  std::vector<UnbinnedResid> unbinnedRes, *unbinnedResPtr{&unbinnedRes};           ///< unbinned residuals which are sent to the aggregator
+  std::vector<TrackData> trkData, *trkDataPtr{&trkData};                           ///< track data and cluster ranges
+  std::vector<TrackDataCompact> trackInfo, *trackInfoPtr{&trackInfo};              ///< allows to obtain track type for each unbinned residual downstream
+  o2::ctp::LumiInfo lumiTF;                                                        ///< for each processed TF we store the lumi information in the tree of unbinned residuals
+  uint64_t timeMS;                                                                 ///< for each processed TF we store its absolute time in ms in the tree of unbinned residuals
 
   std::string fileName{"o2tpc_residuals"};
   std::unique_ptr<TFile> fileOut{nullptr};
@@ -127,18 +127,18 @@ class ResidualAggregator final : public o2::calibration::TimeSlotCalibration<Res
 
  private:
   o2::framework::DataTakingContext mDataTakingContext{};
-  TrackResiduals mTrackResiduals; ///< providing the functionality for voxel binning of the residuals
-  std::string mOutputDir{"./"};   ///< the directory where the output of residuals is stored
-  std::string mMetaOutputDir{"none"}; ///< the directory where the meta data file is stored
-  std::string mLHCPeriod{""};         ///< the LHC period to be put into the meta file
-  bool mStoreMetaData{false};         ///< flag, whether meta file is supposed to be stored
-  bool mWriteOutput{false};           ///< flag, whether output files are supposed to be stored
-  bool mWriteBinnedResiduals{false};  ///< flag, whether to write binned residuals to output file
+  TrackResiduals mTrackResiduals;      ///< providing the functionality for voxel binning of the residuals
+  std::string mOutputDir{"./"};        ///< the directory where the output of residuals is stored
+  std::string mMetaOutputDir{"none"};  ///< the directory where the meta data file is stored
+  std::string mLHCPeriod{""};          ///< the LHC period to be put into the meta file
+  bool mStoreMetaData{false};          ///< flag, whether meta file is supposed to be stored
+  bool mWriteOutput{false};            ///< flag, whether output files are supposed to be stored
+  bool mWriteBinnedResiduals{false};   ///< flag, whether to write binned residuals to output file
   bool mWriteUnbinnedResiduals{false}; ///< flag, whether to write unbinned residuals to output file
   bool mWriteTrackData{false};         ///< flag, whether to write track data to output file
   int mAutosaveInterval{0};            ///< if >0 then the output is written to a file for every n-th TF
   int mCompressionSetting{101};        ///< single integer defining the ROOT compression algorithm and level (see TFile doc for details)
-  size_t mMinEntries;             ///< the minimum number of residuals required for the map creation (per voxel)
+  size_t mMinEntries;                  ///< the minimum number of residuals required for the map creation (per voxel)
 
   ClassDefOverride(ResidualAggregator, 4);
 };

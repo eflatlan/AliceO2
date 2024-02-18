@@ -21,10 +21,10 @@
 #pragma link C++ class o2::trd::FeeParam + ;
 #pragma link C++ class o2::trd::RecoParam + ;
 #pragma link C++ class o2::trd::PadResponse + ;
-#pragma link C++ class o2::trd::PadParameters < float > +;
+#pragma link C++ class o2::trd::PadParameters < float> + ;
 #pragma link C++ class o2::trd::PadParameters < char> + ;
-#pragma link C++ class o2::trd::PadCalibrations < float > +;
-#pragma link C++ class o2::trd::PadCalibrations < char > +;
+#pragma link C++ class o2::trd::PadCalibrations < float> + ;
+#pragma link C++ class o2::trd::PadCalibrations < char> + ;
 #pragma link C++ class o2::trd::Calibrations + ;
 #pragma link C++ class o2::trd::ChamberCalibrations + ;
 #pragma link C++ class o2::trd::PadStatus + ;

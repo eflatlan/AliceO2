@@ -28,7 +28,7 @@
 #include "GPUCommonRtypes.h"
 #include "GPUCommonLogger.h"
 
-//#define GPUCA_GPUCODE // uncomment to test "GPU" mode
+// #define GPUCA_GPUCODE // uncomment to test "GPU" mode
 
 namespace GPUCA_NAMESPACE
 {
@@ -564,7 +564,7 @@ inline void FlatObject::setFutureBufferAddress(char* futureFlatBufferPtr)
   mFlatBufferContainer = nullptr;
 }
 
-#endif //GPUCA_GPUCODE_DEVICE
+#endif // GPUCA_GPUCODE_DEVICE
 
 } // namespace gpu
 } // namespace GPUCA_NAMESPACE

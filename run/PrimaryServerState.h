@@ -48,4 +48,4 @@ struct PrimaryChunkAnswer {
 
 } // namespace o2
 
-#endif //O2_PRIMARYSERVERSTATE_H
+#endif // O2_PRIMARYSERVERSTATE_H

@@ -28,7 +28,7 @@ class Hit : public o2::BasicXYZEHit<Float_t, Float_t>
 {
 
  public:
-  //Default constructor
+  // Default constructor
   Hit() = default;
   inline Hit(int trackID, unsigned short detID, const TVector3& Pos, double Time, double eLoss, int nPhot);
 

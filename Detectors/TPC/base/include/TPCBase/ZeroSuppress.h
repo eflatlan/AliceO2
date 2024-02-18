@@ -38,7 +38,7 @@ class ZeroSuppress
 {
 
  private:
-  std::vector<std::vector<ZeroSuppressedContainer8kb>> z0Pages = {}; //vector of 8kb pages as zero suppressed output
+  std::vector<std::vector<ZeroSuppressedContainer8kb>> z0Pages = {}; // vector of 8kb pages as zero suppressed output
   Mapper& mapper;
 
  public:

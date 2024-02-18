@@ -36,8 +36,8 @@ class Aligner : public o2::conf::ConfigurableParamHelper<Aligner>
   void applyAlignment(long timestamp = 0, o2::detectors::DetID::mask_t addMask = o2::detectors::DetID::FullMask) const;
 
  private:
-  std::string mDetectors = "all";                      // comma-separated list of modules to align, "all" or "none"
-  long mTimeStamp = 0;                                 // assigned TimeStamp or now() if 0
+  std::string mDetectors = "all"; // comma-separated list of modules to align, "all" or "none"
+  long mTimeStamp = 0;            // assigned TimeStamp or now() if 0
 
   O2ParamDef(Aligner, "align-geom");
 };

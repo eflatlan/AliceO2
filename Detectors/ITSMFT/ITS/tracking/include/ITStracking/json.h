@@ -450,8 +450,7 @@ struct has_from_json {
   static void detect(...);
 
  public:
-  static constexpr bool value = std::is_integral<decltype(
-    detect(std::declval<typename BasicJsonType::template json_serializer<T, void>>()))>::value;
+  static constexpr bool value = std::is_integral<decltype(detect(std::declval<typename BasicJsonType::template json_serializer<T, void>>()))>::value;
 };
 
 // This trait checks if JSONSerializer<T>::from_json(json const&) exists
@@ -1063,9 +1062,8 @@ void from_json_array_impl(const BasicJsonType& j, CompatibleArrayType& arr, prio
 
 template <typename BasicJsonType, typename CompatibleArrayType>
 auto from_json_array_impl(const BasicJsonType& j, CompatibleArrayType& arr, priority_tag<1> /*unused*/)
-  -> decltype(
-    arr.reserve(std::declval<typename CompatibleArrayType::size_type>()),
-    void())
+  -> decltype(arr.reserve(std::declval<typename CompatibleArrayType::size_type>()),
+              void())
 {
   using std::end;
 

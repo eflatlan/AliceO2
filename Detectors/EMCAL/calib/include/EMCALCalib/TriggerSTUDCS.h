@@ -89,7 +89,7 @@ class TriggerSTUDCS
   int getPatchSize() const { return mPatchSize; }
   int getMedianMode() const { return mMedian; }
 
-  //void    getSegmentation(TVector2& v1, TVector2& v2, TVector2& v3, TVector2& v4) const;
+  // void    getSegmentation(TVector2& v1, TVector2& v2, TVector2& v3, TVector2& v4) const;
 
   /// \brief Print STUs on a given stream
   /// \param stream Stream on which the STU is printed on

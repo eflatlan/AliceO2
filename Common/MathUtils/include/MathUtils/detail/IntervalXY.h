@@ -69,26 +69,26 @@ class IntervalXY
   GPUd() void getLineCoefs(T& a, T& b, T& c) const;
 
   /** check if XY interval is seen by the circle.
-  * The tolerance parameter eps is interpreted as a fraction of the interval
-  * lenght to be added to the edges along the interval (i.e. while the points
-  * within the interval are spanning
-  * x = xc + dx*t
-  * y = yc + dy*t
-  * with 0<t<1., we acctually check the interval for -eps<t<1+eps
-  */
+   * The tolerance parameter eps is interpreted as a fraction of the interval
+   * lenght to be added to the edges along the interval (i.e. while the points
+   * within the interval are spanning
+   * x = xc + dx*t
+   * y = yc + dy*t
+   * with 0<t<1., we acctually check the interval for -eps<t<1+eps
+   */
   GPUd() bool seenByCircle(const CircleXY<T>& circle, T eps) const;
 
   GPUd() bool circleCrossParam(const CircleXY<T>& circle, T& t) const;
 
   /**
-  * check if XY interval is seen by the line defined by other interval
-  * The tolerance parameter eps is interpreted as a fraction of the interval
-  * lenght to be added to the edges along the interval (i.e. while the points
-  * within the interval are spanning
-  * x = xc + dx*t
-  * y = yc + dy*t
-  * with 0<t<1., we acctually check the interval for -eps<t<1+eps
-  */
+   * check if XY interval is seen by the line defined by other interval
+   * The tolerance parameter eps is interpreted as a fraction of the interval
+   * lenght to be added to the edges along the interval (i.e. while the points
+   * within the interval are spanning
+   * x = xc + dx*t
+   * y = yc + dy*t
+   * with 0<t<1., we acctually check the interval for -eps<t<1+eps
+   */
   GPUd() bool seenByLine(const IntervalXY<T>& other, T eps) const;
 
   /**

@@ -53,8 +53,8 @@ class DigitReader : public Task
 
   std::unique_ptr<TFile> mFile;
   std::unique_ptr<TTree> mTree;
-  bool mUseMC = true;    // use MC truth
-  bool mUseCalib = true; // send calib data
+  bool mUseMC = true;      // use MC truth
+  bool mUseCalib = true;   // send calib data
   bool mTriggerOut = true; // send dummy triggers vector
   std::string mDetName = "";
   std::string mDetNameLC = "";

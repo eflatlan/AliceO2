@@ -21,7 +21,7 @@
 #include <vector>
 #include <array>
 
-//#include "FairLogger.h"
+// #include "FairLogger.h"
 #include "Rtypes.h"
 #include "TLinearFitter.h"
 #include "TVectorD.h"
@@ -70,9 +70,9 @@ TFitResultPtr fit(const size_t nBins, const T* arr, const T xMin, const T xMax, 
   // create an empty TFitResult
   std::shared_ptr<TFitResult> tfr(new TFitResult());
   // create the fitter from an empty fit result
-  //std::shared_ptr<ROOT::Fit::Fitter> fitter(new ROOT::Fit::Fitter(std::static_pointer_cast<ROOT::Fit::FitResult>(tfr) ) );
+  // std::shared_ptr<ROOT::Fit::Fitter> fitter(new ROOT::Fit::Fitter(std::static_pointer_cast<ROOT::Fit::FitResult>(tfr) ) );
   ROOT::Fit::Fitter fitter(tfr);
-  //ROOT::Fit::FitConfig & fitConfig = fitter->Config();
+  // ROOT::Fit::FitConfig & fitConfig = fitter->Config();
 
   const double binWidth = double(xMax - xMin) / double(nBins);
 
@@ -113,7 +113,7 @@ TFitResultPtr fit(const size_t nBins, const T* arr, const T xMin, const T xMax, 
   // standard least square fit
   const bool fitok = fitter.Fit(fitdata, fitOption.ExecPolicy);
   if (!fitok) {
-    //LOGP(warning, "bad fit");
+    // LOGP(warning, "bad fit");
   }
 
   return TFitResultPtr(tfr);
@@ -226,8 +226,8 @@ bool medmadGaus(size_t nBins, const T* arr, const T xMin, const T xMax, std::arr
 ///          -1: only one point has been used for the calculation - center of gravity was uesed for calculation
 ///          -4: invalid result!!
 ///
-//template <typename T>
-//Double_t  fitGaus(const size_t nBins, const T *arr, const T xMin, const T xMax, std::vector<T>& param);
+// template <typename T>
+// Double_t  fitGaus(const size_t nBins, const T *arr, const T xMin, const T xMax, std::vector<T>& param);
 template <typename T>
 Double_t fitGaus(const size_t nBins, const T* arr, const T xMin, const T xMax, std::vector<T>& param)
 {
@@ -302,7 +302,7 @@ Double_t fitGaus(const size_t nBins, const T* arr, const T xMin, const T xMax, s
   Double_t chi2 = 0;
   if (npoints >= 3) {
     if (npoints == 3) {
-      //analytic calculation of the parameters for three points
+      // analytic calculation of the parameters for three points
       A.Invert();
       TMatrixD res(1, 3);
       res.Mult(A, b);
@@ -335,7 +335,7 @@ Double_t fitGaus(const size_t nBins, const T* arr, const T xMin, const T xMax, s
   }
 
   if (npoints == 2) {
-    //use center of gravity for 2 points
+    // use center of gravity for 2 points
     meanCOG /= sumCOG;
     rms2COG /= sumCOG;
     param[0] = max;
@@ -418,7 +418,7 @@ double fitGaus(size_t nBins, const T* arr, const T xMin, const T xMax, std::arra
   auto m33i = m33.Inverse(res);
   if (res) {
     recover();
-    //LOG(error) << np << " points collected, matrix inversion failed " << m33;
+    // LOG(error) << np << " points collected, matrix inversion failed " << m33;
     return -10;
   }
   auto v = m33i * v3;
@@ -525,7 +525,7 @@ R median(std::vector<T> v)
   auto n = v.size() / 2;
   nth_element(v.begin(), v.begin() + n, v.end());
   auto med = R{v[n]};
-  if (!(v.size() & 1)) { //If the set size is even
+  if (!(v.size() & 1)) { // If the set size is even
     auto max_it = max_element(v.begin(), v.begin() + n);
     med = R{(*max_it + med) / 2.0};
   }
@@ -540,7 +540,7 @@ template <typename T>
 void SortData(std::vector<T> const& values, std::vector<size_t>& index)
 {
   if (values.size() != index.size()) {
-    //LOG(error) << "Vector with values must have same size as vector for indices";
+    // LOG(error) << "Vector with values must have same size as vector for indices";
     return;
   }
   std::iota(index.begin(), index.end(), static_cast<size_t>(0));
@@ -610,7 +610,7 @@ bool LTMUnbinned(const std::vector<T>& data, std::vector<size_t>& index, std::ar
   }
   //
   if (params[2] < 0) {
-    //LOG(error) << "Rounding error: RMS = " << params[2] << " < 0";
+    // LOG(error) << "Rounding error: RMS = " << params[2] << " < 0";
     return false;
   }
   params[2] = std::sqrt(params[2]);
@@ -627,7 +627,7 @@ void Reorder(std::vector<T>& data, const std::vector<size_t>& index)
 {
   // rearange data in order given by index
   if (data.size() != index.size()) {
-    //LOG(error) << "Reordering not possible if number of elements in index container different from the data container";
+    // LOG(error) << "Reordering not possible if number of elements in index container different from the data container";
     return;
   }
   std::vector<T> tmp(data);

@@ -25,7 +25,7 @@ namespace eventgen
 /**
  ** a parameter class/struct to keep the settings of
  ** the FromO2Kine event generator and
- ** allow the user to modify them 
+ ** allow the user to modify them
  **/
 
 struct GeneratorFromO2KineParam : public o2::conf::ConfigurableParamHelper<GeneratorFromO2KineParam> {

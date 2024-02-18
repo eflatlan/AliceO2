@@ -36,7 +36,7 @@ class Geometry
     eFull
   };
 
-  //Default constructor.
+  // Default constructor.
   Geometry() { mGeometryType = eUninitilized; };
   // Standard constructor
   Geometry(EGeoType initType);

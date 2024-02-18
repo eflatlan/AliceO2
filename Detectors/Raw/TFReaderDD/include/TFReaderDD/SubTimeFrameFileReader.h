@@ -44,7 +44,6 @@ using MessagesPerRoute = std::unordered_map<std::string, std::unique_ptr<fair::m
 class SubTimeFrameFileReader
 {
  public:
-
   SubTimeFrameFileReader() = delete;
   SubTimeFrameFileReader(const std::string& pFileName, o2::detectors::DetID::mask_t detMask);
   ~SubTimeFrameFileReader();

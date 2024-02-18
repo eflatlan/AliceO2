@@ -89,7 +89,7 @@ o2f::InjectorFunction dcs2dpl(std::unordered_map<DPID, o2h::DataDescription>& dp
     }
 
     // We first iterate over the parts of the received message
-    for (size_t i = 0; i < parts.Size(); ++i) {             // DCS sends only 1 part, but we should be able to receive more
+    for (size_t i = 0; i < parts.Size(); ++i) { // DCS sends only 1 part, but we should be able to receive more
       auto sz = parts.At(i)->GetSize();
       szInp += sz;
       if (isFBI) {

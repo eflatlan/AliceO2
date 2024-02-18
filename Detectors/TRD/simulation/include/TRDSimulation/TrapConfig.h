@@ -559,8 +559,8 @@ class TrapConfig
     bool allocate(Alloc_t mode);
     bool allocatei(int mode);
     static const std::array<int, TrapConfig::mlastAlloc> mgkSize; //= {0, 1, 540, 1080, 8 * 18 * 540, 4, 6, 8 * 18 * 30};
-    //static const std::array<int,TrapConfig::mlastAlloc> mgkSize; // required array dimension for different allocation modes
-    //this is used purely for copying data from run2 ocdb to run3 ccdb.
+    // static const std::array<int,TrapConfig::mlastAlloc> mgkSize; // required array dimension for different allocation modes
+    // this is used purely for copying data from run2 ocdb to run3 ccdb.
     void setDataFromRun2(int value, int valid, unsigned int index)
     {
       if (index < mData.size()) {
@@ -570,7 +570,7 @@ class TrapConfig
         LOG(debug) << "attempt to write data outside array with size : " << mData.size() << "and index of :" << index;
       }
     }
-    //next 3 functions are putrely for back ref cross checks to run2.
+    // next 3 functions are putrely for back ref cross checks to run2.
     int getAllocMode() { return (int)mAllocMode; }
     unsigned int getDataRaw(int i) { return mData[i]; }
     unsigned int getValidRaw(int i) { return mValid[i]; }
@@ -687,6 +687,6 @@ class TrapConfig
 
   ClassDefNV(TrapConfig, 1);
 };
-} //namespace trd
-} //namespace o2
+} // namespace trd
+} // namespace o2
 #endif

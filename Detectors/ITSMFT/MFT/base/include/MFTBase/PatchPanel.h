@@ -27,7 +27,7 @@ namespace mft
 
 class PatchPanel
 {
-  //TNamed
+  // TNamed
  public:
   PatchPanel();
   ~PatchPanel() = default;

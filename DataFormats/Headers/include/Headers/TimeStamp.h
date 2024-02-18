@@ -159,7 +159,7 @@ class TimeStamp
   }
 
   // TODO: implement transformation from one unit to the other
-  //void transform(const TimeUnitID& unit) {
+  // void transform(const TimeUnitID& unit) {
   //  if (mUnit == unit) return;
   //  ...
   //}
@@ -182,7 +182,7 @@ class TimeStamp
     };
   };
 };
-} //namespace header
-} //namespace o2
+} // namespace header
+} // namespace o2
 
 #endif

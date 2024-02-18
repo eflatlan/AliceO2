@@ -28,4 +28,4 @@ o2::framework::DataProcessorSpec getIDCToVectorSpec(const std::string inputSpec,
 
 } // end namespace o2::tpc
 
-#endif //TPC_IDCToVectorSpec_H_
+#endif // TPC_IDCToVectorSpec_H_

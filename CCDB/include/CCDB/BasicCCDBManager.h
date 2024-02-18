@@ -291,4 +291,4 @@ class BasicCCDBManager : public CCDBManagerInstance
 
 } // namespace o2::ccdb
 
-#endif //O2_BASICCCDBMANAGER_H
+#endif // O2_BASICCCDBMANAGER_H

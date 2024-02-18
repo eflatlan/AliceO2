@@ -269,7 +269,7 @@ class GPUTPCGMMerger : public GPUProcessor
   unsigned int* mTrackSort;
   tmpSort* mTrackSortO2;
   GPUAtomic(unsigned int) * mSharedCount; // Must be unsigned int unfortunately for atomic support
-  GPUTPCGMBorderTrack* mBorderMemory; // memory for border tracks
+  GPUTPCGMBorderTrack* mBorderMemory;     // memory for border tracks
   GPUTPCGMBorderTrack* mBorder[2 * NSLICES];
   gputpcgmmergertypes::GPUTPCGMBorderRange* mBorderRangeMemory;    // memory for border tracks
   gputpcgmmergertypes::GPUTPCGMBorderRange* mBorderRange[NSLICES]; // memory for border tracks

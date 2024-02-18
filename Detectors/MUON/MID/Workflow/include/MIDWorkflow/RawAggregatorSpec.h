@@ -27,4 +27,4 @@ framework::DataProcessorSpec getRawAggregatorSpec();
 } // namespace mid
 } // namespace o2
 
-#endif //O2_MID_RAWAGGREGATORSPEC_H
+#endif // O2_MID_RAWAGGREGATORSPEC_H

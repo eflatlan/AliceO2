@@ -38,7 +38,7 @@
 #include <boost/format.hpp>
 #include "TOFBase/Utils.h"
 
-//#define DEBUGGING
+// #define DEBUGGING
 
 #ifdef DEBUGGING
 #include "TProfile.h"
@@ -108,8 +108,8 @@ class TOFChannelData
 
   boostHisto& getHisto(int isect) { return mHisto[isect]; }
   const boostHisto& getHisto(int isect) const { return mHisto[isect]; }
-  //const boostHisto getHisto() const { return &mHisto[0]; }
-  // boostHisto* getHisto(int isect) const { return &mHisto[isect]; }
+  // const boostHisto getHisto() const { return &mHisto[0]; }
+  //  boostHisto* getHisto(int isect) const { return &mHisto[isect]; }
 
   std::vector<int> getEntriesPerChannel() const { return mEntries; }
 
@@ -185,7 +185,7 @@ class TOFChannelCalibrator final : public o2::calibration::TimeSlotCalibration<o
   {
     setStripFunction();
     for (int i = 0; i < NMAXTHREADS; ++i) {
-      //mLinFitters[i] = new TLinearFitter(3, "pol2");
+      // mLinFitters[i] = new TLinearFitter(3, "pol2");
       mLinFitters[i].SetDim(3);
       mLinFitters[i].SetFormula("pol2");
     }

@@ -43,10 +43,10 @@ class GPUTRDTrackerComponent : public AliHLTProcessor
 {
  public:
   /*
- * ---------------------------------------------------------------------------------
- *                            Constructor / Destructor
- * ---------------------------------------------------------------------------------
- */
+   * ---------------------------------------------------------------------------------
+   *                            Constructor / Destructor
+   * ---------------------------------------------------------------------------------
+   */
 
   /** constructor */
   GPUTRDTrackerComponent();
@@ -61,11 +61,11 @@ class GPUTRDTrackerComponent : public AliHLTProcessor
   virtual ~GPUTRDTrackerComponent();
 
   /*
- * ---------------------------------------------------------------------------------
- * Public functions to implement AliHLTComponent's interface.
- * These functions are required for the registration process
- * ---------------------------------------------------------------------------------
- */
+   * ---------------------------------------------------------------------------------
+   * Public functions to implement AliHLTComponent's interface.
+   * These functions are required for the registration process
+   * ---------------------------------------------------------------------------------
+   */
 
   /** interface function, see @ref AliHLTComponent for description */
   const char* GetComponentID();
@@ -89,12 +89,12 @@ class GPUTRDTrackerComponent : public AliHLTProcessor
 
  protected:
   /*
- * ---------------------------------------------------------------------------------
- * Protected functions to implement AliHLTComponent's interface.
- * These functions provide initialization as well as the actual processing
- * capabilities of the component.
- * ---------------------------------------------------------------------------------
- */
+   * ---------------------------------------------------------------------------------
+   * Protected functions to implement AliHLTComponent's interface.
+   * These functions provide initialization as well as the actual processing
+   * capabilities of the component.
+   * ---------------------------------------------------------------------------------
+   */
 
   // AliHLTComponent interface functions
 
@@ -114,24 +114,24 @@ class GPUTRDTrackerComponent : public AliHLTProcessor
 
  private:
   /*
- * ---------------------------------------------------------------------------------
- * Private functions to implement AliHLTComponent's interface.
- * These functions provide initialization as well as the actual processing
- * capabilities of the component.
- * ---------------------------------------------------------------------------------
- */
+   * ---------------------------------------------------------------------------------
+   * Private functions to implement AliHLTComponent's interface.
+   * These functions provide initialization as well as the actual processing
+   * capabilities of the component.
+   * ---------------------------------------------------------------------------------
+   */
 
   /*
- * ---------------------------------------------------------------------------------
- *                              Helper
- * ---------------------------------------------------------------------------------
- */
+   * ---------------------------------------------------------------------------------
+   *                              Helper
+   * ---------------------------------------------------------------------------------
+   */
 
   /*
- * ---------------------------------------------------------------------------------
- *                             Members - private
- * ---------------------------------------------------------------------------------
- */
+   * ---------------------------------------------------------------------------------
+   *                             Members - private
+   * ---------------------------------------------------------------------------------
+   */
   GPUCA_NAMESPACE::gpu::GPUTRDTrackerGPU* fTracker; // the tracker itself
   GPUCA_NAMESPACE::gpu::GPUTRDGeometry* fGeo;       // TRD geometry needed by the tracker
   GPUCA_NAMESPACE::gpu::GPUReconstruction* fRec;    // GPU Reconstruction object

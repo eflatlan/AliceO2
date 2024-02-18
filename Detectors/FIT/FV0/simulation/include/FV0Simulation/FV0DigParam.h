@@ -22,9 +22,9 @@ namespace o2::fv0
 {
 // parameters of FV0 digitization / transport simulation
 struct FV0DigParam : o2::conf::ConfigurableParamHelper<FV0DigParam> {
-  float photoCathodeEfficiency = 0.23;                  // quantum efficiency = nOfPhotoE_emitted_by_photocathode / nIncidentPhotons
-  float lightYield = 0.01;                              // light collection efficiency to be tuned using collision data [1%]
-  float adcChannelsPerMip = 16;                         // Default: 16 for pp and 8 for PbPb
+  float photoCathodeEfficiency = 0.23;                                     // quantum efficiency = nOfPhotoE_emitted_by_photocathode / nIncidentPhotons
+  float lightYield = 0.01;                                                 // light collection efficiency to be tuned using collision data [1%]
+  float adcChannelsPerMip = 16;                                            // Default: 16 for pp and 8 for PbPb
   float getChannelsPerMilivolt() const { return adcChannelsPerMip / 7.5; } // Non-trivial conversion depending on the pulseshape: amplitude to charge
   float chargeThrForMeanTime = 5;                                          // Charge threshold, only above which the time is taken into account in calculating the mean time of all qualifying channels
 

@@ -201,7 +201,7 @@ struct VariantReader : public rapidjson::BaseReaderHandler<rapidjson::UTF8<>, Va
       return false;
     }
     if (states.top() == State::IN_DATA) {
-      //no previous keys
+      // no previous keys
       states.push(State::IN_KEY);
       currentKey = str;
       return true;
@@ -281,14 +281,14 @@ struct VariantReader : public rapidjson::BaseReaderHandler<rapidjson::UTF8<>, Va
       return false;
     }
     if (states.top() == State::IN_ARRAY) {
-      //finish up array
+      // finish up array
       states.pop();
       if constexpr (isArray2D<V>() || isLabeledArray<V>()) {
         rows = elementCount;
       }
       return true;
     } else if (states.top() == State::IN_ROW) {
-      //finish up row
+      // finish up row
       states.pop();
       if constexpr (isArray2D<V>() || isLabeledArray<V>()) {
         cols = elementCount;
@@ -444,6 +444,6 @@ struct VariantJSONHelpers {
     }
   }
 };
-}
+} // namespace o2::framework
 
 #endif // FRAMEWORK_VARIANTJSONHELPERS_H

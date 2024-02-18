@@ -45,7 +45,7 @@
 #pragma link C++ class std::vector < o2::zdc::OrbitRawData> + ;
 #pragma link C++ class std::vector < o2::zdc::OrbitRecData> + ;
 
-#pragma link C++ class std::vector < uint16_t > + ;
+#pragma link C++ class std::vector < uint16_t> + ;
 
 #pragma link C++ struct o2::zdc::CTFHeader + ;
 #pragma link C++ struct o2::zdc::CTF + ;

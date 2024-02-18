@@ -231,4 +231,4 @@ class AnalysisCluster
 
 } // namespace emcal
 } // namespace o2
-#endif //ANALYSISCLUSTER_H
+#endif // ANALYSISCLUSTER_H

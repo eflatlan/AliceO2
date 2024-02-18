@@ -48,7 +48,7 @@ class GBTEncoder
   GBTEncoder(uint16_t linkId);
 
   /** @name Main interface.
-    */
+   */
   ///@{
   /// add data for one channel.
   ///
@@ -78,7 +78,7 @@ class GBTEncoder
   ///@}
 
   /** @name Methods for testing.
-    */
+   */
   ///@{
   /// Sets to true to bypass simulation of time misalignment of elinks.
   static bool forceNoPhase;

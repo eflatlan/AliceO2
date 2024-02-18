@@ -63,4 +63,4 @@ class CustomMergeableTObject : public TObject, public MergeInterface
 
 } // namespace o2::mergers
 
-#endif //O2_CUSTOMMERGEABLETOBJECT_H
+#endif // O2_CUSTOMMERGEABLETOBJECT_H

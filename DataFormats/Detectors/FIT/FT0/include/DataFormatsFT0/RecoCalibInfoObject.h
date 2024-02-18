@@ -42,4 +42,4 @@ class RecoCalibInfoObject
 } // namespace ft0
 } // namespace o2
 
-#endif //O2_RecoCalibINFOOBJECT_H
+#endif // O2_RecoCalibINFOOBJECT_H

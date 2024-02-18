@@ -47,18 +47,18 @@ class DataReaderTask : public Task
                         // we pull the data from the vectors build message and pass on.
                         // they will internally produce a vector of digits and a vector tracklets and associated indexing.
 
-  bool mVerbose{false};          // verbos output general debuggign and info output.
-  bool mDataVerbose{false};      // verbose output of data unpacking
-  bool mHeaderVerbose{false};    // verbose output of headers
-  bool mCompressedData{false};   // are we dealing with the compressed data from the flp (send via option)
-  int mProcessEveryNthTF{1};     // to parse only every n-th TF and send empty output for the rest
-  bool mInitOnceDone{false};     // flag for requesting new CCDB object upon global run number change
-  std::bitset<16> mOptions;            // stores the incoming of the above bools, useful to be able to send this on instead of the individual ones above
-                                       // the above bools make the code more readable hence still here.
+  bool mVerbose{false};        // verbos output general debuggign and info output.
+  bool mDataVerbose{false};    // verbose output of data unpacking
+  bool mHeaderVerbose{false};  // verbose output of headers
+  bool mCompressedData{false}; // are we dealing with the compressed data from the flp (send via option)
+  int mProcessEveryNthTF{1};   // to parse only every n-th TF and send empty output for the rest
+  bool mInitOnceDone{false};   // flag for requesting new CCDB object upon global run number change
+  std::bitset<16> mOptions;    // stores the incoming of the above bools, useful to be able to send this on instead of the individual ones above
+                               // the above bools make the code more readable hence still here.
 
-  int mTrackletHCHeaderState{0}; // what to do about tracklethcheader, 0 never there, 2 always there, 1 there iff tracklet data, i.e. only there if next word is *not* endmarker 10001000.
-  int mHalfChamberWords{0};      // if the halfchamber header is effectively blanked major.minor = 0.0 and halfchamberwords=0 then this value is used as the number of additional words to try recover the data
-  int mHalfChamberMajor{0};      // if the halfchamber header is effectively blanked major.minor = 0.0 and halfchamberwords=0 then this value is used as the major version to try recover the data
+  int mTrackletHCHeaderState{0};                                                          // what to do about tracklethcheader, 0 never there, 2 always there, 1 there iff tracklet data, i.e. only there if next word is *not* endmarker 10001000.
+  int mHalfChamberWords{0};                                                               // if the halfchamber header is effectively blanked major.minor = 0.0 and halfchamberwords=0 then this value is used as the number of additional words to try recover the data
+  int mHalfChamberMajor{0};                                                               // if the halfchamber header is effectively blanked major.minor = 0.0 and halfchamberwords=0 then this value is used as the major version to try recover the data
   o2::header::DataDescription mUserDataDescription = o2::header::gDataDescriptionInvalid; // alternative user-provided description to pick
   bool mFixDigitEndCorruption{false};                                                     // fix the parsing of corrupt end of digit data. bounce over it.
   uint64_t mDatasizeInTotal{0};                                                           // accumulate the total data size read in bytes

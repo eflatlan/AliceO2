@@ -29,155 +29,155 @@ namespace o2
 namespace dcs
 {
 /**
-     * This regular expression matches with strings representing payload types.
-     */
+ * This regular expression matches with strings representing payload types.
+ */
 static const std::regex REGEX_PT(
   "^(Raw|DPVAL)/(Int|Uint|Float|Double|Bool|Char|String|Time|Binary)$");
 
 /**
-     * <p>DeliveryType is a piece of meta-information used for deducing types of
-     * DPVAL payloads and DIM service description strings used with services
-     * providing data to ADAPOS. DPCOMs use the DeliveryType of DPIDs to infer
-     * the correct interpretation of payload data when being put into a
-     * <tt>std::ofstream</tt>. Also, ADAPOS Engine uses DeliveryTypes for DIM
-     * service subscription (and Load Generator for generating services).</p>
-     * <p>Every DeliveryType, except <tt>VOID</tt>, has a raw and DPVAL
-     * variant. A DIM service publishing payloads in DPVALs has a different
-     * format and binary layout than a DIM service publishing only raw data, so
-     * this distinction is critical to ADAPOS Engine.</p>
-     *
-     * @see ADAPRO::ADAPOS::DataPointCompositeObject
-     * @see ADAPRO::ADAPOS::DataPointIdentifier
-     * @see ADAPRO::ADAPOS::DataPointValue
-     */
+ * <p>DeliveryType is a piece of meta-information used for deducing types of
+ * DPVAL payloads and DIM service description strings used with services
+ * providing data to ADAPOS. DPCOMs use the DeliveryType of DPIDs to infer
+ * the correct interpretation of payload data when being put into a
+ * <tt>std::ofstream</tt>. Also, ADAPOS Engine uses DeliveryTypes for DIM
+ * service subscription (and Load Generator for generating services).</p>
+ * <p>Every DeliveryType, except <tt>VOID</tt>, has a raw and DPVAL
+ * variant. A DIM service publishing payloads in DPVALs has a different
+ * format and binary layout than a DIM service publishing only raw data, so
+ * this distinction is critical to ADAPOS Engine.</p>
+ *
+ * @see ADAPRO::ADAPOS::DataPointCompositeObject
+ * @see ADAPRO::ADAPOS::DataPointIdentifier
+ * @see ADAPRO::ADAPOS::DataPointValue
+ */
 enum DeliveryType {
   /**
-         * This DeliveryType is included only for testing and debugging
-         * when the payload of a DPVAL is not going to be accessed. Accessing
-         * the payload of a DPVAL with this DeliveryType results in a domain
-         * error.
-         */
+   * This DeliveryType is included only for testing and debugging
+   * when the payload of a DPVAL is not going to be accessed. Accessing
+   * the payload of a DPVAL with this DeliveryType results in a domain
+   * error.
+   */
   VOID = 0,
 
   /**
-         * <tt>Binary</tt> is the general payload data type. This is the raw
-         * variant.
-         */
+   * <tt>Binary</tt> is the general payload data type. This is the raw
+   * variant.
+   */
   RAW_BINARY = 64,
 
   /**
-         * <tt>Binary</tt> is the general payload data type. This is the DPVAL
-         * variant.
-         */
+   * <tt>Binary</tt> is the general payload data type. This is the DPVAL
+   * variant.
+   */
   DPVAL_BINARY = 192,
 
   /**
-         * <tt>Int</tt> stands for a 32-bit signed integer. This is the raw
-         * variant. The numerical value of <tt>RAW_INT</tt> corresponds with the
-         * WinCC constant <tt>DPEL_INT</tt>.
-         */
+   * <tt>Int</tt> stands for a 32-bit signed integer. This is the raw
+   * variant. The numerical value of <tt>RAW_INT</tt> corresponds with the
+   * WinCC constant <tt>DPEL_INT</tt>.
+   */
   RAW_INT = 21,
 
   /**
-         * <tt>Int</tt> stands for a 32-bit signed integer. This is the DPVAL
-         * variant.
-         */
+   * <tt>Int</tt> stands for a 32-bit signed integer. This is the DPVAL
+   * variant.
+   */
   DPVAL_INT = 149,
 
   /**
-         * <tt>Uint</tt> stands for a 32-bit unsigned integer. This is the raw
-         * variant. The numerical value of <tt>RAW_UINT</tt> corresponds with
-         * the WinCC constant <tt>DPEL_UINT</tt>.
-         */
+   * <tt>Uint</tt> stands for a 32-bit unsigned integer. This is the raw
+   * variant. The numerical value of <tt>RAW_UINT</tt> corresponds with
+   * the WinCC constant <tt>DPEL_UINT</tt>.
+   */
   RAW_UINT = 20,
 
   /**
-         * <tt>Uint</tt> stands for a 32-bit insigned integer. This is the DPVAL
-         * variant.
-         */
+   * <tt>Uint</tt> stands for a 32-bit insigned integer. This is the DPVAL
+   * variant.
+   */
   DPVAL_UINT = 148,
 
   /**
-         * <tt>Double</tt> stands for IEEE 754 double precision floating point
-         * number (64 bit). This is the raw variant. The numerical value of
-         * <tt>RAW_INT</tt> corresponds with the WinCC constant
-         * <tt>DPEL_FLOAT</tt>.
-         */
+   * <tt>Double</tt> stands for IEEE 754 double precision floating point
+   * number (64 bit). This is the raw variant. The numerical value of
+   * <tt>RAW_INT</tt> corresponds with the WinCC constant
+   * <tt>DPEL_FLOAT</tt>.
+   */
   RAW_DOUBLE = 22,
 
   /**
-         * <tt>Double</tt> stands for IEEE 754 double precision floating point
-         * number (64 bit). This is the DPVAL variant.
-         */
+   * <tt>Double</tt> stands for IEEE 754 double precision floating point
+   * number (64 bit). This is the DPVAL variant.
+   */
   DPVAL_DOUBLE = 150,
 
   /**
-         * <tt>Bool</tt> stands for a boolean. This is the raw variant. The
-         * numerical value of <tt>RAW_BOOL</tt> corresponds with the WinCC
-         * constant <tt>DPEL_BOOL</tt>.
-         */
+   * <tt>Bool</tt> stands for a boolean. This is the raw variant. The
+   * numerical value of <tt>RAW_BOOL</tt> corresponds with the WinCC
+   * constant <tt>DPEL_BOOL</tt>.
+   */
 
   RAW_FLOAT = 28,
 
   /**
-         * <tt>Float</tt> stands for IEEE 754 single precision floating point
-         * number (64 bit). This is the raw variant. The numerical value of
-         * <tt>RAW_INT</tt> corresponds with the WinCC constant
-         * <tt>DPEL_FLOAT</tt>.
-         */
+   * <tt>Float</tt> stands for IEEE 754 single precision floating point
+   * number (64 bit). This is the raw variant. The numerical value of
+   * <tt>RAW_INT</tt> corresponds with the WinCC constant
+   * <tt>DPEL_FLOAT</tt>.
+   */
   DPVAL_FLOAT = 156,
 
   /**
-         * <tt>Float</tt> stands for IEEE 754 single precision floating point
-         * number (64 bit). This is the DPVAL variant.
-         */
+   * <tt>Float</tt> stands for IEEE 754 single precision floating point
+   * number (64 bit). This is the DPVAL variant.
+   */
 
   RAW_BOOL = 23,
 
   /**
-         * <tt>Bool</tt> stands for a boolean. This is the DPVAL variant.
-         */
+   * <tt>Bool</tt> stands for a boolean. This is the DPVAL variant.
+   */
   DPVAL_BOOL = 151,
 
   /**
-         * <tt>Char</tt> stands for an ASCII character. This is the raw variant.
-         * The numerical value of <tt>RAW_CHAR</tt> corresponds with the WinCC
-         * constant <tt>DPEL_CHAR</tt>.
-         */
+   * <tt>Char</tt> stands for an ASCII character. This is the raw variant.
+   * The numerical value of <tt>RAW_CHAR</tt> corresponds with the WinCC
+   * constant <tt>DPEL_CHAR</tt>.
+   */
   RAW_CHAR = 19,
 
   /**
-         * <tt>Char</tt> stands for an ASCII character. This is the raw variant.
-         */
+   * <tt>Char</tt> stands for an ASCII character. This is the raw variant.
+   */
   DPVAL_CHAR = 147,
 
   /**
-         * <tt>String</tt> stands for a null-terminated array of ASCII
-         * characters. This is the raw variant. The numerical value of
-         * <tt>RAW_STRING</tt> corresponds with the WinCC constant
-         * <tt>DPEL_STRING</tt>.
-         */
+   * <tt>String</tt> stands for a null-terminated array of ASCII
+   * characters. This is the raw variant. The numerical value of
+   * <tt>RAW_STRING</tt> corresponds with the WinCC constant
+   * <tt>DPEL_STRING</tt>.
+   */
   RAW_STRING = 25,
 
   /**
-         * <tt>String</tt> stands for a null-terminated array of ASCII
-         * characters. This is the DPVAL variant.
-         */
+   * <tt>String</tt> stands for a null-terminated array of ASCII
+   * characters. This is the DPVAL variant.
+   */
   DPVAL_STRING = 153,
 
   /**
-         * <tt>Time</tt> stands for two 32-bit (unsigned) integers containing
-         * the milliseconds and secodns of a UNIX timestamp. This is the raw
-         * variant. The numerical value of <tt>RAW_TIME</tt> corresponds with
-         * the WinCC constant <tt>DPEL_DYN_UINT</tt>.
-         */
+   * <tt>Time</tt> stands for two 32-bit (unsigned) integers containing
+   * the milliseconds and secodns of a UNIX timestamp. This is the raw
+   * variant. The numerical value of <tt>RAW_TIME</tt> corresponds with
+   * the WinCC constant <tt>DPEL_DYN_UINT</tt>.
+   */
   RAW_TIME = 4,
 
   /**
-         * <tt>Time</tt> stands for two 32-bit (unsigned) integers containing
-         * the milliseconds and secodns of a UNIX timestamp. This is the DPVAL
-         * variant.
-         */
+   * <tt>Time</tt> stands for two 32-bit (unsigned) integers containing
+   * the milliseconds and secodns of a UNIX timestamp. This is the DPVAL
+   * variant.
+   */
   DPVAL_TIME = 132
 };
 
@@ -276,13 +276,13 @@ inline std::string show(const DeliveryType type)
 }
 
 /**
-     * Returns <tt>true</tt> if and only if the given DeliveryType is a DPVAL
-     * variant.
-     *
-     * @param type  The DeliveryType to be checked.
-     * @return      The result.
-     * @throws std::domain_error If applied to an invalid value.
-     */
+ * Returns <tt>true</tt> if and only if the given DeliveryType is a DPVAL
+ * variant.
+ *
+ * @param type  The DeliveryType to be checked.
+ * @return      The result.
+ * @throws std::domain_error If applied to an invalid value.
+ */
 inline bool DPVAL_variant(const DeliveryType type)
 {
   switch (type) {
@@ -313,13 +313,13 @@ inline bool DPVAL_variant(const DeliveryType type)
 }
 
 /**
-     * Returns the DIM description string for a DIM service with the given
-     * DeliveryType.
-     *
-     * @param type  The DeliveryType.
-     * @return      The corresponding DIM service description string.
-     * @throws std::domain_error If applied to an invalid value.
-     */
+ * Returns the DIM description string for a DIM service with the given
+ * DeliveryType.
+ *
+ * @param type  The DeliveryType.
+ * @return      The corresponding DIM service description string.
+ * @throws std::domain_error If applied to an invalid value.
+ */
 inline std::string dim_description(const DeliveryType type)
 {
 
@@ -367,13 +367,13 @@ inline std::string dim_description(const DeliveryType type)
 }
 
 /**
-     * Returns the size of a buffer required to store the binary contents of a
-     * DIM service of the given data type.
-     *
-     * @param type  The DeliveryType.
-     * @return      Size of the payload.
-     * @throws std::domain_error If applied to an invalid value.
-     */
+ * Returns the size of a buffer required to store the binary contents of a
+ * DIM service of the given data type.
+ *
+ * @param type  The DeliveryType.
+ * @return      Size of the payload.
+ * @throws std::domain_error If applied to an invalid value.
+ */
 inline size_t dim_buffer_size(const DeliveryType type)
 {
   switch (type) {

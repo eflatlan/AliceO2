@@ -9,13 +9,13 @@
 // granted to it by virtue of its status as an Intergovernmental Organization
 // or submit itself to any jurisdiction.
 //
-//file RawReaderFV0Base.h Base class for RAW data reading
+// file RawReaderFV0Base.h Base class for RAW data reading
 //
 // Artur.Furs
 // afurs@cern.ch
 //
-//Main purpuse is to decode FV0 data blocks and push them to DigitBlockFV0 for proccess
-//Base class only provides static linkID-moduleType conformity
+// Main purpuse is to decode FV0 data blocks and push them to DigitBlockFV0 for proccess
+// Base class only provides static linkID-moduleType conformity
 
 #ifndef ALICEO2_FIT_RAWREADERFV0BASE_H_
 #define ALICEO2_FIT_RAWREADERFV0BASE_H_
@@ -27,9 +27,9 @@ namespace o2
 {
 namespace fv0
 {
-//Normal TCM mode
+// Normal TCM mode
 using RawReaderFV0BaseNorm = o2::fit::RawReaderBaseFIT<DigitBlockFV0, DataBlockPM, DataBlockTCM>;
-//Extended TCM mode
+// Extended TCM mode
 using RawReaderFV0BaseExt = o2::fit::RawReaderBaseFIT<DigitBlockFV0ext, DataBlockPM, DataBlockTCMext>;
 } // namespace fv0
 } // namespace o2

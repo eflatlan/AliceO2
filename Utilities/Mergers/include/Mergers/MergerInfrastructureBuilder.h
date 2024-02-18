@@ -73,4 +73,4 @@ class MergerInfrastructureBuilder
 
 } // namespace o2::mergers
 
-#endif //ALICEO2_INFRASTRUCTUREBUILDER_H
+#endif // ALICEO2_INFRASTRUCTUREBUILDER_H

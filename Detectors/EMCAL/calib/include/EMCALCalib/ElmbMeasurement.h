@@ -24,7 +24,7 @@ namespace o2
 namespace emcal
 {
 
-//typedef std::tuple <int, float, float, float, float> Sensor_t; //{Npoints, mean, rms, min, max}
+// typedef std::tuple <int, float, float, float, float> Sensor_t; //{Npoints, mean, rms, min, max}
 
 class ElmbMeasurement
 {
@@ -43,7 +43,7 @@ class ElmbMeasurement
   std::vector<std::vector<double>> getValues() { return values; }
 
  private:
-  std::vector<std::vector<double>> values; ///<container with measured values
+  std::vector<std::vector<double>> values; ///< container with measured values
   std::vector<float> values_prev;          ///< last measurement per sensor
   std::vector<Sensor_t> mELMBdata;         //
 

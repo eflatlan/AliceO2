@@ -45,6 +45,9 @@ simWorker=""
 # option to set the number of tpc-lanes
 tpcLanes=""
 
+#
+
+
 Usage()
 {
   echo "Usage: ${0##*/} [-s system /pp[Def] or pbpb/] [-r IR(kHz) /Def = $intRatePP(pp)/$intRatePbPb(pbpb)] [-n Number of events /Def = $nevPP(pp) or $nevPbPb(pbpb)/] [-e TGeant3|TGeant4] [-t startTime/Def = $startTimeDef] [-run runNumber/Def = $runNumDef] [-f fromstage sim|digi|reco /Def = sim]"
@@ -62,6 +65,7 @@ while [ $# -gt 0 ] ; do
     -j) simWorker="-j $2"; shift 2 ;;
     -l) tpcLanes="--tpc-lanes $2"; shift 2 ;;
     -t) startTime=$2; shift 2 ;;
+    -p) pdg=$2; shift 2 ;;
     -run) runNumber=$2; shift 2 ;;
     -h) Usage ;;
     *) echo "Wrong input"; Usage;
@@ -87,14 +91,26 @@ fi
 [[ -z $startTime ]] && startTime=$startTimeDef
 [[ -z $runNumber ]] && runNumber=$runNumDef
 
-dosim="0"
+dosimp="0"
+dosimk="0"
+dosimpr="0"
 dodigi="0"
 dotrdtrap="0"
 doreco="0"
 # convert to lowercase
 fromstage=`echo "$fromstage" | awk '{print tolower($0)}'`
-if [ "$fromstage" == "sim" ]; then
-  dosim="1"
+if [ "$fromstage" == "simp" ]; then
+  dosimp="1"
+  dodigi="1"
+  dotrdtrap="1"
+  doreco="1"
+elif [ "$fromstage" == "simk" ]; then
+  dosimk="1"
+  dodigi="1"
+  dotrdtrap="1"
+  doreco="1"
+elif [ "$fromstage" == "simpr" ]; then
+  dosimpr="1"
   dodigi="1"
   dotrdtrap="1"
   doreco="1"
@@ -109,18 +125,57 @@ else
   Usage
 fi
 
-
-if [ "$dosim" == "1" ]; then
+  
+if [ "$dosimp" == "1" ]; then
   #---- GRP creation ------
   echo "Creating GRPs ... and publishing in local CCDB overwrite"
   taskwrapper grp.log o2-grp-simgrp-tool createGRPs --run ${runNumber} --publishto GRP -o mcGRP
 
   #---------------------------------------------------
-  echo "Running simulation for $nev $collSyst events with $gener generator and engine $engine and run number $runNumber"
-  taskwrapper sim.log o2-sim -n"$nev" --configKeyValues "Diamond.width[2]=6." -g "$gener" -e "$engine" $simWorker --run ${runNumber}
+  echo "Running Pion gun simulation for $nev  "
+  #taskwrapper sim.log o2-sim -n"$nev" --configKeyValues "Diamond.width[2]=6." -g "$gener" -e "$engine" $simWorker --run ${runNumber}
+
+  o2-sim -n"$nev" -e TGeant3 -g boxgen --configKeyValues "BoxGun.pdg=211; BoxGun.phirange[0]=-5; BoxGun.phirange[1]=60; BoxGun.number=3; BoxGun.eta[0]=-0.5 ; BoxGun.eta[1]=0.5; BoxGun.prange[0]=2.7; BoxGun.prange[1]=2.8;" $simWorker --run ${runNumber}
+
+
 
   ##------ extract number of hits
-  taskwrapper hitstats.log root -q -b -l ${O2_ROOT}/share/macro/analyzeHits.C
+  #taskwrapper hitstats.log root -q -b -l ${O2_ROOT}/share/macro/analyzeHits.C
+fi
+
+
+if [ "$dosimk" == "1" ]; then
+  #---- GRP creation ------
+  echo "Creating GRPs ... and publishing in local CCDB overwrite"
+  taskwrapper grp.log o2-grp-simgrp-tool createGRPs --run ${runNumber} --publishto GRP -o mcGRP
+
+  #---------------------------------------------------
+  echo "Running Pion gun simulation for $nev  "
+  #taskwrapper sim.log o2-sim -n"$nev" --configKeyValues "Diamond.width[2]=6." -g "$gener" -e "$engine" $simWorker --run ${runNumber}
+
+  o2-sim -n"$nev" -e TGeant3 -g boxgen --configKeyValues "BoxGun.pdg=321; BoxGun.phirange[0]=-5; BoxGun.phirange[1]=60; BoxGun.number=3; BoxGun.eta[0]=-0.5 ; BoxGun.eta[1]=0.5; BoxGun.prange[0]=2.7; BoxGun.prange[1]=2.8;" $simWorker --run ${runNumber}
+
+
+
+  ##------ extract number of hits
+  #taskwrapper hitstats.log root -q -b -l ${O2_ROOT}/share/macro/analyzeHits.C
+fi
+
+
+if [ "$dosimpr" == "1" ]; then
+  #---- GRP creation ------
+  echo "Creating GRPs ... and publishing in local CCDB overwrite"
+  taskwrapper grp.log o2-grp-simgrp-tool createGRPs --run ${runNumber} --publishto GRP -o mcGRP
+
+  #---------------------------------------------------
+  echo "Running Pion gun simulation for $nev  "
+  #taskwrapper sim.log o2-sim -n"$nev" --configKeyValues "Diamond.width[2]=6." -g "$gener" -e "$engine" $simWorker --run ${runNumber}
+
+  o2-sim -n"$nev" -e TGeant3 -g boxgen --configKeyValues "BoxGun.pdg=2212; BoxGun.phirange[0]=-5; BoxGun.phirange[1]=60; BoxGun.number=3; BoxGun.eta[0]=-0.5 ; BoxGun.eta[1]=0.5; BoxGun.prange[0]=2.7; BoxGun.prange[1]=2.8;" $simWorker --run ${runNumber}
+
+
+  ##------ extract number of hits
+  #taskwrapper hitstats.log root -q -b -l ${O2_ROOT}/share/macro/analyzeHits.C
 fi
 
 if [ "$dodigi" == "1" ]; then
@@ -227,52 +282,6 @@ if [ "$doreco" == "1" ]; then
   taskwrapper hmpidMatchTracks.log o2-hmpid-matcher-workflow $gloOpt
   echo "Return status of o2-hmpid-matcher-workflow: $?"
 
-  echo "Running TOF matching QA"
-  #need results of ITSTPC-TOF matching (+ TOF clusters and ITS-TPC tracks)
-  taskwrapper tofmatch_qa.log root -b -q -l $O2_ROOT/share/macro/checkTOFMatching.C
-  echo "Return status of TOF matching qa: $?"
-
-  echo "Running ZDC reconstruction"
-  #need ZDC digits
-  taskwrapper zdcreco.log o2-zdc-digits-reco $gloOpt
-  echo "Return status of ZDC reconstruction: $?"
-
-  echo "Running EMC reconstruction"
-  #need EMC digits
-  taskwrapper emcreco.log o2-emcal-reco-workflow --infile emcaldigits.root $gloOpt
-  echo "Return status of EMC reconstruction: $?"
-
-  echo "Running PHS reconstruction"
-  #need PHS digits
-  taskwrapper phsreco.log o2-phos-reco-workflow $gloOpt
-  echo "Return status of PHS reconstruction: $?"
-
-  echo "Running CPV reconstruction"
-  #need CPV digits
-  taskwrapper cpvreco.log o2-cpv-reco-workflow $gloOpt
-  echo "Return status of CPV reconstruction: $?"
-
-  echo "Running primary vertex finding flow"
-  #needs results of TPC-ITS matching and FIT workflows
-  taskwrapper pvfinder.log o2-primary-vertexing-workflow $gloOpt --condition-remap file://./GRP=GLO/Config/GRPECS
-  echo "Return status of primary vertexing: $?"
-
-  echo "Running secondary vertex finding flow"
-  #needs results of all trackers + P.Vertexer
-  taskwrapper svfinder.log o2-secondary-vertexing-workflow $gloOpt
-  echo "Return status of secondary vertexing: $?"
-
-  # the strangeness trackin is now called from the secondary-vertexing. To enable it as a standalone workflow
-  # one should run the previous o2-secondary-vertexing-workflow with options
-  # --configKeyValues "svertexer.createFullV0s=true;svertexer.createFullCascades=true;svertexer.createFull3Bodies=true" --disable-strangeness-tracker
-  #  echo "Running strangeness tracking flow"
-  #  #needs results of S.Vertexer + ITS reco
-  #  taskwrapper sttracking.log o2-strangeness-tracking-workflow $gloOpt
-  #  echo "Return status of strangeness tracking: $?"
-
-  echo "Producing AOD"
-  taskwrapper aod.log o2-aod-producer-workflow $gloOpt --aod-writer-keep dangling --aod-writer-resfile "AO2D" --aod-writer-resmode UPDATE --aod-timeframe-id 1 --run-number 300000
-  echo "Return status of AOD production: $?"
 
   # let's do some very basic analysis tests (mainly to enlarge coverage in full CI) and enabled when SIM_CHALLENGE_ANATESTING=ON
   if [[ ${O2DPG_ROOT} && ${SIM_CHALLENGE_ANATESTING} ]]; then

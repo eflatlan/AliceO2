@@ -68,7 +68,7 @@ class ClusterTopology
   /// Sets the pattern
   void setPattern(const ClusterPattern& patt);
 
-  ///Helper function useful for analyses with topologies stored on a separate branch
+  /// Helper function useful for analyses with topologies stored on a separate branch
   static void makeRareTopologyMap(const std::vector<ClusterTopology>& vec, std::map<int, ClusterPattern>& map)
   {
     for (const auto& topo : vec) {

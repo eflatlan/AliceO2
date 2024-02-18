@@ -40,4 +40,4 @@ int adjustOverriddenEOV(CcdbApi& api, const CcdbObjectInfo& infoNew);
 } // namespace ccdb
 } // namespace o2
 
-#endif //O2_CCDBTIMESTAMPUTILS_H
+#endif // O2_CCDBTIMESTAMPUTILS_H

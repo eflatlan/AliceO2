@@ -155,10 +155,10 @@ class DigitizationContext
 
  private:
   int mNofEntries = 0;
-  int mMaxPartNumber = 0; // max number of parts in any given collision
+  int mMaxPartNumber = 0;              // max number of parts in any given collision
   uint32_t mFirstOrbitForSampling = 0; // 1st orbit to start sampling
 
-  float mMuBC;            // probability of hadronic interaction per bunch
+  float mMuBC; // probability of hadronic interaction per bunch
 
   std::vector<o2::InteractionTimeRecord> mEventRecords;
   // for each collision we record the constituents (which shall not exceed mMaxPartNumber)

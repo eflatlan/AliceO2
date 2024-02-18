@@ -27,12 +27,12 @@ namespace o2
 namespace zdc
 {
 struct TDCCalibConfig {
-  static constexpr int NTDCChannels = 10; //number of TDC channels
+  static constexpr int NTDCChannels = 10; // number of TDC channels
   double cutLow[NTDCChannels] = {-std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(),
                                  -std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity()};
   double cutHigh[NTDCChannels] = {std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(),
                                   std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity()};
-  bool enabled[NTDCChannels] = {true, true, true, true, true, true, true, true, true, true}; //ZNAC, ZNAS, ZPAC, ZPAS, ZEM1, ZEM2, ZNCC, ZNCS, ZPCC, ZPCS
+  bool enabled[NTDCChannels] = {true, true, true, true, true, true, true, true, true, true}; // ZNAC, ZNAS, ZPAC, ZPAS, ZEM1, ZEM2, ZNCC, ZNCS, ZPCC, ZPCS
   int nb1[NTDCChannels] = {0};                                                               /// 1D histogram: number of bins
   double amin1[NTDCChannels] = {0};                                                          /// minimum
   double amax1[NTDCChannels] = {0};                                                          /// maximum

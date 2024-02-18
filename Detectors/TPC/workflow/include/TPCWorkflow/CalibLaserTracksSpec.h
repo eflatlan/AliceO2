@@ -99,7 +99,7 @@ class CalibLaserTracksDevice : public o2::framework::Task
   }
 
  private:
-  CalibLaserTracks mCalib;       ///< laser track calibration component
+  CalibLaserTracks mCalib; ///< laser track calibration component
   o2::tpc::VDriftHelper mTPCVDriftHelper{};
   uint64_t mRunNumber{0};        ///< processed run number
   int mMinNumberTFs{100};        ///< minimum number of TFs required for good calibration

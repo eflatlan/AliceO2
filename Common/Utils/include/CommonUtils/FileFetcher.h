@@ -42,14 +42,14 @@ class FileFetcher
   };
 
   /*
-  * Create file fetcher with predefined cache and async copy of remote files
-  *
-  * @param input:     comma-separated list of input data files and/or files with list of data files and/or directories
-  * @param selRegex:  regex expression to select files needed for input
-  * @param remRegex:  optional regex expression to recognize remote files
-  * @param copyCmd:   optional command to copy remote files in format "<operation> ?src ?dst"
-  * @param copyCmd:   base directory for copied remote files
-  */
+   * Create file fetcher with predefined cache and async copy of remote files
+   *
+   * @param input:     comma-separated list of input data files and/or files with list of data files and/or directories
+   * @param selRegex:  regex expression to select files needed for input
+   * @param remRegex:  optional regex expression to recognize remote files
+   * @param copyCmd:   optional command to copy remote files in format "<operation> ?src ?dst"
+   * @param copyCmd:   base directory for copied remote files
+   */
   FileFetcher(const std::string& input,
               const std::string& selRegex = "",
               const std::string& remRegex = "",

@@ -80,11 +80,11 @@ class TrapConfigHandler
   static const int mgkMcmlistSize = 256; // list of MCMs to which a value has to be written
 
   unsigned int mRestrictiveMask; // mask to restrict subsequent commands to specified chambers
-  FeeParam* mFeeParam;           //pointer to a singleton
+  FeeParam* mFeeParam;           // pointer to a singleton
   TrapConfig* mTrapConfig;       // pointer to TRAP config in use
   CalOnlineGainTables mGtbl;     // gain table
 };
 
-} //namespace trd
-} //namespace o2
+} // namespace trd
+} // namespace o2
 #endif

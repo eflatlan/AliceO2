@@ -37,7 +37,7 @@
 #include "GPUReconstructionIncludesITS.h"
 
 #define RANDOM_ERROR
-//#define RANDOM_ERROR || rand() % 500 == 1
+// #define RANDOM_ERROR || rand() % 500 == 1
 
 #define GPUCA_GPUReconstructionUpdateDefailts()                                           \
   if (mProcessingSettings.trackletConstructorInPipeline < 0) {                            \

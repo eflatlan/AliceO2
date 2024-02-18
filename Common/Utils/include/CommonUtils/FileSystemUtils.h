@@ -41,4 +41,4 @@ std::string expandShellVarsInFileName(std::string const& input);
 
 } // namespace o2::utils
 
-#endif //O2_FILEITERATOR_H
+#endif // O2_FILEITERATOR_H

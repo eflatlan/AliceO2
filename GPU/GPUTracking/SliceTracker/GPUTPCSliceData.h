@@ -50,17 +50,17 @@ class GPUTPCSliceData
   GPUd() int InitFromClusterData(int nBlocks, int nThreads, int iBlock, int iThread, GPUconstantref() const MEM_CONSTANT(GPUConstantMem) * mem, int iSlice, float* tmpMinMax);
 
   /**
- * Return the number of hits in this slice.
- */
+   * Return the number of hits in this slice.
+   */
   GPUhd() int NumberOfHits() const { return mNumberOfHits; }
   GPUhd() int NumberOfHitsPlusAlign() const { return mNumberOfHitsPlusAlign; }
   GPUhd() int ClusterIdOffset() const { return mClusterIdOffset; }
 
   /**
- * Access to the hit links.
- *
- * The links values give the hit index in the row above/below. Or -1 if there is no link.
- */
+   * Access to the hit links.
+   *
+   * The links values give the hit index in the row above/below. Or -1 if there is no link.
+   */
   MEM_TEMPLATE()
   GPUd() calink HitLinkUpData(const MEM_TYPE(GPUTPCRow) & row, const calink& hitIndex) const;
   MEM_TEMPLATE()
@@ -82,8 +82,8 @@ class GPUTPCSliceData
   GPUd() void SetHitLinkDownData(const MEM_TYPE(GPUTPCRow) & row, const calink& hitIndex, const calink& value);
 
   /**
- * Return the y and z coordinate(s) of the given hit(s).
- */
+   * Return the y and z coordinate(s) of the given hit(s).
+   */
   MEM_TEMPLATE()
   GPUd() cahit HitDataY(const MEM_TYPE(GPUTPCRow) & row, const unsigned int& hitIndex) const;
   MEM_TEMPLATE()
@@ -92,38 +92,38 @@ class GPUTPCSliceData
   GPUd() cahit2 HitData(const MEM_TYPE(GPUTPCRow) & row, const unsigned int& hitIndex) const;
 
   /**
- * For a given bin index, content tells how many hits there are in the preceding bins. This maps
- * directly to the hit index in the given row.
- *
- * \param binIndexes in the range 0 to row.Grid.N + row.Grid.Ny + 3.
- */
+   * For a given bin index, content tells how many hits there are in the preceding bins. This maps
+   * directly to the hit index in the given row.
+   *
+   * \param binIndexes in the range 0 to row.Grid.N + row.Grid.Ny + 3.
+   */
   MEM_TEMPLATE()
   GPUd() calink FirstHitInBin(const MEM_TYPE(GPUTPCRow) & row, calink binIndexes) const;
 
   /**
- * If the given weight is higher than what is currently stored replace with the new weight.
- */
+   * If the given weight is higher than what is currently stored replace with the new weight.
+   */
   MEM_TEMPLATE()
   GPUd() void MaximizeHitWeight(const MEM_TYPE(GPUTPCRow) & row, unsigned int hitIndex, unsigned int weight);
   MEM_TEMPLATE()
   GPUd() void SetHitWeight(const MEM_TYPE(GPUTPCRow) & row, unsigned int hitIndex, unsigned int weight);
 
   /**
- * Return the maximal weight the given hit got from one tracklet
- */
+   * Return the maximal weight the given hit got from one tracklet
+   */
   MEM_TEMPLATE()
   GPUd() int HitWeight(const MEM_TYPE(GPUTPCRow) & row, unsigned int hitIndex) const;
 
   /**
- * Returns the index in the original GPUTPCClusterData object of the given hit
- */
+   * Returns the index in the original GPUTPCClusterData object of the given hit
+   */
   MEM_TEMPLATE()
   GPUhd() int ClusterDataIndex(const MEM_TYPE(GPUTPCRow) & row, unsigned int hitIndex) const;
   GPUd() GPUglobalref() const int* ClusterDataIndex() const { return mClusterDataIndex; }
 
   /**
- * Return the row object for the given row index.
- */
+   * Return the row object for the given row index.
+   */
   GPUhdi() GPUglobalref() const MEM_GLOBAL(GPUTPCRow) & Row(int rowIndex) const { return mRows[rowIndex]; }
   GPUhdi() GPUglobalref() MEM_GLOBAL(GPUTPCRow) * Rows() const { return mRows; }
 
@@ -161,9 +161,9 @@ class GPUTPCSliceData
   GPUglobalref() int* mClusterDataIndex; // see ClusterDataIndex()
 
   /*
- * The size of the array is row.Grid.N + row.Grid.Ny + 3. The row.Grid.Ny + 3 is an optimization
- * to remove the need for bounds checking. The last values are the same as the entry at [N - 1].
- */
+   * The size of the array is row.Grid.N + row.Grid.Ny + 3. The row.Grid.Ny + 3 is an optimization
+   * to remove the need for bounds checking. The last values are the same as the entry at [N - 1].
+   */
   GPUglobalref() calink* mFirstHitInBin;                // see FirstHitInBin
   GPUglobalref() GPUAtomic(unsigned int) * mHitWeights; // the weight of the longest tracklet crossed the cluster
   GPUglobalref() const GPUTPCClusterData* mClusterData;

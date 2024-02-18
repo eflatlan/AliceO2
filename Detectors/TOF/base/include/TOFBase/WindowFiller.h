@@ -116,7 +116,7 @@ class WindowFiller
   int mChannelCounts[o2::tof::Geo::NCHANNELS]; // count of channel hits in the current TF (if MaskNoiseRate enabled)
 
   // digit info
-  //std::vector<Digit>* mDigits;
+  // std::vector<Digit>* mDigits;
 
   static const int MAXWINDOWS = 2; // how many readout windows we can buffer
 

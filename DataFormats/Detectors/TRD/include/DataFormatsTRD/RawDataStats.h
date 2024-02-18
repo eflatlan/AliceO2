@@ -111,7 +111,7 @@ static const std::unordered_map<int, std::string> ParsingErrorsString = {
   {HalfCRUBadBC, "HalfCRUBadBC"},
   {TRDLastParsingError, "TRDLastParsingError"}};
 
-//enumerations for the options, saves on having a long parameter list.
+// enumerations for the options, saves on having a long parameter list.
 enum OptionBits {
   TRDVerboseBit,
   TRDVerboseErrorsBit,
@@ -128,27 +128,27 @@ struct DataCountersPerTrigger {
   ClassDefNV(DataCountersPerTrigger, 1);
 };
 
-//Data to be stored on a timeframe basis to then be sent as a message to be ultimately picked up by qc.
-//Some countes include a average over the numbers stored on a per event basis, e.g. digits per event.
+// Data to be stored on a timeframe basis to then be sent as a message to be ultimately picked up by qc.
+// Some countes include a average over the numbers stored on a per event basis, e.g. digits per event.
 class TRDDataCountersPerTimeFrame
 {
  public:
-  std::array<uint8_t, constants::MAXHALFCHAMBER> mLinkErrorFlag{};                                     // status of the error flags for this timeframe, 8bit values from cru halfchamber header.
-  std::array<uint16_t, constants::MAXHALFCHAMBER> mLinkNoData{};                                       // Link had no data or was not present.
-  std::array<uint16_t, constants::MAXHALFCHAMBER> mLinkWords{};                                        // units of 256bits, read from the cru half chamber header
-  std::array<uint16_t, constants::MAXHALFCHAMBER> mLinkWordsRead{};                                    // units of 32 bits the data words read before dumping or finishing
-  std::array<uint16_t, constants::MAXHALFCHAMBER> mLinkWordsRejected{};                                // units of 32 bits the data dumped due to some or other error
-  std::array<uint16_t, constants::MAXHALFCHAMBER> mParsingOK{};                                        // count how often given link could be parsed without any errors
-  std::array<uint16_t, TRDLastParsingError> mParsingErrors{};                                          // errors in parsing, indexed by enum above of ParsingErrors
-  std::vector<uint32_t> mParsingErrorsByLink{};                                                        // each entry is for a single parsing error on a given link (HCID * number of Errors + error index)
-  float mTimeTaken;                                                                                    // time taken to process all half-CRU data blocks combined [us].
-  float mTimeTakenForDigits;                                                                           // time take to process tracklet data blocks [us].
-  float mTimeTakenForTracklets;                                                                        // time take to process digit data blocks [us].
-  uint32_t mDigitsFound;                                                                               // digits found in the time frame.
-  uint32_t mTrackletsFound;                                                                            // tracklets found in the time frame.
-  uint16_t mNTriggersCalib;                                                                            // number of triggers with digit readout
-  uint16_t mNTriggersTotal;                                                                            // total number of triggers
-  std::array<int, 256> mDataFormatRead{};                                                              // We just keep the major version number
+  std::array<uint8_t, constants::MAXHALFCHAMBER> mLinkErrorFlag{};      // status of the error flags for this timeframe, 8bit values from cru halfchamber header.
+  std::array<uint16_t, constants::MAXHALFCHAMBER> mLinkNoData{};        // Link had no data or was not present.
+  std::array<uint16_t, constants::MAXHALFCHAMBER> mLinkWords{};         // units of 256bits, read from the cru half chamber header
+  std::array<uint16_t, constants::MAXHALFCHAMBER> mLinkWordsRead{};     // units of 32 bits the data words read before dumping or finishing
+  std::array<uint16_t, constants::MAXHALFCHAMBER> mLinkWordsRejected{}; // units of 32 bits the data dumped due to some or other error
+  std::array<uint16_t, constants::MAXHALFCHAMBER> mParsingOK{};         // count how often given link could be parsed without any errors
+  std::array<uint16_t, TRDLastParsingError> mParsingErrors{};           // errors in parsing, indexed by enum above of ParsingErrors
+  std::vector<uint32_t> mParsingErrorsByLink{};                         // each entry is for a single parsing error on a given link (HCID * number of Errors + error index)
+  float mTimeTaken;                                                     // time taken to process all half-CRU data blocks combined [us].
+  float mTimeTakenForDigits;                                            // time take to process tracklet data blocks [us].
+  float mTimeTakenForTracklets;                                         // time take to process digit data blocks [us].
+  uint32_t mDigitsFound;                                                // digits found in the time frame.
+  uint32_t mTrackletsFound;                                             // tracklets found in the time frame.
+  uint16_t mNTriggersCalib;                                             // number of triggers with digit readout
+  uint16_t mNTriggersTotal;                                             // total number of triggers
+  std::array<int, 256> mDataFormatRead{};                               // We just keep the major version number
   void clear()
   {
     mLinkNoData.fill(0);

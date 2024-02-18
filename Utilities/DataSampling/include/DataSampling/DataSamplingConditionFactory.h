@@ -45,4 +45,4 @@ class DataSamplingConditionFactory
 
 } // namespace o2::utilities
 
-#endif //ALICEO2_DATASAMPLINGCONDITIONFACTORY_H
+#endif // ALICEO2_DATASAMPLINGCONDITIONFACTORY_H

@@ -48,7 +48,7 @@ namespace raw
 #define TOF_MAGIC 0x70F   // 12 bits pattern inserted in some key data to flag TOF data
 #define TOF_SOURCE_ID 0x5 // sourceId assigned to TOF (must match value in RDH sourceId field)
 
-/* TOF detField description RDH Word3 bit 0-31 
+/* TOF detField description RDH Word3 bit 0-31
         |31|30|29|28|27|26|25|24|23|22|21|20|19|18|17|16|15|14|13|12|11|10|09|08|07|06|05|04|03|02|01|00|
         -------------------------------------------------------------------------------------------------
         |    Served Triggers    |  Received Triggers    |    0      |             70F                   |
@@ -108,9 +108,9 @@ typedef struct {
 #define TDH_HEADER(d) TOF_GETDATAID(d)
 #define TDH_PAYLOAD(d) (d & 0x3FFFF)
 #define TDH_WORDS(d) TDH_PAYLOAD(d) / 4
-#define TDH_ORBIT(d) (d & 0xFFFFFFFF) //32 bit
+#define TDH_ORBIT(d) (d & 0xFFFFFFFF) // 32 bit
 
-/* DRM headers & trailer 
+/* DRM headers & trailer
 
         |31|30|29|28|27|26|25|24|23|22|21|20|19|18|17|16|15|14|13|12|11|10|09|08|07|06|05|04|03|02|01|00|
         -------------------------------------------------------------------------------------------------
@@ -249,7 +249,7 @@ typedef struct {
 
 #define TRM_WORDID(a) TOF_GETDATAID(a) // legacy
 
-/* TRM Global Header                 
+/* TRM Global Header
   |31|30|29|28|27|26|25|24|23|22|21|20|19|18|17|16|15|14|13|12|11|10|09|08|07|06|05|04|03|02|01|00|
   -------------------------------------------------------------------------------------------------
   |   0100    | E|         EVENT NUMBER (10)   |             EVENT WORDS (13)         |  SLOT ID  |
@@ -295,7 +295,7 @@ typedef struct {
 #define TRM_EVCNT_CT(a) ((a & 0x0FFF0000) >> 16)
 #define TRM_CHAINSTAT(a) (a & 0xF)
 
-/* TRM Global Trailer  
+/* TRM Global Trailer
   |31|30|29|28|27|26|25|24|23|22|21|20|19|18|17|16|15|14|13|12|11|10|09|08|07|06|05|04|03|02|01|00|
   -------------------------------------------------------------------------------------------------
   |   0101    | L|TS|CN| SENS AD|        TEMP (8)       |     EVENT CRC (12)                | X| X|
@@ -323,16 +323,16 @@ typedef struct {
 #define TRM_EVCRC2(a) ((a & 0x00003FFC) >> 2)
 #define TRM_TERM(a) (a & 0x3)
 
-//#define TRM_EVCNT2(a)    ((a & 0x07FE0000)>>17)
-//#define TRM_EVCRC(a)     ((a & 0x0000FFF0)>>4)
+// #define TRM_EVCNT2(a)    ((a & 0x07FE0000)>>17)
+// #define TRM_EVCRC(a)     ((a & 0x0000FFF0)>>4)
 
 // TDC Hit Decoding
-/* 
+/*
   |31|30|29|28|27|26|25|24|23|22|21|20|19|18|17|16|15|14|13|12|11|10|09|08|07|06|05|04|03|02|01|00|
   -------------------------------------------------------------------------------------------------
-  | Data Id   | TDC Id    | Ch Id  | TIME                                                         |       
- 
-   Note on dataId: all values > 5 here:  
+  | Data Id   | TDC Id    | Ch Id  | TIME                                                         |
+
+   Note on dataId: all values > 5 here:
    0110 HPTDC error or HPTDC test word (or global error if TDCId=0xF)
    1010 Hit leading
    1100 Hit trailing

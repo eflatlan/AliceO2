@@ -76,4 +76,4 @@ fair::mq::Channel createPUBChannel(std::string const& address,
 
 } // namespace o2::simpubsub
 
-#endif //O2_SIMPUBLISHCHANNELHELPER_H
+#endif // O2_SIMPUBLISHCHANNELHELPER_H

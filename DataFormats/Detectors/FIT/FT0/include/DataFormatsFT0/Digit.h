@@ -60,7 +60,7 @@ struct Digit {
   static constexpr char sDigitBranchName[] = "FT0DIGITSBC";
   o2::dataformats::RangeReference<int, int> ref{};
   Triggers mTriggers{};               // pattern of triggers  in this BC
-  uint8_t mEventStatus = 0;           //Status of event from FT0, such as Pileup , etc
+  uint8_t mEventStatus = 0;           // Status of event from FT0, such as Pileup , etc
   o2::InteractionRecord mIntRecord{}; // Interaction record (orbit, bc)
   int mEventID = 0;
   enum EEventStatus {
@@ -102,7 +102,7 @@ struct Digit {
   ClassDefNV(Digit, 7);
 };
 
-//For TCM extended mode (calibration mode), TCMdataExtended digit
+// For TCM extended mode (calibration mode), TCMdataExtended digit
 struct TriggersExt {
   static constexpr char sChannelNameDPL[] = "DIGITSTRGEXT";
   static constexpr char sDigitName[] = "TriggersExt";

@@ -9,7 +9,7 @@
 // granted to it by virtue of its status as an Intergovernmental Organization
 // or submit itself to any jurisdiction.
 //
-//file DigitBlockBase.h base class for processing RAW data into Digits
+// file DigitBlockBase.h base class for processing RAW data into Digits
 //
 // Artur.Furs
 // afurs@cern.ch
@@ -42,49 +42,49 @@ namespace fit
 
 namespace DigitBlockHelper
 {
-//Check template specialisation
-//Is there analog of this metafunction in Common O2 lib?
+// Check template specialisation
+// Is there analog of this metafunction in Common O2 lib?
 template <template <typename...> class Template, typename T>
 struct IsSpecOfType : std::false_type {
 };
 template <template <typename...> class Template, typename... T>
 struct IsSpecOfType<Template, Template<T...>> : std::true_type {
 };
-//Check if RangeReference is a single field in main digit structure
+// Check if RangeReference is a single field in main digit structure
 template <typename T, typename = void>
 struct HasRef : std::false_type {
 };
-//For FT0
+// For FT0
 template <typename T>
 struct HasRef<T, std::enable_if_t<std::is_same<decltype(std::declval<T>().ref), typename o2::dataformats::RangeReference<int, int>>::value>> : std::true_type {
 };
-//For FV0
+// For FV0
 template <typename T>
 struct HasRef<T, std::enable_if_t<std::is_same<decltype(std::declval<T>().ref), typename o2::dataformats::RangeRefComp<6>>::value>> : std::true_type {
 };
-//For FDD
+// For FDD
 template <typename T>
 struct HasRef<T, std::enable_if_t<std::is_same<decltype(std::declval<T>().ref), typename o2::dataformats::RangeRefComp<5>>::value>> : std::true_type {
 };
 
-//Check if RangeReference is an array field in main digit structure
+// Check if RangeReference is an array field in main digit structure
 template <typename T, typename = void>
 struct HasArrayRef : std::false_type {
 };
-//For FT0
+// For FT0
 template <typename T>
 struct HasArrayRef<T, std::enable_if_t<std::is_same<decltype(std::declval<T>().ref), typename std::array<typename o2::dataformats::RangeReference<int, int>, std::tuple_size<decltype(std::declval<T>().ref)>::value>>::value>> : std::true_type {
 };
-//For FV0
+// For FV0
 template <typename T>
 struct HasArrayRef<T, std::enable_if_t<std::is_same<decltype(std::declval<T>().ref), typename std::array<typename o2::dataformats::RangeRefComp<6>, std::tuple_size<decltype(std::declval<T>().ref)>::value>>::value>> : std::true_type {
 };
-//For FDD
+// For FDD
 template <typename T>
 struct HasArrayRef<T, std::enable_if_t<std::is_same<decltype(std::declval<T>().ref), typename std::array<typename o2::dataformats::RangeRefComp<5>, std::tuple_size<decltype(std::declval<T>().ref)>::value>>::value>> : std::true_type {
 };
 
-//Get RangeReference number of dimentions.
+// Get RangeReference number of dimentions.
 template <typename T, typename = void>
 struct GetDigitRefsN {
   constexpr static std::size_t value = 0;
@@ -97,23 +97,23 @@ template <typename T>
 struct GetDigitRefsN<T, std::enable_if_t<HasArrayRef<T>::value && (std::tuple_size<decltype(std::declval<T>().ref)>::value > 1)>> {
   constexpr static std::size_t value = std::tuple_size<decltype(std::declval<T>().ref)>::value;
 };
-//Check if InteractionRecord field exists
+// Check if InteractionRecord field exists
 template <typename T, typename = void>
 struct HasIntRecord : std::false_type {
 };
 template <typename T>
 struct HasIntRecord<T, std::enable_if_t<std::is_same<decltype(std::declval<T>().mIntRecord), o2::InteractionRecord>::value>> : std::true_type {
 };
-//Temporary for FV0
+// Temporary for FV0
 template <typename T>
 struct HasIntRecord<T, std::enable_if_t<std::is_same<decltype(std::declval<T>().ir), o2::InteractionRecord>::value>> : std::true_type {
 };
-//Dividing to sub-digit structures with InteractionRecord(single one, e.g. for TCM extended mode) and without
+// Dividing to sub-digit structures with InteractionRecord(single one, e.g. for TCM extended mode) and without
 template <typename T>
 using GetVecSubDigit = typename boost::mpl::remove_if<T, boost::mpl::lambda<HasIntRecord<boost::mpl::_1>>::type>::type;
 template <typename T>
 using GetVecSingleSubDigit = typename boost::mpl::remove_if<T, boost::mpl::lambda<boost::mpl::not_<HasIntRecord<boost::mpl::_1>>>::type>::type;
-//Converting empty Boost MPL vector to empty std::tuple
+// Converting empty Boost MPL vector to empty std::tuple
 template <typename T, typename = void>
 struct GetSubDigitField {
   typedef std::tuple<> type;
@@ -122,7 +122,7 @@ struct GetSubDigitField {
   constexpr static bool sIsTuple = true;
   constexpr static std::size_t size = 0;
 };
-//Converting Boost MPL vector with 1 element to std::vector
+// Converting Boost MPL vector with 1 element to std::vector
 template <typename T>
 struct GetSubDigitField<T, std::enable_if_t<boost::mpl::size<T>::value == 1>> {
   typedef std::vector<typename boost::mpl::front<T>::type> vector_type;
@@ -132,7 +132,7 @@ struct GetSubDigitField<T, std::enable_if_t<boost::mpl::size<T>::value == 1>> {
   constexpr static std::size_t size = 1;
 };
 //
-//Converting Boost MPL vector to std::tuple of std::vectors
+// Converting Boost MPL vector to std::tuple of std::vectors
 template <typename T>
 struct GetSubDigitField<T, std::enable_if_t<(boost::mpl::size<T>::value > 1)>> {
   template <typename Arg1, typename Arg2>
@@ -156,7 +156,7 @@ struct GetSubDigitField<T, std::enable_if_t<(boost::mpl::size<T>::value > 1)>> {
 // SingleSubDigit - separated SubDigits which contain InteractionRecord field and not referred by ReferenceRange field in Digit structure.
 // For example extended TCM mode uses such SingleSubDigits
 template <typename DigitType, typename... SubDigitTypes>
-class DigitBlockBase //:public DigitBlock
+class DigitBlockBase //: public DigitBlock
 {
  public:
   DigitBlockBase(const o2::InteractionRecord& intRec)

@@ -30,4 +30,4 @@ o2::framework::DataProcessorSpec getRawGBTDecoderSpec(bool isDebugMode, const st
 } // namespace mid
 } // namespace o2
 
-#endif //O2_MID_RAWGBTDECODERSPEC_H
+#endif // O2_MID_RAWGBTDECODERSPEC_H

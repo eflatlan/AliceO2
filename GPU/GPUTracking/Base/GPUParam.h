@@ -64,7 +64,7 @@ struct GPUParam_t {
 
  protected:
   float ParamErrorsSeeding0[2][3][4]; // cluster shape parameterization coeficients
-  float ParamS0Par[2][3][6]; // cluster error parameterization coeficients
+  float ParamS0Par[2][3][6];          // cluster error parameterization coeficients
 };
 } // namespace internal
 

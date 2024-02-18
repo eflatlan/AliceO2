@@ -49,42 +49,42 @@ class GPUTPCGlobalMergerComponent : public AliHLTProcessor
 {
  public:
   /**
- * Constructs a GPUTPCGlobalMergerComponent.
- */
+   * Constructs a GPUTPCGlobalMergerComponent.
+   */
   GPUTPCGlobalMergerComponent();
 
   /**
- * Destructs the GPUTPCGlobalMergerComponent
- */
+   * Destructs the GPUTPCGlobalMergerComponent
+   */
   virtual ~GPUTPCGlobalMergerComponent();
 
   // Public functions to implement AliHLTComponent's interface.
   // These functions are required for the registration process
 
   /**
- * @copydoc AliHLTComponent::GetComponentID
- */
+   * @copydoc AliHLTComponent::GetComponentID
+   */
   const char* GetComponentID();
 
   /**
- * @copydoc AliHLTComponent::GetInputDataTypes
- */
+   * @copydoc AliHLTComponent::GetInputDataTypes
+   */
   void GetInputDataTypes(AliHLTComponentDataTypeList& list);
   int GetOutputDataTypes(AliHLTComponentDataTypeList& tgtList);
 
   /**
- * @copydoc AliHLTComponent::GetOutputDataType
- */
+   * @copydoc AliHLTComponent::GetOutputDataType
+   */
   AliHLTComponentDataType GetOutputDataType();
 
   /**
- * @copydoc AliHLTComponent::GetOutputDataSize
- */
+   * @copydoc AliHLTComponent::GetOutputDataSize
+   */
   virtual void GetOutputDataSize(unsigned long& constBase, double& inputMultiplier);
 
   /**
- * @copydoc AliHLTComponent::Spawn
- */
+   * @copydoc AliHLTComponent::Spawn
+   */
   AliHLTComponent* Spawn();
 
   static const GPUCA_NAMESPACE::gpu::GPUTPCGMMerger* GetCurrentMerger();
@@ -95,21 +95,21 @@ class GPUTPCGlobalMergerComponent : public AliHLTProcessor
   // capabilities of the component.
 
   /**
- * @copydoc AliHLTComponent::DoInit
- */
+   * @copydoc AliHLTComponent::DoInit
+   */
   int DoInit(int argc, const char** argv);
 
   /**
- * @copydoc AliHLTComponent::DoDeinit
- */
+   * @copydoc AliHLTComponent::DoDeinit
+   */
   int DoDeinit();
 
   /** reconfigure **/
   int Reconfigure(const char* cdbEntry, const char* chainId);
 
   /**
- * @copydoc @ref AliHLTProcessor::DoEvent
- */
+   * @copydoc @ref AliHLTProcessor::DoEvent
+   */
   int DoEvent(const AliHLTComponentEventData& evtData, const AliHLTComponentBlockData* blocks, AliHLTComponentTriggerData& trigData, AliHLTUInt8_t* outputPtr, AliHLTUInt32_t& size, AliHLTComponentBlockDataList& outputBlocks);
 
   using AliHLTProcessor::DoEvent;

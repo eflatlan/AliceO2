@@ -1067,7 +1067,7 @@ GPUdi() void Inverter<D, N>::InvertBunchKaufman(MatRepSymGPU<T, D>& rhs, int& if
         }
         *mjj -= static_cast<T>(temp2);
       }
-    } else //2x2 pivot, compute columns j and j-1 of the inverse
+    } else // 2x2 pivot, compute columns j and j-1 of the inverse
     {
       if (piv[j - 1] != 0) {
         printf("error in piv %lf \n", piv[j - 1]);
@@ -1344,7 +1344,7 @@ GPUdi() int Inverter<D, n>::DfinvMatrix(MatRepStdGPU<T, D, n>& rhs, unsigned int
   for (unsigned int i = 1; i < n; i++) {
     unsigned int ni = n - i;
     mIter mij = mi;
-    //int j;
+    // int j;
     for (unsigned j = 1; j <= i; j++) {
       s33 = *mij;
       mIter mikj = mi + n + j - 1;

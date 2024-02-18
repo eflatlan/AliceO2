@@ -29,27 +29,27 @@ namespace upgrades_utils
 {
 
 enum TreeIndex {     // Index of the output trees
-  kEvents = 0,       //ok
-  kEventsExtra,      //ok
-  kTracks,           //ok
-  kCalo,             //N/A
-  kCaloTrigger,      //N/A
-  kMuon,             //N/A
-  kZdc,              //N/A
-  kFV0A,             //N/A
-  kFV0C,             //N/A
-  kFT0,              //N/A
-  kFDD,              //N/A
-  kV0s,              //may be ok (requires tuning)
-  kCascades,         //may be ok (requires tuning)
-  kTOF,              //N/A... for now
-  kMcParticle,       //MC operation
-  kMcCollision,      //MC operation
-  kMcTrackLabel,     //MC operation
-  kMcCaloLabel,      //N/A
-  kMcCollisionLabel, //MC operation
-  kBC,               //N/A
-  kTrees             //N/A
+  kEvents = 0,       // ok
+  kEventsExtra,      // ok
+  kTracks,           // ok
+  kCalo,             // N/A
+  kCaloTrigger,      // N/A
+  kMuon,             // N/A
+  kZdc,              // N/A
+  kFV0A,             // N/A
+  kFV0C,             // N/A
+  kFT0,              // N/A
+  kFDD,              // N/A
+  kV0s,              // may be ok (requires tuning)
+  kCascades,         // may be ok (requires tuning)
+  kTOF,              // N/A... for now
+  kMcParticle,       // MC operation
+  kMcCollision,      // MC operation
+  kMcTrackLabel,     // MC operation
+  kMcCaloLabel,      // N/A
+  kMcCollisionLabel, // MC operation
+  kBC,               // N/A
+  kTrees             // N/A
 };
 
 enum MCParticleFlags : uint8_t {
@@ -60,11 +60,11 @@ const TString gTreeName[kTrees] = {"O2collision", "DbgEventExtra", "O2track", "O
 const TString gTreeTitle[kTrees] = {"Collision tree", "Collision extra", "Barrel tracks", "Calorimeter cells", "Calorimeter triggers", "MUON tracks", "ZDC", "FV0A", "FV0C", "FT0", "FDD", "V0s", "Cascades", "TOF hits", "Kinematics", "MC collisions", "MC track labels", "MC calo labels", "MC collision labels", "BC info"};
 
 const Bool_t gSaveTree[kTrees] = {kTRUE, kFALSE, kTRUE, kFALSE, kFALSE, kFALSE, kTRUE, kTRUE, kTRUE, kTRUE, kTRUE,
-                                  //V0 and cascade (not done for now)
+                                  // V0 and cascade (not done for now)
                                   kFALSE, kFALSE,
-                                  //TOF
+                                  // TOF
                                   kFALSE,
-                                  //MC information (not done for now)
+                                  // MC information (not done for now)
                                   kTRUE, kTRUE, kTRUE, kFALSE, kTRUE, kTRUE};
 
 //+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

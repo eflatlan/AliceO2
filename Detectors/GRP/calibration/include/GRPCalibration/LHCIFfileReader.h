@@ -72,7 +72,7 @@ void LHCIFfileReader::readValue(const std::string& alias, std::string& type, int
   nele = std::stoi(tokensStr_type[1]); // number of elements per measurement
   nmeas = std::stoi(tokensStr[2]);     // number of measurements
   LOG(debug) << "nele = " << nele << ", nmeas = " << nmeas;
-  int shift = 3;                                          // number of tokens that are not measurments (alias, type, number of measurements)
+  int shift = 3; // number of tokens that are not measurments (alias, type, number of measurements)
 
   // RS: this check is wrong: the provided pair might be simply empty, but they are requested by the check above (Number of tokens too small...)
   //  if ((tokensStr.size() - shift) != (nele + 1) * nmeas) { // +1 to account for the timestamp

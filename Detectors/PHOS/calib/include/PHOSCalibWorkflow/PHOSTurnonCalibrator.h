@@ -44,8 +44,8 @@ class PHOSTurnonSlot
   void print() const;
   void fill(const gsl::span<const Cell>& cells, const gsl::span<const TriggerRecord>& trs,
             const gsl::span<const Cluster>& clusters, const gsl::span<const TriggerRecord>& cluTR);
-  void fill(const gsl::span<const Cluster>& /*cells*/){}; //not used
-  void merge(const PHOSTurnonSlot* /*prev*/) {}           //not used
+  void fill(const gsl::span<const Cluster>& /*cells*/){}; // not used
+  void merge(const PHOSTurnonSlot* /*prev*/) {}           // not used
   void clear();
 
   TurnOnHistos& getCollectedHistos() { return *mTurnOnHistos; }
@@ -58,10 +58,10 @@ class PHOSTurnonSlot
 
  private:
   bool mUseCCDB = false;
-  long mRunStartTime = 0;                                 /// start time of the run (sec)
-  std::bitset<NCHANNELS> mFiredTiles;                     //! Container for bad trigger cells, 1 means bad sell
-  std::bitset<NCHANNELS> mNoisyTiles;                     //! Container for bad trigger cells, 1 means bad sell
-  std::unique_ptr<TurnOnHistos> mTurnOnHistos;            //! Collection of histos to fill
+  long mRunStartTime = 0;                      /// start time of the run (sec)
+  std::bitset<NCHANNELS> mFiredTiles;          //! Container for bad trigger cells, 1 means bad sell
+  std::bitset<NCHANNELS> mNoisyTiles;          //! Container for bad trigger cells, 1 means bad sell
+  std::unique_ptr<TurnOnHistos> mTurnOnHistos; //! Collection of histos to fill
 
   ClassDefNV(PHOSTurnonSlot, 1);
 };
@@ -74,7 +74,7 @@ class PHOSTurnonCalibrator final : public o2::calibration::TimeSlotCalibration<o
  public:
   PHOSTurnonCalibrator() = default;
 
-  bool hasEnoughData(const Slot& slot) const final { return true; } //no need to merge Slots
+  bool hasEnoughData(const Slot& slot) const final { return true; } // no need to merge Slots
   void initOutput() final {}
   void finalizeSlot(Slot& slot) final;
   Slot& emplaceNewSlot(bool front, TFType tstart, TFType tend) final;
@@ -89,8 +89,8 @@ class PHOSTurnonCalibrator final : public o2::calibration::TimeSlotCalibration<o
 
  private:
   bool mUseCCDB = false;
-  long mRunStartTime = 0;                                 /// start time of the run (sec)
-  std::unique_ptr<TurnOnHistos> mTurnOnHistos;            //! Collection of histos to fill
+  long mRunStartTime = 0;                      /// start time of the run (sec)
+  std::unique_ptr<TurnOnHistos> mTurnOnHistos; //! Collection of histos to fill
   std::unique_ptr<TriggerMap> mTriggerMap;
 
   ClassDefOverride(PHOSTurnonCalibrator, 1);

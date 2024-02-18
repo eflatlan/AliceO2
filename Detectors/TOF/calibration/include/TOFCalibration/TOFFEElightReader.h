@@ -35,7 +35,7 @@ class TOFFEElightReader
   TOFFEElightReader() = default;  // default constructor
   ~TOFFEElightReader() = default; // default destructor
 
-  void loadFEElightConfig(const char* fileName); // load FEElight config
+  void loadFEElightConfig(const char* fileName);            // load FEElight config
   void loadFEElightConfig(gsl::span<const char> configBuf); // load FEElight config
   int parseFEElightConfig(bool verbose = false);            // parse FEElight config
 
@@ -44,8 +44,8 @@ class TOFFEElightReader
 
  private:
   const TOFFEElightConfig* mFEElightConfig = nullptr; // FEElight config
-  TOFFEElightInfo mFEElightInfo;     // what will go to CCDB
-  std::unique_ptr<char[]> mFileLoadBuff; // temporary buffer to be used when we load the configuration from file
+  TOFFEElightInfo mFEElightInfo;                      // what will go to CCDB
+  std::unique_ptr<char[]> mFileLoadBuff;              // temporary buffer to be used when we load the configuration from file
 
   ClassDefNV(TOFFEElightReader, 1);
 };

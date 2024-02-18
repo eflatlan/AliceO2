@@ -37,7 +37,7 @@ class Barrel
   //  TGeoVolumeAssembly* mBarrel;
 
  private:
-  Float_t mFSThickness; //fixation services thickness
+  Float_t mFSThickness; // fixation services thickness
 
   ClassDefNV(Barrel, 2);
 };

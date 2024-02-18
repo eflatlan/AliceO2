@@ -39,6 +39,6 @@ class MCLabel : public o2::MCCompLabel
   ClassDefNV(MCLabel, 1);
 };
 } // namespace emcal
-} //namespace o2
+} // namespace o2
 
 #endif

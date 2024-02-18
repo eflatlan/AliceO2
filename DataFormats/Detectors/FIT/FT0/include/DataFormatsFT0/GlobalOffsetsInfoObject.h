@@ -40,4 +40,4 @@ class GlobalOffsetsInfoObject
 } // namespace ft0
 } // namespace o2
 
-#endif //O2_GLOBALOFFSETSINFOOBJECT_H
+#endif // O2_GLOBALOFFSETSINFOOBJECT_H

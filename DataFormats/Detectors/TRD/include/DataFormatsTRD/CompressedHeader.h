@@ -9,9 +9,9 @@
 // granted to it by virtue of its status as an Intergovernmental Organization
 // or submit itself to any jurisdiction.
 
-//#include "TRDBase/TRDGeometryBase.h"
-//#include "DetectorsCommonDataFormats/DetMatrixCache.h"
-//#include "DetectorsCommonDataFormats/DetID.h"
+// #include "TRDBase/TRDGeometryBase.h"
+// #include "DetectorsCommonDataFormats/DetMatrixCache.h"
+// #include "DetectorsCommonDataFormats/DetID.h"
 
 #ifndef O2_TRD_COMPRESSEDHEADER_H
 #define O2_TRD_COMPRESSEDHEADER_H
@@ -60,13 +60,13 @@ struct CompressedRawHeader {
     } __attribute__((__packed__));
   };
 };
-//This is simply 64bits of e to mark the end and enable some form of error checking.
-//this appears at the end of tracklets.
-//i.e. start pointer + header.size -1  == Compressed Trailer position.
+// This is simply 64bits of e to mark the end and enable some form of error checking.
+// this appears at the end of tracklets.
+// i.e. start pointer + header.size -1  == Compressed Trailer position.
 struct CompressedRawTrackletDigitSeperator {
   union {
-    uint64_t word; //0xeeeeeexxxxeeeeeeLL where xxxx is the number of digits to follow, max digits on a link is 15*8*16*21 (links*rob*mcm*adc)
-    //TODO I think is off by a factor of 2 but does not matter, the first 'x' is padded in anycase, so would not save in the hex definition above.
+    uint64_t word; // 0xeeeeeexxxxeeeeeeLL where xxxx is the number of digits to follow, max digits on a link is 15*8*16*21 (links*rob*mcm*adc)
+    // TODO I think is off by a factor of 2 but does not matter, the first 'x' is padded in anycase, so would not save in the hex definition above.
     struct {
       uint32_t pad2 : 24;       // padding e as a marker
       uint16_t digitcount : 16; // count of digits to come
@@ -106,9 +106,9 @@ struct CompressedRawDigitEndMarker {
   uint32_t word; // 0xeeeeeeee can be doubled up to pad to 64bit wide data.
 };
 
-//For now we ignore config data.
-//TODO add config data ....
+// For now we ignore config data.
+// TODO add config data ....
 //
-} //namespace trd
-} //namespace o2
+} // namespace trd
+} // namespace o2
 #endif

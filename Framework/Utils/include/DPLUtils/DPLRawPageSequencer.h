@@ -219,4 +219,4 @@ class DPLRawPageSequencer
 
 } // namespace o2::framework
 
-#endif //FRAMEWORK_UTILS_DPLRAWPAGESEQUENCER_H
+#endif // FRAMEWORK_UTILS_DPLRAWPAGESEQUENCER_H

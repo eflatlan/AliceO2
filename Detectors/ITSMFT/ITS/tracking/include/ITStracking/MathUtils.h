@@ -47,7 +47,7 @@ GPUhdni() float computeTanDipAngle(float x1, float y1, float x2, float y2, float
 
 GPUhdi() float math_utils::computePhi(const float x, const float y)
 {
-  //return o2::gpu::CAMath::ATan2(-yCoordinate, -xCoordinate) + constants::math::Pi;
+  // return o2::gpu::CAMath::ATan2(-yCoordinate, -xCoordinate) + constants::math::Pi;
   return o2::math_utils::fastATan2(-y, -x) + constants::math::Pi;
 }
 

@@ -24,13 +24,13 @@ class TGeoManager;
 namespace o2::mch::geo
 {
 
-/** A geometry transformation creator must be able to 
+/** A geometry transformation creator must be able to
  * create a transformation for any valid MCH detection element id.
  *
- * That transformation is used to convert coordinates from local 
- * (x,y in detection element plane) to global (x,y,z in Alice Coordinate 
+ * That transformation is used to convert coordinates from local
+ * (x,y in detection element plane) to global (x,y,z in Alice Coordinate
  * System) and vice-versa
- * 
+ *
  * @param detElemId must be a valid detection element
  * @param geo a reference to a GeoManager that must contain MCH volumes
  *
@@ -46,28 +46,28 @@ TransformationCreator transformationFromTGeoManager(const TGeoManager& geo);
 
 TransformationCreator transformationFromJSON(std::istream& in);
 
-/** The list of detection element identifiers for MCH 
+/** The list of detection element identifiers for MCH
  */
 extern std::array<int, 156> allDeIds;
 
-/** Convert the 3 Tait–Bryan angles (yaw,pitch,roll) into the 9 matrix 
-  * elements of a rotation matrix.
-  *
-  * @param yaw rotation around z-axis, in radian
-  * @param pitch rotation around y'-axis (new y-axis resulting from yaw 
-  * rotation), in radian
-  * @param roll rotation around x''-axis (new x-axis resulting from yaw 
-  * and pitch rotations), in radian
-  */
+/** Convert the 3 Tait–Bryan angles (yaw,pitch,roll) into the 9 matrix
+ * elements of a rotation matrix.
+ *
+ * @param yaw rotation around z-axis, in radian
+ * @param pitch rotation around y'-axis (new y-axis resulting from yaw
+ * rotation), in radian
+ * @param roll rotation around x''-axis (new x-axis resulting from yaw
+ * and pitch rotations), in radian
+ */
 std::array<double, 9> angles2matrix(double yaw, double pitch, double roll);
 
 /** Convert the 9 matrix elements of a rotation matrix
-  * into 3 Tait-Bryan angles (yaw,pitch,roll).
-  *
-  * @param rot a 9-elements vector
-  * @returns a tuple of the 3 angles <yaw,pitch,roll>. The angles are 
-  * expressed in radian
-  */
+ * into 3 Tait-Bryan angles (yaw,pitch,roll).
+ *
+ * @param rot a 9-elements vector
+ * @returns a tuple of the 3 angles <yaw,pitch,roll>. The angles are
+ * expressed in radian
+ */
 std::tuple<double, double, double> matrix2angles(gsl::span<double> rot);
 } // namespace o2::mch::geo
 

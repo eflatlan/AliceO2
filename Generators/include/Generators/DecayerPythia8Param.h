@@ -26,7 +26,7 @@ namespace eventgen
 /**
  ** a parameter class/struct to keep the settings of
  ** the Pythia8 decayer and
- ** allow the user to modify them 
+ ** allow the user to modify them
  **/
 
 struct DecayerPythia8Param : public o2::conf::ConfigurableParamHelper<DecayerPythia8Param> {

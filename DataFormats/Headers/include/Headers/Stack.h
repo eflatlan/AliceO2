@@ -46,7 +46,7 @@ struct Stack {
  public:
   using allocator_type = boost::container::pmr::polymorphic_allocator<std::byte>;
   using value_type = std::byte;
-  using BufferType = std::unique_ptr<value_type[], freeobj>; //this gives us proper default move semantics for free
+  using BufferType = std::unique_ptr<value_type[], freeobj>; // this gives us proper default move semantics for free
 
   Stack() = default;
   Stack(Stack&&) = default;
@@ -117,7 +117,7 @@ struct Stack {
   template <typename T>
   constexpr static size_t calculateSize(T&& h) noexcept
   {
-    //if it's a pointer (to a stack) traverse it
+    // if it's a pointer (to a stack) traverse it
     if constexpr (std::is_convertible_v<T, std::byte*>) {
       const BaseHeader* next = BaseHeader::get(std::forward<T>(h));
       if (!next) {
@@ -128,13 +128,13 @@ struct Stack {
         size += next->size();
       }
       return size;
-      //otherwise get the size directly
+      // otherwise get the size directly
     } else {
       return h.size();
     }
   }
 
-  //recursion terminator
+  // recursion terminator
   constexpr static size_t calculateSize() { return 0; }
 
  private:

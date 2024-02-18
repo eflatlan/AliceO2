@@ -40,9 +40,9 @@ using DPVAL = o2::dcs::DataPointValue;
 using DPCOM = o2::dcs::DataPointCompositeObject;
 
 struct TOFDCSinfo {
-  std::pair<uint64_t, double> firstValue; // first value seen by the TOF DCS processor
-  std::pair<uint64_t, double> lastValue;  // last value seen by the TOF DCS processor
-  std::pair<uint64_t, double> midValue;   // mid value seen by the TOF DCS processor
+  std::pair<uint64_t, double> firstValue;               // first value seen by the TOF DCS processor
+  std::pair<uint64_t, double> lastValue;                // last value seen by the TOF DCS processor
+  std::pair<uint64_t, double> midValue;                 // mid value seen by the TOF DCS processor
   std::pair<std::array<uint64_t, 2>, double> maxChange; // maximum variation seen by the TOF DCS processor (previous - subsequent value)
   std::pair<uint64_t, double> minValue;                 // smallest measurement seen by the TOF DCS processor
   std::pair<uint64_t, double> maxValue;                 // largest measurement seen by the TOF DCS processor
@@ -90,7 +90,7 @@ class TOFDCSProcessor
 
   void init(const std::vector<DPID>& pids);
 
-  //int process(const std::vector<DPCOM>& dps);
+  // int process(const std::vector<DPCOM>& dps);
   int process(const gsl::span<const DPCOM> dps);
   int processDP(const DPCOM& dpcom);
   uint64_t processFlags(uint64_t flag, const char* pid);

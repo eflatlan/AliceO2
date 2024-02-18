@@ -53,9 +53,9 @@ class V0 : public o2::track::TrackParCov
   float calcR2() const { return getX() * getX() + getY() * getY(); }
 
  protected:
-  std::array<Track, 2> mProngs;    // prongs kinematics at vertex
-  float mCosPA = 0;                // cos of pointing angle
-  float mDCA = 9990;               // distance of closest approach of prongs
+  std::array<Track, 2> mProngs; // prongs kinematics at vertex
+  float mCosPA = 0;             // cos of pointing angle
+  float mDCA = 9990;            // distance of closest approach of prongs
 
   ClassDefNV(V0, 2);
 };

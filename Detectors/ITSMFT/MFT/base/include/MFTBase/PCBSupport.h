@@ -60,13 +60,13 @@ class PCBSupport
   TGeoCompositeShape* mPCBCu;
   TGeoCompositeShape* mPCBFR4;
 
-  Double_t mCuThickness;  //Cu layer thickness
-  Double_t mFR4Thickness; //FR4 layer thickness
+  Double_t mCuThickness;  // Cu layer thickness
+  Double_t mFR4Thickness; // FR4 layer thickness
   Double_t mPCBRad[5];    // Radius of each PCB disk
-  Double_t mDiskGap;      //gap between half disks
+  Double_t mDiskGap;      // gap between half disks
   Double_t mPhi0;
   Double_t mPhi1;
-  Double_t mT_delta;          //Excess to remove to avoid coplanar surfaces that causes visualization glitches and overlaps
+  Double_t mT_delta;          // Excess to remove to avoid coplanar surfaces that causes visualization glitches and overlaps
   Int_t mNumberOfBoxCuts[5];  // Number of box cuts in each PCB
   Double_t (*mBoxCuts[5])[4]; // Box cuts on each PCB
   Int_t mNumberOfBoxAdd[5];   // Number of box added to each PCB

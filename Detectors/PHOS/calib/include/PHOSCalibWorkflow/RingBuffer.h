@@ -50,14 +50,14 @@ class RingBuffer
   }
   const TLorentzVector& getEntry(short index) const
   {
-    //get entry from (mCurrent-1) corresponding to index=size()-1 down to size
+    // get entry from (mCurrent-1) corresponding to index=size()-1 down to size
     if (mFilled) {
       index += mCurrent;
     }
     index = index % kBufferSize;
     return mBuffer[index];
   }
-  //mark that next added entry will be from next event
+  // mark that next added entry will be from next event
   void startNewEvent() { mStartCurrentEvent = mCurrent; }
 
   bool isCurrentEvent(short index) const

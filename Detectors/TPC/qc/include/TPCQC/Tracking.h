@@ -25,7 +25,7 @@ class TH2F;
 class TH1D;
 class TGraphAsymmErrors;
 
-//o2 includes
+// o2 includes
 #include "DataFormatsTPC/Defs.h"
 
 namespace o2
@@ -82,7 +82,7 @@ class Tracking
 
  private:
   std::unique_ptr<o2::gpu::GPUO2InterfaceConfiguration> mQAConfig; //!
-  std::unique_ptr<o2::gpu::GPUO2InterfaceQA> mQA; //!
+  std::unique_ptr<o2::gpu::GPUO2InterfaceQA> mQA;                  //!
   outputModes mOutputMode;
 
   ClassDefNV(Tracking, 1)

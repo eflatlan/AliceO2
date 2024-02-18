@@ -349,7 +349,7 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, b
     mSt = kMax;
     pCluLst->push_back(o2::hmpid::Cluster(*this)); //...add this raw cluster
     pCluLst->back().cleanPointers();
-  } else {                                         // or resonable number of local maxima to fit and user requested it
+  } else { // or resonable number of local maxima to fit and user requested it
     // Now ready for minimization step
     arglist[0] = 500;                                       // number of steps and sigma on pads charges
     arglist[1] = 1.;                                        //

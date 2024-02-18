@@ -49,12 +49,12 @@ class OrbitInfo
   uint64_t mOrbitInfo = {0};
 
   ClassDefNV(OrbitInfo, 1);
-}; //class OrbitInfo
+}; // class OrbitInfo
 
 bool operator==(const OrbitInfo& o1, const OrbitInfo& o2);
 bool operator!=(const OrbitInfo& o1, const OrbitInfo& o2);
 bool operator<(const OrbitInfo& o1, const OrbitInfo& o2);
 
-} //namespace mch
-} //namespace o2
+} // namespace mch
+} // namespace o2
 #endif // O2_MCH_BASE_ORBITINFO_H_

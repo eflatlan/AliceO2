@@ -24,8 +24,8 @@ namespace eventgen
 
 /**
  ** a parameter class/struct to keep the settings of
- ** the event-generator trigger particle and 
- ** allow the user to modify them 
+ ** the event-generator trigger particle and
+ ** allow the user to modify them
  **/
 struct TriggerParticleParam : public o2::conf::ConfigurableParamHelper<TriggerParticleParam> {
   int pdg = 0;

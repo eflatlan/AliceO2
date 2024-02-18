@@ -15,15 +15,15 @@
 /// @brief  Special fake "sensor" for event vertex.
 
 /**
-  * Special fake "sensor" for event vertex.
-  * It is needed to allow adjustement of the global IP position
-  * if the event event is used as a measured point.
-  * Its degrees of freedom of LOCAL X,Y,Z, coinciding with
-  * GLOBAL X,Y,Z.
-  * Since the vertex added to the track as a mesured point must be
-  * defined in the frame with X axis along the tracks, the T2L
-  * matrix of this sensor need to be recalculated for each track!
-  */
+ * Special fake "sensor" for event vertex.
+ * It is needed to allow adjustement of the global IP position
+ * if the event event is used as a measured point.
+ * Its degrees of freedom of LOCAL X,Y,Z, coinciding with
+ * GLOBAL X,Y,Z.
+ * Since the vertex added to the track as a mesured point must be
+ * defined in the frame with X axis along the tracks, the T2L
+ * matrix of this sensor need to be recalculated for each track!
+ */
 
 #ifndef EVENTVERTEX_H
 #define EVENTVERTEX_H

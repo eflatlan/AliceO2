@@ -12,7 +12,6 @@
 #ifndef O2_TRD_FEEPARAM_H
 #define O2_TRD_FEEPARAM_H
 
-
 ////////////////////////////////////////////////////////////////////////////
 //                                                                        //
 //  TRD front end electronics parameters class                            //
@@ -31,7 +30,6 @@
 #include "Rtypes.h"
 #include <array>
 #include <vector>
-
 
 namespace o2
 {
@@ -144,8 +142,8 @@ class FeeParam
   bool mUseTimeOffset{false};           // add time offset in calculation of fit sums
 
   // For raw production
-  int mRAWversion{3};                    // Raw data production version
-  const int mkMaxRAWversion = 3;         // Maximum raw version number supported
+  int mRAWversion{3};            // Raw data production version
+  const int mkMaxRAWversion = 3; // Maximum raw version number supported
 
   // geometry constants
   std::array<float, constants::NCHAMBERPERSEC> mZrow{// z-position of pad row edge 6x5
@@ -171,8 +169,8 @@ class FeeParam
   float mBinDy{140e-4}; // bin in dy (140 um)
   int mDyMax{63};       // max dy for a tracklet (hard limit)
   int mDyMin{-64};      // min dy for a tracklet (hard limit)
-                        //std::array<int,30> mAsideLUT;                          // A side LUT to map ORI to stack/layer/side
-                        //std::array<int,30> mCsideLUT;                          // C side LUT to map ORI to stack/layer/side
+                        // std::array<int,30> mAsideLUT;                          // A side LUT to map ORI to stack/layer/side
+                   // std::array<int,30> mCsideLUT;                          // C side LUT to map ORI to stack/layer/side
 
   // settings
   float mMagField{0.f};            // magnetic field
@@ -190,6 +188,6 @@ class FeeParam
   ClassDefNV(FeeParam, 1);
 };
 
-} //namespace trd
-} //namespace o2
+} // namespace trd
+} // namespace o2
 #endif

@@ -99,7 +99,7 @@ class BadChannelMap
     if (channelID < NCHANNELS) {
       mBadCells.set(channelID);
     }
-  } //set bit to true
+  } // set bit to true
 
   /// \brief Mark channel as good
   /// \param channelID Absolute ID of the channel

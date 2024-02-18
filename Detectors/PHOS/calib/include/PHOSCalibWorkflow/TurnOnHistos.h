@@ -32,7 +32,7 @@ namespace phos
 class TurnOnHistos
 {
  public:
-  //class to collect statistics to calculate trigger turn-on curves and trigger bad maps
+  // class to collect statistics to calculate trigger turn-on curves and trigger bad maps
   static constexpr short NCHANNELS = 3136; ///< Number of trigger channels
   static constexpr short NDDL = 14;        ///< Number of DDLs
   static constexpr short Npt = 200;        ///< Number of bins in pt distribution
@@ -94,7 +94,7 @@ class TurnOnHistos
     }
   }
 
-  //getters now
+  // getters now
   const std::array<float, Npt>& getTotSpectrum(short ddl) const { return mTotSp[ddl]; }
   const std::array<float, Npt>& getTrSpectrum(short ddl) const { return mTrSp[ddl]; }
   const std::array<float, NCHANNELS>& getGoodMap() const { return mGoodMap; }

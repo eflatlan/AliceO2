@@ -288,19 +288,19 @@ class FwdDCAFitterN
   int mCurHyp = 0;
   int mCrossIDCur = 0;
   int mCrossIDAlt = -1;
-  bool mAllowAltPreference = true;  // if the fit converges to alternative PCA seed, abandon the current one
-  bool mUseAbsDCA = false;          // use abs. distance minimization rather than chi2
-  bool mPropagateToPCA = true;      // create tracks version propagated to PCA
-  bool mUseMatBudget = false;       // include MCS effects in track propagation
-  bool mTGeoFallBackAllowed = true; // use TGeo for precise estimate of mat. budget
-  int mMaxIter = 60;                // max number of iterations
-  float mBz = 0;                    // bz field, to be set by user
-  float mMaxR2 = 200. * 200.;       // reject PCA's above this radius
-  float mMaxDXIni = 4.;             // reject (if>0) PCA candidate if tracks DZ exceeds threshold
-  float mMinParamChange = 1e-5;     // stop iterations if largest change of any X is smaller than this
-  float mMinRelChi2Change = 0.98;   // stop iterations is chi2/chi2old > this
-  float mMaxChi2 = 100;             // abs cut on chi2 or abs distance
-  float mMaxDist2ToMergeSeeds = 1.; // merge 2 seeds to their average if their distance^2 is below the threshold
+  bool mAllowAltPreference = true;                   // if the fit converges to alternative PCA seed, abandon the current one
+  bool mUseAbsDCA = false;                           // use abs. distance minimization rather than chi2
+  bool mPropagateToPCA = true;                       // create tracks version propagated to PCA
+  bool mUseMatBudget = false;                        // include MCS effects in track propagation
+  bool mTGeoFallBackAllowed = true;                  // use TGeo for precise estimate of mat. budget
+  int mMaxIter = 60;                                 // max number of iterations
+  float mBz = 0;                                     // bz field, to be set by user
+  float mMaxR2 = 200. * 200.;                        // reject PCA's above this radius
+  float mMaxDXIni = 4.;                              // reject (if>0) PCA candidate if tracks DZ exceeds threshold
+  float mMinParamChange = 1e-5;                      // stop iterations if largest change of any X is smaller than this
+  float mMinRelChi2Change = 0.98;                    // stop iterations is chi2/chi2old > this
+  float mMaxChi2 = 100;                              // abs cut on chi2 or abs distance
+  float mMaxDist2ToMergeSeeds = 1.;                  // merge 2 seeds to their average if their distance^2 is below the threshold
   const o2::base::MatLayerCylSet* mMatLUT = nullptr; // use to compute material budget to include MCS effects
 
   ClassDefNV(FwdDCAFitterN, 1);

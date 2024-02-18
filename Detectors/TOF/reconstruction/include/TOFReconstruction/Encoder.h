@@ -102,7 +102,7 @@ class Encoder
   o2::InteractionRecord mIR; //!
 };
 
-} // namespace compressed
+} // namespace raw
 } // namespace tof
 } // namespace o2
 #endif

@@ -36,4 +36,4 @@ bool isDroppedTF(o2::framework::ProcessingContext& pc, o2::header::DataOrigin or
 } // namespace mid
 } // namespace o2
 
-#endif //O2_MID_RAWINPUTSPECHANDLER_H
+#endif // O2_MID_RAWINPUTSPECHANDLER_H

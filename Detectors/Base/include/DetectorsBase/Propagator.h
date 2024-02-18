@@ -34,7 +34,7 @@ namespace parameters
 {
 class GRPObject;
 class GRPMagField;
-}
+} // namespace parameters
 
 namespace dataformats
 {
@@ -45,7 +45,7 @@ namespace field
 {
 class MagFieldFast;
 class MagneticField;
-}
+} // namespace field
 
 namespace gpu
 {

@@ -29,13 +29,13 @@ namespace o2
 namespace dcs
 {
 /**
-     * Returns a simple timestamp presenting the milliseconds of time passed
-     * since the given time point.
-     *
-     * @param beginning The time point used as a reference for the time interval
-     * calculation.
-     * @return The amount of milliseconds passed since the given time point.
-     */
+ * Returns a simple timestamp presenting the milliseconds of time passed
+ * since the given time point.
+ *
+ * @param beginning The time point used as a reference for the time interval
+ * calculation.
+ * @return The amount of milliseconds passed since the given time point.
+ */
 inline uint64_t time_since(
   const std::chrono::steady_clock::time_point beginning) noexcept
 {
@@ -45,12 +45,12 @@ inline uint64_t time_since(
 }
 
 /**
-     * Returns the measured number of milliseconds passed since UNIX epoch
-     * (1 January 1970 01:00:00.000). This function uses system clock.
-     *
-     * @return Number of milliseconds since epoch.
-     * @see ADAPRO::Library::now
-     */
+ * Returns the measured number of milliseconds passed since UNIX epoch
+ * (1 January 1970 01:00:00.000). This function uses system clock.
+ *
+ * @return Number of milliseconds since epoch.
+ * @see ADAPRO::Library::now
+ */
 inline uint64_t epoch_time() noexcept
 {
   return std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -59,13 +59,13 @@ inline uint64_t epoch_time() noexcept
 }
 
 /**
-     * Returns a timestamp using steady clock. This function is suitable for
-     * measuring time intervals, but it's not meant to be used for calculating
-     * dates.
-     *
-     * @return
-     * @see ADAPRO::Library::epoch_time
-     */
+ * Returns a timestamp using steady clock. This function is suitable for
+ * measuring time intervals, but it's not meant to be used for calculating
+ * dates.
+ *
+ * @return
+ * @see ADAPRO::Library::epoch_time
+ */
 inline uint64_t now() noexcept
 {
   return std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -74,13 +74,13 @@ inline uint64_t now() noexcept
 }
 
 /**
-     * Returns a timestamp of the current point of time in the local timezone.
-     *
-     * @return A simple ISO-8601-esque timestamp (<tt>YYYY-MM-DD HH:MM:SS</tt>).
-     * Every decimal number in the date string has leading zeros and therefore
-     * fixed length.
-     * @see ADAPRO::Control::fs_timestamp
-     */
+ * Returns a timestamp of the current point of time in the local timezone.
+ *
+ * @return A simple ISO-8601-esque timestamp (<tt>YYYY-MM-DD HH:MM:SS</tt>).
+ * Every decimal number in the date string has leading zeros and therefore
+ * fixed length.
+ * @see ADAPRO::Control::fs_timestamp
+ */
 inline std::string timestamp() noexcept
 {
   char buffer[20];
@@ -90,14 +90,14 @@ inline std::string timestamp() noexcept
 }
 
 /**
-     * Returns a timestamp of the current point of time in the local timezone.
-     * The format of the timestamp is specified with the parameter
-     * <tt>format</tt>. The format of the format string is the same as is used
-     * by <tt>std::strftime</tt>.
-     *
-     * @return A simple timestamp in a format specified with the parameter
-     * <tt>format</tt>.
-     */
+ * Returns a timestamp of the current point of time in the local timezone.
+ * The format of the timestamp is specified with the parameter
+ * <tt>format</tt>. The format of the format string is the same as is used
+ * by <tt>std::strftime</tt>.
+ *
+ * @return A simple timestamp in a format specified with the parameter
+ * <tt>format</tt>.
+ */
 inline std::string timestamp(const std::string& format) noexcept
 {
   char buffer[20];
@@ -107,16 +107,16 @@ inline std::string timestamp(const std::string& format) noexcept
 }
 
 /**
-     * Generates a simple timestamp usable file paths. This function is like
-     * <tt>ADAPRO::Control::timestamp</tt>, but with spaces replaced with
-     * underscores and colons with dots in order to ensure compatibility with
-     * (Linux) filesystems. This function uses local timezone.
-     *
-     * @return A simple ISO-8601-esque timestamp (<tt>YYYY-MM-DD_HH.MM.SS</tt>).
-     * Every decimal number in the date string has leading zeros and therefore
-     * fixed length.
-     * @see ADAPRO::Control::timestamp
-     */
+ * Generates a simple timestamp usable file paths. This function is like
+ * <tt>ADAPRO::Control::timestamp</tt>, but with spaces replaced with
+ * underscores and colons with dots in order to ensure compatibility with
+ * (Linux) filesystems. This function uses local timezone.
+ *
+ * @return A simple ISO-8601-esque timestamp (<tt>YYYY-MM-DD_HH.MM.SS</tt>).
+ * Every decimal number in the date string has leading zeros and therefore
+ * fixed length.
+ * @see ADAPRO::Control::timestamp
+ */
 inline std::string fs_timestamp() noexcept
 {
   char buffer[20];

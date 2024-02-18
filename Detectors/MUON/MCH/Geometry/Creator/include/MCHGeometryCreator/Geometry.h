@@ -30,7 +30,7 @@ namespace o2::mch::geo
  *
  * Note that the geometry of stations 1 and 2 is attached to volume YOUT1
  * if it exist, or to topVolume otherwise.
- * 
+ *
  * Geometry for stations 3, 4 and 5 are always attached to topVolume.
  *
  * @param topVolume the volume the MCH geometry is attached topVolume
@@ -38,7 +38,7 @@ namespace o2::mch::geo
 void createGeometry(TGeoManager& geom, TGeoVolume& topVolume);
 
 /** get a list of MCH sensitive volumes.
- * @returns a vector of all the MCH volumes that participate in the 
+ * @returns a vector of all the MCH volumes that participate in the
  * particle tracking (in the transport sense).
  */
 std::vector<TGeoVolume*> getSensitiveVolumes();

@@ -77,11 +77,11 @@ class TOFCalibCollectorWriter : public o2::framework::Task
  private:
   int mCount = 0; // how many times we filled the tree
   bool mIsEndOfStream = false;
-  std::vector<o2::dataformats::CalibInfoTOF> mTOFCalibInfoOut, *mPTOFCalibInfoOut = &mTOFCalibInfoOut;      ///< these are the object and pointer to the CalibInfo of a specific channel that we need to fill the output tree
-  std::unique_ptr<TTree> mOutputTree;                                                                       ///< tree for the collected calib tof info
-  std::string mTOFCalibInfoBranchName = "TOFCalibInfo";                                                     ///< name of branch containing input TOF calib infos
-  std::string mOutputBranchName = "TOFCollectedCalibInfo";                                                  ///< name of branch containing output
-  std::unique_ptr<TFile> mfileOut = nullptr;                                                                // file in which to write the output
+  std::vector<o2::dataformats::CalibInfoTOF> mTOFCalibInfoOut, *mPTOFCalibInfoOut = &mTOFCalibInfoOut; ///< these are the object and pointer to the CalibInfo of a specific channel that we need to fill the output tree
+  std::unique_ptr<TTree> mOutputTree;                                                                  ///< tree for the collected calib tof info
+  std::string mTOFCalibInfoBranchName = "TOFCalibInfo";                                                ///< name of branch containing input TOF calib infos
+  std::string mOutputBranchName = "TOFCollectedCalibInfo";                                             ///< name of branch containing output
+  std::unique_ptr<TFile> mfileOut = nullptr;                                                           // file in which to write the output
 
   //________________________________________________________________
   void sendOutput(DataAllocator& output)

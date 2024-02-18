@@ -70,19 +70,19 @@ class Digitizer
   std::string dumpFlaggedChambers() const;
 
  private:
-  Geometry* mGeo = nullptr;               // access to Geometry
-  PadResponse mPRF{};                     // access to PadResponse
-  SimParam mSimParam{};                   // simulation parameters
-  Calibrations* mCalib = nullptr;         // access to Calibrations in CCDB
+  Geometry* mGeo = nullptr;       // access to Geometry
+  PadResponse mPRF{};             // access to PadResponse
+  SimParam mSimParam{};           // simulation parameters
+  Calibrations* mCalib = nullptr; // access to Calibrations in CCDB
   PileupTool pileupTool;
 
   // number of digitizer threads
   int mNumThreads = 1;
 
   // we create one such service structure per thread
-  std::vector<math_utils::RandomRing<>> mGausRandomRings; // pre-generated normal distributed random numbers
-  std::vector<math_utils::RandomRing<>> mFlatRandomRings; // pre-generated flat distributed random numbers
-  std::vector<math_utils::RandomRing<>> mLogRandomRings;  // pre-generated exp distributed random number
+  std::vector<math_utils::RandomRing<>> mGausRandomRings;        // pre-generated normal distributed random numbers
+  std::vector<math_utils::RandomRing<>> mFlatRandomRings;        // pre-generated flat distributed random numbers
+  std::vector<math_utils::RandomRing<>> mLogRandomRings;         // pre-generated exp distributed random number
   std::vector<DiffusionAndTimeStructEstimator> mDriftEstimators; // use one estimator per thread (works on different chamber with possibly different vDrift and profits from cached values)
 
   double mTime = 0.;               // time in nanoseconds of the hits currently being processed
@@ -91,17 +91,17 @@ class Digitizer
   int mSrcID = 0;                  // source id
 
   // Digitization parameters
-  static constexpr float AmWidth = Geometry::amThick();    // Width of the amplification region
-  static constexpr float DrWidth = Geometry::drThick();    // Width of the drift retion
-  static constexpr float DrMin = -0.5 * AmWidth;           // Drift + Amplification region
-  static constexpr float DrMax = DrWidth + 0.5 * AmWidth;  // Drift + Amplification region
-  float mSamplingRate = 0;                                 // The sampling rate
-  float mElAttachProp = 0;                                 // Propability for electron attachment (for 1m)
-  int mNpad = 0;                                           // Number of pads included in the pad response
-  int mTimeBinTRFend = 0;                                  // time bin TRF ends
-  int mMaxTimeBins = 30;                                   // Maximum number of time bins for processing signals, usually set at 30 tb = 3 microseconds
-  int mMaxTimeBinsTRAP = 30;                               // Maximum number of time bins for processing adcs; should be read from the CCDB or the TRAP config
-  bool mCreateSharedDigits = true;                         // flag if copies should be created of digits from pads which are shared between MCMs
+  static constexpr float AmWidth = Geometry::amThick();   // Width of the amplification region
+  static constexpr float DrWidth = Geometry::drThick();   // Width of the drift retion
+  static constexpr float DrMin = -0.5 * AmWidth;          // Drift + Amplification region
+  static constexpr float DrMax = DrWidth + 0.5 * AmWidth; // Drift + Amplification region
+  float mSamplingRate = 0;                                // The sampling rate
+  float mElAttachProp = 0;                                // Propability for electron attachment (for 1m)
+  int mNpad = 0;                                          // Number of pads included in the pad response
+  int mTimeBinTRFend = 0;                                 // time bin TRF ends
+  int mMaxTimeBins = 30;                                  // Maximum number of time bins for processing signals, usually set at 30 tb = 3 microseconds
+  int mMaxTimeBinsTRAP = 30;                              // Maximum number of time bins for processing adcs; should be read from the CCDB or the TRAP config
+  bool mCreateSharedDigits = true;                        // flag if copies should be created of digits from pads which are shared between MCMs
 
   // Digitization containers
   std::vector<Hit> mHitContainer;                                                // the container of hits in a given detector

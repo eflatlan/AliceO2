@@ -33,15 +33,15 @@ namespace phos
 class Pedestals
 {
  public:
-  //numbering of PHOS channels described in Geometry, repeat it here
-  // module numbering:
-  //  start from module 0 (non-existing), 1 (half-module), 2 (bottom),... 4(highest)
-  // absId:
-  // start from 1 till 5*64*56 =14336. Numbering in each module starts at bottom left and first go in z direction:
-  //  56   112   3584
-  //  ...  ...    ...
-  //  1    57 ...3529
-  //  relid[3]: (module number[0...4], iphi[1...64], iz[1...56])
+  // numbering of PHOS channels described in Geometry, repeat it here
+  //  module numbering:
+  //   start from module 0 (non-existing), 1 (half-module), 2 (bottom),... 4(highest)
+  //  absId:
+  //  start from 1 till 5*64*56 =14336. Numbering in each module starts at bottom left and first go in z direction:
+  //   56   112   3584
+  //   ...  ...    ...
+  //   1    57 ...3529
+  //   relid[3]: (module number[0...4], iphi[1...64], iz[1...56])
 
   /// \brief Constructor
   Pedestals() = default;

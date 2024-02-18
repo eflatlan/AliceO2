@@ -25,7 +25,7 @@ namespace eventgen
 /**
  ** a parameter class/struct to keep the settings of
  ** the pythia6 event-generator
- ** allow the user to modify them 
+ ** allow the user to modify them
  **/
 struct GeneratorPythia6Param : public o2::conf::ConfigurableParamHelper<GeneratorPythia6Param> {
   std::string config;

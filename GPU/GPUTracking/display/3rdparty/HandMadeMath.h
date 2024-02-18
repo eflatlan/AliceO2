@@ -1,40 +1,40 @@
 /*
   HandmadeMath.h v1.7.0
-  
+
   This is a single header file with a bunch of useful functions for game and
   graphics math operations.
-  
+
   =============================================================================
-  
+
   You MUST
-  
+
      #define HANDMADE_MATH_IMPLEMENTATION
-     
+
   in EXACTLY one C or C++ file that includes this header, BEFORE the
   include, like this:
-  
+
      #define HANDMADE_MATH_IMPLEMENTATION
      #include "HandmadeMath.h"
-     
+
   All other files should just #include "HandmadeMath.h" without the #define.
-  
+
   =============================================================================
-  
+
   To disable SSE intrinsics, you MUST
-  
+
   #define HANDMADE_MATH_NO_SSE
-  
+
   in EXACTLY one C or C++ file that includes this header, BEFORE the
   include, like this:
-     
+
      #define HANDMADE_MATH_IMPLEMENTATION
      #define HANDMADE_MATH_NO_SSE
      #include "HandmadeMath.h"
-  
+
   =============================================================================
-  
+
   To use HandmadeMath without the CRT, you MUST
-  
+
      #define HMM_SINF MySinF
      #define HMM_COSF MyCosF
      #define HMM_TANF MyTanF
@@ -44,11 +44,11 @@
      #define HMM_ACOSF MyACosF
      #define HMM_ATANF MyATanF
      #define HMM_ATAN2F MYATan2F
-     
+
   Provide your own implementations of SinF, CosF, TanF, ACosF, ATanF, ATan2F,
   ExpF, and LogF in EXACTLY one C or C++ file that includes this header,
   BEFORE the include, like this:
-  
+
      #define HMM_SINF MySinF
      #define HMM_COSF MyCosF
      #define HMM_TANF MyTanF
@@ -60,12 +60,12 @@
      #define HMM_ATAN2F MyATan2F
      #define HANDMADE_MATH_IMPLEMENTATION
      #include "HandmadeMath.h"
-     
+
   If you do not define all of these, HandmadeMath.h will use the
   versions of these functions that are provided by the CRT.
-  
+
   =============================================================================
-  
+
   Version History:
       0.2 (*) Updated documentation
           (*) Better C compliance
@@ -179,15 +179,15 @@
 
 
   LICENSE
-  
+
   This software is in the public domain. Where that dedication is not
   recognized, you are granted a perpetual, irrevocable license to copy,
   distribute, and modify this file as you see fit.
-  
+
   CREDITS
-  
+
   Written by Zakary Strange (zak@strangedev.net && @strangezak)
-  
+
   Functionality:
    Matt Mascarenhas (@miblo_)
    Aleph
@@ -195,7 +195,7 @@
    Gingerbill (@TheGingerBill)
    Ben Visness (@bvisness)
    Trinton Bullard (@Peliex_Dev)
-   
+
   Fixes:
    Jeroen van Rijn (@J_vanRijn)
    Kiljacken (@Kiljacken)

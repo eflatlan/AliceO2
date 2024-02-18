@@ -45,23 +45,23 @@ class BareGBTDecoder : public PayloadDecoder<BareGBTDecoder<CHARGESUM>>
   /// handle the Sampa packets and decoding errors
   BareGBTDecoder(uint16_t solarId, DecodedDataHandlers decodedDataHandlers);
 
-  /** @name Main interface 
-    */
+  /** @name Main interface
+   */
   ///@{
 
-  /** @brief Append the equivalent n GBT words 
-    * (n x 128 bits, split in 16 bytes).
-    * bytes size (=n) must be a multiple of 16
-    * Given that the MCH data only uses 80 out of the 128 bits
-    * only the 10 first bytes of each group of 16 are used
-    * 
-    * @return the number of bytes that have been used from bytes span
-    */
+  /** @brief Append the equivalent n GBT words
+   * (n x 128 bits, split in 16 bytes).
+   * bytes size (=n) must be a multiple of 16
+   * Given that the MCH data only uses 80 out of the 128 bits
+   * only the 10 first bytes of each group of 16 are used
+   *
+   * @return the number of bytes that have been used from bytes span
+   */
   size_t append(Payload bytes);
   ///@}
 
   /** @name Methods for testing
-    */
+   */
 
   ///@{
 

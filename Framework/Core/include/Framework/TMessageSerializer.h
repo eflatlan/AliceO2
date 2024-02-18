@@ -221,7 +221,7 @@ inline gsl::span<std::byte> as_span(const fair::mq::Message& msg)
 inline gsl::span<std::byte> as_span(const FairTMessage& msg)
 {
   return gsl::span<std::byte>{reinterpret_cast<std::byte*>(msg.Buffer()),
-                             gsl::narrow<gsl::span<std::byte>::size_type>(msg.BufferSize())};
+                              gsl::narrow<gsl::span<std::byte>::size_type>(msg.BufferSize())};
 }
 
 } // namespace framework

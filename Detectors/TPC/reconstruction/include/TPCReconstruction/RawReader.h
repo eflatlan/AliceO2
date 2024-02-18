@@ -64,8 +64,8 @@ class RawReader
 
     /// Copy constructor
     Header(const Header& other) = default; // : dataType(h.dataType), reserved_01(h.reserved_01),
-                                           //headerVersion(h.headerVersion), nWords(h.nWords), timeStamp_w(h.timeStamp_w),
-                                           //eventCount_w(h.eventCount_w), reserved_2_w(h.reserved_2_w) {};
+                                           // headerVersion(h.headerVersion), nWords(h.nWords), timeStamp_w(h.timeStamp_w),
+                                           // eventCount_w(h.eventCount_w), reserved_2_w(h.reserved_2_w) {};
   };
 
   /// Data struct

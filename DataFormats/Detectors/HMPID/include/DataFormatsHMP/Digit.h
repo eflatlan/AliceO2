@@ -73,11 +73,9 @@ class Digit
  public:
   Digit() = default;
 
+  Digit(int pad, uint16_t charge, int particlePdg, Int_t trackId, int motherTrack, int eventId, int sourceId, float energy);
 
-  Digit(int pad, uint16_t charge,  int particlePdg, Int_t trackId, int motherTrack, int eventId, int sourceId, float energy);
-
-//        mDigits.emplace_back(pad, totalQ * fraction, hit.getParticlePdg(), hit.getTrackId(),  hit.getMother(), /*hit.getEventNumber()*/ mEventID, mSrcID,  hit.getMother(),  hit.getEnergy());
-  
+  //        mDigits.emplace_back(pad, totalQ * fraction, hit.getParticlePdg(), hit.getTrackId(),  hit.getMother(), /*hit.getEventNumber()*/ mEventID, mSrcID,  hit.getMother(),  hit.getEnergy());
 
   Digit(int chamber, int photo, int x, int y, uint16_t charge, int particlePdg);
   Digit(uint16_t charge, int equipment, int column, int dilogic, int channel, int particlePdg);
@@ -103,18 +101,16 @@ class Digit
     return;
   };
 
-  void setTrackId (int tid) {mTrackId = tid;}
-  int getTrackId () const  {return mTrackId;}
+  void setTrackId(int tid) { mTrackId = tid; }
+  int getTrackId() const { return mTrackId; }
 
-  void setEventNumber (int eventNumber) {mEventNumber = eventNumber;}
-  int getEventNumber () const  {return mEventNumber;}
+  void setEventNumber(int eventNumber) { mEventNumber = eventNumber; }
+  int getEventNumber() const { return mEventNumber; }
 
+  void setMotherId(int motherTrackId) { mMotherTrackId = motherTrackId; }
+  int getMotherId() const { return mMotherTrackId; }
 
-  void setMotherId (int motherTrackId) {mMotherTrackId = motherTrackId;}
-  int getMotherId () const  {return mMotherTrackId;}
-
-
-  int getSourceId () const  {return mSourceId;}
+  int getSourceId() const { return mSourceId; }
 
   // // convenience wrapper function for conversion to x-y pad coordinates
   // int getPx() const { return A2X(mPad); }
@@ -140,6 +136,7 @@ class Digit
   uint8_t getX() const { return mX; }
   uint8_t getY() const { return mY; }
   float getEnergy() const { return mEnergy; }
+
  public:
   // Members
 
@@ -177,9 +174,8 @@ class Digit
   static double mathiesonX(double x); // Mathieson distribution along wires X
   static double mathiesonY(double x); // Mathieson distribution perp to wires Y
 
-
-  int getPDG() const { return mParticlePdg;}
-  void setPDG(int pdg) { mParticlePdg = pdg;}
+  int getPDG() const { return mParticlePdg; }
+  void setPDG(int pdg) { mParticlePdg = pdg; }
 
   ClassDefNV(Digit, 2);
 };

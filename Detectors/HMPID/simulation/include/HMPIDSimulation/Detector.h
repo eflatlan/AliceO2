@@ -69,7 +69,6 @@ class Detector : public o2::base::DetImpl<Detector>
 
   std::vector<o2::hmpid::HitType>* mHits = nullptr; ///!< Collection of HMPID hits
 
-
   enum EMedia {
     kAir = 1,
     kRoha = 2,

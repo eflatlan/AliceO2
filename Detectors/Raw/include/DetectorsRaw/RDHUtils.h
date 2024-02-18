@@ -575,14 +575,14 @@ struct RDHUtils {
   GPUhdi() static uint32_t getDetectorField(const H& rdh, NOTPTR(H))
   {
     return rdh.detectorField;
-  }                                                                                                                       // same for all
+  } // same for all
   GPUhdi() static uint32_t getDetectorField(const RDHAny& rdh) { return getDetectorField(rdh.voidify()); }
   GPUhdi() static uint32_t getDetectorField(const void* rdhP) { return getDetectorField(TOCREF(RDHDef, rdhP)); }
   template <typename H>
   static void setDetectorField(H& rdh, uint32_t v, NOTPTR(H))
   {
     rdh.detectorField = v;
-  }                                                                                                               // same for all
+  } // same for all
   static void setDetectorField(RDHAny& rdh, uint32_t v) { setDetectorField(rdh.voidify(), v); }
   static void setDetectorField(void* rdhP, uint32_t v) { setDetectorField(TOREF(RDHDef, rdhP), v); } // same for all
 
@@ -689,12 +689,12 @@ struct RDHUtils {
     if (srcid != o2::header::DAQID::INVALID) {
       return feeId;
     }
-    //else { // this may lead to ambiguities
-    //  int linkValue = (LinkSubSpec_t(link) + 1) << (endpoint == 1 ? 8 : 0);
-    //  return (LinkSubSpec_t(cru) << 16) | linkValue;
-    //}
+    // else { // this may lead to ambiguities
+    //   int linkValue = (LinkSubSpec_t(link) + 1) << (endpoint == 1 ? 8 : 0);
+    //   return (LinkSubSpec_t(cru) << 16) | linkValue;
+    // }
     //
-    // RS At the moment suppress getting the subspec as a hash
+    //  RS At the moment suppress getting the subspec as a hash
     uint16_t seq[3] = {cru, uint16_t((uint16_t(link) << 8) | endpoint), feeId};
     return fletcher32(seq, 3);
   }
@@ -735,4 +735,4 @@ struct RDHUtils {
 } // namespace raw
 } // namespace o2
 
-#endif //ALICEO2_RDHUTILS_H
+#endif // ALICEO2_RDHUTILS_H

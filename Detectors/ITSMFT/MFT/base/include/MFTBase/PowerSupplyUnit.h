@@ -30,7 +30,7 @@ class PowerSupplyUnit
 
  public:
   PowerSupplyUnit();
-  //PowerSupplyUnit(Double_t Rwater, Double_t DRPipe, Double_t PowerSupplyUnitThickness, Double_t CarbonThickness);
+  // PowerSupplyUnit(Double_t Rwater, Double_t DRPipe, Double_t PowerSupplyUnitThickness, Double_t CarbonThickness);
 
   ~PowerSupplyUnit() = default;
 

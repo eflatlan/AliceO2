@@ -66,8 +66,8 @@ class VDriftHelper
   VDriftCorrFact mVDLaser{};
   VDriftCorrFact mVDTPCITSTgl{};
   VDriftCorrFact mVD{};
-  Source mSource{Source::Param}; // update source
-  bool mUpdated = false;  // signal update, must be reset once new value is fetched
+  Source mSource{Source::Param};       // update source
+  bool mUpdated = false;               // signal update, must be reset once new value is fetched
   bool mForceParamDrift = false;       // enforce vdrift from gasParam
   bool mForceParamOffset = false;      // enforce offset from DetectorParam
   uint32_t mMayRenormSrc = 0xffffffff; // if starting VDrift correction != 1, we will renorm reference in such a way that initial correction is 1.0, flag per source

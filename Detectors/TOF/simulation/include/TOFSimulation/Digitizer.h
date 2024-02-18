@@ -106,7 +106,7 @@ class Digitizer : public WindowFiller
   Int_t mSrcID = 0;
 
   // digit info
-  //std::vector<Digit>* mDigits;
+  // std::vector<Digit>* mDigits;
 
   // final vector of tof readout window MC
   std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>> mMCTruthOutputContainerPerTimeFrame;

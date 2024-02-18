@@ -138,7 +138,7 @@ bool operator>=(const observer_ptr<W1>& p1, const observer_ptr<W2>& p2)
   return p1.get() >= p2.get();
 }
 
-} //namespace o2
+} // namespace o2
 
 namespace std
 {
@@ -154,6 +154,6 @@ struct hash<o2::observer_ptr<T>> {
     return std::hash<T*>()(in.get());
   };
 };
-} //namespace std
+} // namespace std
 
 #endif

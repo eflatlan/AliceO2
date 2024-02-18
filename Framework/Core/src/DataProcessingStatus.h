@@ -42,6 +42,6 @@ enum struct DriverStatus : uint32_t {
   BUFFER_OVERFLOWS = 2
 };
 
-} // namespace o2
+} // namespace o2::framework
 
 #endif // o2_framework_DataProcessingStatus_H_INCLUDED

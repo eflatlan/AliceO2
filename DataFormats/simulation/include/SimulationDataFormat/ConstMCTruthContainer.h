@@ -224,4 +224,4 @@ class MCLabelIOHelper
 } // namespace dataformats
 } // namespace o2
 
-#endif //O2_CONSTMCTRUTHCONTAINER_H
+#endif // O2_CONSTMCTRUTHCONTAINER_H

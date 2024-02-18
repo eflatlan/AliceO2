@@ -144,13 +144,13 @@ class GRPECSObject
 
   uint32_t mNHBFPerTF = 128; /// Number of HBFrames per TF
 
-  DetID::mask_t mDetsReadout;       ///< mask of detectors which are read out
-  DetID::mask_t mDetsContinuousRO;  ///< mask of detectors read out in continuos mode
-  DetID::mask_t mDetsTrigger;       ///< mask of detectors which provide trigger input to CTP
-  bool mIsMC = false;               ///< flag GRP for MC
-  int mRun = 0;                     ///< run identifier
-  RunType mRunType = RunType::NONE; ///< run type
-  std::string mDataPeriod{};        ///< name of the period
+  DetID::mask_t mDetsReadout;        ///< mask of detectors which are read out
+  DetID::mask_t mDetsContinuousRO;   ///< mask of detectors read out in continuos mode
+  DetID::mask_t mDetsTrigger;        ///< mask of detectors which provide trigger input to CTP
+  bool mIsMC = false;                ///< flag GRP for MC
+  int mRun = 0;                      ///< run identifier
+  RunType mRunType = RunType::NONE;  ///< run type
+  std::string mDataPeriod{};         ///< name of the period
   std::vector<unsigned short> mFLPs; ///< to store which FLPs were in the processing
 
   // detectors which are always readout in triggered mode. Others are continuous by default but exceptionally can be triggered

@@ -29,7 +29,6 @@
 #pragma link C++ class o2::zdc::ZDCSimParam + ;
 #pragma link C++ class o2::conf::ConfigurableParamHelper < o2::zdc::ZDCSimParam> + ;
 
-
 #pragma link C++ class std::vector < std::vector < int>> + ;
 #pragma link C++ class o2::zdc::SpatialPhotonResponse + ;
 #pragma link C++ class std::pair < o2::zdc::SpatialPhotonResponse, o2::zdc::SpatialPhotonResponse> + ;

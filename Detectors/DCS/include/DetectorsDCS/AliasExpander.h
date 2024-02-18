@@ -26,20 +26,20 @@ namespace o2::dcs
   * - XX is any text
   * - YY describes either a integral range or a textual list
   *
-  * An integral range is [a..b] where the formatting of the biggest of the 
-  * two integers a and b dictates, by default, the formatting of the output 
-  * alias. For instance [0..3] is expanded to the set 0,1,2,3 while [00..03] 
+  * An integral range is [a..b] where the formatting of the biggest of the
+  * two integers a and b dictates, by default, the formatting of the output
+  * alias. For instance [0..3] is expanded to the set 0,1,2,3 while [00..03]
   * is expanded to 00,01,02,03. If you want more control on the formatting,
   * you can use a python/fmt format {} e.g. [0..15{:d}] would yields 0,1,
   * 2,...,14,15 simply (no 0 filling).
   *
-  * A textual list is simply a list of values separated by commas, 
+  * A textual list is simply a list of values separated by commas,
   * e.g. "vMon,iMon"
   *
   * @returns a vector of strings containing all the possible expansions of
   * the pattern. That vector is not guaranteed to be sorted.
   *
-  * For example, pattern=DET[A,B]/Channel[000,002]/[iMon,vMon] yields : 
+  * For example, pattern=DET[A,B]/Channel[000,002]/[iMon,vMon] yields :
   *
   * - DETA/Channel000/iMon
   * - DETA/Channel001/iMon
@@ -58,12 +58,12 @@ namespace o2::dcs
 std::vector<std::string> expandAlias(const std::string& pattern);
 
 /** expandAliases converts a list of patterns into a list of strings.
-  *
-  * each input pattern is treated by expandAlias()
-  *
-  * @returns a _sorted_ vector of strings containing all the possible
-  * expansions of the pattern.
-  */
+ *
+ * each input pattern is treated by expandAlias()
+ *
+ * @returns a _sorted_ vector of strings containing all the possible
+ * expansions of the pattern.
+ */
 std::vector<std::string> expandAliases(const std::vector<std::string>& patternedAliases);
 } // namespace o2::dcs
 

@@ -35,4 +35,4 @@ class DataReader
 } // namespace event_visualisation
 } // namespace o2
 
-#endif //ALICE_O2_EVENTVISUALISATION_BASE_DATAREADER_H
+#endif // ALICE_O2_EVENTVISUALISATION_BASE_DATAREADER_H

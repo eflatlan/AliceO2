@@ -96,10 +96,10 @@ struct GRPGeomRequest {
   bool askGRPLHCIF = false;
   bool askGRPMagField = false;
   bool askMatLUT = false;
-  bool askTime = false;       // need orbit reset time for precise timestamp calculation
-  bool askGeomAlign = false;  // load aligned geometry
-  bool askGeomIdeal = false;  // load ideal geometry
-  bool askAlignments = false; // load detector alignments but don't apply them
+  bool askTime = false;            // need orbit reset time for precise timestamp calculation
+  bool askGeomAlign = false;       // load aligned geometry
+  bool askGeomIdeal = false;       // load ideal geometry
+  bool askAlignments = false;      // load detector alignments but don't apply them
   bool askOnceAllButField = false; // for all entries but field query only once
   bool needPropagatorD = false;    // init also PropagatorD
 

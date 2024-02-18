@@ -9,7 +9,7 @@
 // granted to it by virtue of its status as an Intergovernmental Organization
 // or submit itself to any jurisdiction.
 
-//first version 8/2018, Sandro Wenzel
+// first version 8/2018, Sandro Wenzel
 
 #ifndef COMMON_SIMCONFIG_INCLUDE_SIMCONFIG_CONFIGURABLEPARAM_H_
 #define COMMON_SIMCONFIG_INCLUDE_SIMCONFIG_CONFIGURABLEPARAM_H_
@@ -341,7 +341,9 @@ class ConfigurableParam
 // a helper macro for boilerplate code in parameter classes
 #define O2ParamDef(classname, key)               \
  public:                                         \
-  classname(TRootIOCtor*) {}                     \
+  classname(TRootIOCtor*)                        \
+  {                                              \
+  }                                              \
   classname(classname const&) = delete;          \
                                                  \
  private:                                        \

@@ -82,7 +82,7 @@ class Clusterer
  private:
   void calibrateStrip();
   void processStrip(std::vector<Cluster>& clusters, MCLabelContainer const* digitMCTruth);
-  //void fetchMCLabels(const Digit* dig, std::array<Label, Cluster::maxLabels>& labels, int& nfilled) const;
+  // void fetchMCLabels(const Digit* dig, std::array<Label, Cluster::maxLabels>& labels, int& nfilled) const;
 
   StripData mStripData; ///< single strip data provided by the reader
 

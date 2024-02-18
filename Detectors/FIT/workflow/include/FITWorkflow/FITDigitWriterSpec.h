@@ -31,11 +31,11 @@ namespace fit
 template <typename RawReaderType, typename MCLabelContainerType /*For example: =o2::dataformats::MCTruthContainer<o2::ft0::MCLabel>*/>
 struct FITDigitWriterSpecHelper {
   typedef RawReaderType RawReader_t;
-  typedef MCLabelContainerType MCLabelContainer_t; //should be defined as type field within Digit structure
+  typedef MCLabelContainerType MCLabelContainer_t; // should be defined as type field within Digit structure
   typedef typename RawReader_t::Digit_t Digit_t;
   typedef typename Digit_t::DetTrigInput_t DetTrigInput_t;
-  typedef typename RawReader_t::SubDigit_t SubDigit_t;             //tuple of vectors
-  typedef typename RawReader_t::SingleSubDigit_t SingleSubDigit_t; //tuple of vectors
+  typedef typename RawReader_t::SubDigit_t SubDigit_t;             // tuple of vectors
+  typedef typename RawReader_t::SingleSubDigit_t SingleSubDigit_t; // tuple of vectors
   typedef typename RawReader_t::IndexesSubDigit IndexesSubDigit_t;
   typedef typename RawReader_t::IndexesSingleSubDigit IndexesSingleSubDigit_t;
 
@@ -60,10 +60,10 @@ struct FITDigitWriterSpecHelper {
     auto dplName = T::sChannelNameDPL;
     auto dplLabel = std::string{dplName};
     std::for_each(dplLabel.begin(), dplLabel.end(), [](char& c) { c = ::tolower(c); });
-    //auto branchName = std::string{detName + dplName};
+    // auto branchName = std::string{detName + dplName};
     auto branchName = std::string{T::sDigitBranchName};
     auto optionStr = std::string{detNameLower + "-" + dplName + "-branch-name"};
-    //LOG(info)<<"Branch: "<<dplLabel.c_str()<< "|" <<detName<<" | "<<T::sChannelNameDPL<<" | "<<branchName<<" | "<<optionStr<<" | "<<(detName+dplName);
+    // LOG(info)<<"Branch: "<<dplLabel.c_str()<< "|" <<detName<<" | "<<T::sChannelNameDPL<<" | "<<branchName<<" | "<<optionStr<<" | "<<(detName+dplName);
     return BranchDefinition<std::vector<T>>{InputSpec{dplLabel.c_str(), dataOrigin, T::sChannelNameDPL}, branchName.c_str(), optionStr.c_str(), std::forward<Args>(args)...};
   }
 

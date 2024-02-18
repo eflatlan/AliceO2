@@ -51,4 +51,4 @@ struct DataSamplingHeader : public header::BaseHeader {
 
 } // namespace o2::utilities
 
-#endif //ALICEO2_DATASAMPLINGHEADER_H
+#endif // ALICEO2_DATASAMPLINGHEADER_H

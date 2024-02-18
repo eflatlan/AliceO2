@@ -140,7 +140,7 @@ class GeometryBase
   static constexpr float CWSH = 0.3;    ///< Height of additional wacosit ledge on lower frame
 
   static constexpr float CPADW = 0.0; ///>Difference of outer chamber width and pad plane width
-  static constexpr float RPADW = 1.0; ///<Difference of outer chamber width and pad plane width
+  static constexpr float RPADW = 1.0; ///< Difference of outer chamber width and pad plane width
 
   //
   // Thickness of the the material layers

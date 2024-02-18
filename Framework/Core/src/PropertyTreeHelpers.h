@@ -50,8 +50,9 @@ struct PropertyTreeHelpers {
                        boost::property_tree::ptree& provenance,
                        std::string const& propertyLabel);
 
-  //using WalkerFunction = std::function<void(boost::property_tree::ptree const&, boost::property_tree::ptree::path_type, boost::property_tree::ptree const&)>;
-  template <typename T> using WalkerFunction = std::function<void(boost::property_tree::ptree const&, typename T::path_type, boost::property_tree::ptree const&)>;
+  // using WalkerFunction = std::function<void(boost::property_tree::ptree const&, boost::property_tree::ptree::path_type, boost::property_tree::ptree const&)>;
+  template <typename T>
+  using WalkerFunction = std::function<void(boost::property_tree::ptree const&, typename T::path_type, boost::property_tree::ptree const&)>;
   /// Traverse the tree recursively calling @a WalkerFunction on each leaf.
   template <typename T>
   static void traverse(boost::property_tree::ptree const& parent, WalkerFunction<T>& method);

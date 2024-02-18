@@ -143,7 +143,7 @@ inline void O2DatabasePDG::addALICEParticles(TDatabasePDG* db)
   db->AddParticle("A_0+    ", " ", 0.9960, kFALSE, 0.0, +3, "meson", 9000211);
   db->AddParticle("A_0-    ", " ", 0.9960, kFALSE, 0.0, -3, "meson", -9000211);
 
-  //db->AddParticle("F0P0    ", " ", 0.9960, kFALSE, 0.0, 0, "meson",  9010221);
+  // db->AddParticle("F0P0    ", " ", 0.9960, kFALSE, 0.0, 0, "meson",  9010221);
 
   db->AddParticle("KDL_2+  ", " ", 1.773, kFALSE, 0.0, +3, "meson", 10325);
   db->AddParticle("KDL_2-  ", " ", 1.773, kFALSE, 0.0, -3, "meson", -10325);
@@ -235,7 +235,7 @@ inline void O2DatabasePDG::addALICEParticles(TDatabasePDG* db)
   db->AddParticle("FeedbackPhoton", "FeedbackPhoton", 0, kFALSE,
                   0, 0, "Special", kspe + 51);
 
-  //Hyper nuclei and exotica
+  // Hyper nuclei and exotica
   ionCode = 1010010030;
   if (!db->GetParticle(ionCode)) {
     db->AddParticle("HyperTriton", "HyperTriton", 2.99131, kFALSE,
@@ -248,49 +248,49 @@ inline void O2DatabasePDG::addALICEParticles(TDatabasePDG* db)
                     2.5e-15, 3, "Ion", ionCode);
   }
 
-  //hyper hydrogen 4 ground state
+  // hyper hydrogen 4 ground state
   ionCode = 1010010040;
   if (!db->GetParticle(ionCode)) {
     db->AddParticle("Hyperhydrog4", "Hyperhydrog4", 3.9226, kFALSE,
                     2.5e-15, 3, "Ion", ionCode);
   }
-  //anti hyper hydrogen 4 ground state
+  // anti hyper hydrogen 4 ground state
   ionCode = -1010010040;
   if (!db->GetParticle(ionCode)) {
     db->AddParticle("AntiHyperhydrog4", "AntiHyperhydrog4", 3.9226, kFALSE,
                     2.5e-15, 3, "Ion", ionCode);
   }
-  //hyper hydrogen 4 excited state
+  // hyper hydrogen 4 excited state
   ionCode = 1010010041;
   if (!db->GetParticle(ionCode)) {
     db->AddParticle("Hyperhydrog4*", "Hyperhydrog4*", 3.9237, kFALSE,
                     2.5e-15, 3, "Ion", ionCode);
   }
-  //anti hyper hydrogen 4 excited state
+  // anti hyper hydrogen 4 excited state
   ionCode = -1010010041;
   if (!db->GetParticle(ionCode)) {
     db->AddParticle("AntiHyperhydrog4*", "AntiHyperhydrog4*", 3.9237, kFALSE,
                     2.5e-15, 3, "Ion", ionCode);
   }
-  //hyper helium 4 ground state
+  // hyper helium 4 ground state
   ionCode = 1010020040;
   if (!db->GetParticle(ionCode)) {
     db->AddParticle("Hyperhelium4", "Hyperhelium4", 3.9217, kFALSE,
                     2.5e-15, 6, "Ion", ionCode);
   }
-  //anti hyper helium 4 ground state
+  // anti hyper helium 4 ground state
   ionCode = -1010020040;
   if (!db->GetParticle(ionCode)) {
     db->AddParticle("AntiHyperhelium4", "AntiHyperhelium4", 3.9217, kFALSE,
                     2.5e-15, 6, "Ion", ionCode);
   }
-  //hyper helium 4 excited state
+  // hyper helium 4 excited state
   ionCode = 1010020041;
   if (!db->GetParticle(ionCode)) {
     db->AddParticle("Hyperhelium4*", "Hyperhelium4*", 3.9231, kFALSE,
                     2.5e-15, 6, "Ion", ionCode);
   }
-  //anti hyper helium 4 excited state
+  // anti hyper helium 4 excited state
   ionCode = -1010020041;
   if (!db->GetParticle(ionCode)) {
     db->AddParticle("AntiHyperhelium4*", "AntiHyperhelium4*", 3.9231, kFALSE,
@@ -510,9 +510,9 @@ inline void O2DatabasePDG::addALICEParticles(TDatabasePDG* db)
                     0.040, -3, "Resonance", -ionCode);
   }
 
-  //Additional Hidden Strangeness Pentaquarks
+  // Additional Hidden Strangeness Pentaquarks
 
-  //Ps +/-
+  // Ps +/-
   ionCode = 9322132;
   if (!db->GetParticle(ionCode)) {
     db->AddParticle("Ps_Plus_1870", "Ps_Plus_1870", 1.870, kFALSE,
@@ -550,7 +550,7 @@ inline void O2DatabasePDG::addALICEParticles(TDatabasePDG* db)
                     0.10, -3, "Resonance", -ionCode);
   }
 
-  //Ps0
+  // Ps0
   ionCode = 9322131;
   if (!db->GetParticle(ionCode)) {
     db->AddParticle("Ps_0_1870", "Ps_0_1870", 1.870, kFALSE,
@@ -602,14 +602,14 @@ inline void O2DatabasePDG::addALICEParticles(TDatabasePDG* db)
 
   // d*(2380) - dibaryon resonance
 
-  ionCode = 900010020; //Arbitrary choice - as deuteron but with leading 9 instead of 10
+  ionCode = 900010020; // Arbitrary choice - as deuteron but with leading 9 instead of 10
   if (!db->GetParticle(ionCode)) {
     db->AddParticle("d*_2380", "d*_2380", 2.38, kFALSE,
                     0.070, 3, "Resonance", ionCode);
   }
   db->AddAntiParticle("d*_2380_bar", -ionCode);
 
-  //Sexaquark (uuddss): compact, neutral and stable hypothetical bound state (arxiv.org/abs/1708.08951)
+  // Sexaquark (uuddss): compact, neutral and stable hypothetical bound state (arxiv.org/abs/1708.08951)
   ionCode = 900000020;
   if (!db->GetParticle(ionCode)) {
     db->AddParticle("Sexaquark", "Sexaquark", 2.0, kTRUE, 0.0, 0, "Special", ionCode);
@@ -622,4 +622,4 @@ inline void O2DatabasePDG::addALICEParticles(TDatabasePDG* db)
 
 } // namespace o2
 
-#endif //O2_O2DATABASEPDG_H
+#endif // O2_O2DATABASEPDG_H

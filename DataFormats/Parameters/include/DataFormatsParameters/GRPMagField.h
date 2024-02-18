@@ -25,7 +25,7 @@ namespace parameters
 {
 /*
  * Collects parameters describing the run that are related to the B field only.
-*/
+ */
 
 class GRPMagField
 {

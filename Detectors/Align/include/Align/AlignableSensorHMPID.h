@@ -20,8 +20,8 @@
 #include "Align/AlignableSensor.h"
 
 class TObjArray;
-//class AliTrackPointArray;
-//class AliESDtrack;
+// class AliTrackPointArray;
+// class AliESDtrack;
 class AlignmentPoint;
 
 namespace o2

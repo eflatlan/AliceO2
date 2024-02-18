@@ -229,5 +229,5 @@ struct RootTableBuilderHelpers {
   }
 };
 
-} // namespace o2
+} // namespace o2::framework
 #endif // FRAMEWORK_ROOTTABLEBUILDERHELPERS_H

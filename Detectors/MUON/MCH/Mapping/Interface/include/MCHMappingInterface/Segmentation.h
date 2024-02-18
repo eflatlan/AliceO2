@@ -78,7 +78,7 @@ class Segmentation
    * Validity of the returned value can be tested using isValid()
    */
   ///@{
-  /** Find the pads at position (x,y) (in cm). 
+  /** Find the pads at position (x,y) (in cm).
     Returns true is the bpad and nbpad has been filled with a valid dePadIndex,
     false otherwise (if position is outside the segmentation area).
     @param bpad the dePadIndex of the bending pad at position (x,y)
@@ -123,9 +123,9 @@ class Segmentation
   void forEachPadInArea(double xmin, double ymin, double xmax, double ymax, CALLABLE&& func) const;
   ///@}
 
-  /** @name Access to individual cathode segmentations. 
-    * Not needed in most cases.
-    */
+  /** @name Access to individual cathode segmentations.
+   * Not needed in most cases.
+   */
   ///@{
   const CathodeSegmentation& bending() const;
   const CathodeSegmentation& nonBending() const;

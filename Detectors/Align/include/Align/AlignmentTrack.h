@@ -15,10 +15,10 @@
 /// @brief  Track model for the alignment
 
 /**
-  * Track model for the alignment: trackParam_t for kinematics
-  * proper with number of multiple scattering kinks.
-  * Full support for derivatives and residuals calculation
-  */
+ * Track model for the alignment: trackParam_t for kinematics
+ * proper with number of multiple scattering kinks.
+ * Full support for derivatives and residuals calculation
+ */
 
 #ifndef ALIGNMENTTRACK_H
 #define ALIGNMENTTRACK_H

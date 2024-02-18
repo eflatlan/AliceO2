@@ -26,7 +26,6 @@
 namespace o2::framework
 {
 
-
 /// This class keeps the information relative to a given slot in the cache, in
 /// particular which variables are associated to it (and indirectly which
 /// timeslice which is always mapped to the variable 0) and wether we should

@@ -68,13 +68,13 @@ class Calibrations
   const PadStatus* getPadStatus() const { return mPadStatus; }
   const ChamberStatus* getChamberStatus() const { return mChamberStatus; }
 
-  //online gain tables.
+  // online gain tables.
   float getOnlineGainAdcdac(int det, int row, int mcm) const;
   float getOnlineGainFGAN(int det, int row, int mcm, int adc) const;
   float getOnlineGainFGFN(int det, int row, int mcm, int adc) const;
 
  protected:
-  long mTimeStamp; //run number of related to the current calibration.
+  long mTimeStamp; // run number of related to the current calibration.
 
   ChamberCalibrations* mChamberCalibrations; ///< from AliRoot: vDrift, T0, ExB and Gain for each chamber
   LocalGainFactor* mLocalGainFactor;         ///< gain factor per readout pad

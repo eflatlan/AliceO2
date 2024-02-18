@@ -69,21 +69,21 @@ class MeanVertexCalibrator final : public o2::calibration::TimeSlotCalibration<o
   void printVector(const float* vect, const HistoParams& hpar);
 
  private:
-  CcdbObjectInfoVector mInfoVector;                                    // vector of CCDB Infos , each element is filled with the CCDB description
-                                                                       // of the accompanying LHCPhase
-  MVObjectVector mMeanVertexVector;                                    // vector of Mean Vertex Objects, each element is filled in "process"
-                                                                       // when we finalize one slot (multiple can be finalized during the same
-                                                                       // "process", which is why we have a vector. Each element is to be considered
-                                                                       // the output of the device, and will go to the CCDB. It is the simple
-                                                                       // moving average
-  std::deque<MVObject> mTmpMVobjDq;                                    // This is the deque of MeanVertex objecs that will be used for the
-                                                                       // simple moving average
-  MVObject mSMAMVobj;                                                  // object containing the Simple Moving Average to be put to CCDB
-  std::deque<long> mTmpMVobjDqTimeStart;                               // This is the deque of MeanVertex objecs that will be used for the
-                                                                       // simple moving average, start time of used TFs
-  std::deque<o2::math_utils::detail::Bracket<long>> mTmpMVobjDqTime;   // This is the deque for the start and end time of the
-                                                                       // slots used for the SMA
-  bool mVerbose = false;                                               // Whether to log in verbose mode
+  CcdbObjectInfoVector mInfoVector;                                  // vector of CCDB Infos , each element is filled with the CCDB description
+                                                                     // of the accompanying LHCPhase
+  MVObjectVector mMeanVertexVector;                                  // vector of Mean Vertex Objects, each element is filled in "process"
+                                                                     // when we finalize one slot (multiple can be finalized during the same
+                                                                     // "process", which is why we have a vector. Each element is to be considered
+                                                                     // the output of the device, and will go to the CCDB. It is the simple
+                                                                     // moving average
+  std::deque<MVObject> mTmpMVobjDq;                                  // This is the deque of MeanVertex objecs that will be used for the
+                                                                     // simple moving average
+  MVObject mSMAMVobj;                                                // object containing the Simple Moving Average to be put to CCDB
+  std::deque<long> mTmpMVobjDqTimeStart;                             // This is the deque of MeanVertex objecs that will be used for the
+                                                                     // simple moving average, start time of used TFs
+  std::deque<o2::math_utils::detail::Bracket<long>> mTmpMVobjDqTime; // This is the deque for the start and end time of the
+                                                                     // slots used for the SMA
+  bool mVerbose = false;                                             // Whether to log in verbose mode
 
   ClassDefOverride(MeanVertexCalibrator, 1);
 };

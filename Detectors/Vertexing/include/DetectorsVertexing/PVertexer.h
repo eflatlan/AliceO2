@@ -37,7 +37,7 @@
 #include <TFile.h>
 #include <TStopwatch.h>
 
-//#define _PV_DEBUG_TREE_ // if enabled, produce dbscan and vertex comparison dump
+// #define _PV_DEBUG_TREE_ // if enabled, produce dbscan and vertex comparison dump
 
 namespace o2
 {
@@ -165,7 +165,7 @@ class PVertexer
   std::array<int16_t, o2::constants::lhc::LHCMaxBunches> mClosestBunchBelow{-1}; // closest filled bunch from below, 1st element -1 to disable usage by default
   o2d::MeanVertexObject mMeanVertex{};                                           // calibrated mean vertex object
   o2d::VertexBase mMeanVertexSeed{};                                             // mean vertex at particular Z (accounting for slopes
-  std::array<float, 3> mXYConstraintInvErr = {1.0f, 0.f, 1.0f}; ///< nominal vertex constraint inverted errors^2
+  std::array<float, 3> mXYConstraintInvErr = {1.0f, 0.f, 1.0f};                  ///< nominal vertex constraint inverted errors^2
   //
   std::vector<TrackVF> mTracksPool;         ///< tracks in internal representation used for vertexing, sorted in time
   std::vector<TimeZCluster> mTimeZClusters; ///< set of time clusters

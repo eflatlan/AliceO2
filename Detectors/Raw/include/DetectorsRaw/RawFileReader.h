@@ -331,4 +331,4 @@ class RawFileReader
 } // namespace raw
 } // namespace o2
 
-#endif //DETECTOR_BASE_RAWFILEREADER_H
+#endif // DETECTOR_BASE_RAWFILEREADER_H

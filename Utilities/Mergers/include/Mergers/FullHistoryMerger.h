@@ -75,4 +75,4 @@ class FullHistoryMerger : public framework::Task
 
 } // namespace o2::mergers
 
-#endif //ALICEO2_FULLHISTORYMERGER_H
+#endif // ALICEO2_FULLHISTORYMERGER_H

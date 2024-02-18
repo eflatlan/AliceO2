@@ -23,21 +23,21 @@ namespace utils
 
 /*
  ValueMonitor: Facility to record values in a hist
-    
+
  Mainly meant as a service class that makes it easy
  to dump variable values (within an algorithm) to a histogram
  for later visual inspection.
  The class is similar in spirit with the TreeStreamer facility
  but complementary since directly using histograms in memory.
-    
+
  Different histograms are saved to the same file.
-    
+
  ```C++
   ValueMonitor mon(filename);
-    
+
   float x;
   mon.Collect<float>("x", x); --> collects x in histogram named "x"
-   
+
   double y;
   mon.Collect<double>("y", y); --> collects y in histogram named "y"
  ```

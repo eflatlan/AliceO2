@@ -40,10 +40,10 @@
 #pragma link C++ class GPUTPCGMPolynomialFieldManager + ;
 #pragma link C++ class AliHLTTPCClusterStatComponent + ;
 
-//#pragma link C++ class AliGPU::gpu::GPUTRDTrack+; //Templated, should add linkdef for specialization, but with an ifdef for ROOT >= 6 only
-//#pragma link C++ class AliGPU::gpu::GPUTRDTracker+;
+// #pragma link C++ class AliGPU::gpu::GPUTRDTrack+; //Templated, should add linkdef for specialization, but with an ifdef for ROOT >= 6 only
+// #pragma link C++ class AliGPU::gpu::GPUTRDTracker+;
 #pragma link C++ class GPUTRDTrackerComponent + ;
-//#pragma link C++ class AliGPU::gpu::GPUTRDTrackletWord+;
+// #pragma link C++ class AliGPU::gpu::GPUTRDTrackletWord+;
 #pragma link C++ class GPUTRDTrackletReaderComponent + ;
 
 #endif

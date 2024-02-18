@@ -40,7 +40,7 @@ class BaselineCalib
 
   void resetInitFlag() { mInitDone = false; };
   void clear();
-  //int process(const o2::zdc::BaselineCalibSummaryData& data);
+  // int process(const o2::zdc::BaselineCalibSummaryData& data);
   int process(const o2::zdc::BaselineCalibSummaryData* data);
   int endOfRun();
   int saveDebugHistos(const std::string fn = "ZDCBaselineCalib.root");

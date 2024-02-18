@@ -93,7 +93,7 @@ class LaserTracksCalibratorDevice : public o2::framework::Task
 
       w.setPath("TPC/Calib/LaserTracks");
       w.setStartValidityTimestamp(object.firstTime);
-      //w.setEndValidityTimestamp(object.lastTime);
+      // w.setEndValidityTimestamp(object.lastTime);
       w.setEndValidityTimestamp(timeEnd);
 
       LOGP(info, "Sending object {} / {} of size {} bytes, valid for {} : {} ", w.getPath(), w.getFileName(), image->size(), w.getStartValidityTimestamp(), w.getEndValidityTimestamp());

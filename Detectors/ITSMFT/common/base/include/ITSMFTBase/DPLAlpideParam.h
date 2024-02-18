@@ -31,12 +31,12 @@ struct DPLAlpideParam : public o2::conf::ConfigurableParamHelper<DPLAlpideParam<
   {
     return N == o2::detectors::DetID::ITS ? ParamName[0] : ParamName[1];
   }
-  int roFrameLengthInBC = DEFROFLengthBC();           ///< ROF length in BC for continuos mode
-  float roFrameLengthTrig = DEFROFLengthTrig();       ///< length of RO frame in ns for triggered mode
-  float strobeDelay = DEFStrobeDelay;                 ///< strobe start (in ns) wrt ROF start
-  float strobeLengthCont = -1.;                       ///< if < 0, full ROF length - delay
-  float strobeLengthTrig = 100.;                      ///< length of the strobe in ns (sig. over threshold checked in this window only)
-  int roFrameBiasInBC = DEFROFBiasInBC();             ///< bias of the start of ROF wrt orbit start: t_irof = (irof*roFrameLengthInBC + roFrameBiasInBC)*BClengthMUS
+  int roFrameLengthInBC = DEFROFLengthBC();     ///< ROF length in BC for continuos mode
+  float roFrameLengthTrig = DEFROFLengthTrig(); ///< length of RO frame in ns for triggered mode
+  float strobeDelay = DEFStrobeDelay;           ///< strobe start (in ns) wrt ROF start
+  float strobeLengthCont = -1.;                 ///< if < 0, full ROF length - delay
+  float strobeLengthTrig = 100.;                ///< length of the strobe in ns (sig. over threshold checked in this window only)
+  int roFrameBiasInBC = DEFROFBiasInBC();       ///< bias of the start of ROF wrt orbit start: t_irof = (irof*roFrameLengthInBC + roFrameBiasInBC)*BClengthMUS
 
   // boilerplate stuff + make principal key
   O2ParamDef(DPLAlpideParam, getParamName().data());

@@ -32,4 +32,4 @@ framework::DataProcessorSpec getRawDecoderSpec(bool isDebugMode, const FEEIdConf
 } // namespace mid
 } // namespace o2
 
-#endif //O2_MID_RAWDECODERSPEC_H
+#endif // O2_MID_RAWDECODERSPEC_H

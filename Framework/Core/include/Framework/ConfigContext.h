@@ -39,6 +39,6 @@ class ConfigContext
   char** mArgv = nullptr;
 };
 
-} // namespace o2
+} // namespace o2::framework
 
 #endif

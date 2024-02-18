@@ -51,7 +51,7 @@ class LinkRecord
   void setSpare(const int spare = 0) { mLinkId |= ((spare << sparebs) & sparemask); }
 
   uint32_t getLinkId() const { return mLinkId; }
-  //TODO come backwith a ccdb lookup.  const uint32_t getLinkHCID() { return mLinkId & 0x7ff; } // the last 11 bits.
+  // TODO come backwith a ccdb lookup.  const uint32_t getLinkHCID() { return mLinkId & 0x7ff; } // the last 11 bits.
   uint32_t getSector() const { return (mLinkId & supermodulemask) >> supermodulebs; }
   uint32_t getStack() const { return (mLinkId & stackmask) >> stackbs; }
   uint32_t getLayer() const { return (mLinkId & layermask) >> layerbs; }
@@ -68,7 +68,7 @@ class LinkRecord
   static constexpr uint64_t layermask = 0x00e0;
   static constexpr uint64_t stackmask = 0x0700;
   static constexpr uint64_t supermodulemask = 0xf800;
-  //bit shifts for the above raw data
+  // bit shifts for the above raw data
   static constexpr uint64_t sparebs = 0;
   static constexpr uint64_t sidebs = 4;
   static constexpr uint64_t layerbs = 5;

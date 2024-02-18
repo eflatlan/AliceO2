@@ -76,7 +76,7 @@ class TOFDigitWriterSplitter : public Task
   void run(o2::framework::ProcessingContext& pc) final
   {
     auto instance = pc.services().get<const o2::framework::DeviceSpec>().inputTimesliceId;
-    //pc.services().get<const o2::framework::DeviceSpec>().maxInputTimeslices;
+    // pc.services().get<const o2::framework::DeviceSpec>().maxInputTimeslices;
 
     auto digits = pc.inputs().get<OutputType>("digits");
     mPDigits = &digits;

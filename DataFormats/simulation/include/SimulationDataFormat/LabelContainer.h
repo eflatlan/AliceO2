@@ -228,6 +228,6 @@ class LabelContainer
   }
 }; // end class
 
-} // namespace o2
+} // namespace o2::dataformats
 
 #endif

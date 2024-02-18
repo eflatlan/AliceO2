@@ -37,7 +37,7 @@ template <typename T>
 std::vector<T> stringToVector(std::string const& input)
 {
   std::vector<T> result;
-  //check if the array string has correct array type symbol
+  // check if the array string has correct array type symbol
   assert(input[0] == variant_array_symbol<T>::symbol);
   std::regex nmatch(R"((?:(?!=,)|(?!=\[))[+-]?\d+\.?\d*(?:[eE][+-]?\d+)?(?=,|\]))");
   auto end = std::sregex_iterator();
@@ -52,7 +52,7 @@ template <>
 std::vector<std::string> stringToVector(std::string const& input)
 {
   std::vector<std::string> result;
-  //check if the array string has correct array type symbol
+  // check if the array string has correct array type symbol
   assert(input[0] == variant_array_symbol<std::string>::symbol);
   std::regex smatch(R"((?:(?!=,)|(?!=\[))\w+(?=,|\]))");
   auto end = std::sregex_iterator();

@@ -56,7 +56,7 @@ class ClusterReader : public Task
   std::unique_ptr<TFile> mFile;
   std::unique_ptr<TTree> mTree;
 
-  bool mUseMC = true;     // use MC truth
+  bool mUseMC = true;       // use MC truth
   bool mUsePatterns = true; // send patterns
   bool mTriggerOut = true;  // send dummy triggers vector
 

@@ -51,7 +51,7 @@ class Digits2Raw
   void emptyHBFMethod(const header::RDHAny* rdh, std::vector<char>& toAdd) const;
   std::vector<char> digits2HBTPayload(const gsl::span<gbtword80_t> digits, uint32_t Npld) const;
   bool makeGBTWord(const gbtword80_t& pld, gbtword80_t& gbtword, uint32_t& size_gbt, uint32_t Npld, gbtword80_t& gbtsend) const;
-  //void makeGBTWordInverse(std::vector<gbtword80_t> diglets, gbtword80_t& GBTWord, gbtword80_t& remnant, uint32_t& size_gbt, uint32_t Npld) const;
+  // void makeGBTWordInverse(std::vector<gbtword80_t> diglets, gbtword80_t& GBTWord, gbtword80_t& remnant, uint32_t& size_gbt, uint32_t Npld) const;
   int digit2GBTdigit(gbtword80_t& gbtdigitIR, gbtword80_t& gbtdigitTR, const CTPDigit& digit);
   std::vector<gbtword80_t> addEmptyBC(std::vector<gbtword80_t>& hbfIRZS);
   void printDigit(std::string text, const gbtword80_t& dig) const;
@@ -68,14 +68,14 @@ class Digits2Raw
   std::string mOutDir;
   uint32_t mActiveLink = -1;
   // CTP specific (commented are in Digits.h)
-  //const uint32_t mGBTLinkIR = 0; // Interaction record CTP GBT link
-  //const uint32_t mGBTLinkTC = 1; // Trigger Class Record CTP GBT link
-  //const uint32_t mGBTLinkMisc = 2; // HBrecord, Counters, ...
+  // const uint32_t mGBTLinkIR = 0; // Interaction record CTP GBT link
+  // const uint32_t mGBTLinkTC = 1; // Trigger Class Record CTP GBT link
+  // const uint32_t mGBTLinkMisc = 2; // HBrecord, Counters, ...
   uint32_t mBoardId = 33;
   bool mZeroSuppressedIntRec = true;
   bool mZeroSuppressedClassRec = true;
   bool mPadding = true;
-  //constexpr uint32_t CTPCRULinkIDMisc = 2;
+  // constexpr uint32_t CTPCRULinkIDMisc = 2;
   std::string mCTPRawDataFileName = "CTP_alio2-cr1-flp163_cru1111_0";
 };
 } // namespace ctp

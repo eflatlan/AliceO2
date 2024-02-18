@@ -53,7 +53,7 @@ namespace GPUCA_NAMESPACE
 {
 namespace gpu
 {
-//class GPUTRDTrackerGPU;
+// class GPUTRDTrackerGPU;
 class GPUTPCGPUTracker;
 class GPUDisplayInterface;
 class GPUQA;

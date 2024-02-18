@@ -39,11 +39,10 @@ class TRDDPLTrapSimulatorTask : public o2::framework::Task
   void init(o2::framework::InitContext& ic) override;
   void run(o2::framework::ProcessingContext& pc) override;
 
-
  private:
   TrapConfig* mTrapConfig{nullptr};
-  int mRunNumber{297595}; // run number to anchor simulation to.
-  int mDigitDownscaling{1}; // only digits of every mDigitDownscaling-th trigger will be kept
+  int mRunNumber{297595};       // run number to anchor simulation to.
+  int mDigitDownscaling{1};     // only digits of every mDigitDownscaling-th trigger will be kept
   int mChargeScalingFactor{-1}; // can be overwritten to set custom charge scaling factor for tracklets
   bool mUseFloatingPointForQ{false};
   bool mEnableOnlineGainCorrection{false};
@@ -65,4 +64,4 @@ o2::framework::DataProcessorSpec getTRDTrapSimulatorSpec(bool useMC, int digitDo
 } // end namespace trd
 } // end namespace o2
 
-#endif //O2_TRD_TRAPSIMULATORWORKFLOW_SRC_TRDTRAPSIMULATORSPEC_H_
+#endif // O2_TRD_TRAPSIMULATORWORKFLOW_SRC_TRDTRAPSIMULATORSPEC_H_

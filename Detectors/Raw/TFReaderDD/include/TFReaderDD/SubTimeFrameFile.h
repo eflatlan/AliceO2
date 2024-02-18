@@ -348,6 +348,6 @@ struct hash<o2::rawdd::EquipmentIdentifier> {
   }
 };
 
-} //namespace std
+} // namespace std
 
 #endif /* _ALICEO2_SUBTIMEFRAME_FILE_RAWDD_H_ */

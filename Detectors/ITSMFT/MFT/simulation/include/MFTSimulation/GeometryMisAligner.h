@@ -246,4 +246,4 @@ class GeometryMisAligner
 } // namespace mft
 } // namespace o2
 
-#endif //ALICEO2_MFT_GEOMETRYMISALIGNER_H
+#endif // ALICEO2_MFT_GEOMETRYMISALIGNER_H

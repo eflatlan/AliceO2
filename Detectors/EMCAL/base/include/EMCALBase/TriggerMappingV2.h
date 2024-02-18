@@ -372,7 +372,7 @@ class TriggerMappingV2
   std::array<unsigned int, SUPERMODULES> mNFastORInSMPhi;  // SM size
   std::array<unsigned int, SUPERMODULES> mNFastORInSMEta;  //
 
-  std::array<unsigned int, 5> mNModuleInEMCALPhi; //#FastOR/EMCAL in Phi
+  std::array<unsigned int, 5> mNModuleInEMCALPhi; // #FastOR/EMCAL in Phi
 
   //********************************************
   // Initialization of FastOR index offset of each SM/TRU

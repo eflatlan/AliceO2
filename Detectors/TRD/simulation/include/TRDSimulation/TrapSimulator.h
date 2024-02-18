@@ -135,9 +135,9 @@ class TrapSimulator
   void setUseFloatingPointForQ() { mUseFloatingPointForQ = true; }
   void setChargeScalingFactor(int scale) { mScaleQ = (1UL << 32UL) / scale; }
 
-  int getDetector() const { return mDetector; }; // Returns Chamber ID (0-539)
-  int getRobPos() const { return mRobPos; };     // Returns ROB position (0-7)
-  int getMcmPos() const { return mMcmPos; };     // Returns MCM position (0-17) (16,17 are mergers)
+  int getDetector() const { return mDetector; };         // Returns Chamber ID (0-539)
+  int getRobPos() const { return mRobPos; };             // Returns ROB position (0-7)
+  int getMcmPos() const { return mMcmPos; };             // Returns MCM position (0-17) (16,17 are mergers)
   int getNumberOfTimeBins() const { return mNTimeBin; }; // Set via TrapConfig, but should be the same as o2::trd::constants::TIMEBINS
 
   // transform Tracklet64 data into raw data format (up to 4 32-bit words)
@@ -214,25 +214,25 @@ class TrapSimulator
   static constexpr int mgkDmemAddrDeflCutEnd = 0xc055;   // DMEM end address of deflection cut
   static constexpr int mgkDmemAddrTimeOffset = 0xc3fe;   // DMEM address of time offset t0
   static constexpr int mgkDmemAddrYcorr = 0xc3ff;        // DMEM address of y correction (mis-alignment)
-  static constexpr int mQ2Startbin = 3;              // Start range of Q2, for now here. TODO pull from a revised TrapConfig?
-  static constexpr int mQ2Endbin = 5;                // End range of Q2, also pull from a revised trapconfig at some point.
+  static constexpr int mQ2Startbin = 3;                  // Start range of Q2, for now here. TODO pull from a revised TrapConfig?
+  static constexpr int mQ2Endbin = 5;                    // End range of Q2, also pull from a revised trapconfig at some point.
 
   static const int mgkFormatIndex;   // index for format settings in stream
-                                     //TODO should this change to 3 for the new format ????? I cant remember now, ask someone.
+                                     // TODO should this change to 3 for the new format ????? I cant remember now, ask someone.
   static const int mgkAddDigits = 2; // additional digits used for internal representation of ADC data
                                      // all internal data as after data control block (i.e. 12 bit), s. TRAP manual
 
   static const std::array<unsigned short, 4> mgkFPshifts; // shifts for pedestal filter
 
  private:
-  bool mInitialized{false}; // memory is allocated if initialized
-  bool mDataIsSet{false};   // flag whether input data has already been provided
-  int mDetector{-1};        // Chamber ID
-  int mRobPos{-1};          // ROB Position on chamber
-  int mMcmPos{-1};          // MCM Position on chamber
-  int mNTimeBin{-1};        // Number of timebins currently allocated
-  uint32_t mMcmHeaderEmpty; // the MCM header part without the charges (this depends only on the MCM row/column)
-  uint64_t mTrkltWordEmpty; // the part of the Tracklet64 which depends only on MCM row/column and detector
+  bool mInitialized{false};              // memory is allocated if initialized
+  bool mDataIsSet{false};                // flag whether input data has already been provided
+  int mDetector{-1};                     // Chamber ID
+  int mRobPos{-1};                       // ROB Position on chamber
+  int mMcmPos{-1};                       // MCM Position on chamber
+  int mNTimeBin{-1};                     // Number of timebins currently allocated
+  uint32_t mMcmHeaderEmpty;              // the MCM header part without the charges (this depends only on the MCM row/column)
+  uint64_t mTrkltWordEmpty;              // the part of the Tracklet64 which depends only on MCM row/column and detector
   bool mDontSendEmptyHeaderTrklt{false}; // flag, whether empty headers should be discarded
   int mADCFilled = 0;                    // bitpattern with ADC channels with data
   int mAdditionalBaseline = 0;           // additional baseline to be added to the ADC input values
@@ -259,15 +259,15 @@ class TrapSimulator
   int mEmptyHPID8{(1 << mSizeHPID) - 1};                                    ///< 0xff
   int mEmptyHPID24{mEmptyHPID8 | (mEmptyHPID8 << 8) | (mEmptyHPID8 << 16)}; ///< 0xffffff
 
-  //TODO adcr adcf labels zerosupressionmap can all go into their own class. Refactor when stable.
-  std::vector<int> mADCR; // Array with MCM ADC values (Raw, 12 bit) 2d with dimension mNTimeBin
-  std::vector<int> mADCF; // Array with MCM ADC values (Filtered, 12 bit) 2d with dimension mNTimeBin
+  // TODO adcr adcf labels zerosupressionmap can all go into their own class. Refactor when stable.
+  std::vector<int> mADCR;                                 // Array with MCM ADC values (Raw, 12 bit) 2d with dimension mNTimeBin
+  std::vector<int> mADCF;                                 // Array with MCM ADC values (Filtered, 12 bit) 2d with dimension mNTimeBin
   std::array<int, constants::NADCMCM> mADCDigitIndices{}; // indices of the incoming digits, used to relate the tracklets to labels in TRDTrapSimulatorSpec
   std::array<uint32_t, 4> mMCMT;                          // tracklet words for one mcm/trap-chip (one word for each cpu)
-  std::vector<Tracklet64> mTrackletArray64; // Array of 64 bit tracklets
-  std::vector<unsigned short> mTrackletDigitCount; // Keep track of the number of digits contributing to the tracklet (for MC labels)
-  std::vector<unsigned int> mTrackletDigitIndices; // For each tracklet the up to two global indices of the digits which contributed (global digit indices are managed in the TRDDPLTrapSimulatorTask class)
-  std::vector<int> mZSMap;              // Zero suppression map (1 dimensional projection)
+  std::vector<Tracklet64> mTrackletArray64;               // Array of 64 bit tracklets
+  std::vector<unsigned short> mTrackletDigitCount;        // Keep track of the number of digits contributing to the tracklet (for MC labels)
+  std::vector<unsigned int> mTrackletDigitIndices;        // For each tracklet the up to two global indices of the digits which contributed (global digit indices are managed in the TRDDPLTrapSimulatorTask class)
+  std::vector<int> mZSMap;                                // Zero suppression map (1 dimensional projection)
 
   std::array<int, constants::NCPU> mFitPtr{};       // pointer to the tracklet to be calculated by CPU i
   std::array<FitReg, constants::NADCMCM> mFitReg{}; // Fit register for each ADC channel
@@ -306,6 +306,6 @@ class TrapSimulator
 std::ostream& operator<<(std::ostream& os, const TrapSimulator& mcm);
 std::ostream& operator<<(std::ostream& os, TrapSimulator::FitReg& fitreg);
 
-} //namespace trd
-} //namespace o2
+} // namespace trd
+} // namespace o2
 #endif

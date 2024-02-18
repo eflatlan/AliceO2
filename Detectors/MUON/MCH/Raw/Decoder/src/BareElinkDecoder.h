@@ -50,7 +50,7 @@ class BareElinkDecoder
   BareElinkDecoder(DsElecId dsId, DecodedDataHandlers decodedDataHandlers);
 
   /** @name Main interface
-  */
+   */
   ///@{
 
   /// Append two bits (from the same dual sampa, one per sampa) to the Elink.
@@ -61,7 +61,7 @@ class BareElinkDecoder
   // uint8_t linkId() const;
 
   /** @name Methods for testing
-    */
+   */
   ///@{
 
   /// Current number of bits we're holding
@@ -110,7 +110,7 @@ class BareElinkDecoder
   SampaHeader mSampaHeader;                 //< Current SampaHeader
   uint64_t mBitBuffer;                      //< Our internal bit stream buffer
   /** @name internal global counters
-    */
+   */
 
   ///@{
   uint64_t mNofSync;               //< Number of SYNC words we've seen so far

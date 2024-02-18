@@ -86,7 +86,7 @@ class SampaHeader
   bool hasParityError() const;
 
   /** @name Getters
-    */
+   */
   ///@{
   uint8_t hammingCode() const;
   bool headerParity() const;

@@ -301,9 +301,9 @@ class SplineSpec<DataT, XdimT, YdimT, 0> : public SplineContainer<DataT>
 
     DataT iParameters[(1 << (2 * maxXdim)) * maxYdim]; // Array for all parameters
 
-    //get the indices of the "most left" Knot:
+    // get the indices of the "most left" Knot:
 
-    int indices[maxXdim]; //indices of the 'most left' knot
+    int indices[maxXdim]; // indices of the 'most left' knot
     for (int i = 0; i < nXdim; i++) {
       indices[i] = mGrid[i].getLeftKnotIndexForU(u[i]);
     }
@@ -311,15 +311,15 @@ class SplineSpec<DataT, XdimT, YdimT, 0> : public SplineContainer<DataT>
     int indicestmp[maxXdim];
     for (int i = 0; i < nKnotParametersPerY; i++) { // for every necessary Knot
       for (int k = 0; k < nXdim; k++) {
-        indicestmp[k] = indices[k] + (i / (1 << k)) % 2; //get the knot-indices in every dimension (mirrored order binary counting)
+        indicestmp[k] = indices[k] + (i / (1 << k)) % 2; // get the knot-indices in every dimension (mirrored order binary counting)
       }
-      int index = TBase::getKnotIndex(indicestmp); //get index of the current Knot
+      int index = TBase::getKnotIndex(indicestmp); // get index of the current Knot
 
-      for (int j = 0; j < nKnotParameters; j++) { //and fill the iparameter array with according parameters
+      for (int j = 0; j < nKnotParameters; j++) { // and fill the iparameter array with according parameters
         iParameters[i * nKnotParameters + j] = Parameters[index * nKnotParameters + j];
       }
     }
-    //now start with the interpolation loop:
+    // now start with the interpolation loop:
 
     constexpr auto maxInterpolations = (1 << (2 * maxXdim - 2)) * maxYdim;
 
@@ -331,11 +331,11 @@ class SplineSpec<DataT, XdimT, YdimT, 0> : public SplineContainer<DataT>
     int nInterpolations = (1 << (2 * nXdim - 2)) * nYdim;
     int nKnots = 1 << (nXdim);
 
-    for (int d = 0; d < nXdim; d++) {            //for every dimension
+    for (int d = 0; d < nXdim; d++) {            // for every dimension
       DataT* pointer[4] = {S0, D0, S1, D1};      // pointers for interpolation arrays S0, D0, S1, D1 point to Arraystart
-      for (int i = 0; i < nKnots; i++) {         //for every knot
+      for (int i = 0; i < nKnots; i++) {         // for every knot
         for (int j = 0; j < nKnots; j++) {       // for every parametertype
-          int pointernr = 2 * (i % 2) + (j % 2); //to which array should it be delivered
+          int pointernr = 2 * (i % 2) + (j % 2); // to which array should it be delivered
           for (int k = 0; k < nYdim; k++) {
             pointer[pointernr][0] = iParameters[(i * nKnots + j) * nYdim + k];
             pointer[pointernr]++;
@@ -350,7 +350,7 @@ class SplineSpec<DataT, XdimT, YdimT, 0> : public SplineContainer<DataT>
       gridX.interpolateU(nInterpolations, knotL, S0, D0, S1, D1, coordinate, iParameters);
       nInterpolations /= 4;
       nKnots /= 2;
-    } //end d (every dimension)
+    } // end d (every dimension)
 
     for (int i = 0; i < nYdim; i++) {
       S[i] = iParameters[i]; // write into result-array

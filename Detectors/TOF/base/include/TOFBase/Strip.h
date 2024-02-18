@@ -66,7 +66,7 @@ class Strip
   //, const o2::math_utils::Transform3D* mat)
   {
     mStripIndex = index;
-    //mMat = mat;
+    // mMat = mat;
   }
 
   /// Get the chip index

@@ -15,13 +15,11 @@
 #pragma link off all classes;
 #pragma link off all functions;
 
-
 // ef ::added
-#pragma link C++ class o2::hmpid::ClusterCandidate+;
+#pragma link C++ class o2::hmpid::ClusterCandidate + ;
 #pragma link C++ class std::vector < o2::hmpid::ClusterCandidate> + ;
 
 // ef ::added
-
 
 #pragma link C++ function o2::hmpid::Cluster::setClusterTopology;
 

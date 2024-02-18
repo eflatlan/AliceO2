@@ -42,4 +42,4 @@ ObjectStore extractObjectFrom(const framework::DataRef& ref);
 
 } // namespace o2::mergers
 
-#endif //O2_OBJECTSTORE_H
+#endif // O2_OBJECTSTORE_H

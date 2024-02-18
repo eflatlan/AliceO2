@@ -38,7 +38,7 @@ class PayloadEncoder
   virtual ~PayloadEncoder() = default;
 
   /** @name Main interface.
-    */
+   */
   ///@{
   /// add data for one channel.
   ///

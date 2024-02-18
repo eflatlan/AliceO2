@@ -46,8 +46,8 @@ struct AlignConfig : public o2::conf::ConfigurableParamHelper<AlignConfig> {
   int vtxMaxCont = 99999; // require max number of contributors in Vtx
   int vtxMinContVC = 20;  // min number of contributors to use as constraint
 
-  int minPointTotal = 4; // total min number of alignment point to account track
-  int minDetectors = 1;  // min number of detectors per track
+  int minPointTotal = 4;   // total min number of alignment point to account track
+  int minDetectors = 1;    // min number of detectors per track
   int minITSClusters = 4;  // min ITS clusters to accept the track
   int minTRDTracklets = 3; // min TRD tracklets to accept the track
   int minTPCClusters = 10; // discard tracks with less clusters
@@ -64,8 +64,8 @@ struct AlignConfig : public o2::conf::ConfigurableParamHelper<AlignConfig> {
   int minTOFClustersCosm = 0;     // min TOF clusters to accept track
   int minTOFClustersCosmLeg = 1;  // min TOF clusters per leg to accept track
 
-  int minTPCPadRow = 0;    // min TPC pad-row to account
-  int maxTPCPadRow = 151;  // max TPC pad-row to account
+  int minTPCPadRow = 0;   // min TPC pad-row to account
+  int maxTPCPadRow = 151; // max TPC pad-row to account
 
   float maxDCAforVC[2] = {-1, -1}; // DCA cut in R,Z to allow track be subjected to vertex constraint
   float maxChi2forVC = -1;         // track-vertex chi2 cut to allow the track be subjected to vertex constraint
@@ -73,16 +73,16 @@ struct AlignConfig : public o2::conf::ConfigurableParamHelper<AlignConfig> {
   float controlFraction = -1.;     // fraction for which control output is requested, if negative - only 1st instance of device will write them
   float MPRecOutFraction = -1.;    // compact Millepede2Record fraction, if negative - only 1st instance of device will write them
 
-  bool MilleOut = true;       // Mille output
-  bool KalmanResid = true;    // Kalman residuals
-  bool MilleOutBin = true;    // text vs binary output for mille data
-  bool GZipMilleOut = false;  // compress binary records
+  bool MilleOut = true;      // Mille output
+  bool KalmanResid = true;   // Kalman residuals
+  bool MilleOutBin = true;   // text vs binary output for mille data
+  bool GZipMilleOut = false; // compress binary records
 
-  std::string mpDatFileName{"mpData"};            //  file name for records mille data output
-  std::string mpParFileName{"mpParams.txt"};      //  file name for MP params
-  std::string mpConFileName{"mpConstraints.txt"}; //  file name for MP constraints
-  std::string mpSteerFileName{"mpSteer.txt"};     //  file name for MP steering
-  std::string residFileName{"mpContolRes"};       //  file name for optional control residuals
+  std::string mpDatFileName{"mpData"};               //  file name for records mille data output
+  std::string mpParFileName{"mpParams.txt"};         //  file name for MP params
+  std::string mpConFileName{"mpConstraints.txt"};    //  file name for MP constraints
+  std::string mpSteerFileName{"mpSteer.txt"};        //  file name for MP steering
+  std::string residFileName{"mpContolRes"};          //  file name for optional control residuals
   std::string mpLabFileName{"mpResultsLabeled.txt"}; //  file name for relabeled MP params
   //
   std::string outCDBPath{};        // output OCDB path

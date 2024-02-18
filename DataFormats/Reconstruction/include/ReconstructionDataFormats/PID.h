@@ -91,8 +91,8 @@ class PID
   static constexpr ID Alpha = 8;
 
   static constexpr ID First = Electron;
-  static constexpr ID Last = Alpha;     ///< if extra IDs added, update this !!!
-  static constexpr ID NIDs = Last + 1;  ///< number of defined IDs
+  static constexpr ID Last = Alpha;    ///< if extra IDs added, update this !!!
+  static constexpr ID NIDs = Last + 1; ///< number of defined IDs
 
   // PID for derived particles
   static constexpr ID PI0 = 9;
@@ -146,7 +146,8 @@ class PID
 #ifndef GPUCA_GPUCODE_DEVICE
   GPUdi() static constexpr ID nameToID(char const* name, ID id)
   {
-    return id > LastExt ? id : sameStr(name, pid_constants::sNames[id]) ? id : nameToID(name, id + 1);
+    return id > LastExt ? id : sameStr(name, pid_constants::sNames[id]) ? id
+                                                                        : nameToID(name, id + 1);
   }
 #endif
 

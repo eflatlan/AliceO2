@@ -58,9 +58,9 @@ class TOFCalibInfoSlot
   auto& getCollectedCalibInfoSlot() const { return mTOFCollectedCalibInfoSlot; }
 
  private:
-  std::array<int, Geo::NCHANNELS> mEntriesSlot;                               // vector containing number of entries per channel
-  std::vector<o2::dataformats::CalibInfoTOF> mTOFCollectedCalibInfoSlot;      ///< output TOF calibration info
-  float mLHCphase = 0;                                                        // current LHCphase inside the BC (-5000 < phase < 20000)
+  std::array<int, Geo::NCHANNELS> mEntriesSlot;                          // vector containing number of entries per channel
+  std::vector<o2::dataformats::CalibInfoTOF> mTOFCollectedCalibInfoSlot; ///< output TOF calibration info
+  float mLHCphase = 0;                                                   // current LHCphase inside the BC (-5000 < phase < 20000)
 
   ClassDefNV(TOFCalibInfoSlot, 1);
 };
@@ -87,13 +87,13 @@ class TOFCalibCollector final : public o2::calibration::TimeSlotCalibration<o2::
   float getLHCphase() const { return mLHCphase; }
 
  private:
-  bool mTFsendingPolicy = false;                                          // whether we will send information at every TF or only when we have a certain statistics
-  int mMaxNumOfHits = 500;                                                // maximum number of hits for one single channel to trigger the sending of the information (if mTFsendingPolicy = false)
-  bool mTest = false;                                                     // flag to say whether we are in test mode or not
-  bool mAbsMaxNumOfHits = true;                                           // to decide if the mMaxNumOfHits should be multiplied by the number of TOF channels
-  std::array<int, Geo::NCHANNELS> mEntries;                               // vector containing number of entries per channel
-  std::vector<o2::dataformats::CalibInfoTOF> mTOFCollectedCalibInfo;      ///< output TOF calibration info
-  float mLHCphase = 0;                                                    // current LHCphase inside the BC (-5000 < phase < 20000)
+  bool mTFsendingPolicy = false;                                     // whether we will send information at every TF or only when we have a certain statistics
+  int mMaxNumOfHits = 500;                                           // maximum number of hits for one single channel to trigger the sending of the information (if mTFsendingPolicy = false)
+  bool mTest = false;                                                // flag to say whether we are in test mode or not
+  bool mAbsMaxNumOfHits = true;                                      // to decide if the mMaxNumOfHits should be multiplied by the number of TOF channels
+  std::array<int, Geo::NCHANNELS> mEntries;                          // vector containing number of entries per channel
+  std::vector<o2::dataformats::CalibInfoTOF> mTOFCollectedCalibInfo; ///< output TOF calibration info
+  float mLHCphase = 0;                                               // current LHCphase inside the BC (-5000 < phase < 20000)
 
   ClassDefOverride(TOFCalibCollector, 3);
 };

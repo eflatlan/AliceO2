@@ -35,6 +35,7 @@ class Digitizer
   std::vector<CTPDigit> process(const gsl::span<o2::ctp::CTPInputDigit> detinputs);
   void calculateClassMask(const std::bitset<CTP_NINPUTS> ctpinpmask, std::bitset<CTP_NCLASSES>& classmask);
   void init();
+
  private:
   // CTP configuration
   std::string mCCDBServer = o2::base::NameConf::getCCDBServer();
@@ -43,4 +44,4 @@ class Digitizer
 };
 } // namespace ctp
 } // namespace o2
-#endif //ALICEO2_CTP_DIGITIZER_H
+#endif // ALICEO2_CTP_DIGITIZER_H

@@ -26,7 +26,7 @@ struct SubframeMetadata {
   uint64_t startTime = ~(uint64_t)0;
   uint64_t duration = ~(uint64_t)0;
 
-  //further meta data to be added
+  // further meta data to be added
 
   // putting data specific to FLP origin
   int flpIndex;

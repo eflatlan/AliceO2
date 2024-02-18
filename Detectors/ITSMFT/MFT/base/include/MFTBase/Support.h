@@ -50,23 +50,23 @@ class Support
   TGeoVolumeAssembly* mHalfDisk;
   TGeoMedium* mSupportMedium;
 
-  Double_t mSupThickness; //Support Thickness
+  Double_t mSupThickness; // Support Thickness
   Double_t mSupRad[5];    // Radius of each support disk
-  Double_t mDiskGap;      //gap between half disks
+  Double_t mDiskGap;      // gap between half disks
   Double_t mPhi0;
   Double_t mPhi1;
-  Double_t mT_delta; //Excess to remove to avoid coplanar surfaces that causes visualization glitches
+  Double_t mT_delta; // Excess to remove to avoid coplanar surfaces that causes visualization glitches
   Double_t mRaisedBoxHeight;
   Double_t mFixBoxHeight;
-  Double_t mOuterCut[5]; //Distance of external disk cuts (oposite to beam pipe)
-                         // this is the y origin on Guillamet's PDF blueprints
+  Double_t mOuterCut[5]; // Distance of external disk cuts (oposite to beam pipe)
+                         //  this is the y origin on Guillamet's PDF blueprints
 
   std::vector<shapeParam> mDiskBoxCuts[5];     // Box cuts on each disk
-  std::vector<shapeParam> mDiskRaisedBoxes[5]; //Raised boxes for each halfDisk
-  std::vector<shapeParam> mDiskFixBoxes[5];    //Fix boxes for each halfDisk (can be merged with mDiskRaisedBoxes)
+  std::vector<shapeParam> mDiskRaisedBoxes[5]; // Raised boxes for each halfDisk
+  std::vector<shapeParam> mDiskFixBoxes[5];    // Fix boxes for each halfDisk (can be merged with mDiskRaisedBoxes)
 
-  Int_t mNumberOfVoids[5];        //Number of Voids (big holes) in each halfDisk support
-  Double_t (*mVoidVert[5])[4][2]; //Vertexes of Voids
+  Int_t mNumberOfVoids[5];        // Number of Voids (big holes) in each halfDisk support
+  Double_t (*mVoidVert[5])[4][2]; // Vertexes of Voids
 
   Int_t mNumberOfM2Holes[5];  // Number of M2 Holes in each halfDisk support
   Double_t (*mM2Holes[5])[2]; // M2 holes on halfdisk 00 and 01
@@ -82,7 +82,7 @@ class Support
   // ==== D 6.5 mm holes
   Double_t (*mD65Holes[5])[2]; // Positions of D6.5 mm holes on disk
   Int_t mTwoHoles;             // Number of D6.5 mm Holes in each halfDisk support
-  Double_t mD65;               //Radius
+  Double_t mD65;               // Radius
 
   // ==== D6 H7 (6 mm diameter holes)
   Double_t (*mD6Holes[5])[2]; // Positions of D6 mm holes on disk
@@ -114,7 +114,7 @@ class Support
   ClassDefNV(Support, 1);
 };
 
-//Template to reduce boilerplate for TGeo boolean operations
+// Template to reduce boilerplate for TGeo boolean operations
 template <class L, class R, class T, class OP>
 auto compositeOperation(L&& left, R&& right, T&& translation, OP&& op)
 {
@@ -122,7 +122,7 @@ auto compositeOperation(L&& left, R&& right, T&& translation, OP&& op)
   return result;
 }
 
-//Template function to perform serial TGeo boolean operations
+// Template function to perform serial TGeo boolean operations
 template <class L, class SHAPE, class EL, class OP>
 auto serialBoolOperation(L&& base, SHAPE&& shape, EL&& elements, OP&& op)
 {
@@ -131,12 +131,12 @@ auto serialBoolOperation(L&& base, SHAPE&& shape, EL&& elements, OP&& op)
   TGeoTranslation* localTranslation;
 
   for (auto par : elements) {
-    //Info("SerialBoolOperation", Form("params: %f %f %f %f %f %f,", par[0], par[1], par[2], par[3], par[4], par[5]), 0, 0);
+    // Info("SerialBoolOperation", Form("params: %f %f %f %f %f %f,", par[0], par[1], par[2], par[3], par[4], par[5]), 0, 0);
 
     localshape = new SHAPE(par[0], par[1], par[2], nullptr);
     localTranslation = new TGeoTranslation(par[3], par[4], par[5]);
 
-    //The first subtraction needs a shape, the base shape
+    // The first subtraction needs a shape, the base shape
     if (!localCS) {
       localCS = new TGeoCompositeShape(nullptr, compositeOperation(base, localshape, localTranslation, std::forward<OP>(op)));
     } else {

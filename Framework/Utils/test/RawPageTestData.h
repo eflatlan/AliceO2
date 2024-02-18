@@ -63,5 +63,5 @@ struct DataSet {
 using AmendRawDataHeader = std::function<void(RAWDataHeader&)>;
 DataSet createData(std::vector<InputSpec> const& inputspecs, std::vector<DataHeader> const& dataheaders, AmendRawDataHeader amendRdh = nullptr);
 
-} // namespace o2::framework
+} // namespace o2::framework::test
 #endif // FRAMEWORK_UTILS_RAWPAGETESTDATA_H

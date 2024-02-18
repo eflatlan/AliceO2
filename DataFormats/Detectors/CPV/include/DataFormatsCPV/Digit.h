@@ -96,7 +96,7 @@ class Digit : public DigitBase
   int getLabel() const { return mLabel; }
   void setLabel(int l) { mLabel = l; }
 
-  //put all parameters to default
+  // put all parameters to default
   void reset()
   {
     mAbsId = 0;

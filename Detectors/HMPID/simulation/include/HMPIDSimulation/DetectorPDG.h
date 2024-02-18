@@ -60,8 +60,8 @@ class Detector : public o2::base::DetImpl<Detector>
   TGeoVolume* CradleBaseVolume(TGeoMedium* med, double l[7], const char* name);
 
   /* ef functions
-   
-  void printMotherInfo(o2::data::Stack* stack) 
+
+  void printMotherInfo(o2::data::Stack* stack)
   {
     TParticle* currentParticleTrack = stack->GetCurrentTrack();
     Int_t tid = stack->GetCurrentTrackNumber(); //take TID
@@ -80,12 +80,12 @@ class Detector : public o2::base::DetImpl<Detector>
     // addParticleIncoming(particlePdg, fMother, sMother, fDaughter, ndaughters);
   }
 
-  void printParticleInfo(TParticle* currentParticleTrack) 
+  void printParticleInfo(TParticle* currentParticleTrack)
   {
      //TParticle* currentParticleTrack = fMC->GetStack()->GetCurrentTrack();
     //TParticlePDG* partcilePDG = currentParticleTrack->GetPDG();
 
-  
+
 LOGP(info, "Particle Type {}, Name {}, PDG {}; Mass {}", currentParticleTrack->GetTitle(), currentParticleTrack->GetName(), currentParticleTrack->GetPdgCode(), currentParticleTrack->GetMass());
   }
 
@@ -94,13 +94,13 @@ LOGP(info, "Particle Type {}, Name {}, PDG {}; Mass {}", currentParticleTrack->G
     particleVector.push_back({particlePdg, fMother, sMother, fDaughter, sDaugther});
   }
 
-  void printParticleInfo(o2::data::Stack* stack) 
+  void printParticleInfo(o2::data::Stack* stack)
   {
     TParticle* currentParticleTrack = stack->GetCurrentTrack();
     //TParticlePDG* partcilePDG = currentParticleTrack->GetPDG();
 
-  
-		LOGP(info, "Particle Type {}, Name {}, PDG {}; Mass {}",
+
+    LOGP(info, "Particle Type {}, Name {}, PDG {}; Mass {}",
      currentParticleTrack->GetTitle(), currentParticleTrack->GetName(), currentParticleTrack->GetPdgCode(), currentParticleTrack->GetMass());
   }
   */

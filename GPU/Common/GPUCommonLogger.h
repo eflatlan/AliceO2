@@ -37,7 +37,7 @@ struct DummyLogger {
 
 #elif defined(GPUCA_GPUCODE_DEVICE)
 #define LOG(...) o2::gpu::detail::DummyLogger()
-//#define LOG(...) static_assert(false, "LOG(...) << ... unsupported in GPU code");
+// #define LOG(...) static_assert(false, "LOG(...) << ... unsupported in GPU code");
 #define LOGF(type, string, ...)         \
   {                                     \
     printf(string "\n", ##__VA_ARGS__); \

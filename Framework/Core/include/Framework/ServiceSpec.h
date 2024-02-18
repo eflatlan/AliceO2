@@ -170,7 +170,7 @@ struct ServiceSpec {
   ServicePreSchedule preSchedule = nullptr;
   ServicePostSchedule postSchedule = nullptr;
 
-  ///Callback executed after each metric is received by the driver.
+  /// Callback executed after each metric is received by the driver.
   ServiceMetricHandling metricHandling = nullptr;
 
   /// Callback executed after a given input record has been successfully

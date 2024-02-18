@@ -46,8 +46,8 @@ class HeartBeatPacket
   uint32_t mBunchCrossing{0};
 
   ClassDefNV(HeartBeatPacket, 1);
-}; //class HeartBeatPacket
+}; // class HeartBeatPacket
 
-} //namespace mch
-} //namespace o2
+} // namespace mch
+} // namespace o2
 #endif // O2_MCH_BASE_HEARTBEATPACKET_H_

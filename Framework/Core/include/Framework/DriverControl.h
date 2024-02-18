@@ -51,6 +51,6 @@ struct DriverControl {
   bool defaultStopped;
 };
 
-} // namespace o2
+} // namespace o2::framework
 
 #endif

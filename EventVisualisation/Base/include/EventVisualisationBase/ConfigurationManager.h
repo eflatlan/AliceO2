@@ -101,6 +101,6 @@ class ConfigurationManager
   ~ConfigurationManager() = default;
 };
 
-}
-}
+} // namespace event_visualisation
+} // namespace o2
 #endif // ALICE_O2_EVENTVISUALISATION_BASE_CONFIGURATIONMANAGER_H

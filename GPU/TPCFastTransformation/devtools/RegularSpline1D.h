@@ -97,11 +97,11 @@ inline T RegularSpline1D::getSpline(const int iknot1, T f0, T f1, T f2, T f3, fl
   /// The polynom is constructed with function values f0,f1,f2,f3 at knots {iknot0,iknot1,iknot2,iknot3}
   /// The u value supposed to be inside the [knot1,knot2] region, but also may be any.
 
-  ///f0 = f value at iknot1-1
-  ///f1 = f value at iknot1
-  ///f2 = f value at iknot1+1
-  ///f3 = f value at iknot1+2
-  ///u = u value where f(u) is searched for.
+  /// f0 = f value at iknot1-1
+  /// f1 = f value at iknot1
+  /// f2 = f value at iknot1+1
+  /// f3 = f value at iknot1+2
+  /// u = u value where f(u) is searched for.
 
   f0 -= f1;
   f2 -= f1;
@@ -153,7 +153,7 @@ inline double RegularSpline1D::knotIndexToU(int iknot) const
 
 inline int RegularSpline1D::getKnotIndex(float u) const
 {
-  //index is just u elem [0, 1] * numberOfKnots and then floored. (so the "left" coordinate beside u gets chosen)
+  // index is just u elem [0, 1] * numberOfKnots and then floored. (so the "left" coordinate beside u gets chosen)
   int index = (int)(u * (mNumberOfKnots - 1));
   if (index <= 1) {
     index = 1;

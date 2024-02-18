@@ -36,9 +36,9 @@ namespace o2
 namespace dcs
 {
 /**
-     * DataPointIdentifier object is responsible for storing the alias and type
-     * information of a data point.
-     */
+ * DataPointIdentifier object is responsible for storing the alias and type
+ * information of a data point.
+ */
 class DataPointIdentifier final
 {
   const uint64_t pt1;
@@ -57,25 +57,25 @@ class DataPointIdentifier final
 
  public:
   /**
-         * The default constructor for DataPointIdentifier. Creates a DPID that
-         * contains only zeroes. To fill it with alias and type, please use the
-         * factory procedure <tt>fill</tt>.
-         *
-         * @see ADAPRO::ADAPOS::DataPointIdentifier::fill
-         */
+   * The default constructor for DataPointIdentifier. Creates a DPID that
+   * contains only zeroes. To fill it with alias and type, please use the
+   * factory procedure <tt>fill</tt>.
+   *
+   * @see ADAPRO::ADAPOS::DataPointIdentifier::fill
+   */
   DataPointIdentifier() noexcept : pt1(0), pt2(0), pt3(0), pt4(0), pt5(0), pt6(0), pt7(0), pt8(0)
   {
   }
 
   /**
-         * A constructor for DataPointIdentifier. Copies the given arguments to
-         * the memory segment owned by the object under construction.
-         *
-         * @param alias The alias of the DataPointIdentifier. Maximum length is
-         * 62 characaters.
-         * @param type  Type of the payload value associated with the service
-         * identified by this DataPointIdentifier.
-         */
+   * A constructor for DataPointIdentifier. Copies the given arguments to
+   * the memory segment owned by the object under construction.
+   *
+   * @param alias The alias of the DataPointIdentifier. Maximum length is
+   * 62 characaters.
+   * @param type  Type of the payload value associated with the service
+   * identified by this DataPointIdentifier.
+   */
   DataPointIdentifier(const std::string& alias, const DeliveryType type) noexcept : DataPointIdentifier()
   {
     strncpy((char*)this, alias.c_str(), 62);
@@ -96,14 +96,14 @@ class DataPointIdentifier final
   }
 
   /**
-         * This stati procedure fills the given DataPointIdentifier object with
-         * the given parameters.
-         *
-         * @param dpid  The DataPointIdentifier to be filled (i.e. overwritten).
-         * @param alias Alias of the data point. This is used for identifying
-         * the DIM service that publishes updates to a data point.
-         * @param type  Type of the data point payload value.
-         */
+   * This stati procedure fills the given DataPointIdentifier object with
+   * the given parameters.
+   *
+   * @param dpid  The DataPointIdentifier to be filled (i.e. overwritten).
+   * @param alias Alias of the data point. This is used for identifying
+   * the DIM service that publishes updates to a data point.
+   * @param type  Type of the data point payload value.
+   */
   static inline void FILL(
     const DataPointIdentifier& dpid,
     const std::string& alias,
@@ -114,12 +114,12 @@ class DataPointIdentifier final
   }
 
   /**
-         * This static procedure copies the given 64-byte binary segment into
-         * the DataPointIdentifier object.
-         *
-         * @param dpid  The DataPointIdentifier to be filled (i.e. overwritten).
-         * @param data  Beginning of the 64-byte binary segment.
-         */
+   * This static procedure copies the given 64-byte binary segment into
+   * the DataPointIdentifier object.
+   *
+   * @param dpid  The DataPointIdentifier to be filled (i.e. overwritten).
+   * @param data  Beginning of the 64-byte binary segment.
+   */
   static inline void FILL(
     const DataPointIdentifier& dpid,
     const uint64_t* const data) noexcept
@@ -129,12 +129,12 @@ class DataPointIdentifier final
   }
 
   /**
-         * The equality comparison object of DPIDs.
-         *
-         * @param other The other DPID object for comparison.
-         * @return      <tt>true</tt> if and only if the other DPID object
-         * has exactly (bit-by-bit) the same state.
-         */
+   * The equality comparison object of DPIDs.
+   *
+   * @param other The other DPID object for comparison.
+   * @return      <tt>true</tt> if and only if the other DPID object
+   * has exactly (bit-by-bit) the same state.
+   */
   inline bool operator==(const DataPointIdentifier& other) const
   {
     constexpr char mask = 0x7F;
@@ -144,20 +144,20 @@ class DataPointIdentifier final
   }
 
   /**
-         * Negation of the equality comparison.
-         *
-         * @param other The second operand.
-         * @return      <tt>true</tt> or <tt>false</tt>.
-         */
+   * Negation of the equality comparison.
+   *
+   * @param other The second operand.
+   * @return      <tt>true</tt> or <tt>false</tt>.
+   */
   inline bool operator!=(const DataPointIdentifier& other) const
   {
     return !(*this == other);
   }
 
   /**
-         * Appends DataPointIdentifier object to the given stream using CSV
-         * format (i.e. <tt>&lt;alias&gt; ";" &lt;type&gt;</tt>).
-         */
+   * Appends DataPointIdentifier object to the given stream using CSV
+   * format (i.e. <tt>&lt;alias&gt; ";" &lt;type&gt;</tt>).
+   */
   friend inline std::ostream& operator<<(std::ostream& os,
                                          const DataPointIdentifier& dpid) noexcept
   {
@@ -165,53 +165,53 @@ class DataPointIdentifier final
   }
 
   /**
-         * Returns the alias of the DPID object as a C-style string (i.e.
-         * null-terminated char array).
-         *
-         * @return The alias.
-         */
+   * Returns the alias of the DPID object as a C-style string (i.e.
+   * null-terminated char array).
+   *
+   * @return The alias.
+   */
   inline const char* const get_alias() const noexcept
   {
     return (char*)&pt1;
   }
 
   /**
-         * Getter for the payload type information.
-         *
-         * @return a DeliveryType object.
-         */
+   * Getter for the payload type information.
+   *
+   * @return a DeliveryType object.
+   */
   inline DeliveryType get_type() const noexcept
   {
     return (DeliveryType)((pt8 & 0xFF00000000000000) >> 56);
   }
 
   /**
-         * Returns a hash code calculated from the alias. <em>Note that the
-         * hash code is recalculated every time when this function is called.
-         * </em>
-         *
-         * @return An unsigned integer.
-         */
+   * Returns a hash code calculated from the alias. <em>Note that the
+   * hash code is recalculated every time when this function is called.
+   * </em>
+   *
+   * @return An unsigned integer.
+   */
   inline size_t hash_code() const noexcept
   {
     return o2::dcs::hash_code(std::string((char*)&pt1));
   }
 
   /**
-         * The destructor for DataPointIdentifier.
-         */
+   * The destructor for DataPointIdentifier.
+   */
   ~DataPointIdentifier() noexcept = default;
   ClassDefNV(DataPointIdentifier, 1);
 };
 
 /**
-     * This simple function object is used for calculating the hash code for a
-     * DataPointIdentifier object in a STL container.
-     *
-     * @param dpid  The DataPointIdentifier object, whose hash code is to be
-     * calculated.
-     * @return      The calculated hash code.
-     */
+ * This simple function object is used for calculating the hash code for a
+ * DataPointIdentifier object in a STL container.
+ *
+ * @param dpid  The DataPointIdentifier object, whose hash code is to be
+ * calculated.
+ * @return      The calculated hash code.
+ */
 struct DPIDHash {
   uint64_t operator()(const o2::dcs::DataPointIdentifier& dpid)
     const

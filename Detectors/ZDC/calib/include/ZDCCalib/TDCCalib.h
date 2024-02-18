@@ -34,10 +34,10 @@ namespace o2
 namespace zdc
 {
 
-class TDCCalib //after
+class TDCCalib // after
 {
 
-  using CcdbObjectInfo = o2::ccdb::CcdbObjectInfo; //added by me
+  using CcdbObjectInfo = o2::ccdb::CcdbObjectInfo; // added by me
 
  public:
   TDCCalib() = default;
@@ -69,8 +69,8 @@ class TDCCalib //after
   int getVerbosity() const { return mVerbosity; }
 
  private:
-  std::array<o2::dataformats::FlatHisto1D<float>*, NTDCChannels> mCTDC{}; //array of FlatHisto1D, number of elements = NTDCChannles (= 10), defined in constants.h {} means defined but not initialized
-  std::array<std::unique_ptr<TH1>, NTDCChannels> mHCTDC{};                //copy of flat histo 1D in TH1F to use root functions
+  std::array<o2::dataformats::FlatHisto1D<float>*, NTDCChannels> mCTDC{}; // array of FlatHisto1D, number of elements = NTDCChannles (= 10), defined in constants.h {} means defined but not initialized
+  std::array<std::unique_ptr<TH1>, NTDCChannels> mHCTDC{};                // copy of flat histo 1D in TH1F to use root functions
   bool mInitDone = false;
   bool mSaveDebugHistos = false;
   const TDCCalibConfig* mTDCCalibConfig = nullptr; /// Configuration of TDC calibration, this line has been swapped with the following one to be consistent with intercalibration

@@ -160,19 +160,19 @@ class CruRawReader
   uint32_t mTotalHBFPayLoad = 0;        // total data payload of the heart beat frame in question (up to wich array index mHBFPayload is filled with data)
   uint32_t mHBFoffset32 = 0;            // points to the current position inside mHBFPayload we are currently reading
 
-  HalfCRUHeader mCurrentHalfCRUHeader; // are we waiting for new header or currently parsing the payload of on
-  HalfCRUHeader mPreviousHalfCRUHeader; // are we waiting for new header or currently parsing the payload of on
-  bool mPreviousHalfCRUHeaderSet;       // flag, whether we can use mPreviousHalfCRUHeader for additional sanity checks
-  DigitHCHeader mDigitHCHeader;         // Digit HalfChamber header we are currently on.
+  HalfCRUHeader mCurrentHalfCRUHeader;     // are we waiting for new header or currently parsing the payload of on
+  HalfCRUHeader mPreviousHalfCRUHeader;    // are we waiting for new header or currently parsing the payload of on
+  bool mPreviousHalfCRUHeaderSet;          // flag, whether we can use mPreviousHalfCRUHeader for additional sanity checks
+  DigitHCHeader mDigitHCHeader;            // Digit HalfChamber header we are currently on.
   uint16_t mTimeBins{constants::TIMEBINS}; // the number of time bins to be read out (default 30, can be overwritten from digit HC header)
   bool mHaveSeenDigitHCHeader3{false};     // flag, whether we can compare an incoming DigitHCHeader3 with a header we have seen before
-  uint32_t mPreviousDigitHCHeadersvnver;  // svn ver in the digithalfchamber header, used for validity checks
-  uint32_t mPreviousDigitHCHeadersvnrver; // svn release ver also used for validity checks
-  uint8_t mPreTriggerPhase = 0;           // Pre trigger phase of the adcs producing the digits, its comes from an optional DigitHCHeader
-                                          // It is stored here to carry it around after parsing it from the DigitHCHeader1 if it exists in the data.
-  uint16_t mCRUEndpoint; // the upper or lower half of the currently parsed cru 0-14 or 15-29
-  uint16_t mCRUID;       // CRU ID taken from the FEEID of the RDH
-  TRDFeeID mFEEID;       // current Fee ID working on
+  uint32_t mPreviousDigitHCHeadersvnver;   // svn ver in the digithalfchamber header, used for validity checks
+  uint32_t mPreviousDigitHCHeadersvnrver;  // svn release ver also used for validity checks
+  uint8_t mPreTriggerPhase = 0;            // Pre trigger phase of the adcs producing the digits, its comes from an optional DigitHCHeader
+                                           // It is stored here to carry it around after parsing it from the DigitHCHeader1 if it exists in the data.
+  uint16_t mCRUEndpoint;                   // the upper or lower half of the currently parsed cru 0-14 or 15-29
+  uint16_t mCRUID;                         // CRU ID taken from the FEEID of the RDH
+  TRDFeeID mFEEID;                         // current Fee ID working on
 
   std::set<int> mHalfChamberHeaderOK;                   // keep track of the half chambers for which we have seen correct headers
   std::set<std::pair<int, int>> mHalfChamberMismatches; // first element is HCID from RDH and second element is HCID from TrackletHCHeader

@@ -9,13 +9,13 @@
 // granted to it by virtue of its status as an Intergovernmental Organization
 // or submit itself to any jurisdiction.
 //
-//file RawReaderFDD.h class  for RAW data reading
+// file RawReaderFDD.h class  for RAW data reading
 //
 // Artur.Furs
 // afurs@cern.ch
 //
-//Main purpuse is to decode FDD data blocks and push them to DigitBlockFDD for proccess
-//TODO: prepare wrappers for containers with digits and combine classes below into one template class?
+// Main purpuse is to decode FDD data blocks and push them to DigitBlockFDD for proccess
+// TODO: prepare wrappers for containers with digits and combine classes below into one template class?
 #ifndef ALICEO2_FDD_RAWREADERFDD_H_
 #define ALICEO2_FDD_RAWREADERFDD_H_
 #include <iostream>
@@ -35,7 +35,7 @@ namespace o2
 {
 namespace fdd
 {
-//Normal TCM mode
+// Normal TCM mode
 class RawReaderFDD : public RawReaderFDDBaseNorm
 {
  public:

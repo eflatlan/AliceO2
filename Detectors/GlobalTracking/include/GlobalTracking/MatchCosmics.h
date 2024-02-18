@@ -140,12 +140,12 @@ class MatchCosmics
   const o2::itsmft::TopologyDictionary* mITSDict = nullptr; // cluster patterns dictionary
   o2::gpu::CorrectionMapsHelper* mTPCCorrMapsHelper = nullptr;
   int mTFCount = 0;
-  float mTPCVDriftRef = -1.; ///< TPC nominal drift speed in cm/microseconds
-  float mTPCVDriftCorrFact = 1.; ///< TPC nominal correction factort (wrt ref)
-  float mTPCVDrift = -1.;    ///< TPC drift speed in cm/microseconds
+  float mTPCVDriftRef = -1.;      ///< TPC nominal drift speed in cm/microseconds
+  float mTPCVDriftCorrFact = 1.;  ///< TPC nominal correction factort (wrt ref)
+  float mTPCVDrift = -1.;         ///< TPC drift speed in cm/microseconds
   float mTPCDriftTimeOffset = 0.; ///< drift time offset in mus
-  float mTPCTBinMUS = 0.; ///< TPC time bin duration in microseconds
-  float mBz = 0;          ///< nominal Bz
+  float mTPCTBinMUS = 0.;         ///< TPC time bin duration in microseconds
+  float mBz = 0;                  ///< nominal Bz
   bool mFieldON = true;
   bool mUseMC = true;
   float mITSROFrameLengthMUS = 0.;

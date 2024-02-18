@@ -31,4 +31,4 @@ framework::DataProcessorSpec getRawCheckerSpec(const std::vector<uint16_t>& feeI
 } // namespace mid
 } // namespace o2
 
-#endif //O2_MID_RAWCHECKERSPEC_H
+#endif // O2_MID_RAWCHECKERSPEC_H

@@ -228,9 +228,9 @@ class AlignableVolume : public DOFSet
   double mX = 0.;           // tracking frame X offset
   double mAlp = 0.;         // tracking frame alpa
   //
-  uint32_t mDOF = 0;        // pattern of DOFs
-  uint32_t mDOFAsMeas = 0;  // consider DOF as measured with presigma error
-  bool mIsDummy = false;    // placeholder (e.g. inactive), used to have the numbering corresponding to position in the container
+  uint32_t mDOF = 0;             // pattern of DOFs
+  uint32_t mDOFAsMeas = 0;       // consider DOF as measured with presigma error
+  bool mIsDummy = false;         // placeholder (e.g. inactive), used to have the numbering corresponding to position in the container
   bool mIsDummyEnvelope = false; // some volumes are dummy envelopes for their children
   //
   char mNDOFGeomFree = 0;   // number of free geom degrees of freedom

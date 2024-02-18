@@ -57,8 +57,6 @@ class DigitsToRootTask : public framework::Task
   TFile* mfileOut;
   TTree* mTheTree;
   std::string mOutRootFileName;
-
-                                 
 };
 
 o2::framework::DataProcessorSpec getDigitsToRootSpec(std::string inputSpec = "HMP/DIGITS");

@@ -91,11 +91,11 @@ class Millepede2Record
   float mTgl = 0;                            // dip angle at ref point
   //
   int16_t* mMeasType = nullptr; //[mNResid] measurement type (0,1: Y, Z, 10+j : j-th material correction param)
-  int16_t* mNDLoc = nullptr; //[mNResid] number of non-0 local derivatives per residual
-  int* mNDGlo = nullptr;     //[mNResid] number of non-0 global derivatives per residual
-  int* mVolID = nullptr;     //[mNResid] volume id + 1 (0 - not a volume)
-  float* mResid = nullptr;   //[mNResid] residuals
-  float* mResErr = nullptr;  //[mNResid] error associated to residual
+  int16_t* mNDLoc = nullptr;    //[mNResid] number of non-0 local derivatives per residual
+  int* mNDGlo = nullptr;        //[mNResid] number of non-0 global derivatives per residual
+  int* mVolID = nullptr;        //[mNResid] volume id + 1 (0 - not a volume)
+  float* mResid = nullptr;      //[mNResid] residuals
+  float* mResErr = nullptr;     //[mNResid] error associated to residual
   //
   int16_t* mIDLoc = nullptr; //[mNDLocTot] ID of local variables for non-0 local derivatives
   int* mIDGlo = nullptr;     //[mNDGloTot] ID of global variables for non-0 global derivatives

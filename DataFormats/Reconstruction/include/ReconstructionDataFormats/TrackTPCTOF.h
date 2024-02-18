@@ -58,9 +58,9 @@ class TrackTPCTOF : public o2::track::TrackParCov
 
  private:
   o2::track::TrackParCov mParamOut; // outward fit (in TPC at the moment)
-  int mRefMatch = -1;     ///< reference on track-TOF match in its original container
-  float mChi2Refit = 0.f; ///< chi2 of the refit
-  timeEst mTimeMUS;       ///< time estimate in ns
+  int mRefMatch = -1;               ///< reference on track-TOF match in its original container
+  float mChi2Refit = 0.f;           ///< chi2 of the refit
+  timeEst mTimeMUS;                 ///< time estimate in ns
 
   ClassDefNV(TrackTPCTOF, 2);
 };

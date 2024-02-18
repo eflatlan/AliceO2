@@ -156,4 +156,4 @@ class O2RunSim : public FairRunSim
 } // namespace steer
 } // namespace o2
 
-#endif //O2_O2RUNANA_H
+#endif // O2_O2RUNANA_H

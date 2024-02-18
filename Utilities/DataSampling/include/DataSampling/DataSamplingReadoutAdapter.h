@@ -27,4 +27,4 @@ framework::InjectorFunction dataSamplingReadoutAdapter(framework::OutputSpec con
 } // namespace utilities
 } // namespace o2
 
-#endif //ALICEO2_DATASAMPLINGREADOUTADAPTER_H
+#endif // ALICEO2_DATASAMPLINGREADOUTADAPTER_H

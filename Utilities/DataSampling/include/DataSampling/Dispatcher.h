@@ -78,4 +78,4 @@ class Dispatcher : public framework::Task
 
 } // namespace o2::utilities
 
-#endif //ALICEO2_DISPATCHER_H
+#endif // ALICEO2_DISPATCHER_H

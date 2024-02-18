@@ -19,7 +19,7 @@
  * The measurement is in the tracking frame.
  * Apart from measurement may contain also material information.
  * Cashes residuals and track positions at its reference X
-*/
+ */
 
 #ifndef ALIGNMENTPOINT_H
 #define ALIGNMENTPOINT_H

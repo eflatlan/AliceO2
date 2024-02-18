@@ -29,8 +29,8 @@ namespace trd
 
 class Geometry;
 
-//Reduced flat version of TRD geometry class.
-//Contains all entries required for tracking on GPUs.
+// Reduced flat version of TRD geometry class.
+// Contains all entries required for tracking on GPUs.
 class GeometryFlat : public o2::gpu::FlatObject, public GeometryBase
 {
  public:

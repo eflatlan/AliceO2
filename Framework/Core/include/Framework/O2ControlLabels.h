@@ -38,4 +38,4 @@ const extern DataProcessorLabel qcReconfigurable;
 } // namespace ecs
 } // namespace o2::framework
 
-#endif //O2_FRAMEWORK_O2CONTROLLABELS_H
+#endif // O2_FRAMEWORK_O2CONTROLLABELS_H

@@ -32,10 +32,10 @@ namespace ft0
 
 struct ChannelDataFloat {
 
-  int ChId = -1;           //channel Id
-  int ChainQTC = -1;       //QTC chain
-  float CFDTime = -20000;  //time in ps, 0 at the LHC clk center
-  float QTCAmpl = -20000;  // Amplitude mV
+  int ChId = -1;          // channel Id
+  int ChainQTC = -1;      // QTC chain
+  float CFDTime = -20000; // time in ps, 0 at the LHC clk center
+  float QTCAmpl = -20000; // Amplitude mV
 
   ChannelDataFloat() = default;
   ChannelDataFloat(int iPmt, float time, float charge, int chainQTC)

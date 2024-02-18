@@ -27,4 +27,4 @@ framework::DataProcessorSpec getRawWriterSpec();
 }
 } // namespace o2
 
-#endif //O2_MID_RAWWRITERSPEC_H
+#endif // O2_MID_RAWWRITERSPEC_H

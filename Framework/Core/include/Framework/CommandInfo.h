@@ -29,4 +29,4 @@ struct CommandInfo {
 
 } // namespace o2::framework
 
-#endif //O2_FRAMEWORK_COMMANDINFO_H_
+#endif // O2_FRAMEWORK_COMMANDINFO_H_

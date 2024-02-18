@@ -103,14 +103,12 @@ class Cluster;
 class Trigger;
 } // namespace o2::hmpid
 
-
 /*
 namespace o2::globaltracking
 {
 class MLinfoHMP;
 } // namespace o2::hmpid
 */
-
 
 namespace o2::ft0
 {
@@ -168,7 +166,7 @@ class TrackTPCITS;
 class TrackTPCTOF;
 class MatchInfoTOF;
 class MatchInfoHMP;
-//class MLinfoHMP;
+// class MLinfoHMP;
 class PrimaryVertex;
 class VtxTrackIndex;
 class VtxTrackRef;
@@ -344,8 +342,6 @@ struct RecoContainer {
   std::unique_ptr<const o2::dataformats::MCTruthContainer<o2::emcal::MCLabel>> mcEMCCells;
   std::unique_ptr<const o2::dataformats::MCTruthContainer<o2::mid::MCClusterLabel>> mcMIDTrackClusters;
   std::unique_ptr<const o2::dataformats::MCTruthContainer<o2::mid::MCClusterLabel>> mcMIDClusters;
-
-
 
   std::unique_ptr<const std::vector<o2::MCCompLabel>> mcMIDTracks;
   o2::ctp::LumiInfo mCTPLumi;
@@ -635,10 +631,9 @@ struct RecoContainer {
 
   // HMPID matches
   auto getHMPMatches() const { return getSpan<o2::dataformats::MatchInfoHMP>(GTrackID::HMP, MATCHES); }
-  // ef changed to : 
+  // ef changed to :
 
-  //auto getHMPMatches() const { return getSpan<o2::dataformats::MLinfoHMP>(GTrackID::HMP, MATCHES); }
-
+  // auto getHMPMatches() const { return getSpan<o2::dataformats::MLinfoHMP>(GTrackID::HMP, MATCHES); }
 
   auto getHMPMatchesMCLabels() const { return getSpan<o2::MCCompLabel>(GTrackID::HMP, MCLABELS); }
 

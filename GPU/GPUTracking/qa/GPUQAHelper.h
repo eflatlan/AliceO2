@@ -91,7 +91,7 @@ class GPUTPCTrkLbl
   inline U computeLabel(float* labelWeight = nullptr, float* totalWeight = nullptr, int* maxCount = nullptr)
   {
     if (mLabels.size() == 0) {
-      return U(); //default constructor creates NotSet label
+      return U(); // default constructor creates NotSet label
     } else {
       unsigned int bestLabelNum = 0, bestLabelCount = 0;
       for (unsigned int j = 0; j < mLabels.size(); j++) {

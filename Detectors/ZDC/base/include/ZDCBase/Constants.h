@@ -23,9 +23,9 @@
 #include <type_traits>
 
 // Enable debug printout in reconstruction
-//#define O2_ZDC_DEBUG
+// #define O2_ZDC_DEBUG
 // TDC arrays in debug output
-//#define O2_ZDC_TDC_C_ARRAY
+// #define O2_ZDC_TDC_C_ARRAY
 
 namespace o2
 {

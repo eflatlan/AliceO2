@@ -30,7 +30,7 @@
  */
 
 #include <map>
-//#define BOOST_MPL_LIMIT_STRING_SIZE 32
+// #define BOOST_MPL_LIMIT_STRING_SIZE 32
 #include <boost/mpl/size.hpp>
 #include <boost/mpl/range_c.hpp>
 #include <boost/mpl/string.hpp>
@@ -144,7 +144,6 @@ class ExampleAlphabet
 
   /// get the range of indices aka number of indices
   constexpr unsigned getIndexRange();
-
 
   /// a forward iterator to access the list of elements
   template <typename ValueT>

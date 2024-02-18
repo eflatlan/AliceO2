@@ -80,7 +80,7 @@ class TriggerTRUDCS
   uint64_t getRLBKSTU() const { return mRLBKSTU; }
   uint64_t getFw() const { return mFw; }
 
-  //int   getSegmentation();
+  // int   getSegmentation();
 
   /// \brief Print TRUs on a given stream
   /// \param stream Stream on which the TRU is printed on

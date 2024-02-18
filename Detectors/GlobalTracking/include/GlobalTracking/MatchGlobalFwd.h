@@ -283,17 +283,17 @@ class MatchGlobalFwd
   /// Converts mchTrack parameters to Forward coordinate system
   o2::dataformats::GlobalFwdTrack MCHtoFwd(const o2::mch::TrackParam& mchTrack);
 
-  float mBz = -5.f;                       ///< nominal Bz in kGauss
-  float mMatchingPlaneZ = sLastMFTPlaneZ; ///< MCH-MFT matching plane Z position
+  float mBz = -5.f;                          ///< nominal Bz in kGauss
+  float mMatchingPlaneZ = sLastMFTPlaneZ;    ///< MCH-MFT matching plane Z position
   Float_t mMFTDiskThicknessInX0 = 0.042 / 5; ///< MFT disk thickness in radiation length
   Float_t mAlignResidual = 1;                ///< Alignment residual for cluster position uncertainty
-  o2::InteractionRecord mStartIR{0, 0}; ///< IR corresponding to the start of the TF
-  int mMFTROFrameLengthInBC = 0;        ///< MFT RO frame in BC (for MFT cont. mode only)
-  float mMFTROFrameLengthMUS = -1.;     ///< MFT RO frame in \mus
-  float mMFTROFrameLengthMUSInv = -1.;  ///< MFT RO frame in \mus inverse
-  int mMFTROFrameBiasInBC = 0;          ///< MFT ROF bias in BC wrt to orbit start
-  float mMFTROFrameBiasMUS = -1.;       ///< MFT ROF bias in \mus
-  float mMFTROFrameBiasMUSInv = -1.;    ///< MFT ROF bias in \mus inverse
+  o2::InteractionRecord mStartIR{0, 0};      ///< IR corresponding to the start of the TF
+  int mMFTROFrameLengthInBC = 0;             ///< MFT RO frame in BC (for MFT cont. mode only)
+  float mMFTROFrameLengthMUS = -1.;          ///< MFT RO frame in \mus
+  float mMFTROFrameLengthMUSInv = -1.;       ///< MFT RO frame in \mus inverse
+  int mMFTROFrameBiasInBC = 0;               ///< MFT ROF bias in BC wrt to orbit start
+  float mMFTROFrameBiasMUS = -1.;            ///< MFT ROF bias in \mus
+  float mMFTROFrameBiasMUSInv = -1.;         ///< MFT ROF bias in \mus inverse
 
   std::map<std::string, MatchingFunc_t> mMatchingFunctionMap; ///< MFT-MCH Matching function
   std::map<std::string, CutFunc_t> mCutFunctionMap;           ///< MFT-MCH Candidate cut function

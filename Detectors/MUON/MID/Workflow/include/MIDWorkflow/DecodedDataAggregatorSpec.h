@@ -27,4 +27,4 @@ framework::DataProcessorSpec getDecodedDataAggregatorSpec();
 } // namespace mid
 } // namespace o2
 
-#endif //O2_MID_DecodedDataAggregatorSpec_H
+#endif // O2_MID_DecodedDataAggregatorSpec_H

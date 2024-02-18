@@ -51,7 +51,7 @@ class RawDataReaderSpec : public Task
     LOG(info) << "FDD RawDataReaderSpec";
     uint64_t count = 0;
     for (auto it = parser.begin(), end = parser.end(); it != end; ++it) {
-      //Proccessing each page
+      // Proccessing each page
       count++;
       auto rdhPtr = reinterpret_cast<const o2::header::RDHAny*>(it.raw());
       gsl::span<const uint8_t> payload(it.data(), it.size());

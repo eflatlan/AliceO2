@@ -42,4 +42,4 @@ class DataSamplingCondition
 
 } // namespace o2::utilities
 
-#endif //ALICEO2_DATASAMPLINGCONDITION_H
+#endif // ALICEO2_DATASAMPLINGCONDITION_H

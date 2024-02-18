@@ -52,7 +52,7 @@ struct DataRefUtils {
       if ((payloadSize % sizeof(T)) != 0) {
         throw runtime_error("Cannot extract POD from message as size do not match");
       }
-      //FIXME: provide a const collection
+      // FIXME: provide a const collection
       return gsl::span<T>(reinterpret_cast<T*>(const_cast<char*>(ref.payload)), payloadSize / sizeof(T));
     } else if constexpr (has_root_dictionary<T>::value == true &&
                          is_messageable<T>::value == false) {

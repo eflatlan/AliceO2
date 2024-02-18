@@ -35,7 +35,6 @@
 #include "TRandom.h"
 #include <functional>
 
-
 namespace o2
 {
 namespace math_utils

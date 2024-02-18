@@ -95,7 +95,7 @@ inline float MagFieldFast::CalcPol(const float* cf, float x, float y, float z) c
    *   cf[0] + cf[1]*x + cf[2]*y + cf[3]*z + cf[4]*xx + cf[5]*xy + cf[6]*xz + cf[7]*yy + cf[8]*yz + cf[9]*zz +
    *   cf[10]*xxx + cf[11]*xxy + cf[12]*xxz + cf[13]*xyy + cf[14]*xyz + cf[15]*xzz + cf[16]*yyy + cf[17]*yyz +
    *cf[18]*yzz + cf[19]*zzz
-  **/
+   **/
 
   float val = cf[0] + x * (cf[1] + x * (cf[4] + x * cf[10] + y * cf[11] + z * cf[12]) + y * (cf[5] + z * cf[14])) +
               y * (cf[2] + y * (cf[7] + x * cf[13] + y * cf[16] + z * cf[17]) + z * (cf[8])) +

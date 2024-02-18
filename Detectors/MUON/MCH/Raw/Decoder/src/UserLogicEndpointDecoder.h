@@ -48,19 +48,19 @@ class UserLogicEndpointDecoder : public PayloadDecoder<UserLogicEndpointDecoder<
                            DecodedDataHandlers decodedDataHandlers);
 
   /** @name Main interface
-    */
+   */
   ///@{
 
   /** @brief Append the equivalent n 64-bits words
-    * bytes size (=n) must be a multiple of 8
-    *
-    * @return the number of bytes used in the bytes span
-    */
+   * bytes size (=n) must be a multiple of 8
+   *
+   * @return the number of bytes used in the bytes span
+   */
   size_t append(Payload bytes);
   ///@}
 
   /** @name Methods for testing
-    */
+   */
 
   ///@{
 

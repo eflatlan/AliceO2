@@ -46,8 +46,8 @@ class DecoderError
   uint32_t mError;
 
   ClassDefNV(DecoderError, 1);
-}; //class DecoderError
+}; // class DecoderError
 
-} //namespace mch
-} //namespace o2
+} // namespace mch
+} // namespace o2
 #endif // O2_MCH_BASE_DECODERERROR_H_

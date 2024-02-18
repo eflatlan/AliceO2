@@ -70,15 +70,27 @@ class MatchInfoHMP
     }
   }
 
-  void setDistCut(float dist, float distThre) {mDist = dist; mDistThre = distThre;}
-  void getDistCut(float &dist, float& distThre) const {dist = mDist; distThre = mDistThre;}
+  void setDistCut(float dist, float distThre)
+  {
+    mDist = dist;
+    mDistThre = distThre;
+  }
+  void getDistCut(float& dist, float& distThre) const
+  {
+    dist = mDist;
+    distThre = mDistThre;
+  }
 
-
-
-
-  void setUnconstrainedPc(float x, float y) {xPcUnc = x; yPcUnc = y;}
-  void getUnconstrainedPc(float &x, float& y) const {x = xPcUnc; y = yPcUnc;}
-
+  void setUnconstrainedPc(float x, float y)
+  {
+    xPcUnc = x;
+    yPcUnc = y;
+  }
+  void getUnconstrainedPc(float& x, float& y) const
+  {
+    x = xPcUnc;
+    y = yPcUnc;
+  }
 
   void setMipClusPDG(int pdg) { mMipCluPDG = pdg; }
   int getMipClusEventPDG() const { return mMipCluPDG; }
@@ -108,7 +120,6 @@ class MatchInfoHMP
     mTrkPhi = ph;
   }
 
-
   void setHMPIDtrk(float xRa, float yRa, float x, float y, float th, float ph)
   {
 
@@ -121,55 +132,49 @@ class MatchInfoHMP
     mTrkPhi = ph;
   }
 
+  int getEvent() const
+  {
+    return mEvent;
+  }
 
-    int getEvent() const 
-    {
-        return mEvent;
-    }
+  void getHMPIDtrk(float& xRad, float& yRad, float& xPc, float& yPc, float& th, float& ph) const
+  {
+    xRad = mxRa;
+    yRad = myRa;
+    xPc = mTrkX;
+    yPc = mTrkY;
+    th = mTrkTheta;
+    ph = mTrkPhi;
+  }
 
+  void getHMPIDtrk(float& xPc, float& yPc, float& th, float& ph) const
+  {
 
-
-    void getHMPIDtrk(float& xRad, float& yRad, float& xPc, float& yPc, float& th, float& ph) const
-    {
-        xRad = mxRa;
-        yRad = myRa;
-        xPc = mTrkX;
-        yPc = mTrkY;
-        th = mTrkTheta;
-        ph = mTrkPhi;
-    }
-
-    void getHMPIDtrk(float& xPc, float& yPc, float& th, float& ph) const
-    {
-
-        xPc = mTrkX;
-        yPc = mTrkY;
-        th = mTrkTheta;
-        ph = mTrkPhi;
-    }
-
+    xPc = mTrkX;
+    yPc = mTrkY;
+    th = mTrkTheta;
+    ph = mTrkPhi;
+  }
 
   void setRefIndex(float refIndex)
   {
     mRefIndex = refIndex;
   }
 
-  double getRefIndex () const 
-	{
+  double getRefIndex() const
+  {
     return mRefIndex;
-	}
-
+  }
 
   void setChamber(int iChamber)
   {
     miCh = iChamber;
   }
 
-  int getChamber () const 
-	{
+  int getChamber() const
+  {
     return miCh;
-	}
-
+  }
 
   void setEventNumber(int iEvent)
   {
@@ -208,66 +213,60 @@ class MatchInfoHMP
 
   void print() const;
 
-  void setMatchTrue()  { isMatched = true; }
+  void setMatchTrue() { isMatched = true; }
 
   bool getMatchStatus() const { return isMatched; }
 
-
  private:
-
-
   bool isMatched = false;
-	float mxRa, myRa;
+  float mxRa, myRa;
 
-
-	float mRefIndex = 1.27;
-	int mEvent;
-	int miCh;
+  float mRefIndex = 1.27;
+  int mEvent;
+  int miCh;
 
   float mDist = -1., mDistThre = -1.; // distance to MIP, cut for distance used
 
   float xPcUnc = -1., yPcUnc = -1.;
- /*
+  /*
 
 
 
-  void setMipClusPDG(int pdg) { mMipCluPDG = pdg; }
-  int getMipClusEventPDG() const { return mMipCluPDG; }
+   void setMipClusPDG(int pdg) { mMipCluPDG = pdg; }
+   int getMipClusEventPDG() const { return mMipCluPDG; }
 
-  void setMipClusEvent(int event) { mMipCluEvent = event; }
-  int getMipClusEvent() const { return mMipCluEvent; }
+   void setMipClusEvent(int event) { mMipCluEvent = event; }
+   int getMipClusEvent() const { return mMipCluEvent; }
 
-  void setMipClusCharge(int size) { mMipCluCharge = size; }
-  int getMipClusCharge() const { return mMipCluCharge; }
+   void setMipClusCharge(int size) { mMipCluCharge = size; }
+   int getMipClusCharge() const { return mMipCluCharge; }
 
-  void setMipClusSize(int size) { mMipCluSize = size; }
-  int getMipClusSize() const { return mMipCluSize; }
+   void setMipClusSize(int size) { mMipCluSize = size; }
+   int getMipClusSize() const { return mMipCluSize; }
 
-*/ 
+ */
 
- 
  protected:
+  float mMipCluQ = 0.0; // MIP cluster charge
 
-  float mMipCluQ = 0.0;  // MIP cluster charge
-
-  int mMipCluPDG;      // for sim: the PDG code of the MIP matched w track
-  int mMipCluEvent;      // for sim: the Evnet of the  MIP matched w track
-  int mMipCluCharge;      // for sim: the charge of the MIP matched w track
-  int mParticlePdg;      // for sim: the PDG code of the track
-  int mIdxHMPClus;       // Idx for HMP cluster
-  GTrackID mIdxTrack;    // Idx for track
-  float mMipX;           // local x coordinate of macthed cluster
-  float mMipY;           // local y coordinate of macthed cluster
-  float mTrkX;           // local x coordinate of extrapolated track intersection point
-  float mTrkY;           // local y coordinate of extrapolated track intersection point
-  float mTrkTheta;       // theta track
-  float mTrkPhi;         // phi track
-  float mCkovAngle;      // emission angle value
-  int mMipCluSize; // MIP cluster size
-  int mNPhots;     // number of candidate photo-electrons
-  int mIdxPhotClus;      // index of the first photo
-  int mHMPqn;            // 1000000*number of photon clusters + QDC
-  float mHmpMom;         // track momentum at HMPID chambers
+  int mMipCluPDG;     // for sim: the PDG code of the MIP matched w track
+  int mMipCluEvent;   // for sim: the Evnet of the  MIP matched w track
+  int mMipCluCharge;  // for sim: the charge of the MIP matched w track
+  int mParticlePdg;   // for sim: the PDG code of the track
+  int mIdxHMPClus;    // Idx for HMP cluster
+  GTrackID mIdxTrack; // Idx for track
+  float mMipX;        // local x coordinate of macthed cluster
+  float mMipY;        // local y coordinate of macthed cluster
+  float mTrkX;        // local x coordinate of extrapolated track intersection point
+  float mTrkY;        // local y coordinate of extrapolated track intersection point
+  float mTrkTheta;    // theta track
+  float mTrkPhi;      // phi track
+  float mCkovAngle;   // emission angle value
+  int mMipCluSize;    // MIP cluster size
+  int mNPhots;        // number of candidate photo-electrons
+  int mIdxPhotClus;   // index of the first photo
+  int mHMPqn;         // 1000000*number of photon clusters + QDC
+  float mHmpMom;      // track momentum at HMPID chambers
   float mPhotCharge[10] = {};
 
   ClassDefNV(MatchInfoHMP, 2);

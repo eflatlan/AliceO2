@@ -56,7 +56,7 @@ class TDCCalibEPN
   int endOfRun();                                     // End of TDCCalib
   int write(const std::string fn = "ZDCTDCCalibEPN.root");
 
-  void fill1D(int iTDC, int nHits, o2::zdc::RecEventFlat ev); //function to fill histograms;
+  void fill1D(int iTDC, int nHits, o2::zdc::RecEventFlat ev); // function to fill histograms;
 
   void setTDCCalibConfig(const TDCCalibConfig* param) { mTDCCalibConfig = param; };
   const TDCCalibConfig* getTDCCalibConfig() const { return mTDCCalibConfig; };

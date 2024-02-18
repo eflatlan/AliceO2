@@ -48,18 +48,18 @@ namespace trd
 
 struct TrackQC {
 
-  GTrackID refGlobalTrackId;         ///< GlobalTrackID of the seeding track (either ITS-TPC or TPC)
-  TrackTRD trackTRD;                 ///< the found TRD track
-  o2::track::TrackParCov trackSeed;  ///< outer param of the seeding track
-  float dEdxTotTPC;                  ///< raw total dEdx information for seeding track in TPC
+  GTrackID refGlobalTrackId;        ///< GlobalTrackID of the seeding track (either ITS-TPC or TPC)
+  TrackTRD trackTRD;                ///< the found TRD track
+  o2::track::TrackParCov trackSeed; ///< outer param of the seeding track
+  float dEdxTotTPC;                 ///< raw total dEdx information for seeding track in TPC
 
   std::array<o2::track::TrackPar, constants::NLAYER> trackProp{}; ///< the track parameters stored at the radius where the track is updated with TRD info
   std::array<Tracklet64, constants::NLAYER> trklt64{};            ///< the raw tracklet used for the update (includes uncorrected charges)
   std::array<CalibratedTracklet, constants::NLAYER> trkltCalib{}; ///< the TRD space point used for the update (not yet tilt-corrected and z-shift corrected)
 
-  std::array<float, constants::NLAYER> trackletY{};            ///< y-position of tracklet used for track update (including correction)
-  std::array<float, constants::NLAYER> trackletZ{};            ///< z-position of tracklet used for track update (including correction)
-  std::array<float, constants::NLAYER> trackletChi2{};         ///< estimated chi2 for the update of the track with the given tracklet
+  std::array<float, constants::NLAYER> trackletY{};                                           ///< y-position of tracklet used for track update (including correction)
+  std::array<float, constants::NLAYER> trackletZ{};                                           ///< z-position of tracklet used for track update (including correction)
+  std::array<float, constants::NLAYER> trackletChi2{};                                        ///< estimated chi2 for the update of the track with the given tracklet
   std::array<std::array<float, constants::NCHARGES>, constants::NLAYER> trackletCorCharges{}; ///< corrected charges of tracklets
 
   ClassDefNV(TrackQC, 6);

@@ -201,7 +201,7 @@ class ChipMappingMFT
     chInfo.ruType = ZoneRUType[zone][layer / 2];
 
     // count RU SW per half layers
-    //chInfo.ru = NLayers * (NZonesPerLayer / 2) * half + (NZonesPerLayer / 2) * layer + zone;
+    // chInfo.ru = NLayers * (NZonesPerLayer / 2) * half + (NZonesPerLayer / 2) * layer + zone;
 
     // count RU SW per full layers
     chInfo.ru = NZonesPerLayer * layer + (NZonesPerLayer / 2) * half + zone;

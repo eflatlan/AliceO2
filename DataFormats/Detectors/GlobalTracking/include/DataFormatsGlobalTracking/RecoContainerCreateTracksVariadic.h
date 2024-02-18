@@ -201,7 +201,7 @@ void o2::globaltracking::RecoContainer::createTracksVariadic(T creator, GTrackID
             t0Err += trc.getPileUpTimeErrorMUS();
           }
           if (creator(trc, {i, currentSource}, t0, t0Err)) { // assign 1ns error to BC
-            flagUsed(trc.getRefGlobalTrackId());            // flag seeding ITS-TPC track
+            flagUsed(trc.getRefGlobalTrackId());             // flag seeding ITS-TPC track
           }
         }
       }
@@ -254,7 +254,7 @@ void o2::globaltracking::RecoContainer::createTracksVariadic(T creator, GTrackID
             t0Err += trc.getPileUpTimeErrorMUS();
           }
           if (creator(trc, {i, currentSource}, t0, t0Err)) { // assign 1ns error to BC
-            flagUsed(trc.getRefGlobalTrackId());            // flag seeding TPC track
+            flagUsed(trc.getRefGlobalTrackId());             // flag seeding TPC track
           }
         }
       }

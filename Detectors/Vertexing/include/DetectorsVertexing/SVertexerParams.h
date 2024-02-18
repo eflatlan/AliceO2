@@ -63,8 +63,8 @@ struct SVertexerParams : public o2::conf::ConfigurableParamHelper<SVertexerParam
   float causalityRTolerance = 1.; ///< V0 radius cannot exceed its contributors minR by more than this value
   float maxV0ToProngsRDiff = 50.; ///< V0 radius cannot be lower than this ammount wrt minR of contributors
 
-  float minCosPAXYMeanVertex = 0.95;      ///< min cos of PA to beam line (mean vertex) in tr. plane for prompt V0 candidates
-  float minCosPAXYMeanVertexCascV0 = 0.8; ///< min cos of PA to beam line (mean vertex) in tr. plane for V0 of cascade cand.
+  float minCosPAXYMeanVertex = 0.95;       ///< min cos of PA to beam line (mean vertex) in tr. plane for prompt V0 candidates
+  float minCosPAXYMeanVertexCascV0 = 0.8;  ///< min cos of PA to beam line (mean vertex) in tr. plane for V0 of cascade cand.
   float minCosPAXYMeanVertex3bodyV0 = 0.9; ///< min cos of PA to beam line (mean vertex) in tr. plane for 3body V0 cand.
 
   float maxRToMeanVertexCascV0 = 80; // don't consider as a cascade V0 seed if above this R
@@ -82,10 +82,10 @@ struct SVertexerParams : public o2::conf::ConfigurableParamHelper<SVertexerParam
   float maxDCAZ3Body = 1.;   // max DCA of 3 body decay to PV in Z
   float minCosPACasc = 0.7;  // min cos of PA to PV for cascade candidates
   float minCosPA3body = 0.8; // min cos of PA to PV for 3body decay candidates
-  float minPtCasc = 0.01;   // cascade minimum pT
-  float maxTglCasc = 2.;    // maximum tgLambda of cascade
-  float minPt3Body = 0.01;  // minimum pT of 3body V0
-  float maxTgl3Body = 2.;   // maximum tgLambda of 3body V0
+  float minPtCasc = 0.01;    // cascade minimum pT
+  float maxTglCasc = 2.;     // maximum tgLambda of cascade
+  float minPt3Body = 0.01;   // minimum pT of 3body V0
+  float maxTgl3Body = 2.;    // maximum tgLambda of 3body V0
 
   float maxRIni3body = 90.; // don't consider as a 3body seed (circles/line intersection) if its R exceeds this
 

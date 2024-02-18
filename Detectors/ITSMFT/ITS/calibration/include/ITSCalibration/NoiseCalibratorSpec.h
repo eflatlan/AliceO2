@@ -21,7 +21,7 @@
 #include "DetectorsBase/GRPGeomHelper.h"
 #include "DataFormatsDCS/DCSConfigObject.h"
 
-//#define TIME_SLOT_CALIBRATION
+// #define TIME_SLOT_CALIBRATION
 #ifdef TIME_SLOT_CALIBRATION
 #include "ITSCalibration/NoiseSlotCalibrator.h"
 using CALIBRATOR = o2::its::NoiseSlotCalibrator;
@@ -71,7 +71,7 @@ class NoiseCalibratorSpec : public Task
   int mValidityDays = 3;
   int mNPartsDone = 0; // number of accumalated parts in Normalization mode
   bool mUseClusters = false;
-  bool mStopMeOnly = false; // send QuitRequest::Me instead of QuitRequest::All
+  bool mStopMeOnly = false;       // send QuitRequest::Me instead of QuitRequest::All
   bool mRunStopRequested = false; // flag that run was stopped (ant the last output is sent)
   bool mInitOnceDone = false;     // flag that the CCDB objects which should be fetche once per run are loaded
   TStopwatch mTimer{};

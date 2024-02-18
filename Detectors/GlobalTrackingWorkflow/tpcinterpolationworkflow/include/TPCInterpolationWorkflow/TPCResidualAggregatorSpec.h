@@ -186,13 +186,13 @@ class ResidualAggregatorDevice : public o2::framework::Task
   std::unique_ptr<o2::tpc::ResidualAggregator> mAggregator; ///< the TimeSlotCalibration device
   std::shared_ptr<o2::base::GRPGeomRequest> mCCDBRequest;
   std::shared_ptr<o2::globaltracking::DataRequest> mDataRequest; ///< optional CTP input
-  bool mTrackInput{false};             ///< flag whether to expect track data as input
-  bool mCTPInput{false};               ///< flag whether to expect luminosity input from CTP
-  bool mWriteBinnedResiduals{false};   ///< flag, whether to write binned residuals to output file
-  bool mWriteUnbinnedResiduals{false}; ///< flag, whether to write unbinned residuals to output file
-  bool mWriteTrackData{false};         ///< flag, whether to write track data to output file
-  bool mRunStopRequested{false};       ///< flag in case the run was stopped
-  bool mInitDone{false};               ///< flag whether initialization was done for current run
+  bool mTrackInput{false};                                       ///< flag whether to expect track data as input
+  bool mCTPInput{false};                                         ///< flag whether to expect luminosity input from CTP
+  bool mWriteBinnedResiduals{false};                             ///< flag, whether to write binned residuals to output file
+  bool mWriteUnbinnedResiduals{false};                           ///< flag, whether to write unbinned residuals to output file
+  bool mWriteTrackData{false};                                   ///< flag, whether to write track data to output file
+  bool mRunStopRequested{false};                                 ///< flag in case the run was stopped
+  bool mInitDone{false};                                         ///< flag whether initialization was done for current run
 };
 
 } // namespace calibration

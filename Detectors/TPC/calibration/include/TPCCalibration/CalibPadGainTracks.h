@@ -37,7 +37,7 @@ namespace gpu
 {
 class GPUO2InterfaceRefit;
 class CorrectionMapsHelper;
-}
+} // namespace gpu
 
 namespace tpc
 {

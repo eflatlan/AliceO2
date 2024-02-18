@@ -157,9 +157,9 @@ class CCDBPopulator : public o2::framework::Task
 
  private:
   CcdbApi mAPI;
-  long mThrottlingDelayMS = 0;                             // LOG(important) at most once per this period for given path
-  bool mFatalOnFailure = true;                             // produce fatal on failed upload
-  bool mValidateUpload = false;                            // validate upload by querying its headers
+  long mThrottlingDelayMS = 0;  // LOG(important) at most once per this period for given path
+  bool mFatalOnFailure = true;  // produce fatal on failed upload
+  bool mValidateUpload = false; // validate upload by querying its headers
   std::unordered_map<std::string, std::pair<long, int>> mThrottling;
   std::int64_t mSSpecMin = -1;                             // min subspec to accept
   std::int64_t mSSpecMax = -1;                             // max subspec to accept

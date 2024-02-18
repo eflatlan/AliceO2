@@ -88,7 +88,7 @@ class BadChannelsMap
   /// \brief Add bad cell to the container
   /// \param channelID Absolute ID of the bad channel
   /// \param mask type of the bad channel
-  void addBadChannel(short channelID) { mBadCells.set(channelID - OFFSET); } //set bit to true
+  void addBadChannel(short channelID) { mBadCells.set(channelID - OFFSET); } // set bit to true
 
   /// \brief Mark channel as good
   /// \param channelID Absolute ID of the channel

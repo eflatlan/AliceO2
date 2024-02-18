@@ -33,56 +33,56 @@ namespace o2
 namespace dcs
 {
 /**
-     * DataPointCompositeObject is a composition of a DataPointIdentifier and a
-     * DataPointValue. It is the unit of data points that ADAPOS provides.
-     *
-     * @see ADAPRO::ADAPOS::DataPointIdentifier
-     * @see ADAPRO::ADAPOS::DataPointValue
-     */
+ * DataPointCompositeObject is a composition of a DataPointIdentifier and a
+ * DataPointValue. It is the unit of data points that ADAPOS provides.
+ *
+ * @see ADAPRO::ADAPOS::DataPointIdentifier
+ * @see ADAPRO::ADAPOS::DataPointValue
+ */
 struct DataPointCompositeObject final {
   /**
-         * The DataPointIdentifier object, which occupies the first 64 bytes of
-         * the DataPointCompositeObject. This object contains the immutable
-         * alias and type information.
-         *
-         * @see ADAPRO::ADAPOS::DataPointIdentifier
-         */
+   * The DataPointIdentifier object, which occupies the first 64 bytes of
+   * the DataPointCompositeObject. This object contains the immutable
+   * alias and type information.
+   *
+   * @see ADAPRO::ADAPOS::DataPointIdentifier
+   */
   const DataPointIdentifier id;
 
   /**
-         * The DataPointValue object, which occupies the last 64 bytes of the
-         * DataPointCompositeObject. This object contains the mutable parts of
-         * DataPointCompositeObject. These parts are the ADAPOS flags,
-         * timestamp, and the payload data.
-         *
-         * @see ADAPRO::ADAPOS::DataPointValue
-         */
+   * The DataPointValue object, which occupies the last 64 bytes of the
+   * DataPointCompositeObject. This object contains the mutable parts of
+   * DataPointCompositeObject. These parts are the ADAPOS flags,
+   * timestamp, and the payload data.
+   *
+   * @see ADAPRO::ADAPOS::DataPointValue
+   */
   DataPointValue data;
 
   /**
-         * The default constructor for DataPointCompositeObject. Uses the
-         * default constructors of its component, which means that their every
-         * field will be filled with zeroes.
-         *
-        * @see ADAPRO::ADAPOS::DataPointIdentifier
-        * @see ADAPRO::ADAPOS::DataPointValue
-         */
+   * The default constructor for DataPointCompositeObject. Uses the
+   * default constructors of its component, which means that their every
+   * field will be filled with zeroes.
+   *
+   * @see ADAPRO::ADAPOS::DataPointIdentifier
+   * @see ADAPRO::ADAPOS::DataPointValue
+   */
   DataPointCompositeObject() noexcept : id(), data() {}
 
   /**
-         * This constructor <em>copies</em> the given DataPointIdentifier and
-         * DataPointValue into the fields <tt>id</tt> and <tt>data</tt>.
-         *
-         * @param id    The DPID component.
-         * @param data  The DPVAL component.
-         */
+   * This constructor <em>copies</em> the given DataPointIdentifier and
+   * DataPointValue into the fields <tt>id</tt> and <tt>data</tt>.
+   *
+   * @param id    The DPID component.
+   * @param data  The DPVAL component.
+   */
   DataPointCompositeObject(
     const DataPointIdentifier& id,
     const DataPointValue& data) noexcept : id(id), data(data) {}
 
   /**
-         * Copy constructor
-         */
+   * Copy constructor
+   */
   DataPointCompositeObject(const DataPointCompositeObject& src) noexcept : DataPointCompositeObject(src.id, src.data) {}
 
   DataPointCompositeObject& operator=(const DataPointCompositeObject& src) noexcept
@@ -94,11 +94,11 @@ struct DataPointCompositeObject final {
   }
 
   /**
-         * Bit-by bit equality comparison of DataPointCompositeObjects.
-         *
-         * @param other The right-hand operand of equality comparison.
-         * @return      <tt>true</tt> or <tt>false</tt>.
-         */
+   * Bit-by bit equality comparison of DataPointCompositeObjects.
+   *
+   * @param other The right-hand operand of equality comparison.
+   * @return      <tt>true</tt> or <tt>false</tt>.
+   */
   inline bool operator==(const DataPointCompositeObject& other) const
     noexcept
   {
@@ -106,11 +106,11 @@ struct DataPointCompositeObject final {
   }
 
   /**
-         * Negation of the <tt>==</tt> operator.
-         *
-         * @param other The right-hand side operand.
-         * @return      <tt>true</tt> or <tt>false</tt>.
-         */
+   * Negation of the <tt>==</tt> operator.
+   *
+   * @param other The right-hand side operand.
+   * @return      <tt>true</tt> or <tt>false</tt>.
+   */
   inline bool operator!=(const DataPointCompositeObject& other) const
     noexcept
   {
@@ -118,12 +118,12 @@ struct DataPointCompositeObject final {
   }
 
   /**
-         * Overwrites a DataPointCompositeObject with the given <tt>id</tt> and
-         * <tt>data</tt> values.
-         *
-         * @param id    The id value.
-         * @param data  The data value.
-         */
+   * Overwrites a DataPointCompositeObject with the given <tt>id</tt> and
+   * <tt>data</tt> values.
+   *
+   * @param id    The id value.
+   * @param data  The data value.
+   */
   inline void set(const DataPointIdentifier& id, DataPointValue& data) noexcept
   {
     DataPointIdentifier::FILL(this->id, (uint64_t*)&id);
@@ -131,13 +131,13 @@ struct DataPointCompositeObject final {
   }
 
   /**
-         * Overwrites a DataPointCompositeObject as a copy of the given 128-byte
-         * segment (16 times <tt>sizeof(uint64_t)</tt>) of binary data.
-         *
-         * @param data Beginning of the data segment used for reading. The
-         * length of the segment is assumed to be exactly 128 bytes and contain
-         * a valid binary representation of a DataPointCompositeObject.
-         */
+   * Overwrites a DataPointCompositeObject as a copy of the given 128-byte
+   * segment (16 times <tt>sizeof(uint64_t)</tt>) of binary data.
+   *
+   * @param data Beginning of the data segment used for reading. The
+   * length of the segment is assumed to be exactly 128 bytes and contain
+   * a valid binary representation of a DataPointCompositeObject.
+   */
   inline void set(const uint64_t* const data) noexcept
   {
     DataPointIdentifier::FILL(this->id, data);
@@ -145,16 +145,16 @@ struct DataPointCompositeObject final {
   }
 
   /**
-         * Overwrites the state of the <tt>data</tt> field with the state of the
-         * given DPVAL object, <em>except for the control flags, that will be
-         * cleared out</em>.
-         *
-         * @param dpval A DPVAL object representing an update event to the
-         * DPCOM in question.
-         *
-         * @see ADAPRO::ADAPOS::DataPointValue
-         * @see ADAPRO::ADAPOS::DataPointValue::CONTROL_MASK
-         */
+   * Overwrites the state of the <tt>data</tt> field with the state of the
+   * given DPVAL object, <em>except for the control flags, that will be
+   * cleared out</em>.
+   *
+   * @param dpval A DPVAL object representing an update event to the
+   * DPCOM in question.
+   *
+   * @see ADAPRO::ADAPOS::DataPointValue
+   * @see ADAPRO::ADAPOS::DataPointValue::CONTROL_MASK
+   */
   inline void update(const DataPointValue& dpval) noexcept
   {
     data.set(
@@ -166,16 +166,16 @@ struct DataPointCompositeObject final {
   }
 
   /**
-         * Returns a pointer to the beginning of the data part to be given to
-         * DIM, which depends on the <tt>DeliveryType</tt> of this DPCOM. This
-         * method is specific to ADAPOS Load Generator and ADAPOS Engine.
-         *
-         * @return  A <tt>(void*)</tt>.
-         * @throws std::domain_error If the <tt>DeliveryType</tt> of this
-         * DPCOM object was illegal (i.e. <tt>VOID</tt> or something else than
-         * the enumerators of <tt>DeliveryType</tt>).
-         * @see ADAPRO::ADAPOS::DeliveryType
-         */
+   * Returns a pointer to the beginning of the data part to be given to
+   * DIM, which depends on the <tt>DeliveryType</tt> of this DPCOM. This
+   * method is specific to ADAPOS Load Generator and ADAPOS Engine.
+   *
+   * @return  A <tt>(void*)</tt>.
+   * @throws std::domain_error If the <tt>DeliveryType</tt> of this
+   * DPCOM object was illegal (i.e. <tt>VOID</tt> or something else than
+   * the enumerators of <tt>DeliveryType</tt>).
+   * @see ADAPRO::ADAPOS::DeliveryType
+   */
   inline void* dim_buffer() const
   {
     switch (id.get_type()) {
@@ -206,14 +206,14 @@ struct DataPointCompositeObject final {
   }
 
   /**
-         * Prints a CSV-representation of the DataPointCompositeObject into the
-         * ostream. The format of the payload data depends on its type and is
-         * handled automatically.
-         *
-         * @param os    The output stream.
-         * @param dpcom The DataPointCompositeObject.
-         * @return      Reference to the stream after the printing operation.
-         */
+   * Prints a CSV-representation of the DataPointCompositeObject into the
+   * ostream. The format of the payload data depends on its type and is
+   * handled automatically.
+   *
+   * @param os    The output stream.
+   * @param dpcom The DataPointCompositeObject.
+   * @return      Reference to the stream after the printing operation.
+   */
   inline friend std::ostream& operator<<(std::ostream& os,
                                          const DataPointCompositeObject& dpcom) noexcept
   {
@@ -276,24 +276,24 @@ struct DataPointCompositeObject final {
   }
 
   /**
-    * The destructor for DataPointCompositeObject so it is not deleted
-    * and thus DataPointCompositeObject is trivially copyable
-    */
+   * The destructor for DataPointCompositeObject so it is not deleted
+   * and thus DataPointCompositeObject is trivially copyable
+   */
   ~DataPointCompositeObject() noexcept = default;
   ClassDefNV(DataPointCompositeObject, 1);
 };
 
 /**
-  * Return the value contained in the DataPointCompositeObject, if possible.
-  *
-  * @tparam T the expected type of the value
-  *
-  * @param dpcom the DataPointCompositeObject the value is extracted from
-  *
-  * @returns the value of the data point
-  *
-  * @throws if the DeliveryType of the data point is not compatible with T
-  */
+ * Return the value contained in the DataPointCompositeObject, if possible.
+ *
+ * @tparam T the expected type of the value
+ *
+ * @param dpcom the DataPointCompositeObject the value is extracted from
+ *
+ * @returns the value of the data point
+ *
+ * @throws if the DeliveryType of the data point is not compatible with T
+ */
 template <typename T>
 T getValue(const DataPointCompositeObject& dpcom);
 

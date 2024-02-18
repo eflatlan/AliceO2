@@ -16,7 +16,7 @@
 #include <tuple>
 
 /** SampaBunchCrossingCounter is the internal Sampa counter at 40MHz,
-  * and coded in 20 bits */
+ * and coded in 20 bits */
 
 namespace o2::mch::raw
 {

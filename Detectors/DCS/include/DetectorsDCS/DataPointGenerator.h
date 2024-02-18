@@ -19,20 +19,20 @@
 namespace o2::dcs
 {
 /**
-* Generate random data points, uniformly distributed between two values.
-*
-* @tparam T the type of value of the data points to be generated. Only
-*  a few types are supported : double, float, uint32_t, int32_t, char, bool
-*
-* @param aliases the list of aliases to be generated. Those can use
-*   patterns that will be expanded, @see AliasExpander
-* @param minValue the minimum value of the values to be generated
-* @param maxValue the maximum value of the values to be generated
-* @param refDate the date to be associated with all data points 
-*        in `%Y-%b-%d %H:%M:%S` format. If refDate="" the current date is used.
-*
-* @returns a vector of DataPointCompositeObject objects
-*/
+ * Generate random data points, uniformly distributed between two values.
+ *
+ * @tparam T the type of value of the data points to be generated. Only
+ *  a few types are supported : double, float, uint32_t, int32_t, char, bool
+ *
+ * @param aliases the list of aliases to be generated. Those can use
+ *   patterns that will be expanded, @see AliasExpander
+ * @param minValue the minimum value of the values to be generated
+ * @param maxValue the maximum value of the values to be generated
+ * @param refDate the date to be associated with all data points
+ *        in `%Y-%b-%d %H:%M:%S` format. If refDate="" the current date is used.
+ *
+ * @returns a vector of DataPointCompositeObject objects
+ */
 template <typename T>
 std::vector<DataPointCompositeObject> generateRandomDataPoints(const std::vector<std::string>& aliases,
                                                                T min,

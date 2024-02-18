@@ -63,9 +63,9 @@ class Detector : public o2::base::DetImpl<Detector>
     kAlumina1 = 26
   };
   /**      Name :  Detector Name
-    *       Active: kTRUE for active detectors (ProcessHits() will be called)
-    *               kFALSE for inactive detectors
-    */
+   *       Active: kTRUE for active detectors (ProcessHits() will be called)
+   *               kFALSE for inactive detectors
+   */
   Detector(Bool_t Active);
 
   /**      default constructor    */
@@ -78,8 +78,8 @@ class Detector : public o2::base::DetImpl<Detector>
   void InitializeO2Detector() override;
 
   /**       this method is called for each step during simulation
-    *       (see FairMCApplication::Stepping())
-    */
+   *       (see FairMCApplication::Stepping())
+   */
   //     virtual Bool_t ProcessHitsOrig( FairVolume* v=0);
   Bool_t ProcessHits(FairVolume* v = nullptr) override;
 
@@ -105,8 +105,8 @@ class Detector : public o2::base::DetImpl<Detector>
   void ConstructGeometry() override;
 
   /**      This method is an example of how to add your own point
-     *       of type DetectorPoint to the clones array
-    */
+   *       of type DetectorPoint to the clones array
+   */
   Point* addHit(float x, float y, float z, float time, float nElectrons, float trackID, float detID);
 
   /// Copied from AliRoot - should go to someplace else
@@ -130,8 +130,8 @@ class Detector : public o2::base::DetImpl<Detector>
   Double_t Gamma(Double_t k);
 
   /** The following methods can be implemented if you need to make
-     *  any optional action in your detector during the transport.
-    */
+   *  any optional action in your detector during the transport.
+   */
 
   void EndOfEvent() override;
   void FinishPrimary() override { ; }

@@ -47,8 +47,8 @@
 #include "Align/AlignableDetector.h"
 
 // can be fwd declared if we don't require root dict.
-//class TTree;
-//class TFile;
+// class TTree;
+// class TFile;
 
 #include <TTree.h>
 #include <TFile.h>
@@ -75,7 +75,7 @@ class TreeStreamRedirector;
 namespace align
 {
 
-//class Mille;
+// class Mille;
 
 class EventVertex;
 class AlignableVolume;
@@ -238,7 +238,7 @@ class Controller final : public TObject
   void printLabels() const;
   Char_t* getDOFLabelTxt(int idf) const;
   //
-  static Char_t* getDetNameByDetID(int id) { return (Char_t*)sDetectorName[id]; } //RSREM
+  static Char_t* getDetNameByDetID(int id) { return (Char_t*)sDetectorName[id]; } // RSREM
   static void MPRec2Mille(const std::string& mprecfile, const std::string& millefile = "mpData.mille", bool bindata = true);
   static void MPRec2Mille(TTree* mprTree, const std::string& millefile = "mpData.mille", bool bindata = true);
   //
@@ -294,32 +294,32 @@ class Controller final : public TObject
   o2::framework::TimingInfo mTimingInfo{};
   int mInstanceID = 0; // instance in case of pipelining
   int mRunNumber = 0;
-  int mNDet = 0;                             // number of deectors participating in the alignment
-  int mNDOFs = 0;                            // number of degrees of freedom
+  int mNDet = 0;  // number of deectors participating in the alignment
+  int mNDOFs = 0; // number of degrees of freedom
   bool mUseMC = false;
-  bool mFieldOn = false;                     // field on flag
-  int mTracksType = utils::Coll;             // collision/cosmic event type
+  bool mFieldOn = false;         // field on flag
+  int mTracksType = utils::Coll; // collision/cosmic event type
   float mMPRecOutFraction = 0.;
   float mControlFraction = 0.;
-  std::unique_ptr<AlignmentTrack> mAlgTrack; // current alignment track
-  const o2::globaltracking::RecoContainer* mRecoData = nullptr; // externally set RecoContainer
-  const o2::trd::TrackletTransformer* mTRDTransformer = nullptr;  // TRD tracket transformer
-  bool mTRDTrigRecFilterActive = false;                           // select TRD triggers processed with ITS
-  bool mAllowAfterburnerTracks = false;                           // allow using ITS-TPC afterburner tracks
+  std::unique_ptr<AlignmentTrack> mAlgTrack;                     // current alignment track
+  const o2::globaltracking::RecoContainer* mRecoData = nullptr;  // externally set RecoContainer
+  const o2::trd::TrackletTransformer* mTRDTransformer = nullptr; // TRD tracket transformer
+  bool mTRDTrigRecFilterActive = false;                          // select TRD triggers processed with ITS
+  bool mAllowAfterburnerTracks = false;                          // allow using ITS-TPC afterburner tracks
 
   const o2::gpu::GPUParam* mTPCParam = nullptr;
 
   std::array<std::unique_ptr<AlignableDetector>, DetID::nDetectors> mDetectors{}; // detectors participating in the alignment
 
-  std::unique_ptr<EventVertex> mVtxSens; // fake sensor for the vertex
+  std::unique_ptr<EventVertex> mVtxSens;             // fake sensor for the vertex
   std::vector<GeometricalConstraint> mConstraints{}; // array of constraints
   //
   // Track selection
   std::array<DetID::mask_t, utils::NTrackTypes> mObligatoryDetPattern{}; // pattern of obligatory detectors
   //
-  std::vector<float> mGloParVal; // parameters for DOFs
-  std::vector<float> mGloParErr; // errors for DOFs
-  std::vector<int> mGloParLab;   // labels for DOFs
+  std::vector<float> mGloParVal;        // parameters for DOFs
+  std::vector<float> mGloParErr;        // errors for DOFs
+  std::vector<int> mGloParLab;          // labels for DOFs
   std::unordered_map<int, int> mLbl2ID; // Labels mapping to parameter ID
   //
   std::unique_ptr<AlignmentPoint> mRefPoint; //! reference point for track definition

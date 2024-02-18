@@ -34,6 +34,6 @@ struct DataProcessorInfo {
   std::vector<std::string> channels = {};
 };
 
-} // namespace o2
+} // namespace o2::framework
 
 #endif // O2_FRAMEWORK_CORE_DATAPROCESSORINFO_H_

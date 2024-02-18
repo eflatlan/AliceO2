@@ -30,7 +30,7 @@
 #include "DetectorsCommonDataFormats/DetID.h"
 #include "DetectorsBase/CTFCoderBase.h"
 
-//#define _CHECK_INCREMENTES_ // Uncoment this the check the incremements being non-negative
+// #define _CHECK_INCREMENTES_ // Uncoment this the check the incremements being non-negative
 
 class TTree;
 
@@ -130,7 +130,7 @@ o2::ctf::CTFIOSize CTFCoder::encode(VEC& buff, const gsl::span<const ROFRecord>&
   iosize += ENCODEITSMFT(compCl.pattID, CTF::BLCpattID, 0);
   iosize += ENCODEITSMFT(compCl.pattMap, CTF::BLCpattMap, 0);
   // clang-format on
-  //CTF::get(buff.data())->print(getPrefix());
+  // CTF::get(buff.data())->print(getPrefix());
   iosize.rawIn = rofRecVec.size() * sizeof(ROFRecord) + cclusVec.size() * sizeof(CompClusterExt) + pattVec.size() * sizeof(unsigned char);
   return iosize;
 }

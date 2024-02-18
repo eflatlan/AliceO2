@@ -9,13 +9,13 @@
 // granted to it by virtue of its status as an Intergovernmental Organization
 // or submit itself to any jurisdiction.
 //
-//file RawReaderFT0.h class  for RAW data reading
+// file RawReaderFT0.h class  for RAW data reading
 //
 // Artur.Furs
 // afurs@cern.ch
 //
-//Main purpuse is to decode FT0 data blocks and push them to DigitBlockFT0 for proccess
-//TODO: prepare wrappers for containers with digits and combine classes below into one template class?
+// Main purpuse is to decode FT0 data blocks and push them to DigitBlockFT0 for proccess
+// TODO: prepare wrappers for containers with digits and combine classes below into one template class?
 #ifndef ALICEO2_FIT_RAWREADERFT0_H_
 #define ALICEO2_FIT_RAWREADERFT0_H_
 #include <iostream>
@@ -35,7 +35,7 @@ namespace o2
 {
 namespace ft0
 {
-//Normal TCM mode
+// Normal TCM mode
 template <bool useTrgInput = false>
 class RawReaderFT0 : public RawReaderFT0BaseNorm
 {
@@ -92,7 +92,7 @@ class RawReaderFT0 : public RawReaderFT0BaseNorm
   std::vector<ChannelData> mVecChannelData;
 };
 
-//Extended TCM mode (additional raw data struct)
+// Extended TCM mode (additional raw data struct)
 template <bool useTrgInput = false>
 class RawReaderFT0ext : public RawReaderFT0BaseExt
 {

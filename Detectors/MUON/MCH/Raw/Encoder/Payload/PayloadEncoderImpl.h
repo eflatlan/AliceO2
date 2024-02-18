@@ -161,9 +161,9 @@ void PayloadEncoderImpl<FORMAT, CHARGESUM, VERSION>::startHeartbeatFrame(uint32_
 }
 
 /** addHeartbeatHeaders generate one hearbeat header for each dual sampa
-  * present in the mDsElecIds set. Might be called e.g. at the beginning
-  * of each time frame
-  */
+ * present in the mDsElecIds set. Might be called e.g. at the beginning
+ * of each time frame
+ */
 template <typename FORMAT, typename CHARGESUM, int VERSION>
 void PayloadEncoderImpl<FORMAT, CHARGESUM, VERSION>::addHeartbeatHeaders(const std::set<DsElecId>& dsids)
 {

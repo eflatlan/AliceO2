@@ -103,12 +103,12 @@ class Trap2CRU
   // helpers
   long mTimeStamp{0};                          // used to retrieve the correct link to HCID mapping from CCDB
   const LinkToHCIDMapping* mLinkMap = nullptr; // to retrieve HCID from Link ID
-  std::vector<uint32_t> mDigitsIndex; // input digits are sorted using this index array
-  char* mRawDataPtr{nullptr};         // points to the current position in the raw data where we are writing
-  uint64_t mCurrentTracklet{0}; //the tracklet we are currently busy adding
-  uint64_t mCurrentDigit{0};    //the digit we are currently busy adding
-  uint64_t mTotalTrackletsWritten{0}; // count the total number of tracklets written to the raw data
-  uint64_t mTotalDigitsWritten{0};    // count the total number of digits written to the raw data
+  std::vector<uint32_t> mDigitsIndex;          // input digits are sorted using this index array
+  char* mRawDataPtr{nullptr};                  // points to the current position in the raw data where we are writing
+  uint64_t mCurrentTracklet{0};                // the tracklet we are currently busy adding
+  uint64_t mCurrentDigit{0};                   // the digit we are currently busy adding
+  uint64_t mTotalTrackletsWritten{0};          // count the total number of tracklets written to the raw data
+  uint64_t mTotalDigitsWritten{0};             // count the total number of digits written to the raw data
 
   const o2::raw::HBFUtils& mSampler = o2::raw::HBFUtils::Instance();
   o2::raw::RawFileWriter mWriter{"TRD"};

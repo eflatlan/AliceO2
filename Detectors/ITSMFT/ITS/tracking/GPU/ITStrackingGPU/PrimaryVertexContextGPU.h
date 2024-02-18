@@ -135,7 +135,7 @@ inline void PrimaryVertexContextNV::updateDeviceContext()
 inline void PrimaryVertexContextNV::initialise(const MemoryParameters& memParam, const TrackingParameters& trkParam,
                                                const std::vector<std::vector<Cluster>>& cl, const std::array<float, 3>& pv, const int iteration)
 {
-  ///TODO: to be re-enabled in the future
+  /// TODO: to be re-enabled in the future
   // this->PrimaryVertexContext::initialise(memParam, cl, pv, iteration);
   // mGPUContextDevicePointer = mGPUContext.initialise(mPrimaryVertex, mClusters, mTracklets, mCells, mCellsLookupTable, mMinR, mMaxR);
 }

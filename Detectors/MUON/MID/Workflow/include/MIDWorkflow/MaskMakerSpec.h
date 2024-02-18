@@ -30,4 +30,4 @@ framework::DataProcessorSpec getMaskMakerSpec(const FEEIdConfig& feeIdConfig, co
 }
 } // namespace o2
 
-#endif //O2_MID_MASKMAKERSPEC_H
+#endif // O2_MID_MASKMAKERSPEC_H

@@ -42,22 +42,22 @@ constexpr int NCOLUMN = 144; ///< the number of pad columns for each chamber
 constexpr int NROWC0 = 12;   ///< the number of pad rows for chambers of type C0 (installed in stack 2)
 constexpr int NROWC1 = 16;   ///< the number of pad rows for chambers of type C1 (installed in stacks 0, 1, 3 and 4)
 
-constexpr int NMCMROB = 16;     ///< the number of MCMs per ROB
-constexpr int NMCMHCMAX = 64;   ///< the maximum number of MCMs for one half chamber (C1 type)
-constexpr int NMCMROBINROW = 4; ///< the number of MCMs per ROB in row direction
-constexpr int NMCMROBINCOL = 4; ///< the number of MCMs per ROB in column direction
-constexpr int NROBC0 = 6;       ///< the number of ROBs per C0 chamber
-constexpr int NROBC1 = 8;       ///< the number of ROBs per C1 chamber
-constexpr int NADCMCM = 21;     ///< the number of ADC channels per MCM
-constexpr int NCOLMCM = 18;     ///< the number of pads per MCM
+constexpr int NMCMROB = 16;                                                                                    ///< the number of MCMs per ROB
+constexpr int NMCMHCMAX = 64;                                                                                  ///< the maximum number of MCMs for one half chamber (C1 type)
+constexpr int NMCMROBINROW = 4;                                                                                ///< the number of MCMs per ROB in row direction
+constexpr int NMCMROBINCOL = 4;                                                                                ///< the number of MCMs per ROB in column direction
+constexpr int NROBC0 = 6;                                                                                      ///< the number of ROBs per C0 chamber
+constexpr int NROBC1 = 8;                                                                                      ///< the number of ROBs per C1 chamber
+constexpr int NADCMCM = 21;                                                                                    ///< the number of ADC channels per MCM
+constexpr int NCOLMCM = 18;                                                                                    ///< the number of pads per MCM
 constexpr int NCHANNELSPERROW = NMCMROBINCOL * 2 * NADCMCM;                                                    ///< the number of readout channels per pad row
 constexpr int NCHANNELSC0 = NROWC0 * NCHANNELSPERROW;                                                          ///< the number of readout channels per C0 chamber
 constexpr int NCHANNELSC1 = NROWC1 * NCHANNELSPERROW;                                                          ///< the number of readout channels per C1 chamber
 constexpr int NCHANNELSTOTAL = NSECTOR * NLAYER * (NSTACK - 1) * NCHANNELSC1 + NSECTOR * NLAYER * NCHANNELSC0; ///< the total number of readout channels for TRD
 constexpr int NCHANNELSPERSECTOR = NCHANNELSTOTAL / NSECTOR;                                                   ///< then number of readout channels per sector
 constexpr int NCHANNELSPERLAYER = NCHANNELSPERSECTOR / NLAYER;                                                 ///< then number of readout channels per layer
-constexpr int NCPU = 4;         ///< the number of CPUs inside the TRAP chip
-constexpr int NCHARGES = 3;     ///< the number of charges per tracklet (Q0/1/2)
+constexpr int NCPU = 4;                                                                                        ///< the number of CPUs inside the TRAP chip
+constexpr int NCHARGES = 3;                                                                                    ///< the number of charges per tracklet (Q0/1/2)
 
 // the values below should come out of the TRAP config in the future
 constexpr int NBITSTRKLPOS = 11;                                      ///< number of bits for position in tracklet64 word

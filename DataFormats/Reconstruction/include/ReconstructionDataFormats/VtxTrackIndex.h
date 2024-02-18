@@ -61,7 +61,7 @@ struct hash<o2::dataformats::VtxTrackIndex> {
   size_t operator()(const o2::dataformats::VtxTrackIndex& id) const
   {
     return std::hash<o2::dataformats::GlobalTrackID>{}(id);
-    //return id.getRawWOFlags();
+    // return id.getRawWOFlags();
   }
 };
 } // namespace std

@@ -350,6 +350,6 @@ typedef struct DataForClosingSocket {
   curl_socket_t socket;
 } DataForClosingSocket;
 
-} // namespace o2
+} // namespace o2::ccdb
 
 #endif // O2_CCDB_CCDBDOWNLOADER_H

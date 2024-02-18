@@ -69,7 +69,7 @@ class ChipDigitsContainer
   void disable(bool v) { mDisabled = v; }
 
  protected:
-  UShort_t mChipIndex = 0;                           ///< chip index
+  UShort_t mChipIndex = 0; ///< chip index
   bool mDisabled = false;
   const o2::itsmft::NoiseMap* mNoiseMap = nullptr;
   const o2::itsmft::NoiseMap* mDeadChanMap = nullptr;

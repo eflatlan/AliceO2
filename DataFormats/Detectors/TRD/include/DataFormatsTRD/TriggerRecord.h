@@ -42,14 +42,14 @@ class TriggerRecord
   const BCData& getBCData() const { return mBCData; }
   BCData& getBCData() { return mBCData; }
 
-  //Digit information
+  // Digit information
   void setFirstDigit(int firstentry) { mDigitDataRange.setFirstEntry(firstentry); }
   int getFirstDigit() const { return mDigitDataRange.getFirstEntry(); }
   void setNumberOfDigit(int nentries) { mDigitDataRange.setEntries(nentries); }
   int getNumberOfDigits() const { return mDigitDataRange.getEntries(); }
   void setDigitRange(int firstentry, int nentries) { mDigitDataRange.set(firstentry, nentries); }
 
-  //tracklet information
+  // tracklet information
   void setFirstTracklet(int firstentry) { mTrackletDataRange.setFirstEntry(firstentry); }
   int getFirstTracklet() const { return mTrackletDataRange.getFirstEntry(); }
   void setNumberOfTracklet(int nentries) { mTrackletDataRange.setEntries(nentries); }
@@ -64,7 +64,7 @@ class TriggerRecord
   }
 
  private:
-  BCData mBCData;       /// Bunch crossing data of the trigger
+  BCData mBCData;               /// Bunch crossing data of the trigger
   DataRange mDigitDataRange;    /// Index of the underlying digit data, indexes into the vector/array/span
   DataRange mTrackletDataRange; /// Index of the underlying tracklet data, indexes into the vector/array/span
 

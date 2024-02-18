@@ -53,8 +53,8 @@ class VisualisationCluster
 
  private:
   void setCoordinates(float xyz[3]);
-  float mCoordinates[3]; /// Vector of cluster's coordinates
-  float mTime;           /// time asociated with cluster
+  float mCoordinates[3];                          /// Vector of cluster's coordinates
+  float mTime;                                    /// time asociated with cluster
   o2::dataformats::GlobalTrackID::Source mSource; /// data source of the cluster (debug)
 };
 } // namespace event_visualisation

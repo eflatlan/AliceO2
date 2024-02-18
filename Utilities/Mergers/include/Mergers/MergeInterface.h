@@ -47,4 +47,4 @@ class MergeInterface
 
 } // namespace o2::mergers
 
-#endif //ALICEO2_MERGEINTERFACE_H
+#endif // ALICEO2_MERGEINTERFACE_H

@@ -85,7 +85,7 @@ struct Digit {
   }
   ClassDefNV(Digit, 4);
 };
-//For TCM extended mode (calibration mode), TCMdataExtended digit
+// For TCM extended mode (calibration mode), TCMdataExtended digit
 struct TriggersExt {
   static constexpr char sChannelNameDPL[] = "DIGITSTRGEXT";
   static constexpr char sDigitName[] = "TriggersExt";

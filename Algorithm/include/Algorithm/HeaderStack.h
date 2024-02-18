@@ -167,4 +167,4 @@ void parseHeaderStack(PtrType ptr,
 
 }; // namespace o2
 
-#endif //ALGORITHM_HEADERSTACK_H
+#endif // ALGORITHM_HEADERSTACK_H

@@ -96,12 +96,13 @@ struct DeviceMetricsHelper {
     };
   }
 
-  static auto updateNumericInfo(DeviceMetricsInfo& metrics, size_t metricIndex, float value, size_t timestamp) {
-      metrics.minDomain[metricIndex] = std::min(metrics.minDomain[metricIndex], timestamp);
-      metrics.maxDomain[metricIndex] = std::max(metrics.maxDomain[metricIndex], timestamp);
-      metrics.max[metricIndex] = std::max(metrics.max[metricIndex], (float)value);
-      metrics.min[metricIndex] = std::min(metrics.min[metricIndex], (float)value);
-      metrics.changed.at(metricIndex) = true;
+  static auto updateNumericInfo(DeviceMetricsInfo& metrics, size_t metricIndex, float value, size_t timestamp)
+  {
+    metrics.minDomain[metricIndex] = std::min(metrics.minDomain[metricIndex], timestamp);
+    metrics.maxDomain[metricIndex] = std::max(metrics.maxDomain[metricIndex], timestamp);
+    metrics.max[metricIndex] = std::max(metrics.max[metricIndex], (float)value);
+    metrics.min[metricIndex] = std::min(metrics.min[metricIndex], (float)value);
+    metrics.changed.at(metricIndex) = true;
   }
 
   template <typename T>

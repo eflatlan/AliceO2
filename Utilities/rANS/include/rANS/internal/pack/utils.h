@@ -32,8 +32,7 @@ namespace o2::rans::internal
 
 using packing_type = uint64_t;
 
-inline constexpr std::array<packing_type, (utils::toBits<packing_type>() + 1)> All1BackTill = []() constexpr
-{
+inline constexpr std::array<packing_type, (utils::toBits<packing_type>() + 1)> All1BackTill = []() constexpr {
   constexpr size_t packingBufferBits = utils::toBits<packing_type>();
   std::array<packing_type, (packingBufferBits + 1)> ret{};
   for (size_t i = 0; i < packingBufferBits; ++i) {
@@ -41,19 +40,16 @@ inline constexpr std::array<packing_type, (utils::toBits<packing_type>() + 1)> A
   }
   ret[packingBufferBits] = ~0;
   return ret;
-}
-();
+}();
 
-inline constexpr std::array<packing_type, (utils::toBits<packing_type>() + 1)> All1FrontTill = []() constexpr
-{
+inline constexpr std::array<packing_type, (utils::toBits<packing_type>() + 1)> All1FrontTill = []() constexpr {
   constexpr size_t size = utils::toBits<packing_type>() + 1;
   std::array<packing_type, size> ret{};
   for (size_t i = 0; i < size; ++i) {
     ret[i] = ~0ull ^ All1BackTill[i];
   }
   return ret;
-}
-();
+}();
 
 [[nodiscard]] inline uint64_t bitExtract(uint64_t data, uint32_t start, uint32_t length) noexcept
 {

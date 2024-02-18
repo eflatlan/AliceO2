@@ -201,13 +201,13 @@ class GPUTPCTracker : public GPUProcessor
   GPUhd() int HitInputID(const MEM_TYPE(GPUTPCRow) & row, int hitIndex) const { return mData.ClusterDataIndex(row, hitIndex); }
 
   /**
- * The hit weight is used to determine whether a hit belongs to a certain tracklet or another one
- * competing for the same hit. The tracklet that has a higher weight wins. Comparison is done
- * using the the number of hits in the tracklet (the more hits it has the more it keeps). If
- * tracklets have the same number of hits then it doesn't matter who gets it, but it should be
- * only one. So a unique number (row index is good) is added in the least significant part of
- * the weight
- */
+   * The hit weight is used to determine whether a hit belongs to a certain tracklet or another one
+   * competing for the same hit. The tracklet that has a higher weight wins. Comparison is done
+   * using the the number of hits in the tracklet (the more hits it has the more it keeps). If
+   * tracklets have the same number of hits then it doesn't matter who gets it, but it should be
+   * only one. So a unique number (row index is good) is added in the least significant part of
+   * the weight
+   */
   GPUdi() static int CalculateHitWeight(int NHits, float chi2, int)
   {
     const float chi2_suppress = 6.f;
@@ -272,7 +272,7 @@ class GPUTPCTracker : public GPUProcessor
   int mISlice; // Number of slice
 
   /** A pointer to the ClusterData object that the SliceData was created from. This can be used to
- * merge clusters from inside the SliceTracker code and recreate the SliceData. */
+   * merge clusters from inside the SliceTracker code and recreate the SliceData. */
   MEM_LG(GPUTPCSliceData)
   mData; // The SliceData object. It is used to encapsulate the storage in memory from the access
 

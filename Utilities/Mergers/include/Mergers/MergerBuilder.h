@@ -89,4 +89,4 @@ class MergerBuilder
 } // namespace mergers
 } // namespace o2
 
-#endif //ALICEO2_MERGERBUILDER_H
+#endif // ALICEO2_MERGERBUILDER_H

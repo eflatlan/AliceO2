@@ -79,4 +79,4 @@ std::ostream& operator<<(std::ostream& os, const DCA& d);
 } // namespace dataformats
 } // namespace o2
 
-#endif //ALICEO2_DCA_H
+#endif // ALICEO2_DCA_H

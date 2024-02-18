@@ -33,4 +33,4 @@ class DataReaderJSON : public DataReader
 } // namespace event_visualisation
 } // namespace o2
 
-#endif //O2EVE_DATAREADERJSON_H
+#endif // O2EVE_DATAREADERJSON_H

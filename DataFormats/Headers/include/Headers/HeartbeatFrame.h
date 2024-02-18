@@ -114,7 +114,7 @@ static_assert(sizeof(HeartbeatTrailer) == 8, "Heartbeat trailer must be 64bit");
 // TODO: check if the copying of header and trailer can be avoided if references
 // are used in a temporary object inserted to the header stack
 struct HeartbeatFrameEnvelope : public BaseHeader {
-  //static data for this header type/version
+  // static data for this header type/version
   static const uint32_t sVersion;
   static const o2::header::HeaderType sHeaderType;
   static const o2::header::SerializationMethod sSerializationMethod;

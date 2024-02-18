@@ -25,7 +25,7 @@ namespace cpv
 {
 
 struct RawDecoderError {
-  RawDecoderError() = default; //Constructors for vector::emplace_back methods
+  RawDecoderError() = default; // Constructors for vector::emplace_back methods
   RawDecoderError(short c, short d, short g, short p, RawErrorType_t e) : ccId(c), dil(d), gas(g), pad(p), errortype(e) {}
   RawDecoderError(const RawDecoderError& e) = default;
   ~RawDecoderError() = default;

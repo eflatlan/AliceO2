@@ -84,8 +84,8 @@ class TimeRangeFlagCollection
   friend std::ostream& operator<<(std::ostream& output, const TimeRangeFlagCollection& data);
 
  private:
-  std::string mDetID;     // three letter detector code
-  std::string mName;      // some description of the collection, e.g. "Raw data checks", "QA Expert masks"
+  std::string mDetID; // three letter detector code
+  std::string mName;  // some description of the collection, e.g. "Raw data checks", "QA Expert masks"
   // with std::set we can sort the flags in time and have merge() for granted.
   collection_t mTimeRangeFlags;
   RangeInterval mValidityRange; // we need a validity range to e.g. state that there are no TRFs for given time interval

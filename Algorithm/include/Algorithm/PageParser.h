@@ -363,9 +363,9 @@ class PageParser
             // forward to the next page
             position += page_size - (position % page_size) + sizeof(PageHeaderType);
             if (position > mSize) {
-              //this is probably a valid condition as the group header can just
-              //indicate zero clusters
-              //throw std::runtime_error("");
+              // this is probably a valid condition as the group header can just
+              // indicate zero clusters
+              // throw std::runtime_error("");
               position = mSize;
               return false;
             }

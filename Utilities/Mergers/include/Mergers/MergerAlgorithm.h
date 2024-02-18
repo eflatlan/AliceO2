@@ -30,4 +30,4 @@ void deleteTCollections(TObject* obj);
 
 } // namespace o2::mergers::algorithm
 
-#endif //ALICEO2_MERGERS_H
+#endif // ALICEO2_MERGERS_H
