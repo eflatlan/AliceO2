@@ -166,11 +166,8 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
       pc.outputs().snapshot(o2::framework::Output{"HMP", "CLUSTERSMCTR", 0, o2::framework::Lifetime::Timeframe}, mClsLabels);
   } */
 
-  pc.outputs().snapshot(o2::framework::Output{"HMP", "CLUSTERS", 0, o2::framework::Lifetime::Timeframe}, clusters);
-
-  pc.outputs().snapshot(o2::framework::Output{"HMP", "DIGITTOPOLOGY", 0, o2::framework::Lifetime::Timeframe}, topVectorVector);
-
-  pc.outputs().snapshot(o2::framework::Output{"HMP", "INTRECORDS1", 0, o2::framework::Lifetime::Timeframe}, clusterTriggers);
+  pc.outputs().snapshot(o2::framework::Output{"HMP", "CLUSTERS", 0}, clusters);
+  pc.outputs().snapshot(o2::framework::Output{"HMP", "INTRECORDS1", 0}, clusterTriggers);
 
   mExTimer.elapseMes("Clusterization of Digits received = " + std::to_string(mDigitsReceived));
   mExTimer.elapseMes("Clusterization of Clusters received = " + std::to_string(mClustersReceived));
@@ -215,8 +212,8 @@ o2::framework::DataProcessorSpec
 
   outputs.emplace_back("HMP", "CLUSTERS", 0,
                        o2::framework::Lifetime::Timeframe);
-  outputs.emplace_back("HMP", "DIGITTOPOLOGY", 0,
-                       o2::framework::Lifetime::Timeframe);
+  // outputs.emplace_back("HMP", "DIGITTOPOLOGY", 0,
+  //                     o2::framework::Lifetime::Timeframe);
   outputs.emplace_back("HMP", "INTRECORDS1", 0,
                        o2::framework::Lifetime::Timeframe);
 
