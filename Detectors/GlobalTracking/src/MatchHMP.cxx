@@ -842,9 +842,9 @@ void MatchHMP::doMatching()
 
 	  auto indexEvent = cacheTriggerHMP[iEvent];
 
-	  Printf("Event number %d   %d ",iEvent, indexEvent);
 
 
+	  Printf("Event number : iEvent %d  : indexEvent %d ",iEvent, indexEvent);
 
 
 
@@ -961,7 +961,7 @@ void MatchHMP::doMatching()
 
 
 		  auto indexEvent = cacheTriggerHMP[iEvent];
-
+Printf("Event number : iEvent %d  : indexEvent %d ",iEvent, indexEvent);
   	  //Printf("Event %d  Track %d ",iEvent, cacheTrk[itrk]);
 
 
@@ -1327,8 +1327,9 @@ void MatchHMP::doMatching()
 
 
         float hmpMom = hmpTrkConstrained.getP() * hmpTrkConstrained.getSign();
-
-
+        
+				LOGP(info, "HMP MOM getSign", hmpTrkConstrained.getSign());
+				LOGP(info, "HMP MOM getP", hmpTrkConstrained.getP());
 
         matching.setHmpMom(hmpMom);
 
@@ -1378,6 +1379,9 @@ void MatchHMP::doMatching()
 
 				matching.setMipClusEvent(bestHmpCluster->getEventNumber()); // ef: set event number from cluster
 
+				// matching.setMipClusEvent(eventIDClu); 
+
+				// matching->setEventNumber(indexEvent);
 
 				matching.setMipClusCharge(bestHmpCluster->q()); // ef: set event number from cluster
 
@@ -1449,7 +1453,18 @@ void MatchHMP::doMatching()
 
         } // MIP-Track matched !!
 
-
+				matching.setRefIndex(nmean);
+				matching.setChamber(iCh);
+				matching.setMipClusEvent(eventIDClu); 
+				matching.setEventNumber(indexEvent); // 				matching.setEventNumber(iEvent);
+				
+        matching.setMipX(bestHmpCluster->x()); 
+        matching.setMipY(bestHmpCluster->y());
+        matching.setMipClusCharge(bestHmpCluster->q());
+        matching.setMipClusSize(bestHmpCluster->size());
+ 
+        matching.setMipClusEvent(bestHmpCluster->getEventNumber());
+				
         if (!isMatched) {
           mMatchedTracks[type].push_back(matching);
           oneEventClusters.clear();
@@ -1462,21 +1477,13 @@ void MatchHMP::doMatching()
 
         recon->setImpPC(xPc, yPc);                                            // store track impact to PC
         recon->ckovAngle(&matching, oneEventClusters, index, nmean, xRa, yRa); // search for Cerenkov angle of this track
-				matching.setRefIndex(nmean);
-				matching.setChamber(iCh);
-				matching.setMipClusEvent(eventIDClu); 
-				matching.setEventNumber(indexEvent); // 				matching.setEventNumber(iEvent);
+
+
 				matching.setDistCut(dmin, maxDistAcc); 
 
         Printf("bestHmpCluster  x %.2f y %.2f q %d", bestHmpCluster->x(),bestHmpCluster->y(), bestHmpCluster->q());
        
 
-        matching.setMipX(bestHmpCluster->x()); 
-        matching.setMipY(bestHmpCluster->y());
-        matching.setMipClusCharge(bestHmpCluster->q());
-        matching.setMipClusSize(bestHmpCluster->size());
- 
-        matching.setMipClusEvent(bestHmpCluster->getEventNumber());
 				Printf("eventNumber from clu : MIP %d from track : %d", eventIDClu, indexEvent);
 
 			  Printf("Calling match :eventNumber from clu : %d  from track : %d", matching.getMipClusEvent(), matching.getEvent());

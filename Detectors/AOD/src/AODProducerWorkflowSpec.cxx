@@ -1284,6 +1284,10 @@ void AODProducerWorkflowDPL::fillHMPID(const o2::globaltracking::RecoContainer& 
   //  const auto& match = hmpMatches[iHmp];
   for (const auto& match : hmpMatches) {
 
+
+	printf(" ============================\n");
+
+
     float xRa, yRa, xTrk, yTrk, theta, phi;
     float xMip, yMip;
     int charge, nph;
@@ -1308,12 +1312,13 @@ void AODProducerWorkflowDPL::fillHMPID(const o2::globaltracking::RecoContainer& 
   double xTrk2 = xRa + dx; // just linear extrapolation back to RAD
   double yTrk2 = yRa + dy;
 
-	// Assuming LOGP is your custom logging function, you'll have to adapt it to use printf internally.
+
+	
 	printf(" ============================\n");
 	printf(" Matched Status %d \n", match.getMatchStatus());
 	printf(" =Track Chamber %d Momentum %.2f, Mip charge INT %d  Mip charge %.2f \n Theta = %.3f  \n", match.getChamber (), match.getHmpMom(), charge, match.getMipClusQ(), theta);
 	
-
+	
 	printf("getMipX %.3f  getMipY %.3f \n", match.getMipX(), match.getMipY());	
 	printf("PDG | MIP : %d  track : %d \n", match.getMipClusEventPDG(), match.getParticlePdg());
 	
@@ -1323,15 +1328,12 @@ void AODProducerWorkflowDPL::fillHMPID(const o2::globaltracking::RecoContainer& 
 
 	printf(" Checking RA :xRa %.3f xRa2 %.3f  yRa %.3f yRa2 %.3f \n", xRa, xRa2, yRa, yRa2);
 	printf(" Checking PC :xTrk %.3f xTrk2 %.3f  yTrk %.3f yTrk2 %.3f \n", xTrk, xTrk2, yTrk, yTrk2);
-
-	printf("dx %.3f dy %.3f\n", dx, dy);
+	
 
 	// The TVector2 parts can stay as they are since they're not directly related to the printing.
 	TVector2 rad(xRa, yRa);    
 	TVector2 pc(xTrk, yTrk); 
 	TVector2 mip(xMip, yMip);
-
-	printf("  Actual phi %f | Phi Rad2PC %f | Phi Rad2MIP %f\n", phi, (rad-pc).Phi(), (rad-mip).Phi());
 
 
 
