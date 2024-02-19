@@ -1458,12 +1458,31 @@ Printf("Event number : iEvent %d  : indexEvent %d ",iEvent, indexEvent);
 				matching.setMipClusEvent(eventIDClu); 
 				matching.setEventNumber(indexEvent); // 				matching.setEventNumber(iEvent);
 				
-        matching.setMipX(bestHmpCluster->x()); 
-        matching.setMipY(bestHmpCluster->y());
-        matching.setMipClusCharge(bestHmpCluster->q());
-        matching.setMipClusSize(bestHmpCluster->size());
  
         matching.setMipClusEvent(bestHmpCluster->getEventNumber());
+				
+				
+				/*Check values */
+
+				const auto xMip = bestHmpCluster->x();
+				const auto yMip = bestHmpCluster->y();			
+				const auto qMip = bestHmpCluster->q();
+ 				const auto sizeMip = bestHmpCluster->size();
+ 				
+ 	      matching.setMipX(xMip); 
+        matching.setMipY(yMip);
+        matching.setMipClusCharge(qMip);
+        matching.setMipClusSize(sizeMip);
+ 
+ 				
+        Printf("bestHmpCluster  x %.2f y %.2f q  %.2f size :%d", xMip, yMip, qMip, sizeMip);
+       
+        Printf("Track::getMIP  x %.2f y %.2f Q %.2f | size %d", matching.getMipX(), matching.getMipY(), matching.getMipClusQ(), matching.getMipClusSize());				
+				
+
+
+				
+
 				
         if (!isMatched) {
           mMatchedTracks[type].push_back(matching);
@@ -1481,14 +1500,13 @@ Printf("Event number : iEvent %d  : indexEvent %d ",iEvent, indexEvent);
 
 				matching.setDistCut(dmin, maxDistAcc); 
 
-        Printf("bestHmpCluster  x %.2f y %.2f q %d", bestHmpCluster->x(),bestHmpCluster->y(), bestHmpCluster->q());
-       
+
 
 				Printf("eventNumber from clu : MIP %d from track : %d", eventIDClu, indexEvent);
 
 			  Printf("Calling match :eventNumber from clu : %d  from track : %d", matching.getMipClusEvent(), matching.getEvent());
 
-        Printf("Track::getMIP  x %.2f y %.2f Q %.2f", matching.getMipX(), matching.getMipY(), matching.getMipClusQ());
+
 
 				// add value indicating matched properly?
 				matching.setMatchTrue();

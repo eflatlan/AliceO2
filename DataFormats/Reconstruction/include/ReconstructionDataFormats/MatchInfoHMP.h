@@ -98,7 +98,7 @@ class MatchInfoHMP
   void setMipClusEvent(int event) { mMipCluEvent = event; }
   int getMipClusEvent() const { return mMipCluEvent; }
 
-  void setMipClusCharge(int size) { mMipCluCharge = size; }
+  void setMipClusCharge(float charge) { mMipCluCharge = charge; }
   int getMipClusCharge() const { return mMipCluCharge; }
 
   void setMipClusSize(int size) { mMipCluSize = size; }
