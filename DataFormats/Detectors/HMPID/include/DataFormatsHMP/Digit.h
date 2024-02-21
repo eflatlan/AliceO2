@@ -51,6 +51,10 @@ class Digit
   static void absolute2Equipment(int Module, int x, int y, int* Equi, int* Colu, int* Dilo, int* Chan);
   static void equipment2Absolute(int Equi, int Colu, int Dilo, int Chan, int* Module, int* x, int* y);
 
+  // ef: add labels for MC 
+  Int_t getLabel() const { return mLabel; }
+  void setLabel(Int_t label) { mLabel = label; }
+
   // Trigger time Conversion Functions
   //  static inline uint64_t orbitBcToEventId(uint32_t Orbit, uint16_t BC) { return ((Orbit << 12) | (0x0FFF & BC)); };
   //  static inline uint32_t eventIdToOrbit(uint64_t EventId) { return (EventId >> 12); };
@@ -139,6 +143,9 @@ class Digit
 
  public:
   // Members
+
+  // ef: init to -1 
+  Int_t mLabel = -1;            ///< Index of the corresponding entry in the MC label array
 
   int mMotherTrackId;
   int mSourceId;

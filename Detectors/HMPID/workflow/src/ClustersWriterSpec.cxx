@@ -1,59 +1,97 @@
 // Copyright 2019-2020 CERN and copyright holders of ALICE O2.
+
 // See https://alice-o2.web.cern.ch/copyright for details of the copyright holders.
+
 // All rights not expressly granted are reserved.
+
 //
+
 // This software is distributed under the terms of the GNU General Public
+
 // License v3 (GPL Version 3), copied verbatim in the file "COPYING".
+
 //
+
 // In applying this license CERN does not waive the privileges and immunities
+
 // granted to it by virtue of its status as an Intergovernmental Organization
+
 // or submit itself to any jurisdiction.
 
+
+
 #include "HMPIDWorkflow/ClustersWriterSpec.h"
+
 #include "DPLUtils/MakeRootTreeWriterSpec.h"
+
 #include "Framework/InputSpec.h"
+
 #include "DataFormatsHMP/Digit.h"
+
 #include "DataFormatsHMP/Trigger.h"
+
 #include "DataFormatsHMP/Cluster.h"
+
 #include "SimulationDataFormat/MCTruthContainer.h"
+
 #include "SimulationDataFormat/MCCompLabel.h"
 
+
+
 namespace o2
+
 {
+
 namespace hmpid
+
 {
+
+
 
 template <typename T>
+
 using BranchDefinition = framework::MakeRootTreeWriterSpec::BranchDefinition<T>;
+
 using LabelsType = o2::dataformats::MCTruthContainer<o2::MCCompLabel>;
+
 o2::framework::DataProcessorSpec getClusterWriterSpec(bool useMC)
+
 {
+
   using InputSpec = framework::InputSpec;
+
   using MakeRootTreeWriterSpec = framework::MakeRootTreeWriterSpec;
 
-  return MakeRootTreeWriterSpec("HMPClustersWriter",
-                                "hmpidclusters.root",
-                                MakeRootTreeWriterSpec::TreeAttributes{"o2hmp", "Tree with HMPID clusters"},
-                                BranchDefinition<std::vector<o2::hmpid::Cluster>>{InputSpec{"hmpclusterinput", "HMP", "CLUSTERS"}, "HMPIDclusters"},
-                                // BranchDefinition<std::vector<o2::hmpid::Topology>>{InputSpec{"hmpdigittopology", "HMP", "DIGITTOPOLOGY"}, "HMPIDDigitTopology"},                                                            
-                                BranchDefinition<std::vector<o2::hmpid::Trigger>>{InputSpec{"hmpinteractionrecords", "HMP", "INTRECORDS1"}, "InteractionRecords"},
-                                //ef FIX : 
-                               
-                                /*BranchDefinition<o2::dataformats::MCTruthContainer<o2::MCCompLabel>>{InputSpec{"clusterlabels", "HMP", "CLUSTERLBL"}, "HMPClusterLabels", useMC ? 1 : 0})();
-                                */
-/*
 
-                                BranchDefinition<LabelsType>{InputSpec{"labels", "ITS", "CLUSTERSMCTR", 0},
-                                                             "ITSClusterMCTruth",
-                                                             (useMC ? 1 : 0), // one branch if mc labels enabled
-                                                             ""}
-*/
+
+  return MakeRootTreeWriterSpec("HMPClustersWriter",
+
+                                "hmpidclusters.root",
+
+                                MakeRootTreeWriterSpec::TreeAttributes{"o2hmp", "Tree with HMPID clusters"},
+
+                                BranchDefinition<std::vector<o2::hmpid::Cluster>>{InputSpec{"hmpclusterinput", "HMP", "CLUSTERS"}, "HMPIDclusters"},
+
+                                // BranchDefinition<std::vector<o2::hmpid::Topology>>{InputSpec{"hmpdigittopology", "HMP", "DIGITTOPOLOGY"}, "HMPIDDigitTopology"},                                                            
+
+                                BranchDefinition<std::vector<o2::hmpid::Trigger>>{InputSpec{"hmpinteractionrecords", "HMP", "INTRECORDS1"}, "InteractionRecords"},
+
+
+
                                 BranchDefinition<LabelsType>{InputSpec{"clusterlabels", "HMP", "CLUSTERSMCTR", 0},
+
                                                              mClusterMCTruthBranchName,
+
                                                              (useMC ? 1 : 0), // one branch if mc labels enabled
-                                                             ""},
+
+                                                             ""})();
+
+
 
 }
 
+
+
 } // end namespace hmpid
+
 } // end namespace o2

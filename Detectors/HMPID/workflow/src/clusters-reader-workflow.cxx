@@ -61,7 +61,10 @@ WorkflowSpec defineDataProcessing(const ConfigContext& configcontext)
   WorkflowSpec specs;
   o2::conf::ConfigurableParam::updateFromString(configcontext.options().get<std::string>("configKeyValues"));
 
-  DataProcessorSpec consumer = o2::hmpid::getClusterReaderSpec();
+
+  // EF: FIX
+  bool useMC = true;
+  DataProcessorSpec consumer = o2::hmpid::getClusterReaderSpec(useMC);
 
   specs.push_back(consumer);
   return specs;

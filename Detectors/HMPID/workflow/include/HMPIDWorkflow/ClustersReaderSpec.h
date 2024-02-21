@@ -51,6 +51,11 @@ class ClusterReaderTask : public framework::Task
   // void endOfStream(framework::EndOfStreamContext& ec) override;
 
  private:
+
+  bool mUseMC = true;
+  
+  std::string mClusterMCTruthBranchName = "HMPIDClusterLabels";
+  
   bool mReadFile = false;
   void initFileIn(const std::string& filename);
 

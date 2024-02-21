@@ -85,8 +85,8 @@ void DigitsToRootTask::init(framework::InitContext& ic)
   mDigitTree->Branch("InteractionRecords", &mTriggers);
   mDigitTree->Branch("HMPIDDigits", &mDigits);
   
-  if(useMC) {
-    mDigitTree->Branch(mDigitMCTruthBranchName, &mLabels);
+  if(mUseMC) {
+    mDigitTree->Branch(mDigitMCTruthBranchName.c_str(), &mDigitLabels);
   }
 
   mExTimer.start();
@@ -156,7 +156,7 @@ o2::framework::DataProcessorSpec getDigitsToRootSpec(std::string inputSpec, bool
   if(useMC) {
     inputs.emplace_back("hmpiddigitlabels", o2::header::gDataOriginHMP, "DIGITSMCTR", 0, Lifetime::Timeframe);
   } // ef: do as from the steer..
-  mUseMC = useMC;
+
 
   
   std::vector<o2::framework::OutputSpec> outputs;

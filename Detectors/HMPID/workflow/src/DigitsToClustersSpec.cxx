@@ -131,8 +131,8 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
   if (mUseMC) {
     auto digitlabels = pc.inputs().get<std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>>*>("hmpiddigitlabels");
     *labelvector.get() = std::move(*digitlabels);
-    mRec.setMCTruthContainer(&mClsLabels);
-    mClsLabels.clear();
+    mRec->setMCTruthContainer(mClsLabels);
+    mClsLabels->clear();
   }
 
   int i = 0;

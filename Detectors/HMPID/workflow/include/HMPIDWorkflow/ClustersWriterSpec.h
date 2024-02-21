@@ -21,6 +21,7 @@ namespace o2
 {
 namespace hmpid
 {
+  std::string mClusterMCTruthBranchName = "HMPIDClusterLabels";
 
 o2::framework::DataProcessorSpec getClusterWriterSpec(bool useMc);
 

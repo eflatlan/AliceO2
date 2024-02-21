@@ -70,15 +70,15 @@ void DigitReader::init(InitContext& ic)
   }
 
   if ((TTree*)mFile->Get("o2sim") != nullptr) {
-    mTree.reset((TTree*)mFile->Get("o2sim"));
+    mTreeDig.reset((TTree*)mFile->Get("o2sim"));
   } else if ((TTree*)mFile->Get("o2hmp") != nullptr) {
-    mTree.reset((TTree*)mFile->Get("o2hmp"));
+    mTreeDig.reset((TTree*)mFile->Get("o2hmp"));
   } else {
     LOG(error) << "Did not find o2hmp tree in " << filename.c_str();
     throw std::runtime_error("Did Not find Any correct Tree in HMPID Digits File");
   }
 
-  if (!mTree) {
+  if (!mTreeDig) {
     LOG(error) << "Did not find o2hmp tree in " << filename.c_str();
     throw std::runtime_error("Did Not find Any correct Tree in HMPID Digits File");
   } /*else {
@@ -92,33 +92,33 @@ void DigitReader::run(ProcessingContext& pc)
   std::vector<o2::hmpid::Trigger> mTriggersFromFile, *mTriggersFromFilePtr = &mTriggersFromFile;
 
   /*  */
-  if (mTree->GetBranchStatus("HMPDigit")) {
-    mTree->SetBranchAddress("HMPDigit", &mDigitsFromFilePtr);
-  } else if (mTree->GetBranchStatus("HMPIDDigits")) {
-    mTree->SetBranchAddress("HMPIDDigits", &mDigitsFromFilePtr);
+  if (mTreeDig->GetBranchStatus("HMPDigit")) {
+    mTreeDig->SetBranchAddress("HMPDigit", &mDigitsFromFilePtr);
+  } else if (mTreeDig->GetBranchStatus("HMPIDDigits")) {
+    mTreeDig->SetBranchAddress("HMPIDDigits", &mDigitsFromFilePtr);
   } else {
     LOG(error)
       << "HMPID DigitWriterSpec::init() : Did not find any branch for Digits";
     throw std::runtime_error("Did Not find Any correct Branch for Digits in HMPID Digits File");
   }
 
-  if (mTree->GetBranchStatus("InteractionRecords")) {
-    mTree->SetBranchAddress("InteractionRecords", &mTriggersFromFilePtr);
+  if (mTreeDig->GetBranchStatus("InteractionRecords")) {
+    mTreeDig->SetBranchAddress("InteractionRecords", &mTriggersFromFilePtr);
   } else {
     LOG(error)
       << "HMPID DigitWriterSpec::init() : Did not find  branch for Triggers";
     throw std::runtime_error("Did Not find Branch For triggers in HMPID Digits File");
   }
-  // mTree->Print("toponly");
+  // mTreeDig->Print("toponly");
 
     if (mUseMC) {
-      treeDig->SetBranchAddress("HMPIDDigitMCTruth", &mPlabels);
+      mTreeDig->SetBranchAddress("HMPIDDigitMCTruth", &mPlabels);
     }
 
 
-  auto ent = mTree->GetReadEntry() + 1;
-  assert(ent < mTree->GetEntries()); // this should not happen
-  mTree->GetEntry(ent);
+  auto ent = mTreeDig->GetReadEntry() + 1;
+  assert(ent < mTreeDig->GetEntries()); // this should not happen
+  mTreeDig->GetEntry(ent);
 
   pc.outputs().snapshot(Output{"HMP", "DIGITS", 0}, mDigitsFromFile);
   pc.outputs().snapshot(Output{"HMP", "INTRECORDS", 0}, mTriggersFromFile);
@@ -131,7 +131,7 @@ void DigitReader::run(ProcessingContext& pc)
   mDigitsReceived += mDigitsFromFile.size();
   LOG(info) << "[HMPID DigitsReader - run() ] digits  = " << mDigitsFromFile.size();
 
-  if (mTree->GetReadEntry() + 1 >= mTree->GetEntries()) {
+  if (mTreeDig->GetReadEntry() + 1 >= mTreeDig->GetEntries()) {
     pc.services().get<ControlService>().endOfStream();
     pc.services().get<ControlService>().readyToQuit(QuitRequest::Me);
     mExTimer.stop();
@@ -140,7 +140,7 @@ void DigitReader::run(ProcessingContext& pc)
   }
 }
 
-DataProcessorSpec getDigitReaderSpec(bool useMC)
+DataProcessorSpec getDigitsReaderSpec(bool useMC)
 {
   std::vector<OutputSpec> outputs;
   outputs.emplace_back("HMP", "DIGITS", 0, o2::framework::Lifetime::Timeframe);

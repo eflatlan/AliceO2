@@ -25,6 +25,7 @@
 
 #include "Framework/DataProcessorSpec.h"
 #include "Framework/Task.h"
+#include "SimulationDataFormat/MCTruthContainer.h"
 
 #include "HMPIDBase/Common.h"
 #include "DataFormatsHMP/Digit.h"
@@ -52,7 +53,7 @@ class DigitReader : public framework::Task
 
 
   bool mUseMC = true;
-  o2::dataformats::MCTruthContainer<o2::MCCompLabel> mLabels, *mLabelsPtr = &mLabels;
+  o2::dataformats::MCTruthContainer<o2::MCCompLabel> mLabels, *mPlabels = &mLabels;
 
 
 
@@ -63,7 +64,7 @@ class DigitReader : public framework::Task
   ExecutionTimer mExTimer;
 
   std::unique_ptr<TFile> mFile; // root file with digits
-  std::unique_ptr<TTree> mTree; // tree inside the file
+  std::unique_ptr<TTree> mTreeDig; // tree inside the file
 
   unsigned long mNumberOfEntries = 0; // number of entries from TTree
   unsigned long mCurrentEntry = 0;    // index of current entry
@@ -71,7 +72,7 @@ class DigitReader : public framework::Task
   // void strToFloatsSplit(std::string s, std::string delimiter, float* res, int maxElem = 7);
 };
 
-framework::DataProcessorSpec getDigitReaderSpec(bool useMC);
+framework::DataProcessorSpec getDigitsReaderSpec(bool useMC);
 
 } // end namespace hmpid
 } // end namespace o2

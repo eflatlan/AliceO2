@@ -110,7 +110,7 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
           for(int digIndex = 0; digIndex < digsOfClu.size(); digIndex++) {  
               LOGP(info, "contributing digit = {}", digIndex);
 
-              int digitLabel = mDigs[digIndex]->getLabel();
+              int digitLabel = digsOfClu[digIndex]->getLabel();
 
               //printf("digitLabel = %d\n", digitLabel);
 

@@ -40,8 +40,8 @@ namespace hmpid
 
 class DigitsToRootTask : public framework::Task
 {
- public:
-  DigitsToRootTask() = default;
+ public:  
+  DigitsToRootTask(bool useMC) :  mUseMC(useMC) {}
   ~DigitsToRootTask() override = default;
   void init(framework::InitContext& ic) final;
   void run(framework::ProcessingContext& pc) final;

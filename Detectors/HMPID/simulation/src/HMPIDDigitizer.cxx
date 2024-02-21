@@ -63,6 +63,11 @@ void HMPIDDigitizer::reset()
 // this will process hits and fill the digit vector with digits which are finalized
 void HMPIDDigitizer::process(std::vector<o2::hmpid::HitType> const& hits, std::vector<o2::hmpid::Digit>& digits)
 {
+
+  // ef: just temp fix: FIXME
+  const auto& mProcessMC = true;
+
+
   LOG(info) << "Starting HMPPID digitizer process function";
 
   for (auto& hit : hits) {
@@ -117,14 +122,21 @@ void HMPIDDigitizer::process(std::vector<o2::hmpid::HitType> const& hits, std::v
             mTmpLabelContainer.addElementRandomAccess(index, newlabel);
           }
         }
+        if(mProcessMC) {
+          digit.setLabel(index);
+        }
+        else  {
+          digit.setLabel(-1);
+        }
+
       } else {
         // create digit ... and register
         //        mDigits.emplace_back(mCurrentTriggerTime, pad, totalQ * fraction);
 
 
 
-	// ef: corrected to take from hits to mEventId -- > mEventId is set in HMPIDDigitezerSpec
-	LOGP(info, "Emplacing mDigits; (from hit : event {}) mEventID {}", hit.getEventNumber(), mEventID);
+        // ef: corrected to take from hits to mEventId -- > mEventId is set in HMPIDDigitezerSpec
+        LOGP(info, "Emplacing mDigits; (from hit : event {}) mEventID {}", hit.getEventNumber(), mEventID);
         mDigits.emplace_back(pad, totalQ * fraction, hit.getParticlePdg(), hit.getTrackId(),  hit.getMother(), /*hit.getEventNumber()*/ mEventID, mSrcID, hit.getEnergy());
         mIndexForPad[pad] = mDigits.size() - 1;
         mInvolvedPads.emplace_back(pad);
@@ -132,6 +144,16 @@ void HMPIDDigitizer::process(std::vector<o2::hmpid::HitType> const& hits, std::v
         if (mRegisteredLabelContainer) {
           // add label for this digit
           mTmpLabelContainer.addElement(mDigits.size() - 1, o2::MCCompLabel(hit.GetTrackID(), mEventID, mSrcID, false));
+        }
+        auto& digit = mDigits.back();
+
+
+        // ef : I am not sure how to deal with this 
+        if(mProcessMC) {
+          digit.setLabel(index);
+        }
+        else  {
+          digit.setLabel(-1);
         }
       }
     }
