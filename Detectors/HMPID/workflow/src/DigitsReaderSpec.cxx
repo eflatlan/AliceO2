@@ -111,12 +111,23 @@ void DigitReader::run(ProcessingContext& pc)
   }
   // mTree->Print("toponly");
 
+    if (mUseMC) {
+      treeDig->SetBranchAddress("HMPIDDigitMCTruth", &mPlabels);
+    }
+
+
   auto ent = mTree->GetReadEntry() + 1;
   assert(ent < mTree->GetEntries()); // this should not happen
   mTree->GetEntry(ent);
 
   pc.outputs().snapshot(Output{"HMP", "DIGITS", 0}, mDigitsFromFile);
   pc.outputs().snapshot(Output{"HMP", "INTRECORDS", 0}, mTriggersFromFile);
+  
+  
+  if (mUseMC) {
+    pc.outputs().snapshot(Output{"HMP", "DIGITSMCTR", 0}, mLabels);
+  }
+
   mDigitsReceived += mDigitsFromFile.size();
   LOG(info) << "[HMPID DigitsReader - run() ] digits  = " << mDigitsFromFile.size();
 
@@ -129,17 +140,21 @@ void DigitReader::run(ProcessingContext& pc)
   }
 }
 
-DataProcessorSpec getDigitsReaderSpec()
+DataProcessorSpec getDigitReaderSpec(bool useMC)
 {
   std::vector<OutputSpec> outputs;
   outputs.emplace_back("HMP", "DIGITS", 0, o2::framework::Lifetime::Timeframe);
   outputs.emplace_back("HMP", "INTRECORDS", 0, o2::framework::Lifetime::Timeframe);
 
+  if (useMC) {
+    outputs.emplace_back("HMP", "DIGITSMCTR", 0, Lifetime::Timeframe);
+  }
+
   return DataProcessorSpec{
     "HMP-DigitReader",
     Inputs{},
     outputs,
-    AlgorithmSpec{adaptFromTask<DigitReader>()},
+    AlgorithmSpec{adaptFromTask<DigitReader>(useMC)},
     Options{{"hmpid-digit-infile" /*"/qc-hmpid-digits"*/, VariantType::String, "hmpiddigits.root", {"Name of the input file with digits"}},
             {"input-dir", VariantType::String, "./", {"Input directory"}}}};
 }

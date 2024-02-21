@@ -76,6 +76,10 @@ void ClusterReaderTask::run(ProcessingContext& pc)
   mClustersReceived += mClustersFromFile.size();
   LOG(info) << "[HMPID ClusterReader - run() ] clusters  = " << mClustersFromFile.size();
 
+  if (mUseMC) {
+    pc.outputs().snapshot(Output{"HMP", "CLUSTERSMCTR", 0}, mLabels);
+  }
+
   if (mTree->GetReadEntry() + 1 >= mTree->GetEntries()) {
     pc.services().get<ControlService>().endOfStream();
     pc.services().get<ControlService>().readyToQuit(QuitRequest::Me);
@@ -135,6 +139,15 @@ void ClusterReaderTask::initFileIn(const std::string& filename)
       "HMPID ClusterReaderTask::init() : Did not find Branch HMPIDDigitTopology in clusters tree");
   }*/
 
+  // ef: get useMC, adpted from CPV
+  if (mUseMC) {
+
+    if (mTree->GetBranch(mClusterMCTruthBranchName.c_str())) {
+      mTree->SetBranchAddress(mClusterMCTruthBranchName.c_str(), &mLabelsPtr);
+    } else {
+      LOG(warning) << "MC-truth is missing, message will be empty";
+    }
+  }
 
   mTree->Print("toponly");
 
@@ -144,13 +157,18 @@ void ClusterReaderTask::initFileIn(const std::string& filename)
 
 //_________________________________________________________________________________________________
 
-o2::framework::DataProcessorSpec getClusterReaderSpec()
+o2::framework::DataProcessorSpec getClusterReaderSpec(bool useMC)
 {
 
   std::vector<o2::framework::OutputSpec> outputs;
   outputs.emplace_back("HMP", "CLUSTERS", 0, o2::framework::Lifetime::Timeframe);
   // outputs.emplace_back("HMP", "DIGITTOPOLOGY", 0, o2::framework::Lifetime::Timeframe);
   outputs.emplace_back("HMP", "INTRECORDS1", 0, o2::framework::Lifetime::Timeframe);
+
+  // ef: added here
+  if (useMC) {
+    outputs.emplace_back("HMP", "CLUSTERSMCTR", 0, Lifetime::Timeframe);
+  }
 
   return DataProcessorSpec{
     "HMP-ClusterReader",

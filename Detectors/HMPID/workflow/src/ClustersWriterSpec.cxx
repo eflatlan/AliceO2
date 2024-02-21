@@ -25,7 +25,7 @@ namespace hmpid
 
 template <typename T>
 using BranchDefinition = framework::MakeRootTreeWriterSpec::BranchDefinition<T>;
-
+using LabelsType = o2::dataformats::MCTruthContainer<o2::MCCompLabel>;
 o2::framework::DataProcessorSpec getClusterWriterSpec(bool useMC)
 {
   using InputSpec = framework::InputSpec;
@@ -38,8 +38,20 @@ o2::framework::DataProcessorSpec getClusterWriterSpec(bool useMC)
                                 // BranchDefinition<std::vector<o2::hmpid::Topology>>{InputSpec{"hmpdigittopology", "HMP", "DIGITTOPOLOGY"}, "HMPIDDigitTopology"},                                                            
                                 BranchDefinition<std::vector<o2::hmpid::Trigger>>{InputSpec{"hmpinteractionrecords", "HMP", "INTRECORDS1"}, "InteractionRecords"},
                                 //ef FIX : 
-                                BranchDefinition<o2::dataformats::MCTruthContainer<o2::MCCompLabel>>{InputSpec{"clusterlabels", "HMP", "CLUSTERLBL"}, "HMPClusterLabels", useMC ? 1 : 0})();
+                               
+                                /*BranchDefinition<o2::dataformats::MCTruthContainer<o2::MCCompLabel>>{InputSpec{"clusterlabels", "HMP", "CLUSTERLBL"}, "HMPClusterLabels", useMC ? 1 : 0})();
+                                */
+/*
 
+                                BranchDefinition<LabelsType>{InputSpec{"labels", "ITS", "CLUSTERSMCTR", 0},
+                                                             "ITSClusterMCTruth",
+                                                             (useMC ? 1 : 0), // one branch if mc labels enabled
+                                                             ""}
+*/
+                                BranchDefinition<LabelsType>{InputSpec{"clusterlabels", "HMP", "CLUSTERSMCTR", 0},
+                                                             mClusterMCTruthBranchName,
+                                                             (useMC ? 1 : 0), // one branch if mc labels enabled
+                                                             ""},
 
 }
 

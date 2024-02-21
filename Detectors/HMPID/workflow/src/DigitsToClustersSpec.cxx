@@ -92,7 +92,7 @@ void DigitsToClustersTask::init(framework::InitContext& ic)
 void DigitsToClustersTask::run(framework::ProcessingContext& pc)
 {
 
-	bool mUseMC = false; // ef do inout tu fcn
+	bool mUseMC = true; // ef do inout tu fcn
   // outputs
   std::vector<o2::hmpid::Cluster> clusters;
   std::vector<o2::hmpid::Trigger> clusterTriggers;
@@ -127,6 +127,14 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
   auto digits = pc.inputs().get<gsl::span<o2::hmpid::Digit>>("digits");
 
 
+  auto labelvector = std::make_shared<std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>>>();
+  if (mUseMC) {
+    auto digitlabels = pc.inputs().get<std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>>*>("hmpiddigitlabels");
+    *labelvector.get() = std::move(*digitlabels);
+    mRec.setMCTruthContainer(&mClsLabels);
+    mClsLabels.clear();
+  }
+
   int i = 0;
   for (const auto& trig : triggers) {
     if (trig.getNumberOfObjects()) {
@@ -137,13 +145,13 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
         size_t(trig.getNumberOfObjects())};
       size_t clStart = clusters.size();
 
-	
+      // ef; taken from TOF, does it work?
+      // &(labelvector->at(i)) ? 
       if (mUseMC) {
-        // TOF mClusterer.process(mReader, mClustersArray, &(labelvector->at(i)));
-        //mRec->Dig2Clu(trigDigits, clusters, topVectorVector, mSigmaCut, &(labelvector->at(i)),true); ef do this later
-        mRec->Dig2Clu(trigDigits, clusters, topVectorVector, mSigmaCut, nullptr, true);
+        // TOF mRec.process(mReader, mClustersArray, &(labelvector->at(i)));
+        mRec->Dig2Clu(trigDigits, clusters, topVectorVector, mSigmaCut, &(labelvector->at(i)), true); 
       } else {
-        // mClusterer.process(mReader, mClustersArray, nullptr);
+        // mRec.process(mReader, mClustersArray, nullptr);
         mRec->Dig2Clu(trigDigits, clusters, topVectorVector, mSigmaCut, nullptr, true);
       }
 
@@ -161,10 +169,10 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
   mClustersReceived += clusters.size();
 
 
- /*ef: FIX
- if (mUseMC) {
-      pc.outputs().snapshot(o2::framework::Output{"HMP", "CLUSTERSMCTR", 0, o2::framework::Lifetime::Timeframe}, mClsLabels);
-  } */
+  //*ef: FIX
+  if (mUseMC) {
+      pc.outputs().snapshot(o2::framework::Output{"HMP", "CLUSTERSMCTR", 0}, mClsLabels);
+  }
 
   pc.outputs().snapshot(o2::framework::Output{"HMP", "CLUSTERS", 0}, clusters);
   pc.outputs().snapshot(o2::framework::Output{"HMP", "INTRECORDS1", 0}, clusterTriggers);
@@ -183,7 +191,7 @@ void DigitsToClustersTask::endOfStream(framework::EndOfStreamContext& ec)
 
 //_______________________________________________________________________________________________
 o2::framework::DataProcessorSpec
-  getDigitsToClustersSpec()
+  getDigitsToClustersSpec(bool useMC)
 
 {
 
@@ -196,8 +204,8 @@ o2::framework::DataProcessorSpec
 
   bool mUseMC = false; // ef do later
 
-  if (mUseMC) {
-    inputs.emplace_back("tofdigitlabels", o2::header::gDataOriginTOF, "DIGITSMCTR", 0, Lifetime::Timeframe);
+  if (useMC) {
+    inputs.emplace_back("hmpiddigitlabels", o2::header::gDataOriginHMP, "DIGITSMCTR", 0, Lifetime::Timeframe);
   }
 
   // define outputs
@@ -205,21 +213,19 @@ o2::framework::DataProcessorSpec
 
 
  // ef: FIX
-  if (mUseMC) {
-  outputs.emplace_back("HMP", "CLUSTERSMCTR", 0,
-                       o2::framework::Lifetime::Timeframe);
+  if (useMC) {
+    outputs.emplace_back("HMP", "CLUSTERSMCTR", 0,
+                        o2::framework::Lifetime::Timeframe);
   }
 
   outputs.emplace_back("HMP", "CLUSTERS", 0,
                        o2::framework::Lifetime::Timeframe);
-  // outputs.emplace_back("HMP", "DIGITTOPOLOGY", 0,
-  //                     o2::framework::Lifetime::Timeframe);
   outputs.emplace_back("HMP", "INTRECORDS1", 0,
                        o2::framework::Lifetime::Timeframe);
 
   return DataProcessorSpec{
     "HMP-Clusterization", inputs, outputs,
-    AlgorithmSpec{adaptFromTask<DigitsToClustersTask>()},
+    AlgorithmSpec{adaptFromTask<DigitsToClustersTask>(useMC)},
     Options{{"sigma-cut",
              VariantType::String,
              "",

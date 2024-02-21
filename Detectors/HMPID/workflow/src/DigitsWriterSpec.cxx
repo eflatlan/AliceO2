@@ -76,17 +76,17 @@ void DigitsToRootTask::init(framework::InitContext& ic)
   TString tit = TString::Format("HMPID Digits File Decoding");
 
   LOG(info) << "Create the ROOT file " << filename.Data();
-  mfileOut = new TFile(TString::Format("%s", filename.Data()), "RECREATE");
+  mfileOut.reset(new TFile(TString::Format("%s", filename.Data()), "RECREATE"));
 
 
 // BranchDefinition<o2::dataformats::MCTruthContainer<o2::emcal::MCLabel>>{InputSpec{"emcaldigitlabels", "EMC", "DIGITSMCTR"}, "EMCALDigitMCTruth", mctruth ? 1 : 0})();
 
-  mTheTree = new TTree("o2hmp", tit);
-  mTheTree->Branch("InteractionRecords", &mTriggers);
-  mTheTree->Branch("HMPIDDigits", &mDigits);
+  mDigitTree.reset(new TTree("o2hmp", tit));
+  mDigitTree->Branch("InteractionRecords", &mTriggers);
+  mDigitTree->Branch("HMPIDDigits", &mDigits);
   
-  if(false/*useMC*/) {
-    mTheTree->Branch("HMPIDDigitMCTruth", &mDigitLabels);
+  if(useMC) {
+    mDigitTree->Branch(mDigitMCTruthBranchName, &mLabels);
   }
 
   mExTimer.start();
@@ -134,15 +134,15 @@ void DigitsToRootTask::endOfStream(framework::EndOfStreamContext& ec)
 {
   mExTimer.logMes("Received an End Of Stream !");
   LOG(info) << "The size of digits vector =" << mDigits.size();
-  mTheTree->Fill();
-  mTheTree->Write();
+  mDigitTree->Fill();
+  mDigitTree->Write();
   mfileOut->Close();
   mExTimer.logMes("Register Tree ! ");
   return;
 }
 
 //_________________________________________________________________________________________________
-o2::framework::DataProcessorSpec getDigitsToRootSpec(std::string inputSpec)
+o2::framework::DataProcessorSpec getDigitsToRootSpec(std::string inputSpec, bool useMC)
 {
   std::vector<o2::framework::InputSpec> inputs;
 
@@ -152,18 +152,20 @@ o2::framework::DataProcessorSpec getDigitsToRootSpec(std::string inputSpec)
   inputs.emplace_back("intrecord", o2::header::gDataOriginHMP, "INTRECORDS", 0, Lifetime::Timeframe);
 
 
-  auto useMC = false; // ef not yet
+  //auto useMC = false; // ef not yet
   if(useMC) {
-    inputs.emplace_back("hmplabelinput", o2::header::gDataOriginHMP, "DIGITLBL", 0, Lifetime::Timeframe);
+    inputs.emplace_back("hmpiddigitlabels", o2::header::gDataOriginHMP, "DIGITSMCTR", 0, Lifetime::Timeframe);
   } // ef: do as from the steer..
+  mUseMC = useMC;
 
+  
   std::vector<o2::framework::OutputSpec> outputs;
 
   return DataProcessorSpec{
     "HMP-DigitsToRoot",
     inputs,
     outputs,
-    AlgorithmSpec{adaptFromTask<DigitsToRootTask>()},
+    AlgorithmSpec{adaptFromTask<DigitsToRootTask>(useMC)},
     Options{{"out-file", VariantType::String, "hmpDigits.root", {"name of the output file"}}}};
 }
 

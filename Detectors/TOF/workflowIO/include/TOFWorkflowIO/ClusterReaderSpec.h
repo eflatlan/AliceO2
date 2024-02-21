@@ -49,11 +49,16 @@ class ClusterReader : public Task
   std::vector<Cluster> mClusters, *mClustersPtr = &mClusters;
   std::vector<int> mClustersMult, *mClustersMultPtr = &mClustersMult;
   o2::dataformats::MCTruthContainer<o2::MCCompLabel> mLabels, *mLabelsPtr = &mLabels;
+
+
+  protected:
+    std::string mClusterMCTruthBranchName = "HMPIDClusterTrueMC";
+
 };
 
 /// create a processor spec
 /// read simulated TOF digits from a root file
-framework::DataProcessorSpec getClusterReaderSpec(bool useMC);
+framework::DataProcessorSpec getClusterReaderSpec(bool useMC = true);
 
 } // namespace tof
 } // namespace o2

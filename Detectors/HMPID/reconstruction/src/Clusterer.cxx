@@ -86,8 +86,52 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
       // for clu, add shallowDigit corresponding to digit at index pUsedDig
       // done recursively
 
+
+      //ef : ad digitMCTruth
       FormClu(clu, pUsedDig, digs, padMap); // form cluster starting from this digit by recursion
 
+
+
+      // here we should propagate digit-MC truth label 
+      // selected digits are gotten with pDig->getDigits(); which is a subset of Digits from digs; // then we should iterate over those to setMCTruth... 
+      /*
+      if(digitMCTruth != nullptr) {
+        clu.setMCTruth(digitMCTruth); // we do this in Cluster.h
+      } */
+
+      
+      // filling the MC labels of this cluster; the first will be those of the main digit; then the others
+      if (digitMCTruth != nullptr) {
+          int lbl = mClsLabels->getIndexedSize(); // this should correspond to the number of digits also;
+          LOGP(info, "lbl = {}", lbl);
+
+          const auto& digsOfClu = *(clu.getDigits());
+
+          for(int digIndex = 0; digIndex < digsOfClu.size(); digIndex++) {  
+              LOGP(info, "contributing digit = {}", digIndex);
+
+              int digitLabel = mDigs[digIndex]->getLabel();
+
+              //printf("digitLabel = %d\n", digitLabel);
+
+              LOGP(info, "digitLabel  = {}", digitLabel);
+
+              gsl::span<const o2::MCCompLabel> mcArray = digitMCTruth->getLabels(digitLabel);
+              for (int j = 0; j < static_cast<int>(mcArray.size()); j++) {
+                  auto label = digitMCTruth->getElement(digitMCTruth->getMCTruthHeader(digitLabel).index + j);
+                  mClsLabels->addElement(lbl, label);
+                LOGP(info, "checking element {} in array of labels", j);
+
+                //printf("checking element %d in the array of labels\n", j);
+                //printf("EventID = %d\n", label.getEventID());
+                LOGP(info, "EventID  = {}",  label.getEventID());
+
+              }
+          }
+      }
+      
+
+      // ,  MCLabelContainer const* digitMCTruth
       // clu now has a vector<Digit*>* field;
       // iterate over it and find cluster topology
 
@@ -165,7 +209,7 @@ void Clusterer::FormClu(Cluster& pClu, int pDig, gsl::span<const o2::hmpid::Digi
   // Arguments: pClu - pointer to cluster being formed
   //   Returns: none
 
-
+  //   void digAdd(const o2::hmpid::Digit* pDig);                                         // add new digit to the cluster
   pClu.digAdd(&digs[pDig]); // take this digit in cluster
 
   int cnt = 0;
@@ -175,6 +219,10 @@ void Clusterer::FormClu(Cluster& pClu, int pDig, gsl::span<const o2::hmpid::Digi
   int padChY = 0;
   int module = 0;
   o2::hmpid::Digit::pad2Absolute(digs[pDig].getPadID(), &module, &padChX, &padChY);
+
+
+
+
 
   if (padChX > Param::kMinPx) {
     cx[cnt] = padChX - 1;

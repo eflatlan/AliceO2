@@ -39,7 +39,7 @@ namespace hmpid
 class DigitReader : public framework::Task
 {
  public:
-  DigitReader() = default;
+  DigitReader(bool useMC) : mUseMC(useMC) {}
   //  : mReadFile(readFile) {}
   ~DigitReader() override = default;
 
@@ -49,6 +49,13 @@ class DigitReader : public framework::Task
   // void endOfStream(framework::EndOfStreamContext& ec) override;
 
  private:
+
+
+  bool mUseMC = true;
+  o2::dataformats::MCTruthContainer<o2::MCCompLabel> mLabels, *mLabelsPtr = &mLabels;
+
+
+
   bool mReadFile = false;
   void initFileIn(const std::string& filename);
 
@@ -64,7 +71,7 @@ class DigitReader : public framework::Task
   // void strToFloatsSplit(std::string s, std::string delimiter, float* res, int maxElem = 7);
 };
 
-o2::framework::DataProcessorSpec getDigitsReaderSpec();
+framework::DataProcessorSpec getDigitReaderSpec(bool useMC);
 
 } // end namespace hmpid
 } // end namespace o2

@@ -59,6 +59,11 @@ class ClusterReaderTask : public framework::Task
 
   std::unique_ptr<TFile> mFile; // root file with Clusters
   std::unique_ptr<TTree> mTree; // tree inside the file
+
+  // ef: add mLabels for clusteres
+  o2::dataformats::MCTruthContainer<o2::MCCompLabel> mLabels, *mLabelsPtr = &mLabels;
+
+
   std::vector<o2::hmpid::Trigger> mClusterTriggersFromFile, *mClusterTriggersFromFilePtr = &mClusterTriggersFromFile;
   std::vector<o2::hmpid::Cluster> mClustersFromFile, *mClustersFromFilePtr = &mClustersFromFile;
 
@@ -70,7 +75,7 @@ class ClusterReaderTask : public framework::Task
   // void strToFloatsSplit(std::string s, std::string delimiter, float* res, int maxElem = 7);
 };
 
-o2::framework::DataProcessorSpec getClusterReaderSpec();
+o2::framework::DataProcessorSpec getClusterReaderSpec(bool useMC);
 
 } // end namespace hmpid
 } // end namespace o2

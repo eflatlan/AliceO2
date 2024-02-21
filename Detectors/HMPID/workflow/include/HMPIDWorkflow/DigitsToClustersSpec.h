@@ -37,12 +37,11 @@ namespace hmpid
 class DigitsToClustersTask : public framework::Task
 {
  public:
-  DigitsToClustersTask() = default;
+  DigitsToClustersTask(bool useMC) :  mUseMC(useMC) {}
   ~DigitsToClustersTask() override = default;
   void init(framework::InitContext& ic) final;
   void run(framework::ProcessingContext& pc) final;
   void endOfStream(framework::EndOfStreamContext& ec) override;
-  bool mUseMC = false; // ef do later
  private:
   bool mReadFile = false;
   std::string mSigmaCutPar;
@@ -54,10 +53,12 @@ class DigitsToClustersTask : public framework::Task
   std::unique_ptr<o2::hmpid::Clusterer> mRec; // ef: changed to smart-pointer
   long mDigitsReceived;
   long mClustersReceived;
+  bool mUseMC = true; // ef do later
 
   void initFileIn(const std::string& fileName);
 
-  // o2::dataformats::MCTruthContainer<o2::MCCompLabel>* mClsLabels; // ef added
+   o2::dataformats::MCTruthContainer<o2::MCCompLabel>* mClsLabels; // ef added
+  //MCLabelContainer mClsLabels;
 
   ExecutionTimer mExTimer;
   void strToFloatsSplit(std::string s, std::string delimiter, float* res,
@@ -66,7 +67,7 @@ class DigitsToClustersTask : public framework::Task
 
 // ef : read from stream by default:
 o2::framework::DataProcessorSpec
-  getDigitsToClustersSpec();
+  getDigitsToClustersSpec(bool useMC);
 
 } // end namespace hmpid
 } // end namespace o2
