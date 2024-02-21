@@ -26,6 +26,7 @@
 #include "Framework/DataProcessorSpec.h"
 #include "Framework/Task.h"
 #include "SimulationDataFormat/MCTruthContainer.h"
+#include "SimulationDataFormat/MCCompLabel.h"
 
 #include "HMPIDBase/Common.h"
 #include "DataFormatsHMP/Digit.h"

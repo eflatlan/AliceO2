@@ -25,7 +25,8 @@
 #include "DataFormatsHMP/Digit.h"
 #include "DataFormatsHMP/Trigger.h"
 #include "HMPIDBase/Geo.h"
-
+#include "SimulationDataFormat/MCCompLabel.h"
+#include "SimulationDataFormat/MCTruthContainer.h"
 #include "TFile.h"
 #include "TTree.h"
 

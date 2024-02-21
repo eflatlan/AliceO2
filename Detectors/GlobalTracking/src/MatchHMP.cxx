@@ -101,6 +101,7 @@
 
 
 #include "CommonDataFormat/InteractionRecord.h"
+#include "SimulationDataFormat/MCCompLabel.h"
 
 
 

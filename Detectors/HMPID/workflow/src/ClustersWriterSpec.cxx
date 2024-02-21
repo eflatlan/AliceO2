@@ -80,7 +80,7 @@ o2::framework::DataProcessorSpec getClusterWriterSpec(bool useMC)
 
                                 BranchDefinition<LabelsType>{InputSpec{"clusterlabels", "HMP", "CLUSTERSMCTR", 0},
 
-                                                             mClusterMCTruthBranchName,
+                                                             "HMPIDClusterLabels",
 
                                                              (useMC ? 1 : 0), // one branch if mc labels enabled
 

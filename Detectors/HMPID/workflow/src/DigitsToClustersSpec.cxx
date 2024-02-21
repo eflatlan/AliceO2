@@ -171,7 +171,7 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
 
   //*ef: FIX
   if (mUseMC) {
-      pc.outputs().snapshot(o2::framework::Output{"HMP", "CLUSTERSMCTR", 0}, mClsLabels);
+      pc.outputs().snapshot(o2::framework::Output{"HMP", "CLUSTERSMCTR", 0}, *mClsLabels);
   }
 
   pc.outputs().snapshot(o2::framework::Output{"HMP", "CLUSTERS", 0}, clusters);
