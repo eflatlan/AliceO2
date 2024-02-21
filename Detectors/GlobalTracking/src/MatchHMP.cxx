@@ -187,7 +187,6 @@ void MatchHMP::run(const o2::globaltracking::RecoContainer& inp)
 
 
   if (!isPrepareHMPClusters) { // check cluster before of tracks to see also if MC is required
-
     return;
 
   }
@@ -630,9 +629,7 @@ void MatchHMP::addTPCSeed(const o2::tpc::TrackTPC& _tr, o2::dataformats::GlobalT
 
 
 
-  if (mMCTruthON) {
-
-    mTracksLblWork[o2::globaltracking::MatchHMP::trackType::UNCONS].emplace_back(mRecoCont->getTPCTrackMCLabel(srcGID));
+  if (mMCTruthON) { mTracksLblWork[o2::globaltracking::MatchHMP::trackType::UNCONS].emplace_back(mRecoCont->getTPCTrackMCLabel(srcGID));
 
   }
 
@@ -657,9 +654,11 @@ bool MatchHMP::prepareHMPClusters()
   mHMPClusLabels = mRecoCont->getHMPClustersMCLabels();
 
   mMCTruthON = mHMPClusLabels && mHMPClusLabels->getNElements();
-
-
-
+  
+  
+  // LOGP(info, "MatchHMP : mHMPClusLabels {} | mMCTruthON {}",mHMPClusLabels, mMCTruthON);
+  LOGP(info, "MatchHMP : | mMCTruthON {}", mMCTruthON);
+  //LOGP(info, "MatchHMP : mMCTruthON {} | getNElements {}", mMCTruthON, mHMPClusLabels->getNElements());
   mNumOfTriggers = 0;
 
 
@@ -751,10 +750,6 @@ void MatchHMP::doMatching()
   o2::globaltracking::MatchHMP::trackType type = o2::globaltracking::MatchHMP::trackType::CONSTR;
 
   o2::base::Propagator::MatCorrType matCorr = o2::base::Propagator::MatCorrType::USEMatCorrLUT; // material correction method
-
-
-
-
 
   std::unique_ptr<Recon> recon; 
 
@@ -850,13 +845,13 @@ void MatchHMP::doMatching()
 
 	  auto& event = mHMPTriggersWork[cacheTriggerHMP[iEvent]];
 
+
+
     auto evtTime = event.getIr().differenceInBCMUS(mStartIR);
 
-
+	  LOGP(info, "Event number : iEvent {}  : indexEvent {} || evtTime {}",iEvent, indexEvent, evtTime);
 
     int evtTracks = 0;
-
-
 
 
 
@@ -959,10 +954,7 @@ void MatchHMP::doMatching()
 
 
 
-
-		  auto indexEvent = cacheTriggerHMP[iEvent];
-Printf("Event number : iEvent %d  : indexEvent %d ",iEvent, indexEvent);
-  	  //Printf("Event %d  Track %d ",iEvent, cacheTrk[itrk]);
+	     LOGP(info, "Event number : iEvent {}  : indexEvent {} || evtTime {}",iEvent, indexEvent, evtTime);
 
 
 
@@ -986,21 +978,16 @@ Printf("Event number : iEvent %d  : indexEvent %d ",iEvent, indexEvent);
 
       // if (evtTime < (maxTrkTime + timeFromTF) && evtTime > (minTrkTime + timeFromTF)) {
 
-				Printf("==================================== NEW TRACK ==================");
+				//LOGP(info, "==================================== NEW TRACK ================== num {}", itrk);
 
 
 
       if (evtTime < maxTrkTime && evtTime > minTrkTime) {
-
-
-
+	     
         evtTracks++;
 
 
-
-
-
-
+LOGP(info, "==================================== NEW TRACK in time ok ================== evtTracks {}", evtTracks);
 
         /*auto hmpTrk = std::make_unique<TrackHMP>(trefTrk); // create a hmpid track to be used for propagation and matching
 
@@ -1018,11 +1005,6 @@ Printf("Event number : iEvent %d  : indexEvent %d ",iEvent, indexEvent);
 
         // ef: check for simulation if this gets the correct PID::
 
-
-
-
-
-        
 
 
 
@@ -1063,8 +1045,6 @@ Printf("Event number : iEvent %d  : indexEvent %d ",iEvent, indexEvent);
         
 
         if (iCh <= 0 || iCh >= 7) {
-
-
 
           continue;
 
@@ -1134,23 +1114,19 @@ Printf("Event number : iEvent %d  : indexEvent %d ",iEvent, indexEvent);
 
 
 
+
+					/*
 	  			if( j >= mHMPClustersArray.size()) {
 
-	    			
+	    			continue; //? 
 
-          }
+          }*/ 
 
 
 
           //const auto& cluster = (o2::hmpid::Cluster&)mHMPClustersArray[j];
 
           auto& cluster = (o2::hmpid::Cluster&)mHMPClustersArray[j];
-
-
-
-					eventIDClu = cluster.getEventNumber();
-
-
 
 					eventIDClu = cluster.getEventNumber();
 
@@ -1166,9 +1142,15 @@ Printf("Event number : iEvent %d  : indexEvent %d ",iEvent, indexEvent);
 
           }
 
+			
+
+					//LOGP(info, "Event number : iEvent {}  : indexEvent {} || evtTime {} | evtTracks {} | eventIDClu {}", iEvent, indexEvent, evtTime, evtTracks, eventIDClu);
 
 
-
+					cluster.setEventNumberFromTrack(iEvent);
+					
+					
+					LOGP(info, "Event number : iEvent {}  : indexEvent {} || evtTime {} | evtTracks {} | getEventNumberFromTrack {}", iEvent, indexEvent, evtTime, evtTracks, cluster.getEventNumberFromTrack());
 
 	  			int i = j - event.getFirstEntry();
 
@@ -1229,7 +1211,8 @@ Printf("Event number : iEvent %d  : indexEvent %d ",iEvent, indexEvent);
 
             dmin = dist;
 
-            index =  i;
+            // index =  i;
+            index = oneEventClusters.size() - 1;
 
             // index = oneEventClusters.size() - 1; // not valid w resize/
 
@@ -1246,7 +1229,6 @@ Printf("Event number : iEvent %d  : indexEvent %d ",iEvent, indexEvent);
         if (!bestHmpCluster) {
 
           oneEventClusters.clear();
-
           continue;
 
         }
@@ -1356,7 +1338,7 @@ Printf("Event number : iEvent %d  : indexEvent %d ",iEvent, indexEvent);
 
         
 
-        intTrkCha(iCh, &hmpTrkConstrained, xPc0, yPc0, xRa, yRa, theta, phi, bz);
+        // intTrkCha(iCh, &hmpTrkConstrained, xPc0, yPc0, xRa, yRa, theta, phi, bz);
 
 
 
@@ -1459,7 +1441,7 @@ Printf("Event number : iEvent %d  : indexEvent %d ",iEvent, indexEvent);
 				matching.setEventNumber(indexEvent); // 				matching.setEventNumber(iEvent);
 				
  
-        matching.setMipClusEvent(bestHmpCluster->getEventNumber());
+        matching.setMipClusEvent(bestHmpCluster->getEventNumberFromTrack());
 				
 				
 				/*Check values */

@@ -1261,16 +1261,12 @@ void AODProducerWorkflowDPL::fillHMPID(const o2::globaltracking::RecoContainer& 
   auto hmpMatches = recoData.getHMPMatches();
   auto hmpClusters = recoData.getHMPClusters();
   auto hmpMCTruthMatch = recoData.getHMPMatchesMCLabels();
-
-
   auto hmpCluTriggers = recoData.getHMPClusterTriggers();
   auto hmpMCTruthClu = recoData.getHMPClustersMCLabels();
 
-
-
-
-
   hmpCursor.reserve(hmpMatches.size());
+
+
 
   // filling HMPs table
 
@@ -1284,9 +1280,7 @@ void AODProducerWorkflowDPL::fillHMPID(const o2::globaltracking::RecoContainer& 
   //  const auto& match = hmpMatches[iHmp];
   for (const auto& match : hmpMatches) {
 
-
-	printf(" ============================\n");
-
+		
 
     float xRa, yRa, xTrk, yTrk, theta, phi;
     float xMip, yMip;
@@ -1315,7 +1309,11 @@ void AODProducerWorkflowDPL::fillHMPID(const o2::globaltracking::RecoContainer& 
 
 	
 	printf(" ============================\n");
+	
+	// printf(" Matched Status %d \n", match.getMatchStatus());
+	
 	printf(" Matched Status %d \n", match.getMatchStatus());
+		
 	printf(" =Track Chamber %d Momentum %.2f, Mip charge INT %d  Mip charge %.2f \n Theta = %.3f  \n", match.getChamber (), match.getHmpMom(), charge, match.getMipClusQ(), theta);
 	
 	
@@ -1323,19 +1321,21 @@ void AODProducerWorkflowDPL::fillHMPID(const o2::globaltracking::RecoContainer& 
 	printf("PDG | MIP : %d  track : %d \n", match.getMipClusEventPDG(), match.getParticlePdg());
 	
 
+
+
+
+  /*
 	printf(" xRa %.3f xPc %.3f xMIP %.3f \n", xRa, xTrk, xMip);
 	printf(" yRa %.3f yPc %.3f yMIP %.3f \n", yRa, yTrk, yMip);
 
 	printf(" Checking RA :xRa %.3f xRa2 %.3f  yRa %.3f yRa2 %.3f \n", xRa, xRa2, yRa, yRa2);
-	printf(" Checking PC :xTrk %.3f xTrk2 %.3f  yTrk %.3f yTrk2 %.3f \n", xTrk, xTrk2, yTrk, yTrk2);
+	printf(" Checking PC :xTrk %.3f xTrk2 %.3f  yTrk %.3f yTrk2 %.3f \n", xTrk, xTrk2, yTrk, yTrk2);*/
 	
 
 	// The TVector2 parts can stay as they are since they're not directly related to the printing.
 	TVector2 rad(xRa, yRa);    
 	TVector2 pc(xTrk, yTrk); 
 	TVector2 mip(xMip, yMip);
-
-
 
     auto photChargeVec = match.getPhotCharge();
 

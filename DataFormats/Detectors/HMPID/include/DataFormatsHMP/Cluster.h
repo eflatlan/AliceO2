@@ -70,6 +70,10 @@ class Cluster
   int getPDG() const { return mParticlePdg; }
   void setPDG(int pdg) { mParticlePdg = pdg; }
 
+
+  void setEventNumberFromTrack(int eventNumberTrack) { mEventNumberTrack = eventNumberTrack; }
+  int getEventNumberFromTrack() const { return mEventNumberTrack; }
+
   void setEventNumber(int eventNumber) { mEventNumber = eventNumber; }
   int getEventNumber() const { return mEventNumber; }
 
@@ -224,7 +228,7 @@ class Cluster
  protected:
   int mMotherTrackId = 0;
   int mSourceId = 0;
-  int mEventNumber = 0;
+  int mEventNumber = 0, mEventNumberTrack = 0;
   int mTrackId = 0;
   int mParticlePdg = 0;
 

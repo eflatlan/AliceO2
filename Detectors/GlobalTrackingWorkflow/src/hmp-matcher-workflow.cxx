@@ -93,7 +93,7 @@ WorkflowSpec defineDataProcessing(ConfigContext const& configcontext)
   auto disableRootIn = configcontext.options().get<bool>("disable-root-input");
   auto disableRootOut = configcontext.options().get<bool>("disable-root-output");
 
-  LOGP(info, "hmp-matcher-workflow.cxx");
+  LOGP(info, "hmp-matcher-workflow.cxx With use MC {}", useMC);
 
   bool writematching = 0;
   bool writecalib = 0;

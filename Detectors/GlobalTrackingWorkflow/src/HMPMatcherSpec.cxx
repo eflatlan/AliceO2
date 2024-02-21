@@ -67,7 +67,7 @@ class HMPMatcherSpec : public Task
  private:
   std::shared_ptr<DataRequest> mDataRequest;
   std::shared_ptr<o2::base::GRPGeomRequest> mGGCCDBRequest;
-  bool mUseMC = false; // true
+  bool mUseMC = true; // true
   bool mUseFIT = false;
   bool mDoTPCRefit = false;
   bool mStrict = false;
@@ -130,6 +130,8 @@ void HMPMatcherSpec::run(ProcessingContext& pc)
 
   pc.outputs().snapshot(Output{o2::header::gDataOriginHMP, "MATCHES", 0}, mMatcher.getMatchedTrackVector(o2::globaltracking::MatchHMP::trackType::CONSTR));
   if (mUseMC) {
+  
+    LOGP(info, "HMMatcherSpec: useMC = {}", mUseMC);
     pc.outputs().snapshot(Output{o2::header::gDataOriginHMP, "MCLABELS", 0}, mMatcher.getMatchedHMPLabelsVector(o2::globaltracking::MatchHMP::trackType::CONSTR));
   }
 
