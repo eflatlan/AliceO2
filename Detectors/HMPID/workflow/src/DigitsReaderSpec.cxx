@@ -109,7 +109,7 @@ void DigitReader::run(ProcessingContext& pc)
       << "HMPID DigitWriterSpec::init() : Did not find  branch for Triggers";
     throw std::runtime_error("Did Not find Branch For triggers in HMPID Digits File");
   }
-  // mTreeDig->Print("toponly");
+  mTreeDig->Print("toponly");
 
     if (mUseMC) {
       mTreeDig->SetBranchAddress("HMPIDDigitMCTruth", &mPlabels);

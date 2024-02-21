@@ -52,14 +52,19 @@ class DigitsToRootTask : public framework::Task
   ExecutionTimer mExTimer;
   std::vector<o2::hmpid::Trigger> mTriggers;
   std::vector<o2::hmpid::Digit> mDigits;
-  std::vector<o2::MCCompLabel> mDigitLabels; // ef : added...
+  //std::vector<o2::MCCompLabel> mDigitLabels; // ef : added...
+  
+  //using LabelsType =
+  
+  std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>> mDigitLabels;
+
   // or o2::dataformats::MCTruthContainer<o2::MCCompLabel>??
   bool mUseMC = true;
   std::unique_ptr<TFile> mfileOut;
   std::unique_ptr<TTree> mDigitTree;
   std::string mOutRootFileName;
 
-  std::string mDigitMCTruthBranchName = "HMPIDDigitTrueMC";
+  std::string mDigitMCTruthBranchName = "HMPIDDigitMCTruth";
 
 };
 

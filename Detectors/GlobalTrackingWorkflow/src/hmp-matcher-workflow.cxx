@@ -20,7 +20,6 @@
 #include "HMPIDWorkflow/HMPMatchedWriterSpec.h"
 
 #include "HMPIDWorkflow/ClustersReaderSpec.h"
-
 #include "ReconstructionDataFormats/GlobalTrackID.h"
 #include "DetectorsCommonDataFormats/DetID.h"
 #include "GlobalTrackingWorkflowReaders/TrackTPCITSReaderSpec.h"

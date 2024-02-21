@@ -92,7 +92,7 @@ void DigitsToClustersTask::init(framework::InitContext& ic)
 void DigitsToClustersTask::run(framework::ProcessingContext& pc)
 {
 
-	bool mUseMC = true; // ef do inout tu fcn
+  bool mUseMC = true; // ef do inout tu fcn
   // outputs
   std::vector<o2::hmpid::Cluster> clusters;
   std::vector<o2::hmpid::Trigger> clusterTriggers;
@@ -117,7 +117,7 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
     // ef FIX!
     //mClsLabels.clear();
     
-    auto digitlabels = pc.inputs().get<std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>>*>("tofdigitlabels");
+    auto digitlabels = pc.inputs().get<std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>>*>("hmpiddigitlabels");
     *labelvector.get() = std::move(*digitlabels);
     //mRec->setMCTruthContainer(mClsLabels); ef do laters
   }*/
@@ -129,6 +129,8 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
 
   auto labelvector = std::make_shared<std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>>>();
   if (mUseMC) {
+  
+    LOGP(info, "Trying to acces digitLabels");
     auto digitlabels = pc.inputs().get<std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>>*>("hmpiddigitlabels");
     *labelvector.get() = std::move(*digitlabels);
     mRec->setMCTruthContainer(mClsLabels);

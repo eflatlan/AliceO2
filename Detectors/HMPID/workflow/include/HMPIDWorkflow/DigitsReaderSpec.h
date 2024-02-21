@@ -54,8 +54,9 @@ class DigitReader : public framework::Task
 
 
   bool mUseMC = true;
-  o2::dataformats::MCTruthContainer<o2::MCCompLabel> mLabels, *mPlabels = &mLabels;
 
+
+  std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>> mLabels, *mPlabels = &mLabels;
 
 
   bool mReadFile = false;
