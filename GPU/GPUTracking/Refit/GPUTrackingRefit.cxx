@@ -365,7 +365,7 @@ GPUd() int GPUTrackingRefit::RefitTrack(T& trkX, bool outward, bool resetCov)
       }
       if (resetCov) {
         trk.resetCovariance();
-        float bzkG = prop->getNominalBz(), qptB5Scale = CAMath::Abs(bzkG) > 0.1 ? CAMath::Abs(bzkG) / 5.006680f : 1.f;
+        float bzkG = prop->getNominalBz(), qptB5Scale = CAMath::Abs(bzkG) > 0.1f ? CAMath::Abs(bzkG) / 5.006680f : 1.f;
         float q2pt2 = trk.getQ2Pt() * trk.getQ2Pt(), q2pt2Wgh = q2pt2 * qptB5Scale * qptB5Scale;
         float err2 = (100.f + q2pt2Wgh) / (1.f + q2pt2Wgh) * q2pt2; // -> 100 for high pTs, -> 1 for low pTs.
         trk.setCov(err2, 14);                                       // 100% error
@@ -398,7 +398,7 @@ GPUd() int GPUTrackingRefit::RefitTrack(T& trkX, bool outward, bool resetCov)
     if (mPparam->rec.tpc.trackReferenceX <= 500) {
       if (prop->PropagateToXBxByBz(trk, mPparam->rec.tpc.trackReferenceX)) {
         if (CAMath::Abs(trk.getY()) > trk.getX() * CAMath::Tan(kSectAngle / 2.f)) {
-          float newAlpha = trk.getAlpha() + floor(CAMath::ATan2(trk.getY(), trk.getX()) / kDeg2Rad / 20.f + 0.5f) * kSectAngle;
+          float newAlpha = trk.getAlpha() + CAMath::Round(CAMath::ATan2(trk.getY(), trk.getX()) / kDeg2Rad / 20.f) * kSectAngle;
           GPUTPCGMTrackParam::NormalizeAlpha(newAlpha);
           trk.rotate(newAlpha) && prop->PropagateToXBxByBz(trk, mPparam->rec.tpc.trackReferenceX);
         }
