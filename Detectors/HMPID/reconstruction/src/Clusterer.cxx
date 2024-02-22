@@ -37,6 +37,7 @@ using namespace o2::hmpid;
 //void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::hmpid::Cluster>& clus, std::vector<o2::hmpid::Topology>& topVector, float* pUserCut, bool isUnfold, o2::dataformats::ConstMCLabelContainerView const& mcDigitTruth, )
 void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::hmpid::Cluster>& clus, std::vector<o2::hmpid::Topology>& topVector, float* pUserCut, MCLabelContainer const* digitMCTruth, bool isUnfold)
 {
+
   // Finds all clusters for a given digits list provided not empty. Currently digits list is a list of all digits for a single chamber.
   // Puts all found clusters in separate lists, one per clusters.
   // Arguments: pDigAll     - list of digits for all chambers
@@ -44,6 +45,15 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
   //            isTryUnfold - flag to choose between CoG and Mathieson fitting
   //  Returns: none
 
+  LOGP(info, "called Dig2Clu : ");
+  LOGP(info, " topVector Size {}", topVector.size());
+  LOGP(info, " clus Size {}", clus.size());
+  LOGP(info, " digs Size {}", digs.size());  
+  
+  if(digitMCTruth == nullptr) {
+    LOGP(info, "digitMCTruth was nullptr!");
+  }
+  
   struct Pad {
     int x, y, m;
   };
@@ -63,7 +73,7 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
         padMap(padChX, padChY) = iDig; // fill the map for the given chamber, (padx,pady) cell takes digit index
       }
     } // digits loop for current chamber
-
+    LOGP(info, "looping over digits");
     for (size_t iDig = 0; iDig < digs.size(); iDig++) { // digits loop for current chamber
       // o2::hmpid::Digit::pad2Absolute(digs[iDig].getPadID(), &module, &padChX, &padChY);
       if (vPad.at(iDig).m != iCh || (pUsedDig = UseDig(vPad.at(iDig).x, vPad.at(iDig).y, padMap)) == -1) { // this digit is from other module or already taken in FormClu(), go after next digit
@@ -143,14 +153,14 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
       else 
       	Printf("dig2Clu Digit i0 ok");
       */
-
-          
+	
+			LOGP(info, "set CluCh {}", iCh);
 
       clu.setCh(iCh);
 
 
       clu.solve(&clus, topVector, pUserCut, isUnfold); // solve this cluster and add all unfolded clusters to provided list
-
+			LOGP(info, "clu.solve ok");
       /*
       if(clu.dig(0)==nullptr)
     	Printf("dig2Clu Digit i0 nullptr ");

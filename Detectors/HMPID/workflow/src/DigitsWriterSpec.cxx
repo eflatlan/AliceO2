@@ -100,7 +100,7 @@ void DigitsToRootTask::run(framework::ProcessingContext& pc)
 
   for (auto const& ref : InputRecordWalker(pc.inputs())) {
 
-
+    LOGP(info, "HMP CLASS DigitsToRootTask ");
     /*
      And what about MCLabels??
     */
@@ -112,6 +112,16 @@ void DigitsToRootTask::run(framework::ProcessingContext& pc)
       digits = pc.inputs().get<std::vector<o2::hmpid::Digit>>(ref);
       LOG(info) << "The size of the vector =" << digits.size();
     }
+    
+    
+    
+    //ef : we need to define the digitsMC-truth here ? 
+    if (DataRefUtils::match(ref, {"check", ConcreteDataTypeMatcher{header::gDataOriginHMP, "DIGITSMCTR"}})) {
+      //digits = pc.inputs().get<std::vector<o2::hmpid::Digit>>(ref);
+      //LOG(info) << "The size of the vector =" << digits.size();
+      LOGP(info, "HMP CLASS DigitsToRootTask got DIGITSMCTR");
+    }
+    
 
     for (int i = 0; i < triggers.size(); i++) {
       LOG(info) << "Trigger Event     Orbit = " << triggers[i].getOrbit() << "  BC = " << triggers[i].getBc();
@@ -148,7 +158,8 @@ o2::framework::DataProcessorSpec getDigitsToRootSpec(std::string inputSpec, bool
 
 
   // ???? ef :: TODO: why is ther clusters here?
-  inputs.emplace_back("clusters", o2::header::gDataOriginHMP, "DIGITS", 0, Lifetime::Timeframe);
+  // ef; changed to digits
+  inputs.emplace_back("digits", o2::header::gDataOriginHMP, "DIGITS", 0, Lifetime::Timeframe);
   inputs.emplace_back("intrecord", o2::header::gDataOriginHMP, "INTRECORDS", 0, Lifetime::Timeframe);
 
 

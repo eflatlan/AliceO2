@@ -38,6 +38,7 @@ void HMPIDDigitizer::zeroSuppress(std::vector<o2::hmpid::Digit> const& digits, s
       if (newlabels) {
         // copy the labels to the new place with the right new index
         newlabels->addElements(newdigits.size() - 1, labels.getLabels(index));
+        // ef : do we need to set label for digit here ? 
       }
       //   }
     }
@@ -68,8 +69,9 @@ void HMPIDDigitizer::process(std::vector<o2::hmpid::HitType> const& hits, std::v
   const auto& mProcessMC = true;
 
 
-  LOG(info) << "Starting HMPPID digitizer process function";
+  LOG(info) << "Starting HMPID digitizer process function";
 
+  
   for (auto& hit : hits) {
     int chamber, pc, px, py;
     float totalQ;
@@ -111,6 +113,7 @@ void HMPIDDigitizer::process(std::vector<o2::hmpid::HitType> const& hits, std::v
         if (mRegisteredLabelContainer) {
           auto labels = mTmpLabelContainer.getLabels(index);
           o2::MCCompLabel newlabel(hit.GetTrackID(), mEventID, mSrcID, false);
+          
           bool newlabelneeded = true;
           for (auto& l : labels) {
             if (l == newlabel) {
@@ -122,6 +125,7 @@ void HMPIDDigitizer::process(std::vector<o2::hmpid::HitType> const& hits, std::v
             mTmpLabelContainer.addElementRandomAccess(index, newlabel);
           }
         }
+        
         if(mProcessMC) {
           digit.setLabel(index);
         }

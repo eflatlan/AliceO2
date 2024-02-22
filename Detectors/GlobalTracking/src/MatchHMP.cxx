@@ -647,19 +647,16 @@ bool MatchHMP::prepareHMPClusters()
 {
 
   mHMPClustersArray = mRecoCont->getHMPClusters();
-
   mHMPTriggersArray = mRecoCont->getHMPClusterTriggers();
-
-
-
+  
+  
   mHMPClusLabels = mRecoCont->getHMPClustersMCLabels();
 
   mMCTruthON = mHMPClusLabels && mHMPClusLabels->getNElements();
-  
-  
-  // LOGP(info, "MatchHMP : mHMPClusLabels {} | mMCTruthON {}",mHMPClusLabels, mMCTruthON);
+
   LOGP(info, "MatchHMP : | mMCTruthON {}", mMCTruthON);
-  //LOGP(info, "MatchHMP : mMCTruthON {} | getNElements {}", mMCTruthON, mHMPClusLabels->getNElements());
+  
+  
   mNumOfTriggers = 0;
 
 

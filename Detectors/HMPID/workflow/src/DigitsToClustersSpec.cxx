@@ -111,47 +111,145 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
   //bool mUseMC = false;// not yet
 
   /*
-  auto labelvector = std::make_shared<std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>>>();
+  auto labelVector = std::make_shared<std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>>>();
   if (mUseMC) {
 
     // ef FIX!
     //mClsLabels.clear();
     
     auto digitlabels = pc.inputs().get<std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>>*>("hmpiddigitlabels");
-    *labelvector.get() = std::move(*digitlabels);
+    *labelVector.get() = std::move(*digitlabels);
     //mRec->setMCTruthContainer(mClsLabels); ef do laters
   }*/
 
+   // filled in HMPIDDigitizerSpec : 
+  //o2::dataformats::MCTruthContainer<o2::MCCompLabel> mLabels; // labels which get filled
+  //std::vector<o2::hmpid::Trigger> mIntRecord;
 
   auto triggers = pc.inputs().get<gsl::span<o2::hmpid::Trigger>>("intrecord");
   auto digits = pc.inputs().get<gsl::span<o2::hmpid::Digit>>("digits");
 
 
-  auto labelvector = std::make_shared<std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>>>();
+  //auto labelVector = std::make_shared<std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>>>();
+
+
+  auto labelVector = std::make_shared<o2::dataformats::MCTruthContainer<o2::MCCompLabel>>();
   if (mUseMC) {
   
     LOGP(info, "Trying to acces digitLabels");
-    auto digitlabels = pc.inputs().get<std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>>*>("hmpiddigitlabels");
-    *labelvector.get() = std::move(*digitlabels);
-    mRec->setMCTruthContainer(mClsLabels);
-    mClsLabels->clear();
+    
+    
+    // ef: I dont understand which to use :
+    //auto digitlabels = pc.inputs().get<o2::dataformats::MCTruthContainer<o2::MCCompLabel>*>("hmpiddigitlabels");
+	
+    // ef: if based on other.
+    auto digitlabels = pc.inputs().get<o2::dataformats::MCTruthContainer<o2::MCCompLabel>*>("hmpiddigitlabels");
+		  
+		  
+		// B) ef: if based on TOF:   
+    //auto digitlabels = pc.inputs().get<std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>>*>("hmpiddigitlabels");
+		    		    
+		    
+    LOGP(info, "got digitLabels");
+    
+    *labelVector.get() = std::move(*digitlabels);
+		
+		
+
+    LOGP(info, "move digitLabels");
+
+
+
+    LOGP(info, "mRec->setMCTruthContainer");
+
+    if(mClsLabels != nullptr) {
+      mRec->setMCTruthContainer(mClsLabels.get());
+      LOGP(info, "mClsLabels was not nullpttr");
+    } else {
+      LOGP(info, "mClsLabels was nullptr");	
+    }
   }
 
   int i = 0;
+  LOGP(info, "loop of triggers");
   for (const auto& trig : triggers) {
     if (trig.getNumberOfObjects()) {
 
-  		LOG(info) << "[HMPID DClusterization - run() ] nObjects <<< calling clusterer->Dig2Clu" << trig.getNumberOfObjects();
+  		LOGP(info, "[HMPID DClusterization - run() ] trig.numObjects : {} <<< calling clusterer->Dig2Clu", trig.getNumberOfObjects());
+      
+      LOGP(info, "[HMPID DClusterization  get Spaan");      
       gsl::span<const o2::hmpid::Digit> trigDigits{
         digits.data() + trig.getFirstEntry(),
         size_t(trig.getNumberOfObjects())};
       size_t clStart = clusters.size();
+      LOGP(info, "[HMPID DClusterization  clStart {}",clStart);
 
       // ef; taken from TOF, does it work?
-      // &(labelvector->at(i)) ? 
+      // &(labelVector->at(i)) ? 
+      
+      // A)  labelVector->at(i) : if we use vector<MCTruthContainer>
+      // B) labelVector : if we use MCTruthContainer
+      
+      
+      
+      
+      // as of now we store triggers in vector, and 
+      // mcTruth for digits as MCTruthContainer<o2::MCCompLabel> :
+      // https://github.com/AliceO2Group/AliceO2/blob/25fed0222034939656422b6c0d727dd9cad1983b/Steer/DigitizerWorkflow/src/HMPIDDigitizerSpec.cxx#L92
+      
+      // 
+      
+      // ef : I am not sure about labelVector, should we not do as labelVector->at(i) ?
+      // 		to sort this based on each trigger?
+      //    I anyway changed to store the label of the digits in Digitizer
+      //    So it should be able to seperate based on tjis
+      //    (Also seperate which event the digit corresponds to )
+      
       if (mUseMC) {
-        // TOF mRec.process(mReader, mClustersArray, &(labelvector->at(i)));
-        mRec->Dig2Clu(trigDigits, clusters, topVectorVector, mSigmaCut, &(labelvector->at(i)), true); 
+        LOGP(info, "[HMPID DClusterization mUseMC {} :: mRec->Dig2Clu",mUseMC);      
+
+
+        // TOF mRec.process(mReader, mClustersArray, &(labelVector->at(i)));
+        /*if(labelVector==nullptr) {
+          LOGP(info, "labelVector was nullptr");	
+        } else {
+          LOGP(info, "labelVector of size {}", labelVector->size());	        
+        }*/
+    
+        /*if(digitlabels==nullptr) {
+        }*/   
+        
+        
+				LOGP(info, "IP args to Dig2Clu : ");
+				LOGP(info, " Size Size {}", topVectorVector.size());
+				LOGP(info, " clusters Size {}", clusters.size());
+				LOGP(info, " trigDigits Size {}", trigDigits.size());  
+
+
+
+
+				// add protection against this ? 
+        /*if(i > labelVector->size()) {
+        	LOGP(info, "labelVector->size() {}", labelVector->size());
+        }*/
+        
+        LOGP(info, "number of objs in truthArray : {}", labelVector->getNElements());
+        LOGP(info, "number of objs in headArray : {}", labelVector->getIndexedSize());
+                
+        //auto labelObj = labelVector->getLabels(i);
+        
+        
+        
+        
+        // ef :should this not be vectors? 
+        //mRec->Dig2Clu(trigDigits, clusters, topVectorVector, mSigmaCut, labelVector, true);
+				mRec->Dig2Clu(trigDigits, clusters, topVectorVector, mSigmaCut, labelVector.get(), true);
+
+
+        // mRec->Dig2Clu(trigDigits, clusters, topVectorVector, mSigmaCut, &(labelVector->at(i)), true);
+
+        LOGP(info, "[HMPID DClusterization exit :: mRec->Dig2Clu");      
+
       } else {
         // mRec.process(mReader, mClustersArray, nullptr);
         mRec->Dig2Clu(trigDigits, clusters, topVectorVector, mSigmaCut, nullptr, true);
@@ -162,6 +260,9 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
 
       //if(clusters.back().dig(0) == nullptr) {Printf("DigtisToClusterSpec:: dig was nullptr!!");}
       clusterTriggers.emplace_back(trig.getIr(), clStart, clusters.size() - clStart);
+    } else {
+    
+      LOGP(info, "[HMPID DClusterization - run() ] trig.numObjects 0");
     }
     i++;
   }
@@ -170,17 +271,31 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
   mDigitsReceived += digits.size();
   mClustersReceived += clusters.size();
 
-
+  LOGP(info, "try to output MC ");
   //*ef: FIX
-  if (mUseMC) {
-      pc.outputs().snapshot(o2::framework::Output{"HMP", "CLUSTERSMCTR", 0}, *mClsLabels);
+  if (mUseMC) {  
+      if (mClsLabels) {
+      	pc.outputs().snapshot(o2::framework::Output{"HMP", "CLUSTERSMCTR", 0}, *mClsLabels);
+      }
   }
-
+  LOGP(info, "outputted MC ");
+  
+  
   pc.outputs().snapshot(o2::framework::Output{"HMP", "CLUSTERS", 0}, clusters);
   pc.outputs().snapshot(o2::framework::Output{"HMP", "INTRECORDS1", 0}, clusterTriggers);
 
   mExTimer.elapseMes("Clusterization of Digits received = " + std::to_string(mDigitsReceived));
   mExTimer.elapseMes("Clusterization of Clusters received = " + std::to_string(mClustersReceived));
+  
+  
+  /* ef: should it be cleared?
+	if(mClsLabels != nullptr) {
+		LOGP(info, "mClsLabels->clear()");
+		mClsLabels->clear();
+	} else {
+		LOGP(info, "mClsLabels was nullptr");	
+	}*/ 
+  
 }
 
 void DigitsToClustersTask::endOfStream(framework::EndOfStreamContext& ec)
