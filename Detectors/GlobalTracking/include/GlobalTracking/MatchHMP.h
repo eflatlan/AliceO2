@@ -117,7 +117,7 @@ class MatchHMP
       return mMLEvents[index];
   }*/
 
-  std::vector<o2::dataformats::MLinfoHMP>& getMLTrackVector(o2::globaltracking::MatchHMP::trackType index) { return mMLTracks[index]; } // ef: added this
+
 
   std::vector<o2::dataformats::MatchInfoHMP>& getMatchedTrackVector(o2::globaltracking::MatchHMP::trackType index) { return mMatchedTracks[index]; }
 
@@ -211,7 +211,7 @@ class MatchHMP
 
   ///< array of matched HMPCluster with matching information
   std::vector<o2::dataformats::MatchInfoHMP> mMatchedTracks[o2::globaltracking::MatchHMP::trackType::SIZE]; // this is the output of the matching -> UNCONS, CONSTR
-  std::vector<o2::dataformats::MLinfoHMP> mMLTracks[o2::globaltracking::MatchHMP::trackType::SIZE];         // ef: added this
+
 
   std::vector<o2::MCCompLabel> mOutHMPLabels[o2::globaltracking::MatchHMP::trackType::SIZE]; ///< HMP label of matched tracks
 
