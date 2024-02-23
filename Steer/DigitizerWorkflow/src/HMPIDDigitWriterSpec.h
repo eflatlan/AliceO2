@@ -81,10 +81,11 @@ o2::framework::DataProcessorSpec getHMPIDDigitWriterSpec(bool mctruth = true)
 
                                 BranchDefinition<std::vector<o2::hmpid::Trigger>>{InputSpec{"hmpinteractionrecords", "HMP", "INTRECORDS"}, "InteractionRecords"},
 
-                                BranchDefinition<LabelsType>{InputSpec{"hmplabelinput", "HMP", "DIGITLBL"}, "HMPIDDigitMCTruth", mctruth ? 1 : 0})();
+
+ BranchDefinition<LabelsType>{InputSpec{"hmplabelinput", "HMP", "DIGITSMCTR"}, "HMPIDDigitMCTruth", mctruth ? 1 : 0})();
 
 }
-
+// swtiched from DIGITLBL to DIGITSMCTR                               
 
 
 } // end namespace hmpid

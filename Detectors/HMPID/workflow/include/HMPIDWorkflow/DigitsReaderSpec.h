@@ -56,8 +56,14 @@ class DigitReader : public framework::Task
   bool mUseMC = true;
 
 
-  std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>> mLabels, *mPlabels = &mLabels;
 
+
+  // ef : should this not be vector ? as we store one elem per trigger?
+  //std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>> mLabels, *mPlabels = &mLabels;
+
+
+
+  o2::dataformats::MCTruthContainer<o2::MCCompLabel> mLabels, *mPlabels = &mLabels;
 
   bool mReadFile = false;
   void initFileIn(const std::string& filename);

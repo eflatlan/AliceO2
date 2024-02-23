@@ -109,11 +109,24 @@ void DigitReader::run(ProcessingContext& pc)
       << "HMPID DigitWriterSpec::init() : Did not find  branch for Triggers";
     throw std::runtime_error("Did Not find Branch For triggers in HMPID Digits File");
   }
+  
+  
+  
   mTreeDig->Print("toponly");
 
-    if (mUseMC) {
-      mTreeDig->SetBranchAddress("HMPIDDigitMCTruth", &mPlabels);
-    }
+
+  if (mTreeDig->GetBranchStatus("HMPIDDigitMCTruth")) {
+    mTreeDig->SetBranchAddress("HMPIDDigitMCTruth", &mPlabels);        
+  }
+  
+  TBranch* branch = mTreeDig->GetBranch("HMPIDDigitMCTruth");
+
+	if (branch) {
+	    const char* className = branch->GetClassName();
+	    std::cout << "Class type of the objects in this branch is: " << className << std::endl;
+	} else {
+	    std::cout << "Branch not found!" << std::endl;
+	}
 
 
   auto ent = mTreeDig->GetReadEntry() + 1;

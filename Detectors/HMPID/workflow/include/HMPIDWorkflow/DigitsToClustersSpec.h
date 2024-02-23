@@ -38,7 +38,12 @@ namespace hmpid
 class DigitsToClustersTask : public framework::Task
 {
  public:
-  DigitsToClustersTask(bool useMC) :  mUseMC(useMC) {}
+  DigitsToClustersTask(bool useMC) :  mUseMC(useMC) 
+  {
+      if(useMC) { 
+      	mClsLabels.reset(new o2::dataformats::MCTruthContainer<o2::MCCompLabel>);
+      }
+  }
   ~DigitsToClustersTask() override = default;
   void init(framework::InitContext& ic) final;
   void run(framework::ProcessingContext& pc) final;
@@ -58,7 +63,7 @@ class DigitsToClustersTask : public framework::Task
 
   void initFileIn(const std::string& fileName);
 
-   o2::dataformats::MCTruthContainer<o2::MCCompLabel>* mClsLabels; // ef added
+   std::unique_ptr<o2::dataformats::MCTruthContainer<o2::MCCompLabel>> mClsLabels; // ef added
   //MCLabelContainer mClsLabels;
 
   ExecutionTimer mExTimer;

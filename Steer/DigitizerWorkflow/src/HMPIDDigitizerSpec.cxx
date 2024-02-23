@@ -89,6 +89,9 @@ class HMPIDDPLDigitizerTask : public o2::base::BaseDPLDigitizer
       LOG(info) << "NUMBER OF LABEL OBTAINED " << mLabels.getNElements();
       int32_t first = digitsAccum.size(); // this is the first
       std::copy(mDigits.begin(), mDigits.end(), std::back_inserter(digitsAccum));
+      
+      
+      
       labelAccum.mergeAtBack(mLabels);
 
       // save info for the triggers accepted
@@ -118,6 +121,7 @@ class HMPIDDPLDigitizerTask : public o2::base::BaseDPLDigitizer
           LOG(info) << "For collision " << collID << " eventID " << part.entryID << " found HMP " << hits.size() << " hits ";
 
           mDigitizer.setLabelContainer(&mLabels);
+          LOGP(info, "STEER sat the mDigitizer.setLabelContainer(&mLabels)");
           mLabels.clear();
           mDigits.clear();
 
@@ -134,8 +138,11 @@ class HMPIDDPLDigitizerTask : public o2::base::BaseDPLDigitizer
     // send out to next stage
     pc.outputs().snapshot(Output{"HMP", "DIGITS", 0}, digitsAccum);
     pc.outputs().snapshot(Output{"HMP", "INTRECORDS", 0}, mIntRecord);
-    if (pc.outputs().isAllowed({"HMP", "DIGITLBL", 0})) {
-      pc.outputs().snapshot(Output{"HMP", "DIGITLBL", 0}, labelAccum);
+    
+    // use DIGITSMCTR ? 
+    if (pc.outputs().isAllowed({"HMP", "DIGITSMCTR", 0})) {
+      pc.outputs().snapshot(Output{"HMP", "DIGITSMCTR", 0}, labelAccum);
+      LOGP(info, "STEER : got DIGITSMCTR!");
     }
     LOG(info) << "HMP: Sending ROMode= " << mROMode << " to GRPUpdater";
     pc.outputs().snapshot(Output{"HMP", "ROMode", 0}, mROMode);
@@ -166,8 +173,9 @@ o2::framework::DataProcessorSpec getHMPIDDigitizerSpec(int channel, bool mctruth
   std::vector<OutputSpec> outputs;
   outputs.emplace_back("HMP", "DIGITS", 0, Lifetime::Timeframe);
   outputs.emplace_back("HMP", "INTRECORDS", 0, Lifetime::Timeframe);
-  if (mctruth) {
-    outputs.emplace_back("HMP", "DIGITLBL", 0, Lifetime::Timeframe);
+  LOGP(info, "DataProcessorSpec in STEER");
+  if (mctruth) { //DIGITSMCTR instead of DIGITSMCTR?
+    outputs.emplace_back("HMP", "DIGITSMCTR", 0, Lifetime::Timeframe);
   }
   outputs.emplace_back("HMP", "ROMode", 0, Lifetime::Timeframe);
 

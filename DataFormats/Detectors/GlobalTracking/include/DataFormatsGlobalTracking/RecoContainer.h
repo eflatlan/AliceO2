@@ -635,9 +635,6 @@ struct RecoContainer {
 
   // HMPID matches
   auto getHMPMatches() const { return getSpan<o2::dataformats::MatchInfoHMP>(GTrackID::HMP, MATCHES); }
-  // ef changed to :
-
-  // auto getHMPMatches() const { return getSpan<o2::dataformats::MLinfoHMP>(GTrackID::HMP, MATCHES); }
 
   auto getHMPMatchesMCLabels() const { return getSpan<o2::MCCompLabel>(GTrackID::HMP, MCLABELS); }
 

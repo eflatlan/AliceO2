@@ -647,19 +647,14 @@ bool MatchHMP::prepareHMPClusters()
 {
 
   mHMPClustersArray = mRecoCont->getHMPClusters();
-
-  mHMPTriggersArray = mRecoCont->getHMPClusterTriggers();
-
-
-
+  mHMPTriggersArray = mRecoCont->getHMPClusterTriggers(); 
   mHMPClusLabels = mRecoCont->getHMPClustersMCLabels();
 
   mMCTruthON = mHMPClusLabels && mHMPClusLabels->getNElements();
-  
-  
-  // LOGP(info, "MatchHMP : mHMPClusLabels {} | mMCTruthON {}",mHMPClusLabels, mMCTruthON);
+
   LOGP(info, "MatchHMP : | mMCTruthON {}", mMCTruthON);
-  //LOGP(info, "MatchHMP : mMCTruthON {} | getNElements {}", mMCTruthON, mHMPClusLabels->getNElements());
+  
+  
   mNumOfTriggers = 0;
 
 
@@ -837,16 +832,7 @@ void MatchHMP::doMatching()
 
 
 	  auto indexEvent = cacheTriggerHMP[iEvent];
-
-
-
-	  Printf("Event number : iEvent %d  : indexEvent %d ",iEvent, indexEvent);
-
-
-
 	  auto& event = mHMPTriggersWork[cacheTriggerHMP[iEvent]];
-
-
 
     auto evtTime = event.getIr().differenceInBCMUS(mStartIR);
 
@@ -858,57 +844,10 @@ void MatchHMP::doMatching()
 
 		/*const int firstEntry = event.getFirstEntry();
 
-		const int lastEntry = event.getLastEntry();
+		const int lastEntry = event.getLastEntry(); */ 
 
 
 
-		LOGP(info, "1st entry last entry {}", mHMPClustersArray.size());
-
-		LOGP(info, "mHMPClustersArray Size  {}", mHMPClustersArray.size());
-
-		for (size_t  j = firstEntry; j <= lastEntry; j++) { // event clusters loop
-
-
-
-			if( j >= mHMPClustersArray.size()) {
-
-				
-
-			}
-
-
-
-			//const auto& cluster = (o2::hmpid::Cluster&)mHMPClustersArray[j];
-
-			auto& cluster = (o2::hmpid::Cluster&)mHMPClustersArray[j];
-
-
-
-
-
-
-
-			//oneEventClusters.push_back(cluster);
-
-		}*/
-
-
-
-
-
-
-
-
-
-		// accoutn for 25C -- 20 C in simulation; 
-
-		// dont understand which value to use ..
-
-		// 1.29197 if using mRefIdx(1.28947) + .0005 *(25-5)
-
-		// 1.29044 if using nIdxRad(double eV = 6.675, double temp = 20)
-
-    // double nmean = pParam->meanIdxRad() - 0.0005; // ef TODO: get this from calibration
 
     double nmean = (1.29197 + 1.29044 )/2.; // ef TODO: get this from calibration
 
@@ -916,25 +855,6 @@ void MatchHMP::doMatching()
 
     
 
-
-
-    
-
-    // collecting all pgoton energies and taking mean : eMean = 6.82 ikke 6.675...
-
-    
-
-	    //nF = 1.2928  - 0.0025; // ef got this from 1 run .. assuming T = 20 for sim 
-
-	     // 1.2928 hvis T = 20; 1.2903 hvis T = 25
-
-	    // np.sqrt(1 + 0.554 * (1239.84 / eV) * (1239.84 / eV) / ((1239.84 / eV) * (1239.84 / eV) - 5769)) - 0.0005 * (temp - 20)
-
-	       
-
-       
-
-    //auto mlEvent = std::make_unique<HmpMLVector>(&oneEventClusters, iEvent, nmean); // ef: initialize as int of Event and clusters relevant to the event
 
 
 
@@ -979,9 +899,6 @@ void MatchHMP::doMatching()
 
       // if (evtTime < (maxTrkTime + timeFromTF) && evtTime > (minTrkTime + timeFromTF)) {
 
-				//LOGP(info, "==================================== NEW TRACK ================== num {}", itrk);
-
-
 
       if (evtTime < maxTrkTime && evtTime > minTrkTime) {
 	     
@@ -1006,9 +923,6 @@ LOGP(info, "==================================== NEW TRACK in time ok ==========
 
         // ef: check for simulation if this gets the correct PID::
 
-
-
-
         MatchInfo matching(999999, mTrackGid[type][cacheTrk[itrk]]);
 
 
@@ -1022,27 +936,10 @@ LOGP(info, "==================================== NEW TRACK in time ok ==========
         matching.setHMPsignal(Recon::kNotPerformed); // ring reconstruction not yet performed
 
         matching.setIdxTrack(trackGid);
-
-        
-
-        //Printf("intTrkCha  xPc %.2f, yPc %.2f, xRa %.2f, yRa %.2f", xPc, yPc, xRa, yRa);
-
-
-
-
-
-        // LOGP(info, "MatchHMP.cxx Event {}: Track {} Chamber {}" , iEvent, itrk, iCh);
-
-        
-
-
-
+      
         double xPc, yPc, xRa, yRa, theta, phi;
 
-
-
         Int_t iCh = intTrkCha(&trefTrk, xPc, yPc, xRa, yRa, theta, phi, bz); // find the intersected chamber for this track        
-
         
 
         if (iCh <= 0 || iCh >= 7) {
@@ -1053,21 +950,11 @@ LOGP(info, "==================================== NEW TRACK in time ok ==========
 
 
 
-
-
-        
-
         matching.setUnconstrainedPc(xPc, yPc);
-
-        
 
         int index = -1;
 
-
-
         double dmin = 999999; //, distCut = 1.;
-
-
 
         bool isOkDcut = kFALSE;
 
@@ -1076,17 +963,10 @@ LOGP(info, "==================================== NEW TRACK in time ok ==========
         bool isMatched = kFALSE;
 
 
-
         const o2::hmpid::Cluster* bestHmpCluster = nullptr;
 
 
-
-        
-
         auto cluInde = 0;
-
-
-
 
 
         LOGP(info, "Track Intersected :::: clusters loop {} -- {}", event.getFirstEntry(), event.getLastEntry());
@@ -1098,10 +978,6 @@ LOGP(info, "==================================== NEW TRACK in time ok ==========
     		//oneEventClusters.clear();
 
     		//oneEventClusters.reserve(mHMPClustersArray.size());
-
-
-
-
 
 				int eventIDClu = -1; // eventID from clusters 
 
@@ -1124,23 +1000,13 @@ LOGP(info, "==================================== NEW TRACK in time ok ==========
           }*/ 
 
 
-
-          //const auto& cluster = (o2::hmpid::Cluster&)mHMPClustersArray[j];
-
           auto& cluster = (o2::hmpid::Cluster&)mHMPClustersArray[j];
 
 					eventIDClu = cluster.getEventNumber();
 
 
-
-
-
           if (cluster.ch() != iCh) {
-
-            // LOGP(info, "cluster.ch() != iCh");
-
             continue;
-
           }
 
 			
@@ -1158,11 +1024,6 @@ LOGP(info, "==================================== NEW TRACK in time ok ==========
 
 
           oneEventClusters.push_back(cluster); //  //this is the important
-
-
-
-
-
 
 
 	  // ef: must loop over oneEventClusters here to make sure these are fulfilled: 
@@ -1310,12 +1171,8 @@ LOGP(info, "==================================== NEW TRACK in time ok ==========
 
 
         float hmpMom = hmpTrkConstrained.getP() * hmpTrkConstrained.getSign();
-        
-				LOGP(info, "HMP MOM getSign", hmpTrkConstrained.getSign());
-				LOGP(info, "HMP MOM getP", hmpTrkConstrained.getP());
 
         matching.setHmpMom(hmpMom);
-
 
 
         // 5. Propagation in the last 10 cm with the fast method
@@ -1335,17 +1192,7 @@ LOGP(info, "==================================== NEW TRACK in time ok ==========
 
 
 
-        // the pc values seem ok until here??
-
-        
-
-        // intTrkCha(iCh, &hmpTrkConstrained, xPc0, yPc0, xRa, yRa, theta, phi, bz);
-
-
-
         // 6. Set match information
-
-
 
         int cluSize = bestHmpCluster->size();
 
@@ -1499,19 +1346,12 @@ LOGP(info, "==================================== NEW TRACK in time ok ==========
 
       } // if matching in time
 
-
-
-      // LOGP(info," MatchHMP.cxx : end track");
-
     }   // tracks loop
-
-
-
 
 
   }     // events loop
 
-  LOGP(info," MatchHMP.cxx : finished all events");
+  // LOGP(info," MatchHMP.cxx : finished all events");
 
 
 }

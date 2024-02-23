@@ -69,7 +69,7 @@
 #include "ReconstructionDataFormats/TrackMCHMID.h"
 
 #include "ReconstructionDataFormats/MatchInfoHMP.h"
-#include "ReconstructionDataFormats/MLinfoHMP.h"
+
 
 #include "ReconstructionDataFormats/V0.h"
 #include "ReconstructionDataFormats/VtxTrackIndex.h"
@@ -1258,6 +1258,7 @@ void AODProducerWorkflowDPL::addClustersToFwdTrkClsTable(const o2::globaltrackin
 template <typename HMPCursorType>
 void AODProducerWorkflowDPL::fillHMPID(const o2::globaltracking::RecoContainer& recoData, HMPCursorType& hmpCursor)
 {
+
   auto hmpMatches = recoData.getHMPMatches();
   auto hmpClusters = recoData.getHMPClusters();
   auto hmpMCTruthMatch = recoData.getHMPMatchesMCLabels();
@@ -1287,55 +1288,26 @@ void AODProducerWorkflowDPL::fillHMPID(const o2::globaltracking::RecoContainer& 
     int charge, nph;
 
 
-    //match.getHMPIDtrk(xTrk, yTrk, theta, phi);
-    match.getHMPIDtrk(xRa, yRa, xTrk, yTrk, theta, phi);
-    //getHMPIDtrk(float& xRad, float& yRad, float& xPc, float& yPc, float& th, float& ph); 
 
+    match.getHMPIDtrk(xRa, yRa, xTrk, yTrk, theta, phi);
     match.getHMPIDmip(xMip, yMip, charge, nph);
 
 
 
 
-  double radThick = 1.5, winThick = 0.5, gapThick = 8.0; 
-
-  auto dx = (radThick/2 + winThick + gapThick) * TMath::Cos(phi) * TMath::Tan(theta);
-  auto dy = (radThick/2 + winThick + gapThick) * TMath::Sin(phi) * TMath::Tan(theta);
-  double xRa2 = xTrk - dx; // just linear extrapolation back to RAD
-  double yRa2 = yTrk - dy;
-  
-  double xTrk2 = xRa + dx; // just linear extrapolation back to RAD
-  double yTrk2 = yRa + dy;
-
-
+	/* ef :temp */ 
+	// for sim, make sure MCtruth from TPC track matches 	
+	//  match.getParticlePdg()
 	
 	printf(" ============================\n");
 	
-	// printf(" Matched Status %d \n", match.getMatchStatus());
-	
 	printf(" Matched Status %d \n", match.getMatchStatus());
-		
-	printf(" =Track Chamber %d Momentum %.2f, Mip charge INT %d  Mip charge %.2f \n Theta = %.3f  \n", match.getChamber (), match.getHmpMom(), charge, match.getMipClusQ(), theta);
+	LOGP(info, " Matched Status {} for chamber {}", match.getMatchStatus(), match.getChamber());
+	// printf(" =Track Chamber %d Momentum %.2f, Mip charge INT %d  Mip charge %.2f \n Theta = %.3f  \n", match.getChamber (), match.getHmpMom(), charge, match.getMipClusQ(), theta);
 	
 	
-	printf("getMipX %.3f  getMipY %.3f \n", match.getMipX(), match.getMipY());	
 	printf("PDG | MIP : %d  track : %d \n", match.getMipClusEventPDG(), match.getParticlePdg());
-	
 
-
-
-
-  /*
-	printf(" xRa %.3f xPc %.3f xMIP %.3f \n", xRa, xTrk, xMip);
-	printf(" yRa %.3f yPc %.3f yMIP %.3f \n", yRa, yTrk, yMip);
-
-	printf(" Checking RA :xRa %.3f xRa2 %.3f  yRa %.3f yRa2 %.3f \n", xRa, xRa2, yRa, yRa2);
-	printf(" Checking PC :xTrk %.3f xTrk2 %.3f  yTrk %.3f yTrk2 %.3f \n", xTrk, xTrk2, yTrk, yTrk2);*/
-	
-
-	// The TVector2 parts can stay as they are since they're not directly related to the printing.
-	TVector2 rad(xRa, yRa);    
-	TVector2 pc(xTrk, yTrk); 
-	TVector2 mip(xMip, yMip);
 
     auto photChargeVec = match.getPhotCharge();
 
@@ -1344,6 +1316,7 @@ void AODProducerWorkflowDPL::fillHMPID(const o2::globaltracking::RecoContainer& 
     for (Int_t i = 0; i < 10; i++) {
       photChargeVec2[i] = photChargeVec[i];
     }
+    
     auto tref = mGIDToTableID.find(match.getTrackRef());
     if (tref != mGIDToTableID.end()) {
       hmpCursor(tref->second, match.getHMPsignal(), xTrk, yTrk, xMip, yMip, nph, charge, match.getIdxHMPClus(), match.getHmpMom(), photChargeVec2);
