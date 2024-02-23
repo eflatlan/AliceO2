@@ -148,6 +148,11 @@ void DigitReader::run(ProcessingContext& pc)
     pc.services().get<ControlService>().endOfStream();
     pc.services().get<ControlService>().readyToQuit(QuitRequest::Me);
     mExTimer.stop();
+
+    if(mUseMC) {
+      LOG(info) << "[HMPID DigitsReader - with useMC : mcLabels.size = " << mLabels.getSize();
+    }
+
     mExTimer.logMes("End DigitsReader !  digits = " +
                     std::to_string(mDigitsReceived));
   }

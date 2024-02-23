@@ -97,12 +97,15 @@ void DigitsToRootTask::run(framework::ProcessingContext& pc)
 {
   std::vector<o2::hmpid::Trigger> triggers;
   std::vector<o2::hmpid::Digit> digits;
-
+  // std::vector<o2::hmpid::Digit> digits;
+  std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>> digitLabels;
+  
+  
   for (auto const& ref : InputRecordWalker(pc.inputs())) {
 
     LOGP(info, "HMP CLASS DigitsToRootTask ");
     /*
-     And what about MCLabels??
+     And what about MCLabels?
     */
     if (DataRefUtils::match(ref, {"check", ConcreteDataTypeMatcher{header::gDataOriginHMP, "INTRECORDS"}})) {
       triggers = pc.inputs().get<std::vector<o2::hmpid::Trigger>>(ref);
@@ -110,18 +113,25 @@ void DigitsToRootTask::run(framework::ProcessingContext& pc)
     }
     if (DataRefUtils::match(ref, {"check", ConcreteDataTypeMatcher{header::gDataOriginHMP, "DIGITS"}})) {
       digits = pc.inputs().get<std::vector<o2::hmpid::Digit>>(ref);
-      LOG(info) << "The size of the vector =" << digits.size();
+      LOG(info) << "The size of the cluster-vector =" << digits.size();
     }
     
     
     
     //ef : we need to define the digitsMC-truth here ? 
-    if (DataRefUtils::match(ref, {"check", ConcreteDataTypeMatcher{header::gDataOriginHMP, "DIGITSMCTR"}})) {
-      //digits = pc.inputs().get<std::vector<o2::hmpid::Digit>>(ref);
-      //LOG(info) << "The size of the vector =" << digits.size();
-      LOGP(info, "HMP CLASS DigitsToRootTask got DIGITSMCTR");
+    if (mUseMC) {
+      if (DataRefUtils::match(ref, {"check", ConcreteDataTypeMatcher{header::gDataOriginHMP, "DIGITSMCTR"}})) {
+        
+        //std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>> digitLabels
+        // o2::dataformats::MCTruthContainer<o2::MCCompLabel>
+
+
+        // we do this in the STEER? 
+        digitLabels = pc.inputs().get<std::vector<o2::hmpid::Digit>>(ref);
+        LOG(info) << "The size of the vector =" << digitLabels.size();
+        LOGP(info, "HMP CLASS DigitsToRootTask got DIGITSMCTR");
+      }
     }
-    
 
     for (int i = 0; i < triggers.size(); i++) {
       LOG(info) << "Trigger Event     Orbit = " << triggers[i].getOrbit() << "  BC = " << triggers[i].getBc();
@@ -130,9 +140,18 @@ void DigitsToRootTask::run(framework::ProcessingContext& pc)
       for (int j = triggers[i].getFirstEntry(); j <= triggers[i].getLastEntry(); j++) {
         mDigits.push_back(digits[j]); // append the cluster
         numberOfDigits++;
+
+
+        // we do this in the STEER? 
+        // if (mUseMC)
+          // mDigitLabels.push_back(digitLabels[j]);
+          // mDigitLabels.mergeAtBack(digitLabels[j]);?
       }
+
       mTriggers.push_back(triggers[i]);
       mTriggers.back().setDataRange(startDigitsIndex, numberOfDigits);
+      // mDigitLabels.mergeAtBack(digitLabels);?
+
     }
   }
 

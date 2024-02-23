@@ -57,7 +57,7 @@ class DigitsToRootTask : public framework::Task
   //using LabelsType =
   
   std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>> mDigitLabels;
-
+  
   // or o2::dataformats::MCTruthContainer<o2::MCCompLabel>??
   bool mUseMC = true;
   std::unique_ptr<TFile> mfileOut;

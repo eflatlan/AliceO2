@@ -148,8 +148,12 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
 		  
 		// B) ef: if based on TOF:   
     //auto digitlabels = pc.inputs().get<std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>>*>("hmpiddigitlabels");
+    LOGP(info, "digitlabels size : {}", digitlabels->getSize());
 		    		    
-		    
+    LOGP(info, "digitlabels of objs in truthArray : {}", digitlabels->getNElements());
+    LOGP(info, "digitlabels of objs in headArray : {}", digitlabels->getIndexedSize());
+
+
     LOGP(info, "got digitLabels");
     
     *labelVector.get() = std::move(*digitlabels);
@@ -161,6 +165,10 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
 
 
     LOGP(info, "mRec->setMCTruthContainer");
+
+    LOGP(info, "got ");
+
+
 
     if(mClsLabels != nullptr) {
       mRec->setMCTruthContainer(mClsLabels.get());
