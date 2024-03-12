@@ -156,6 +156,17 @@ struct ClusterNative {
       return (this->getFlags() < rhs.getFlags());
     }
   }
+
+  GPUd() bool operator==(const ClusterNative& rhs) const
+  {
+    return this->getTimePacked() == rhs.getTimePacked() &&
+           this->padPacked == rhs.padPacked &&
+           this->sigmaTimePacked == rhs.sigmaTimePacked &&
+           this->sigmaPadPacked == rhs.sigmaPadPacked &&
+           this->qMax == rhs.qMax &&
+           this->qTot == rhs.qTot &&
+           this->getFlags() == rhs.getFlags();
+  }
 };
 
 // This is an index struct to access TPC clusters inside sectors and rows. It shall not own the data, but just point to

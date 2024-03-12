@@ -36,25 +36,21 @@ GPUdii() void GPUTPCCreateOccupancyMap::Thread<GPUTPCCreateOccupancyMap::fill>(i
 }
 
 template <>
-GPUdii() void GPUTPCCreateOccupancyMap::Thread<GPUTPCCreateOccupancyMap::fold>(int nBlocks, int nThreads, int iBlock, int iThread, GPUsharedref() GPUSharedMemory& smem, processorType& GPUrestrict() processors, GPUTPCClusterOccupancyMapBin* GPUrestrict() map)
+GPUdii() void GPUTPCCreateOccupancyMap::Thread<GPUTPCCreateOccupancyMap::fold>(int nBlocks, int nThreads, int iBlock, int iThread, GPUsharedref() GPUSharedMemory& smem, processorType& GPUrestrict() processors, GPUTPCClusterOccupancyMapBin* GPUrestrict() map, unsigned int* GPUrestrict() output)
 {
   GPUParam& GPUrestrict() param = processors.param;
-  const int iSliceRow = iBlock * nThreads + iThread;
-  if (iSliceRow > GPUCA_ROW_COUNT * GPUCA_NSLICES) {
+  const unsigned int bin = iBlock * nThreads + iThread;
+  if (bin >= GPUTPCClusterOccupancyMapBin::getNBins(param)) {
     return;
   }
-  const unsigned int iSlice = iSliceRow / GPUCA_ROW_COUNT;
-  const unsigned int iRow = iSliceRow % GPUCA_ROW_COUNT;
-  const unsigned int nBins = GPUTPCClusterOccupancyMapBin::getNBins(param);
-  const unsigned int nFoldBins = CAMath::Min(5u, nBins);
+  int binmin = CAMath::Max<int>(0, bin - param.rec.tpc.occupancyMapTimeBinsAverage);
+  int binmax = CAMath::Min<int>(GPUTPCClusterOccupancyMapBin::getNBins(param), bin + param.rec.tpc.occupancyMapTimeBinsAverage + 1);
   unsigned int sum = 0;
-  for (unsigned int i = 0; i < nFoldBins; i++) {
-    sum += map[i].bin[iSlice][iRow];
+  for (int i = binmin; i < binmax; i++) {
+    for (int iSliceRow = 0; iSliceRow < GPUCA_NSLICES * GPUCA_ROW_COUNT; iSliceRow++) {
+      sum += (&map[i].bin[0][0])[iSliceRow];
+    }
   }
-  unsigned short lastVal;
-  for (unsigned int i = 0; i < nBins; i++) {
-    lastVal = map[i].bin[iSlice][iRow];
-    map[i].bin[iSlice][iRow] = sum / nFoldBins;
-    sum += map[CAMath::Min(i + nFoldBins, nBins - 1)].bin[iSlice][iRow] - lastVal;
-  }
+  sum /= binmax - binmin;
+  output[bin] = sum;
 }

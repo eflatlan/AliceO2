@@ -35,6 +35,7 @@ struct GeneratorPythia8Param : public o2::conf::ConfigurableParamHelper<Generato
   std::string hooksFuncName = "";
   bool includePartonEvent = false; // whether to keep the event before hadronization
   std::string particleFilter = ""; // user particle filter
+  int verbose = 0;                 // verbose control (if > 0 may show more info messages about what is going on)
   O2ParamDef(GeneratorPythia8Param, "GeneratorPythia8");
 };
 

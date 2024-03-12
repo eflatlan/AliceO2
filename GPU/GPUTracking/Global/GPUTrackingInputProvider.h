@@ -52,8 +52,6 @@ class GPUTrackingInputProvider : public GPUProcessor
   void* SetPointersInputClusterNativeOutput(void* mem);
   void* SetPointersInputTRD(void* mem);
   void* SetPointersErrorCodes(void* mem);
-
-  void SetNewGPURecoTPCDecoding(bool v) { mNewGPURecoTPCDecoding = v; }
 #endif
 
   unsigned short mResourceZS = -1;
@@ -87,11 +85,9 @@ class GPUTrackingInputProvider : public GPUProcessor
   o2::tpc::ClusterNative* mPclusterNativeBuffer = nullptr;
   o2::tpc::ClusterNative* mPclusterNativeOutput = nullptr;
 
-  GPUTPCClusterOccupancyMapBin* mTPCClusterOccupancyMap = nullptr;
+  unsigned int* mTPCClusterOccupancyMap = nullptr;
 
   unsigned int* mErrorCodes = nullptr;
-
-  bool mNewGPURecoTPCDecoding = false;
 };
 
 } // namespace gpu

@@ -257,10 +257,16 @@ int GPUReconstruction::InitPhaseBeforeDevice()
 #ifndef GPUCA_NO_FAST_MATH
     GPUError("Warning, deterministicGPUReconstruction needs GPUCA_NO_FAST_MATH, otherwise results will never be deterministic!");
 #endif
+#ifdef GPUCA_HAVE_O2HEADERS
     mProcessingSettings.overrideClusterizerFragmentLen = TPC_MAX_FRAGMENT_LEN_GPU;
+    param().rec.tpc.nWaysOuter = true;
+    if (param().rec.tpc.looperInterpolationInExtraPass == -1) {
+      param().rec.tpc.looperInterpolationInExtraPass = 0;
+    }
     if (mProcessingSettings.createO2Output > 1) {
       mProcessingSettings.createO2Output = 1;
     }
+#endif
   }
   if (mProcessingSettings.deterministicGPUReconstruction && mProcessingSettings.debugLevel >= 6) {
     mProcessingSettings.nTPCClustererLanes = 1;
@@ -296,8 +302,8 @@ int GPUReconstruction::InitPhaseBeforeDevice()
   if (mProcessingSettings.debugLevel > 3 || !mProcessingSettings.fullMergerOnGPU || mProcessingSettings.deterministicGPUReconstruction) {
     mProcessingSettings.delayedOutput = false;
   }
-  if (!mProcessingSettings.fullMergerOnGPU && GetRecoStepsGPU() & RecoStep::TPCMerging) {
-    param().rec.tpc.loopInterpolationInExtraPass = 0;
+  if (!mProcessingSettings.fullMergerOnGPU && (GetRecoStepsGPU() & RecoStep::TPCMerging)) {
+    param().rec.tpc.looperInterpolationInExtraPass = 0;
     if (param().rec.tpc.retryRefit == 1) {
       param().rec.tpc.retryRefit = 2;
     }
@@ -723,6 +729,15 @@ void* GPUReconstruction::AllocateVolatileDeviceMemory(size_t size)
   return retVal;
 }
 
+void* GPUReconstruction::AllocateVolatileMemory(size_t size, bool device)
+{
+  if (device) {
+    return AllocateVolatileDeviceMemory(size);
+  }
+  mVolatileChunks.emplace_back(new char[size + GPUCA_BUFFER_ALIGNMENT]);
+  return GPUProcessor::alignPointer<GPUCA_BUFFER_ALIGNMENT>(mVolatileChunks.back().get());
+}
+
 void GPUReconstruction::ResetRegisteredMemoryPointers(GPUProcessor* proc)
 {
   for (unsigned int i = 0; i < mMemoryResources.size(); i++) {
@@ -790,6 +805,12 @@ void GPUReconstruction::ReturnVolatileDeviceMemory()
   }
 }
 
+void GPUReconstruction::ReturnVolatileMemory()
+{
+  ReturnVolatileDeviceMemory();
+  mVolatileChunks.clear();
+}
+
 void GPUReconstruction::PushNonPersistentMemory(unsigned long tag)
 {
   mNonPersistentMemoryStack.emplace_back(mHostMemoryPoolEnd, mDeviceMemoryPoolEnd, mNonPersistentIndividualAllocations.size(), tag);
@@ -804,7 +825,7 @@ void GPUReconstruction::PopNonPersistentMemory(RecoStep step, unsigned long tag)
     GPUFatal("Trying to pop memory state from empty stack");
   }
   if (tag != 0 && std::get<3>(mNonPersistentMemoryStack.back()) != tag) {
-    GPUFatal("Tag mismatch when poping non persistent memory from stack : pop %s vs on stack %s", qTag2Str(tag).c_str(), qTag2Str(std::get<3>(mNonPersistentMemoryStack.back())).c_str());
+    GPUFatal("Tag mismatch when popping non persistent memory from stack : pop %s vs on stack %s", qTag2Str(tag).c_str(), qTag2Str(std::get<3>(mNonPersistentMemoryStack.back())).c_str());
   }
   if ((mProcessingSettings.debugLevel >= 3 || mProcessingSettings.allocDebugLevel) && (IsGPU() || mProcessingSettings.forceHostMemoryPoolSize)) {
     if (IsGPU()) {

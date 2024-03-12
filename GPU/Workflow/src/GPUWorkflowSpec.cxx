@@ -354,6 +354,7 @@ void GPURecoWorkflowSpec::init(InitContext& ic)
 void GPURecoWorkflowSpec::stop()
 {
   LOGF(info, "GPU Reconstruction total timing: Cpu: %.3e Real: %.3e s in %d slots", mTimer->CpuTime(), mTimer->RealTime(), mTimer->Counter() - 1);
+  handlePipelineStop();
 }
 
 void GPURecoWorkflowSpec::endOfStream(EndOfStreamContext& ec)
@@ -371,6 +372,11 @@ void GPURecoWorkflowSpec::finaliseCCDB(o2::framework::ConcreteDataMatcher& match
   }
   if (GRPGeomHelper::instance().finaliseCCDB(matcher, obj)) {
     mGRPGeomUpdated = true;
+    return;
+  }
+  if (matcher == ConcreteDataMatcher("ITS", "GEOMTGEO", 0)) {
+    LOG(info) << "ITS GeomtetryTGeo loaded from ccdb";
+    o2::its::GeometryTGeo::adopt((o2::its::GeometryTGeo*)obj);
     return;
   }
 }
@@ -557,6 +563,9 @@ void GPURecoWorkflowSpec::run(ProcessingContext& pc)
   auto lockDecodeInput = std::make_unique<std::lock_guard<std::mutex>>(mPipeline->mutexDecodeInput);
 
   GRPGeomHelper::instance().checkUpdates(pc);
+  if (pc.inputs().getPos("itsTGeo") >= 0) {
+    pc.inputs().get<o2::its::GeometryTGeo*>("itsTGeo");
+  }
   if (GRPGeomHelper::instance().getGRPECS()->isDetReadOut(o2::detectors::DetID::TPC) && mConfParam->tpcTriggeredMode ^ !GRPGeomHelper::instance().getGRPECS()->isDetContinuousReadOut(o2::detectors::DetID::TPC)) {
     LOG(fatal) << "configKeyValue tpcTriggeredMode does not match GRP isDetContinuousReadOut(TPC) setting";
   }
@@ -741,7 +750,7 @@ void GPURecoWorkflowSpec::run(ProcessingContext& pc)
   setOutputAllocator("TRACKS", mSpecConfig.outputTracks, outputRegions.tpcTracksO2, std::make_tuple(gDataOriginTPC, (DataDescription) "TRACKS", 0));
   setOutputAllocator("CLUSREFS", mSpecConfig.outputTracks, outputRegions.tpcTracksO2ClusRefs, std::make_tuple(gDataOriginTPC, (DataDescription) "CLUSREFS", 0));
   setOutputAllocator("TRACKSMCLBL", mSpecConfig.outputTracks && mSpecConfig.processMC, outputRegions.tpcTracksO2Labels, std::make_tuple(gDataOriginTPC, (DataDescription) "TRACKSMCLBL", 0));
-  setOutputAllocator("TRIGGERWORDS", mSpecConfig.zsDecoder && mConfig->configProcessing.param.tpcTriggerHandling, outputRegions.tpcTriggerWords, std::make_tuple(gDataOriginTPC, (DataDescription) "TRIGGERWORDS", 0));
+  setOutputAllocator("TRIGGERWORDS", mSpecConfig.caClusterer && mConfig->configProcessing.param.tpcTriggerHandling, outputRegions.tpcTriggerWords, std::make_tuple(gDataOriginTPC, (DataDescription) "TRIGGERWORDS", 0));
   o2::tpc::ClusterNativeHelper::ConstMCLabelContainerViewWithBuffer clustersMCBuffer;
   if (mSpecConfig.processMC && mSpecConfig.caClusterer) {
     outputRegions.clusterLabels.allocator = [&clustersMCBuffer](size_t size) -> void* { return &clustersMCBuffer; };
@@ -967,7 +976,7 @@ void GPURecoWorkflowSpec::run(ProcessingContext& pc)
     pc.outputs().snapshot({gDataOriginGPU, "ERRORQA", 0}, mErrorQA);
     mErrorQA.clear(); // FIXME: This is a race condition once we run multi-threaded!
   }
-  if (mSpecConfig.tpcTriggerHandling && !(mSpecConfig.zsOnTheFly || mSpecConfig.zsDecoder)) {
+  if (mSpecConfig.tpcTriggerHandling && !mSpecConfig.caClusterer) {
     pc.outputs().make<DataAllocator::UninitializedVector<outputDataType>>(Output{gDataOriginTPC, "TRIGGERWORDS", 0}, 0u);
   }
   mTimer->Stop();
@@ -993,8 +1002,8 @@ void GPURecoWorkflowSpec::doCalibUpdates(o2::framework::ProcessingContext& pc, c
     if (mAutoSolenoidBz) {
       newCalibValues.newSolenoidField = true;
       newCalibValues.solenoidField = mConfig->configGRP.solenoidBz = (5.00668f / 30000.f) * GRPGeomHelper::instance().getGRPMagField()->getL3Current();
+      LOG(info) << "Updating solenoid field " << newCalibValues.solenoidField;
     }
-    LOG(info) << "Updating solenoid field " << newCalibValues.solenoidField;
     if (mAutoContinuousMaxTimeBin) {
       mConfig->configGRP.continuousMaxTimeBin = (mTFSettings->nHBFPerTF * o2::constants::lhc::LHCMaxBunches + 2 * o2::tpc::constants::LHCBCPERTIMEBIN - 2) / o2::tpc::constants::LHCBCPERTIMEBIN;
       newCalibValues.newContinuousMaxTimeBin = true;
@@ -1004,6 +1013,9 @@ void GPURecoWorkflowSpec::doCalibUpdates(o2::framework::ProcessingContext& pc, c
 
     if (!mPropagatorInstanceCreated) {
       newCalibObjects.o2Propagator = mConfig->configCalib.o2Propagator = Propagator::Instance();
+      if (mAutoSolenoidBz) {
+        Propagator::Instance()->setBz(newCalibValues.solenoidField);
+      }
       mPropagatorInstanceCreated = true;
     }
 

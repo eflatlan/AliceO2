@@ -149,14 +149,18 @@ int GPUChainTracking::RunTPCTrackingSlices_internal()
     AllocateRegisteredMemory(mInputsHost->mResourceOccupancyMap, mSubOutputControls[GPUTrackingOutputs::getIndex(&GPUTrackingOutputs::tpcOccupancyMap)]);
     ReleaseEvent(mEvents->init);
     auto* ptr = doGPU ? mInputsShadow->mTPCClusterOccupancyMap : mInputsHost->mTPCClusterOccupancyMap;
-    runKernel<GPUMemClean16>(GetGridAutoStep(mRec->NStreams() - 1, RecoStep::TPCSliceTracking), krnlRunRangeNone, {}, ptr, GPUTPCClusterOccupancyMapBin::getTotalSize(param()));
-    runKernel<GPUTPCCreateOccupancyMap, GPUTPCCreateOccupancyMap::fill>(GetGridBlk(GPUCA_NSLICES * GPUCA_ROW_COUNT, mRec->NStreams() - 1), krnlRunRangeNone, krnlEventNone, ptr);
-    runKernel<GPUTPCCreateOccupancyMap, GPUTPCCreateOccupancyMap::fold>(GetGridBlk(GPUCA_NSLICES * GPUCA_ROW_COUNT, mRec->NStreams() - 1), krnlRunRangeNone, {&mEvents->init}, ptr);
+    auto* ptrTmp = (GPUTPCClusterOccupancyMapBin*)mRec->AllocateVolatileMemory(GPUTPCClusterOccupancyMapBin::getTotalSize(param()), doGPU);
+    int streamOccMap = mRec->NStreams() - 1;
+    runKernel<GPUMemClean16>(GetGridAutoStep(streamOccMap, RecoStep::TPCSliceTracking), krnlRunRangeNone, {}, ptrTmp, GPUTPCClusterOccupancyMapBin::getTotalSize(param()));
+    runKernel<GPUTPCCreateOccupancyMap, GPUTPCCreateOccupancyMap::fill>(GetGridBlk(GPUCA_NSLICES * GPUCA_ROW_COUNT, streamOccMap), krnlRunRangeNone, krnlEventNone, ptrTmp);
+    runKernel<GPUTPCCreateOccupancyMap, GPUTPCCreateOccupancyMap::fold>(GetGridBlk(GPUTPCClusterOccupancyMapBin::getNBins(param()), streamOccMap), krnlRunRangeNone, krnlEventNone, ptrTmp, ptr);
+    mRec->ReturnVolatileMemory();
     if (doGPU) {
-      TransferMemoryResourceLinkToHost(RecoStep::TPCSliceTracking, mInputsHost->mResourceOccupancyMap);
+      TransferMemoryResourceLinkToHost(RecoStep::TPCSliceTracking, mInputsHost->mResourceOccupancyMap, streamOccMap, &mEvents->init);
     } else {
-      TransferMemoryResourceLinkToGPU(RecoStep::TPCSliceTracking, mInputsHost->mResourceOccupancyMap);
+      TransferMemoryResourceLinkToGPU(RecoStep::TPCSliceTracking, mInputsHost->mResourceOccupancyMap, streamOccMap, &mEvents->init);
     }
+    mRec->UpdateParamOccupancyMap(mInputsHost->mTPCClusterOccupancyMap, mInputsShadow->mTPCClusterOccupancyMap, streamOccMap);
   }
 
   int streamMap[NSLICES];
