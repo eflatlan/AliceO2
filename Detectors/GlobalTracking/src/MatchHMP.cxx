@@ -820,11 +820,7 @@ void MatchHMP::doMatching()
 
 
 
-  for(const auto& c : cacheTriggerHMP) {
 
-    Printf("const auto& c : cacheTriggerHMP %d", c);
-
-  }
 
   auto prop = o2::base::Propagator::Instance();
 
@@ -859,10 +855,10 @@ void MatchHMP::doMatching()
 
     auto evtTime = event.getIr().differenceInBCMUS(mStartIR);
 
-	  LOGP(info, "Event number : iEvent {}  : indexEvent {} || evtTime {}",iEvent, indexEvent, evtTime);
+	  // LOGP(info, "Event number : iEvent {}  : indexEvent {} || evtTime {}",iEvent, indexEvent, evtTime);
 
     int evtTracks = 0;
-
+		int evNumFromCluTrk = -1;
 
 
 		/*const int firstEntry = event.getFirstEntry();
@@ -895,10 +891,6 @@ void MatchHMP::doMatching()
 
       auto& trefTrk = trackWork.first;
 
-
-
-
-	     LOGP(info, "Event number : iEvent {}  : indexEvent {} || evtTime {}",iEvent, indexEvent, evtTime);
 
 
 
@@ -1039,7 +1031,7 @@ LOGP(info, "==================================== NEW TRACK in time ok ==========
           } */ 
           
 
-
+			    evNumFromCluTrk = cluster.getEventNumberFromTrack();
 
 					eventIDClu = cluster.getEventNumber();
 
@@ -1056,7 +1048,6 @@ LOGP(info, "==================================== NEW TRACK in time ok ==========
 					cluster.setEventNumberFromTrack(iEvent);
 					
 					
-					LOGP(info, "Event number : iEvent {}  : indexEvent {} || evtTime {} | evtTracks {} | getEventNumberFromTrack {}", iEvent, indexEvent, evtTime, evtTracks, cluster.getEventNumberFromTrack());
 
 	  			int i = j - event.getFirstEntry();
 
@@ -1207,6 +1198,12 @@ LOGP(info, "==================================== NEW TRACK in time ok ==========
 
         }
 
+				LOGP(info, "Event number : iEvent {}  : indexEvent {} || evtTime {} | evtTracks {} | evClu {} getEventNumberFromTrack {}", iEvent, indexEvent, evtTime, evtTracks, eventIDClu, evNumFromCluTrk, 
+			  eventIDClu, evNumFromCluTrk);
+
+
+
+
 
 
         float hmpMom = hmpTrkConstrained.getP() * hmpTrkConstrained.getSign();
@@ -1350,6 +1347,9 @@ LOGP(info, "==================================== NEW TRACK in time ok ==========
 				
 
 
+				LOGP(info, "Event number : iEvent {}  : indexEvent {} || evtTime {} | evtTracks {} | evClu {} getEventNumberFromTrack {}", iEvent, indexEvent, evtTime, evtTracks, eventIDClu, evNumFromCluTrk,			  eventIDClu, evNumFromCluTrk);
+			  
+
 				
 
 				
@@ -1376,6 +1376,20 @@ LOGP(info, "==================================== NEW TRACK in time ok ==========
 			    if (mMCTruthON) {
 						auto mcTrk = mTracksLblWork[type][cacheTrk[itrk]];
 						mOutHMPLabels[type].push_back(mcTrk); 
+
+						LOGP(info, " added MC track iTrk {}; cacheTrk[itrk] {}", itrk, cacheTrk[itrk]);
+						
+						
+						auto trackID = mcTrk.getTrackID();// const { return static_cast<int>(mLabel & maskTrackID); }
+						auto evID = mcTrk.getEventID();// const { return isFake() ? -getTrackID() : getTrackID(); }
+						auto srcID = mcTrk.getSourceID();// const { return (mLabel >> nbitsTrackID) & maskEvID; }
+						auto fake = mcTrk.isFake();// const { return (mLabel >> (nbitsTrackID + nbitsEvID)) & maskSrcID; }
+
+						// ef : nt marked as const in MCOMPLabel
+						/// mcArray[j].get(trackID, evID, srcID, fake);
+						 LOGP(info, "matchHMP : mcTrk trackID {}, evID {}, srcID {}, fake {}", trackID, evID, srcID, fake);						
+						
+						
 					}   
 					
 					// 
@@ -1385,6 +1399,10 @@ LOGP(info, "==================================== NEW TRACK in time ok ==========
 
         } // If matched continue...
 
+
+
+			  
+			  
 
         // 7. Calculate the Cherenkov angle
 
