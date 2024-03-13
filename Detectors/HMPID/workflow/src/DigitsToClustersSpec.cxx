@@ -96,7 +96,6 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
   // outputs
   std::vector<o2::hmpid::Cluster> clusters;
   std::vector<o2::hmpid::Trigger> clusterTriggers;
-  std::vector<o2::hmpid::Topology> topVectorVector;
 
   LOG(info) << "[HMPID DClusterization - run() ] Enter ...";
   /*clusters.clear();
@@ -148,7 +147,7 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
 		  
 		// B) ef: if based on TOF:   
     //auto digitlabels = pc.inputs().get<std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>>*>("hmpiddigitlabels");
-    LOGP(info, "digitlabels size : {}", digitlabels->getSize());
+    // LOGP(info, "digitlabels size : {}", digitlabels->getSize());
 		    		    
     LOGP(info, "digitlabels of objs in truthArray : {}", digitlabels->getNElements());
     LOGP(info, "digitlabels of objs in headArray : {}", digitlabels->getIndexedSize());
@@ -229,7 +228,6 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
         
         
 				LOGP(info, "IP args to Dig2Clu : ");
-				LOGP(info, " Size Size {}", topVectorVector.size());
 				LOGP(info, " clusters Size {}", clusters.size());
 				LOGP(info, " trigDigits Size {}", trigDigits.size());  
 
@@ -250,17 +248,16 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
         
         
         // ef :should this not be vectors? 
-        //mRec->Dig2Clu(trigDigits, clusters, topVectorVector, mSigmaCut, labelVector, true);
-				mRec->Dig2Clu(trigDigits, clusters, topVectorVector, mSigmaCut, labelVector.get(), true);
+				mRec->Dig2Clu(trigDigits, clusters, mSigmaCut, labelVector.get(), true);
 
 
-        // mRec->Dig2Clu(trigDigits, clusters, topVectorVector, mSigmaCut, &(labelVector->at(i)), true);
+        // mRec->Dig2Clu(trigDigits, clusters, mSigmaCut, &(labelVector->at(i)), true);
 
         LOGP(info, "[HMPID DClusterization exit :: mRec->Dig2Clu");      
 
       } else {
         // mRec.process(mReader, mClustersArray, nullptr);
-        mRec->Dig2Clu(trigDigits, clusters, topVectorVector, mSigmaCut, nullptr, true);
+        mRec->Dig2Clu(trigDigits, clusters, mSigmaCut, nullptr, true);
       }
 
 

@@ -129,15 +129,6 @@ void ClusterReaderTask::initFileIn(const std::string& filename)
   }
 
 
-  if (mTree->GetBranchStatus("HMPIDDigitTopology") == 1) {
-    mTree->SetBranchAddress("HMPIDDigitTopology", &mTopologyFromFilePtr);
-  } /*else {
-    LOG(error)
-      << "HMPID ClusterReaderTask::init() : Did not find Branch in "
-      << filename.c_str();
-    throw std::runtime_error(
-      "HMPID ClusterReaderTask::init() : Did not find Branch HMPIDDigitTopology in clusters tree");
-  }*/
 
   // ef: get useMC, adpted from CPV
   if (mUseMC) {
@@ -162,7 +153,7 @@ o2::framework::DataProcessorSpec getClusterReaderSpec(bool useMC)
 
   std::vector<o2::framework::OutputSpec> outputs;
   outputs.emplace_back("HMP", "CLUSTERS", 0, o2::framework::Lifetime::Timeframe);
-  // outputs.emplace_back("HMP", "DIGITTOPOLOGY", 0, o2::framework::Lifetime::Timeframe);
+  
   outputs.emplace_back("HMP", "INTRECORDS1", 0, o2::framework::Lifetime::Timeframe);
 
   // ef: added here

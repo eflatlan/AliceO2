@@ -149,8 +149,9 @@ void DigitReader::run(ProcessingContext& pc)
     pc.services().get<ControlService>().readyToQuit(QuitRequest::Me);
     mExTimer.stop();
 
+
     if(mUseMC) {
-      LOG(info) << "[HMPID DigitsReader - with useMC : mcLabels.size = " << mLabels.getSize();
+      LOG(info) << "[HMPID DigitsReader - with useMC : mcLabels.size = " << mLabels.getNElements();
     }
 
     mExTimer.logMes("End DigitsReader !  digits = " +

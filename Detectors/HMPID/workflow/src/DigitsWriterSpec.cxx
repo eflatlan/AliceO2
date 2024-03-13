@@ -127,8 +127,8 @@ void DigitsToRootTask::run(framework::ProcessingContext& pc)
 
 
         // we do this in the STEER? 
-        digitLabels = pc.inputs().get<std::vector<o2::hmpid::Digit>>(ref);
-        LOG(info) << "The size of the vector =" << digitLabels.size();
+        //digitLabels = pc.inputs().get<std::vector<o2::hmpid::Digit>>(ref);
+        //LOG(info) << "The size of the vector =" << digitLabels.size();
         LOGP(info, "HMP CLASS DigitsToRootTask got DIGITSMCTR");
       }
     }

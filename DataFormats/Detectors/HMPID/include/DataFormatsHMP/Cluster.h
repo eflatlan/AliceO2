@@ -22,22 +22,7 @@ namespace o2
 namespace hmpid
 {
 
-struct Topology {
-  uint8_t posX = 0;
-  uint8_t posY = 0;
-  uint8_t mPh = 0;
-  uint16_t q = 0;
-  int pdg = 0;
-  int tid = 0;
-  int mid = 0;
-  int eid = 0;
-  int currentCluVecSize = 0;
 
-  Topology() = default; // Default constructor, uses default member initializers.
-
-  Topology(uint8_t x, uint8_t y, uint8_t ph, uint16_t q_val, int p, int t, int m, int e, int c)
-    : posX(x), posY(y), mPh(ph), q(q_val), pdg(p), tid(t), mid(m), eid(e), currentCluVecSize(c) {}
-};
 
 /// \class Cluster
 /// \brief HMPID cluster implementation
@@ -61,15 +46,8 @@ class Cluster
   float getEnergy() const { return mEnergy; }
   void setEnergy(float energy) { mEnergy = energy; }
 
-  void setLastTopologyIndex(int index) { mLastTopIndex = index; }
-  void setFirstTopologyIndex(int index) { mFirstTopIndex = index; }
-
-  int getLastTopologyIndex() const { return mLastTopIndex; }
-  int getFirstTopologyIndex() const { return mFirstTopIndex; }
-
   int getPDG() const { return mParticlePdg; }
   void setPDG(int pdg) { mParticlePdg = pdg; }
-
 
   void setEventNumberFromTrack(int eventNumberTrack) { mEventNumberTrack = eventNumberTrack; }
   int getEventNumberFromTrack() const { return mEventNumberTrack; }
@@ -85,14 +63,13 @@ class Cluster
 
   int getSourceId() const { return mSourceId; }
 
-  void setClusterTopology(std::vector<o2::hmpid::Topology>& topVector, const int currCluVecSize)
+  void setInfoFromDigits(const int currCluVecSize)
   {
 
-    // std::vector<o2::hmpid::Topology> topVector;
     //  Check for null or empty mDigs
     if (!mDigs || mDigs->empty()) {
       setEventNumber(-1);
-      return; // topVector;
+      return;
     }
 
     std::sort(mDigs->begin(), mDigs->end(), [](const o2::hmpid::Digit* a, const o2::hmpid::Digit* b) {
@@ -132,41 +109,7 @@ class Cluster
 
     const size_t digSize = mDigs->size();
 
-    // topVector.reserve(digSize);
 
-    for (const auto& dig : *mDigs) {
-      if (dig) {
-
-        const auto& posX = dig->getX(); // pos of digit
-        const auto& posY = dig->getY();
-        const auto& ph = dig->getPh();
-        const auto& q = dig->getQ();
-        const auto& pdg = dig->mParticlePdg;
-        const auto& tid = dig->mTrackId;
-        const auto& mid = dig->getMotherId();
-        const auto& eid = dig->getEventNumber();
-
-        if (pdg != 50000050 && pdg != 22)
-          setPDG(pdg);
-
-        LOGP(info, "pdg dig {}", pdg);
-        int pdgCat = 0;
-        if (pdg == 50000050 || pdg == 50000051) {
-          pdgCat = 4;
-        } else if (pdg == 211 || pdg == 111) { // Pion
-          pdgCat = 3;
-        } else if (pdg == 321) { // Kaon
-          pdgCat = 2;
-        } else if (pdg == 2212) { // Proton
-          pdgCat = 1;
-        } else { // Proton
-          pdgCat = 0;
-        }
-
-        topVector.emplace_back(o2::hmpid::Topology{posX, posY, ph, q, pdg, tid, mid, eid, currCluVecSize});
-      }
-    }
-    // return topVector;
   }
 
   Cluster() : mCh(-1), mSi(-1), mSt(kEmp), mBox(-1), mNlocMax(-1), mMaxQpad(-1), mMaxQ(-1), mQRaw(0), mQ(0), mErrQ(-1), mXX(0), mErrX(-1), mYY(0), mErrY(-1), mChi2(-1) {}
@@ -197,7 +140,7 @@ class Cluster
   inline bool isInPc(); // check if is in the current PC
   void reset();         // cleans the cluster
   // void setClusterParams(float xL, float yL, int iCh); //Set AliCluster3D part
-  int solve(std::vector<o2::hmpid::Cluster>* pCluLst, std::vector<o2::hmpid::Topology>& pTopVector, float* pSigmaCut, bool isUnfold); // solve cluster: MINUIT fit or CoG
+  int solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, bool isUnfold); // solve cluster: MINUIT fit or CoG
   // Getters
 
   // Setters
@@ -236,7 +179,6 @@ class Cluster
 
   // std::vector<int>  digsX, digsY, digsQ, digsPDG;//, digsTID, digsMID;//.push_back(dig->getX()); // pos of digit
 
-  int mLastTopIndex = -1, mFirstTopIndex = -1;
   int mCh;                                               // chamber number
   int mSi;                                               // size of the formed cluster from which this cluster deduced
   int mSt;                                               // flag to mark the quality of the cluster
@@ -253,7 +195,6 @@ class Cluster
   double mErrY;                                          // error on y postion, [cm]
   double mChi2;                                          // some estimator of the fit quality
   std::vector<const o2::hmpid::Digit*>* mDigs = nullptr; //! list of digits forming this cluster
-  // std::vector<Topology> mTopologyVector;
   float mEnergy = 0; // energy in GeV
 
  public:

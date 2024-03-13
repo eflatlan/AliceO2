@@ -26,7 +26,6 @@ namespace o2
 namespace hmpid
 {
 
-using Topology = o2::hmpid::Topology;
 
 bool o2::hmpid::Cluster::fgDoCorrSin = true;
 
@@ -259,7 +258,7 @@ void Cluster::print(Option_t* opt) const
 } // Print()
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, std::vector<Topology>& pTopVector, float* pSigmaCut, bool isTryUnfold/*,*/)
+int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, bool isTryUnfold/*,*/)
 {
   // This methode is invoked when the cluster is formed to solve it. Solve the cluster means to try to unfold the cluster
   // into the local maxima number of clusters. This methode is invoked by AliHMPIDRconstructor::Dig2Clu() on cluster by cluster basis.
@@ -288,28 +287,19 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, std::vector<Topolog
     // setClusterParams(mXX, mYY, mCh); //                               2 - flag is set to FALSE
     // new ((*pCluLst)[iCluCnt++]) Cluster(*this); //                      3 - size = 1
     pCluLst->push_back(o2::hmpid::Cluster(*this));
-    /*std::vector<Topology> topVec = */
 
 
-    // set index of first digit topology vector
-    pCluLst->back().setFirstTopologyIndex(pTopVector.size());
 
-
-    // pTopVector sent by reference, will be longer after assignment
-    pCluLst->back().setClusterTopology(pTopVector, pCluLst->size());
+    //if(useMC) { // EF: TODO: Set useMC cond here ? 
+    pCluLst->back().setInfoFromDigits(pCluLst->size());
     // , pCluLst->size() to set the index of the cluster in teh vector to each element 
-    //   in pTopVector thas is added
 
-
-    // set index of first digit topology vector
-    pCluLst->back().setLastTopologyIndex(pTopVector.size());
 
     //if(useMC) {
     //  pCluLst->back().setDigitTruth();
     //}
 
 
-    ////pTopVector->push_back(topVec);
     pCluLst->back().cleanPointers();
     return 1; // add this raw cluster
   }
@@ -366,8 +356,7 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, std::vector<Topolog
     mSt = kNoLoc;
     // setClusterParams(mXX, mYY, mCh); //need to fill the AliCluster3D part
     pCluLst->push_back(o2::hmpid::Cluster(*this)); // add new unfolded cluster pCluLst->push_back(o2::hmpid::Cluster(*this));
-    pCluLst->back().setClusterTopology(pTopVector, pCluLst->size());
-    ////pTopVector->push_back(topVec);
+    pCluLst->back().setInfoFromDigits(pCluLst->size());
     pCluLst->back().cleanPointers();
     return mNlocMax;
   }
@@ -377,8 +366,7 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, std::vector<Topolog
     // setClusterParams(mXX, mYY, mCh); // if # of local maxima exceeds kMaxLocMax...
     mSt = kMax;
     pCluLst->push_back(o2::hmpid::Cluster(*this)); //...add this raw cluster
-        pCluLst->back().setClusterTopology(pTopVector, pCluLst->size());
-    //pTopVector->push_back(topVec);
+      pCluLst->back().setInfoFromDigits(pCluLst->size());
     pCluLst->back().cleanPointers();
   } else { // or resonable number of local maxima to fit and user requested it
     // Now ready for minimization step
@@ -444,8 +432,7 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, std::vector<Topolog
       // setClusterParams(mXX, mYY, mCh); //need to fill the AliCluster3D part
       // Printf("********************loc. max. = %i, X= %f, Y = %f, Q = %f**************************",i,mXX,mYY,mQ);
       pCluLst->push_back(o2::hmpid::Cluster(*this)); // add new unfolded cluster
-      pCluLst->back().setClusterTopology(pTopVector, pCluLst->size());
-      ////pTopVector->push_back(topVec);
+      pCluLst->back().setInfoFromDigits(pCluLst->size());
       pCluLst->back().cleanPointers();
       if (mNlocMax > 1) {
         setSize(rawSize); // Original raw size is set again to its proper value

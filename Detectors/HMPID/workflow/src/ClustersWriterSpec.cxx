@@ -72,7 +72,7 @@ o2::framework::DataProcessorSpec getClusterWriterSpec(bool useMC)
 
                                 BranchDefinition<std::vector<o2::hmpid::Cluster>>{InputSpec{"hmpclusterinput", "HMP", "CLUSTERS"}, "HMPIDclusters"},
 
-                                // BranchDefinition<std::vector<o2::hmpid::Topology>>{InputSpec{"hmpdigittopology", "HMP", "DIGITTOPOLOGY"}, "HMPIDDigitTopology"},                                                            
+                                               
 
                                 BranchDefinition<std::vector<o2::hmpid::Trigger>>{InputSpec{"hmpinteractionrecords", "HMP", "INTRECORDS1"}, "InteractionRecords"},
 

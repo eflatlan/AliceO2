@@ -21,11 +21,10 @@
 
 // ef ::added
 
-#pragma link C++ function o2::hmpid::Cluster::setClusterTopology;
+// ef : TODO: have to add setInfoFromDig here ? 
+// #pragma link C++ function o2::hmpid::Cluster::setInfoFromDig;
 
 #pragma link C++ class o2::hmpid::Digit + ;
-#pragma link C++ class o2::hmpid::Topology + ;
-#pragma link C++ class vector < o2::hmpid::Topology> + ;
 
 #pragma link C++ class vector < int> + ;
 #pragma link C++ class vector < o2::hmpid::Digit> + ;
