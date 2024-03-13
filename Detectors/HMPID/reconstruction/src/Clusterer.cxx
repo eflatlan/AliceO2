@@ -45,7 +45,8 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
   //            isTryUnfold - flag to choose between CoG and Mathieson fitting
   //  Returns: none
 
-  LOGP(info, "\n\n called Dig2Clu : ");
+  const int numCluStart = clus.size();
+  LOGP(info, "\n\n ============================== called Dig2Clu\n looping over digits");
   LOGP(info, " clus Size {}", clus.size());
   LOGP(info, " digs Size {}", digs.size());  
   
@@ -72,7 +73,7 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
         padMap(padChX, padChY) = iDig; // fill the map for the given chamber, (padx,pady) cell takes digit index
       }
     } // digits loop for current chamber
-    LOGP(info, "looping over digits");
+    LOGP(info, "\n\n ============================== \n looping over digits");
     for (size_t iDig = 0; iDig < digs.size(); iDig++) { // digits loop for current chamber
       // o2::hmpid::Digit::pad2Absolute(digs[iDig].getPadID(), &module, &padChX, &padChY);
       if (vPad.at(iDig).m != iCh || (pUsedDig = UseDig(vPad.at(iDig).x, vPad.at(iDig).y, padMap)) == -1) { // this digit is from other module or already taken in FormClu(), go after next digit
@@ -110,7 +111,7 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
           int lbl = mClsLabels->getIndexedSize(); // this should correspond to the number of digits also;
 
 
-          LOGP(info, "\n================================\n");
+          LOGP(info, "\n ================================\n New iDig : {} \n================================\\n", iDig);
 
           LOGP(info, "lbl = {} (mClsLabels->getIndexedSize())", lbl);
 
@@ -119,25 +120,40 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
           const auto& digsOfClu = *(clu.getDigits());
 
           for(int digIndex = 0; digIndex < digsOfClu.size(); digIndex++) {  
-              LOGP(info, "contributing digit = {}", digIndex);
 
               int digitLabel = digsOfClu[digIndex]->getLabel();
               const int digEventNum = digsOfClu[digIndex]->getEventNumber();
 
               //printf("digitLabel = %d\n", digitLabel);
+              LOGP(info, "contributing digit = {}, digitLabel  = {}", digIndex, digitLabel);
 
-              LOGP(info, "digitLabel  = {}", digitLabel);
 
               gsl::span<const o2::MCCompLabel> mcArray = digitMCTruth->getLabels(digitLabel);
               for (int j = 0; j < static_cast<int>(mcArray.size()); j++) {
+                int trackID, evID, srcID;
+                bool fake;
+
+                trackID = mcArray[j].getTrackID();// const { return static_cast<int>(mLabel & maskTrackID); }
+                evID = mcArray[j].getEventID();// const { return isFake() ? -getTrackID() : getTrackID(); }
+                srcID = mcArray[j].getSourceID();// const { return (mLabel >> nbitsTrackID) & maskEvID; }
+                fake = mcArray[j].isFake();// const { return (mLabel >> (nbitsTrackID + nbitsEvID)) & maskSrcID; }
+
+                // ef : nt marked as const in MCOMPLabel
+                /// mcArray[j].get(trackID, evID, srcID, fake);
                 auto label = digitMCTruth->getElement(digitMCTruth->getMCTruthHeader(digitLabel).index + j);
                 mClsLabels->addElement(lbl, label);
                 LOGP(info, "checking element {} in array of labels", j);
+                LOGP(info, "mcArray : trackID {}, evID {}, srcID {}, fake {}", trackID, evID, srcID, fake);
 
                 //printf("checking element %d in the array of labels\n", j);
                 //printf("EventID = %d\n", label.getEventID());
                 LOGP(info, "EventID from MC-label  = {}",  label.getEventID());
+
+                LOGP(info, "EventID from MC-label : getTrackEventSourceID  = {}",  label.getTrackEventSourceID());
+
                 LOGP(info, "EventID from dig:  = {}", digEventNum);
+
+                LOGP(info, "num Digits : = {}", digs.size());
 
               }
           }
@@ -164,6 +180,7 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
 
       clu.solve(&clus, pUserCut, isUnfold); // solve this cluster and add all unfolded clusters to provided list
 			LOGP(info, "clu.solve ok");
+
       /*
       if(clu.dig(0)==nullptr)
     	Printf("dig2Clu Digit i0 nullptr ");
@@ -175,6 +192,13 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
     }                                       // digits loop for current chamber
     vPad.clear();
   } // chambers loop
+
+
+  // const int numCluStart = clus.size();
+  LOGP(info, "\n\n ============================== called Dig2Clu\n looping over digits");
+  LOGP(info, " new Clusters  {}", clus.size() - numCluStart);
+  LOGP(info, " digs Size {}", digs.size());  
+  
   return;
 } // Dig2Clu()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

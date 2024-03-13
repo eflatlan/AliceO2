@@ -103,24 +103,20 @@ WorkflowSpec defineDataProcessing(ConfigContext const& configcontext)
   LOG(info) << "HMP disable-root-output = " << disableRootOut;
 
   GID::mask_t alowedSources = GID::getSourcesMask("ITS-TPC,TPC-TRD,TPC-TOF,ITS-TPC-TRD,ITS-TPC-TOF,TPC-TRD-TOF,ITS-TPC-TRD-TOF");
-  LOGP(info, "L106");
   GID::mask_t src = alowedSources & GID::getSourcesMask(configcontext.options().get<std::string>("track-sources"));
   
-  LOGP(info, "L109");
 
-  GID::mask_t mcmaskcl;  LOGP(info, "L111");
+
+  GID::mask_t mcmaskcl;
   GID::mask_t nonemask = GID::getSourcesMask(GID::NONE);
-  LOGP(info, "L113");
+
   GID::mask_t clustermask = GID::getSourcesMask("HMP");
 
-
-  LOGP(info, "try to get getSourceMask HMP");
   if (useMC) {
     mcmaskcl |= GID::getSourceMask(GID::HMP);
   }
 
 
-  LOGP(info, "hmp-matcher-workflow.cxx inputspecs ");
   WorkflowSpec inputspecs;
   o2::globaltracking::InputHelper::addInputSpecs(configcontext, inputspecs, clustermask, src, src, useMC, mcmaskcl, GID::getSourcesMask(GID::ALL));
   if (configcontext.options().get<bool>("combine-devices")) {
@@ -134,7 +130,6 @@ WorkflowSpec defineDataProcessing(ConfigContext const& configcontext)
       specs.push_back(s);
     }
   }
-  LOGP(info, "hmp-matcher-workflow.cxx getHMPMatcherSpec ");
   specs.emplace_back(o2::globaltracking::getHMPMatcherSpec(src, useMC, extratolerancetrd, extratolerancetof));
 
   if (!disableRootOut) {

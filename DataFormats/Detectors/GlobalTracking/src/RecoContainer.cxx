@@ -293,8 +293,8 @@ void DataRequest::requestMCHClusters(bool mc)
 
 void DataRequest::requestHMPClusters(bool mc)
 {
-
-  mc = true;
+  // ef removed mc = true;
+  // mc = true;
   /*if (mc) { // RS: remove this once labels will be available
     LOG(warn) << "HMP clusters do not support MC lables, disabling";
     mc = false;
@@ -1027,6 +1027,8 @@ void RecoContainer::addTOFMatchesITSTPCTRD(ProcessingContext& pc, bool mc)
 //__________________________________________________________
 void RecoContainer::addHMPMatches(ProcessingContext& pc, bool mc)
 {
+
+  LOGP(info, "RecoContainer::addHMPMatches useMC {}", mc);
   commonPool[GTrackID::HMP].registerContainer(pc.inputs().get<gsl::span<o2::dataformats::MatchInfoHMP>>("matchHMP"), MATCHES); //  HMPID match info, no real tracks
   if (mc) {
     commonPool[GTrackID::HMP].registerContainer(pc.inputs().get<gsl::span<o2::MCCompLabel>>("clsHMP_GLO_MCTR"), MCLABELS);

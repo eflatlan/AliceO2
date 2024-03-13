@@ -561,8 +561,30 @@ void MatchHMP::addConstrainedSeed(o2::track::TrackParCov& trc, o2::dataformats::
 
 
     if (mMCTruthON) {
+		  //
 
       mTracksLblWork[o2::globaltracking::MatchHMP::trackType::CONSTR].emplace_back(mRecoCont->getTPCITSTrackMCLabel(srcGID));
+      
+      
+
+      int trackID, evID, srcID;
+      bool fake;
+			// mTracksLblWork.back().get();
+	
+
+			const int currentSize = mTracksLblWork[o2::globaltracking::MatchHMP::trackType::CONSTR].size();
+			LOGP(info, "matchHMP : addConstrainedSeed currentSuze {}", currentSize);
+			
+			auto track = mTracksLblWork[o2::globaltracking::MatchHMP::trackType::CONSTR][currentSize-1];
+      trackID = track.getTrackID();// const { return static_cast<int>(mLabel & maskTrackID); }
+      evID = track.getEventID();// const { return isFake() ? -getTrackID() : getTrackID(); }
+      srcID = track.getSourceID();// const { return (mLabel >> nbitsTrackID) & maskEvID; }
+      fake = track.isFake();// const { return (mLabel >> (nbitsTrackID + nbitsEvID)) & maskSrcID; }
+
+      // ef : nt marked as const in MCOMPLabel
+      /// mcArray[j].get(trackID, evID, srcID, fake);
+       LOGP(info, "matchHMP : addConstrainedSeed got from ITSTPC : trackID {}, evID {}, srcID {}, fake {}", trackID, evID, srcID, fake);
+
 
     }
 
@@ -630,7 +652,8 @@ void MatchHMP::addTPCSeed(const o2::tpc::TrackTPC& _tr, o2::dataformats::GlobalT
 
 
 
-  if (mMCTruthON) { mTracksLblWork[o2::globaltracking::MatchHMP::trackType::UNCONS].emplace_back(mRecoCont->getTPCTrackMCLabel(srcGID));
+  if (mMCTruthON) { 
+    mTracksLblWork[o2::globaltracking::MatchHMP::trackType::UNCONS].emplace_back(mRecoCont->getTPCTrackMCLabel(srcGID));
 
   }
 
@@ -987,7 +1010,7 @@ LOGP(info, "==================================== NEW TRACK in time ok ==========
 
 				Printf("==================  clusters loop ==================");
 
-        for (int j = event.getFirstEntry(); j <= event.getLastEntry(); j++) { // event clusters loop
+        for (int j = event.getFirstEntry(); j <= event.getLastEntry(); j++) { // event clusters loops
 
 
 
@@ -998,9 +1021,25 @@ LOGP(info, "==================================== NEW TRACK in time ok ==========
 	    			continue; //? 
 
           }*/ 
-
+			
 
           auto& cluster = (o2::hmpid::Cluster&)mHMPClustersArray[j];
+
+
+					/* 
+					LOGP(info, " mHMPClusLabels size : {}", mHMPClusLabels->getNElements());          
+          
+          if(mMCTruthON) {
+    
+            if(mHMPClusLabels->getNElements() > j) {
+           	  auto clusterMC = mHMPClusLabels[j];
+  						LOGP(info, " got clusterMC");
+          	}
+           	
+          } */ 
+          
+
+
 
 					eventIDClu = cluster.getEventNumber();
 
@@ -1316,6 +1355,31 @@ LOGP(info, "==================================== NEW TRACK in time ok ==========
 				
         if (!isMatched) {
           mMatchedTracks[type].push_back(matching);
+
+
+					// trkType = type = o2::globaltracking::MatchHMP::trackType::CONSTR
+					// ef TODO : add track from MC here 
+		      // auto& labelTrack = TracksLblWork[trkType][itrk];
+          
+          // OutTOFLabels[trkTypeSplitted].
+          //emplace_back(labelTrack).setFakeFlag(fake);
+
+          // mOutHMPLabels[type].push_back(matching);          
+          
+      
+
+					// trk = mTracksWork[type][cacheTrk[itrk]];
+					
+					// ef : add MC track
+					
+					
+			    if (mMCTruthON) {
+						auto mcTrk = mTracksLblWork[type][cacheTrk[itrk]];
+						mOutHMPLabels[type].push_back(mcTrk); 
+					}   
+					
+					// 
+	
           oneEventClusters.clear();
           continue;
 
@@ -1341,6 +1405,12 @@ LOGP(info, "==================================== NEW TRACK in time ok ==========
 				// add value indicating matched properly?
 				matching.setMatchTrue();
         mMatchedTracks[type].push_back(matching);
+
+
+		    if (mMCTruthON) {
+						auto mcTrk = mTracksLblWork[type][cacheTrk[itrk]];
+						mOutHMPLabels[type].push_back(mcTrk); 
+				}   
 
         oneEventClusters.clear();
 

@@ -122,8 +122,8 @@ void DigitReader::run(ProcessingContext& pc)
   TBranch* branch = mTreeDig->GetBranch("HMPIDDigitMCTruth");
 
 	if (branch) {
-	    const char* className = branch->GetClassName();
-	    std::cout << "Class type of the objects in this branch is: " << className << std::endl;
+	    //const char* className = branch->GetClassName();
+	    //std::cout << "Class type of the objects in this branch is: " << className << std::endl;
 	} else {
 	    std::cout << "Branch not found!" << std::endl;
 	}
