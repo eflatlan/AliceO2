@@ -50,6 +50,11 @@ void HMPMatchedReader::connectTree(const std::string& filename)
   mTree.reset((TTree*)mFile->Get(mInTreeName.c_str()));
   assert(mTree);
   mTree->SetBranchAddress("HMPMatchInfo", &mMatchesPtr);
+  
+  
+  
+  // ef : TODO: remove print 
+  LOGP(debug, "HMPMatchedReader : connectTree useMC {}", mUseMC);
   if (mUseMC) {
     mTree->SetBranchAddress("MatchHMPMCTruth", &mLabelHMPPtr);
   }
@@ -66,6 +71,10 @@ void HMPMatchedReader::run(ProcessingContext& pc)
   pc.outputs().snapshot(Output{o2::header::gDataOriginHMP, "MATCHES", 0}, mMatches);
   if (mUseMC) {
     pc.outputs().snapshot(Output{o2::header::gDataOriginHMP, "MCLABELS", 0}, mLabelHMP);
+    
+    
+    // ef: TODO: make debugor remove print 
+    LOG(info) << "Pushing mLabelHMP (mOutHMPLabels) of size " << mLabelHMP.size() << " HMP at entry " << currEntry;
   }
 
   if (mTree->GetReadEntry() + 1 >= mTree->GetEntries()) {

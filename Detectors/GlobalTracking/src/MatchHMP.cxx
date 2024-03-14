@@ -403,13 +403,9 @@ void MatchHMP::addITSTPCSeed(const o2::dataformats::TrackTPCITS& _tr, o2::datafo
 
 
   auto trc = _tr.getParamOut();
-
   o2::track::TrackLTIntegral intLT0 = _tr.getLTIntegralOut();
 
-
-
   timeEst ts(time0, terr);
-
 
 
   addConstrainedSeed(trc, srcGID, ts);
@@ -573,7 +569,7 @@ void MatchHMP::addConstrainedSeed(o2::track::TrackParCov& trc, o2::dataformats::
 	
 
 			const int currentSize = mTracksLblWork[o2::globaltracking::MatchHMP::trackType::CONSTR].size();
-			LOGP(info, "matchHMP : addConstrainedSeed currentSuze {}", currentSize);
+			LOGP(info, "matchHMP : mTracksLblWork currentSize {}", currentSize);
 			
 			auto track = mTracksLblWork[o2::globaltracking::MatchHMP::trackType::CONSTR][currentSize-1];
       trackID = track.getTrackID();// const { return static_cast<int>(mLabel & maskTrackID); }
@@ -583,8 +579,7 @@ void MatchHMP::addConstrainedSeed(o2::track::TrackParCov& trc, o2::dataformats::
 
       // ef : nt marked as const in MCOMPLabel
       /// mcArray[j].get(trackID, evID, srcID, fake);
-       LOGP(info, "matchHMP : addConstrainedSeed got from ITSTPC : trackID {}, evID {}, srcID {}, fake {}", trackID, evID, srcID, fake);
-
+       LOGP(debug, "matchHMP : addConstrainedSeed got from ITSTPC : trackID {}, evID {}, srcID {}, fake {}", trackID, evID, srcID, fake);
 
     }
 
@@ -654,7 +649,6 @@ void MatchHMP::addTPCSeed(const o2::tpc::TrackTPC& _tr, o2::dataformats::GlobalT
 
   if (mMCTruthON) { 
     mTracksLblWork[o2::globaltracking::MatchHMP::trackType::UNCONS].emplace_back(mRecoCont->getTPCTrackMCLabel(srcGID));
-
   }
 
 
@@ -705,11 +699,6 @@ bool MatchHMP::prepareHMPClusters()
     //  cache work track index
 
     mHMPTriggersIndexCache.push_back(mHMPTriggersWork.size() - 1);
-
-
-
-    LOG(info) << "mHMPTriggersIndexCache it = " << it;
-
   }
 
 
@@ -920,7 +909,7 @@ void MatchHMP::doMatching()
         evtTracks++;
 
 
-LOGP(info, "==================================== NEW TRACK in time ok ================== evtTracks {}", evtTracks);
+LOGP(debug, "==================================== NEW TRACK in time ok ================== evtTracks {}", evtTracks);
 
         /*auto hmpTrk = std::make_unique<TrackHMP>(trefTrk); // create a hmpid track to be used for propagation and matching
 
@@ -1347,7 +1336,7 @@ LOGP(info, "==================================== NEW TRACK in time ok ==========
 				
 
 
-				LOGP(info, "Event number : iEvent {}  : indexEvent {} || evtTime {} | evtTracks {} | evClu {} getEventNumberFromTrack {}", iEvent, indexEvent, evtTime, evtTracks, eventIDClu, evNumFromCluTrk,			  eventIDClu, evNumFromCluTrk);
+				LOGP(info, "Event number : iEvent {}  : indexEvent {} || evtTime {} | evtTracks {} | evClu {} getEventNumberFromTrack {}", iEvent, indexEvent, evtTime, evtTracks, eventIDClu, evNumFromCluTrk);
 			  
 
 				
@@ -1387,9 +1376,10 @@ LOGP(info, "==================================== NEW TRACK in time ok ==========
 
 						// ef : nt marked as const in MCOMPLabel
 						/// mcArray[j].get(trackID, evID, srcID, fake);
-						 LOGP(info, "matchHMP : mcTrk trackID {}, evID {}, srcID {}, fake {}", trackID, evID, srcID, fake);						
-						
-						
+						LOGP(info, "matchHMP : mcTrk trackID {}, evID {}, srcID {}, fake {}", trackID, evID, srcID, fake);						
+						LOGP(info, "matchHMP : mOutHMPLabels currentSize {}", mOutHMPLabels[type].size());
+						LOGP(info, "matchHMP : mMatchedTracks currentSize {}", mMatchedTracks[type].size());
+
 					}   
 					
 					// 
@@ -1426,9 +1416,25 @@ LOGP(info, "==================================== NEW TRACK in time ok ==========
 
 
 		    if (mMCTruthON) {
-						auto mcTrk = mTracksLblWork[type][cacheTrk[itrk]];
-						mOutHMPLabels[type].push_back(mcTrk); 
-				}   
+					auto mcTrk = mTracksLblWork[type][cacheTrk[itrk]];
+					mOutHMPLabels[type].push_back(mcTrk); 
+
+					LOGP(info, " added MC track iTrk {}; cacheTrk[itrk] {}", itrk, cacheTrk[itrk]);
+					
+					
+					auto trackID = mcTrk.getTrackID();// const { return static_cast<int>(mLabel & maskTrackID); }
+					auto evID = mcTrk.getEventID();// const { return isFake() ? -getTrackID() : getTrackID(); }
+					auto srcID = mcTrk.getSourceID();// const { return (mLabel >> nbitsTrackID) & maskEvID; }
+					auto fake = mcTrk.isFake();// const { return (mLabel >> (nbitsTrackID + nbitsEvID)) & maskSrcID; }
+
+					// ef : nt marked as const in MCOMPLabel
+					/// mcArray[j].get(trackID, evID, srcID, fake);
+					LOGP(info, "matchHMP : mcTrk trackID {}, evID {}, srcID {}, fake {}", trackID, evID, srcID, fake);						
+					
+					LOGP(info, "matchHMP : mOutHMPLabels currentSize {}", mOutHMPLabels[type].size());
+          LOGP(info, "matchHMP : mMatchedTracks currentSize {}", mMatchedTracks[type].size());
+					
+				}   				
 
         oneEventClusters.clear();
 
