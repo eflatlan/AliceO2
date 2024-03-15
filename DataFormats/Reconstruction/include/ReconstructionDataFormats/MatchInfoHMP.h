@@ -91,6 +91,10 @@ class MatchInfoHMP
     x = xPcUnc;
     y = yPcUnc;
   }
+  
+  
+  void setEventNumberFromTrack(int eventNumberTrack) { mEventNumberTrack = eventNumberTrack; }
+  int getEventNumberFromTrack() const { return mEventNumberTrack; }  
 
   void setMipClusPDG(int pdg) { mMipCluPDG = pdg; }
   int getMipClusEventPDG() const { return mMipCluPDG; }
@@ -224,6 +228,8 @@ class MatchInfoHMP
   float mRefIndex = 1.27;
   int mEvent;
   int miCh;
+  
+  int mEventNumberTrack = -1;
 
   float mDist = -1., mDistThre = -1.; // distance to MIP, cut for distance used
 

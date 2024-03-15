@@ -1114,6 +1114,11 @@ LOGP(debug, "==================================== NEW TRACK in time ok =========
 
         }
 
+
+				// ef :added
+				matching.setEventNumberFromTrack(iEvent);
+				
+				
         matching.setMipClusQ(bestHmpCluster->q());
 
         double Dist = TMath::Sqrt((xPc - bestHmpCluster->x()) * (xPc - bestHmpCluster->x()) + (yPc - bestHmpCluster->y()) * (yPc - bestHmpCluster->y()));
