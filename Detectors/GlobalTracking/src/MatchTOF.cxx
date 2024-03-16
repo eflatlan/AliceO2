@@ -610,7 +610,7 @@ void MatchTOF::addConstrainedSeed(o2::track::TrackParCov& trc, o2::dataformats::
     mTracksLblWork[sector][trkType::CONSTR].emplace_back(mRecoCont->getTPCITSTrackMCLabel(srcGID));
   }
 
-  //delete trc; // Check: is this needed?
+  // delete trc; // Check: is this needed?
 } //______________________________________________
 void MatchTOF::addTRDSeed(const o2::trd::TrackTRD& _tr, o2::dataformats::GlobalTrackID srcGID, float time0, float terr)
 {
@@ -726,7 +726,7 @@ bool MatchTOF::prepareTOFClusters()
 
   for (int sec = o2::constants::math::NSectors - 1; sec > -1; sec--) {
     mTOFClusSectIndexCache[sec].clear();
-    //mTOFClusSectIndexCache[sec].reserve(100 + 1.2 * mNumOfClusters / o2::constants::math::NSectors); // we cannot do this, we don't have mNumOfClusters yet
+    // mTOFClusSectIndexCache[sec].reserve(100 + 1.2 * mNumOfClusters / o2::constants::math::NSectors); // we cannot do this, we don't have mNumOfClusters yet
   }
 
   mNumOfClusters = 0;
@@ -810,7 +810,7 @@ void MatchTOF::doMatching(int sec)
     int istep = 1;                                                                                                                          // number of steps
     float step = 1.0;                                                                                                                       // step size in cm
 
-    //uncomment for local debug
+    // uncomment for local debug
     /*
     //trefTrk.getXYZGlo(posBeforeProp);
     //float posBeforeProp[3] = {trefTrk.getX(), trefTrk.getY(), trefTrk.getZ()}; // in local ref system
@@ -858,7 +858,7 @@ void MatchTOF::doMatching(int sec)
       }
 
       // uncomment below only for local debug; this will produce A LOT of output - one print per propagation step
-      //Printf("detIdTemp[0] = %d, detIdTemp[1] = %d, detIdTemp[2] = %d, detIdTemp[3] = %d, detIdTemp[4] = %d", detIdTemp[0], detIdTemp[1], detIdTemp[2], detIdTemp[3], detIdTemp[4]);
+      // Printf("detIdTemp[0] = %d, detIdTemp[1] = %d, detIdTemp[2] = %d, detIdTemp[3] = %d, detIdTemp[4] = %d", detIdTemp[0], detIdTemp[1], detIdTemp[2], detIdTemp[3], detIdTemp[4]);
       // if (nStripsCrossedInPropagation == 0) { // print in case you have a useful propagation
       //   LOG(debug) << "*********** We have crossed a strip during propagation!*********";
       //   LOG(debug) << "Global coordinates: pos[0] = " << pos[0] << ", pos[1] = " << pos[1] << ", pos[2] = " << pos[2];
@@ -885,7 +885,7 @@ void MatchTOF::doMatching(int sec)
         }
         nStripsCrossedInPropagation++;
       }
-      //Printf("nStepsInsideSameStrip[nStripsCrossedInPropagation-1] = %d", nStepsInsideSameStrip[nStripsCrossedInPropagation - 1]);
+      // Printf("nStepsInsideSameStrip[nStripsCrossedInPropagation-1] = %d", nStepsInsideSameStrip[nStripsCrossedInPropagation - 1]);
       if (nStepsInsideSameStrip[nStripsCrossedInPropagation - 1] == 0) {
         detId[nStripsCrossedInPropagation - 1][0] = detIdTemp[0];
         detId[nStripsCrossedInPropagation - 1][1] = detIdTemp[1];
@@ -922,10 +922,10 @@ void MatchTOF::doMatching(int sec)
       //      printf("itof = %d\n", itof);
       auto& trefTOF = mTOFClusWork[cacheTOF[itof]];
       // compare the times of the track and the TOF clusters - remember that they both are ordered in time!
-      //Printf("trefTOF.getTime() = %f, maxTrkTime = %f, minTrkTime = %f", trefTOF.getTime(), maxTrkTime, minTrkTime);
+      // Printf("trefTOF.getTime() = %f, maxTrkTime = %f, minTrkTime = %f", trefTOF.getTime(), maxTrkTime, minTrkTime);
 
       if (trefTOF.getTime() < minTrkTime) { // this cluster has a time that is too small for the current track, we will get to the next one
-        //Printf("In trefTOF.getTime() < minTrkTime");
+        // Printf("In trefTOF.getTime() < minTrkTime");
         itof0 = itof + 1; // but for the next track that we will check, we will ignore this cluster (the time is anyway too small)
         continue;
       }
@@ -1057,10 +1057,10 @@ void MatchTOF::doMatchingForTPC(int sec)
 
     int side = mSideTPC[sec][cacheTrk[itrk]];
     // look at BC candidates for the track
-    double tpctime = trackWork.second.getTimeStamp();                                                                // in mus
-    double minTrkTime = (tpctime - trackWork.second.getTimeStampError()) * 1.E6 + timeShift;                         // minimum time in ps
-    minTrkTime = int(minTrkTime / BCgranularity) * BCgranularity;                                                    // align min to a BC
-    double maxTrkTime = (tpctime + mExtraTPCFwdTime[sec][cacheTrk[itrk]]) * 1.E6 + timeShift;                        // maximum time in ps
+    double tpctime = trackWork.second.getTimeStamp();                                         // in mus
+    double minTrkTime = (tpctime - trackWork.second.getTimeStampError()) * 1.E6 + timeShift;  // minimum time in ps
+    minTrkTime = int(minTrkTime / BCgranularity) * BCgranularity;                             // align min to a BC
+    double maxTrkTime = (tpctime + mExtraTPCFwdTime[sec][cacheTrk[itrk]]) * 1.E6 + timeShift; // maximum time in ps
 
     if (mIsCosmics) {
       for (double tBC = minTrkTime; tBC < maxTrkTime; tBC += BCgranularity) {
@@ -1120,7 +1120,7 @@ void MatchTOF::doMatchingForTPC(int sec)
     int istep = 1;    // number of steps
     float step = 1.0; // step size in cm
 
-    //uncomment for local debug
+    // uncomment for local debug
     /*
     //trefTrk.getXYZGlo(posBeforeProp);
     //float posBeforeProp[3] = {trefTrk.getX(), trefTrk.getY(), trefTrk.getZ()}; // in local ref system
@@ -1190,7 +1190,7 @@ void MatchTOF::doMatchingForTPC(int sec)
           nStripsCrossedInPropagation[ibc]++;
         }
 
-        //Printf("nStepsInsideSameStrip[nStripsCrossedInPropagation-1] = %d", nStepsInsideSameStrip[nStripsCrossedInPropagation - 1]);
+        // Printf("nStepsInsideSameStrip[nStripsCrossedInPropagation-1] = %d", nStepsInsideSameStrip[nStripsCrossedInPropagation - 1]);
         if (nStepsInsideSameStrip[ibc][nStripsCrossedInPropagation[ibc] - 1] == 0) {
           detId[ibc][nStripsCrossedInPropagation[ibc] - 1][0] = detIdTemp[0];
           detId[ibc][nStripsCrossedInPropagation[ibc] - 1][1] = detIdTemp[1];
@@ -1634,7 +1634,7 @@ bool MatchTOF::propagateToRefX(o2::track::TrackParCov& trc, float xRef, float st
     istep++;
     if (fabs(trc.getY()) > trc.getX() * tanHalfSector) { // we are still in the same sector
       // we need to rotate the track to go to the new sector
-      //Printf("propagateToRefX: changing sector");
+      // Printf("propagateToRefX: changing sector");
       auto alphaNew = o2::math_utils::angle2Alpha(trc.getPhiPos());
       if (!trc.rotate(alphaNew) != 0) {
         //  Printf("propagateToRefX: failed to rotate");
@@ -1648,7 +1648,7 @@ bool MatchTOF::propagateToRefX(o2::track::TrackParCov& trc, float xRef, float st
   }
 
   //  if (std::abs(trc.getSnp()) > MAXSNP) Printf("propagateToRefX: condition on snp not ok, returning false");
-  //Printf("propagateToRefX: snp of teh track is %f (--> %f grad)", trc.getSnp(), TMath::ASin(trc.getSnp())*TMath::RadToDeg());
+  // Printf("propagateToRefX: snp of teh track is %f (--> %f grad)", trc.getSnp(), TMath::ASin(trc.getSnp())*TMath::RadToDeg());
   return refReached && std::abs(trc.getSnp()) < 0.95; // Here we need to put MAXSNP
 }
 
@@ -1674,7 +1674,7 @@ bool MatchTOF::propagateToRefXWithoutCov(o2::track::TrackParCov& trc, float xRef
     istep++;
     if (fabs(trcNoCov.getY()) > trcNoCov.getX() * tanHalfSector) { // we are still in the same sector
       // we need to rotate the track to go to the new sector
-      //Printf("propagateToRefX: changing sector");
+      // Printf("propagateToRefX: changing sector");
       auto alphaNew = o2::math_utils::angle2Alpha(trcNoCov.getPhiPos());
       if (!trcNoCov.rotateParam(alphaNew) != 0) {
         //  Printf("propagateToRefX: failed to rotate");
@@ -1687,7 +1687,7 @@ bool MatchTOF::propagateToRefXWithoutCov(o2::track::TrackParCov& trc, float xRef
     hasPropagated = trcNoCov.propagateParamTo(xStart + istep * stepInCm, bzField);
   }
   //  if (std::abs(trc.getSnp()) > MAXSNP) Printf("propagateToRefX: condition on snp not ok, returning false");
-  //Printf("propagateToRefX: snp of teh track is %f (--> %f grad)", trcNoCov.getSnp(), TMath::ASin(trcNoCov.getSnp())*TMath::RadToDeg());
+  // Printf("propagateToRefX: snp of teh track is %f (--> %f grad)", trcNoCov.getSnp(), TMath::ASin(trcNoCov.getSnp())*TMath::RadToDeg());
 
   return refReached && std::abs(trcNoCov.getSnp()) < 0.95 && TMath::Abs(trcNoCov.getZ()) < Geo::MAXHZTOF; // Here we need to put MAXSNP
 }

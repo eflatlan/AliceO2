@@ -1504,7 +1504,7 @@ bool MatchTPCITS::refitTrackTPCITS(int slot, int iTPC, int& iITS, pmr::vector<o2
   auto& trfit = matchedTracks[slot];
   ((o2::track::TrackParCov&)trfit) = (const o2::track::TrackParCov&)tTPC;
   trfit.getParamOut() = (const o2::track::TrackParCov&)tITS; // create a copy of TPC track at xRef
-  trfit.getParamOut().setUserField(0);                  // reset eventual clones flag
+  trfit.getParamOut().setUserField(0);                       // reset eventual clones flag
   trfit.setPID(tTPC.getPID(), true);
   trfit.getParamOut().setPID(tTPC.getPID(), true);
   // in continuos mode the Z of TPC track is meaningless, unless it is CE crossing

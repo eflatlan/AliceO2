@@ -171,7 +171,7 @@ void MatchCosmics::refitWinners(const o2::globaltracking::RecoContainer& data)
         trCosm.setQ2Pt(-o2::track::kMostProbablePt);
       }
       int retVal = tpcRefitter->RefitTrackAsTrackParCov(trCosm, tpcTrOrig.getClusterRef(), t0 * tpcTBinMUSInv, &chi2, false, false); // inward refit, reset
-      if (retVal < 0) {                                                                                                             // refit failed
+      if (retVal < 0) {                                                                                                              // refit failed
         LOG(debug) << "Inward refit of btm TPC track failed.";
         continue;
       }
