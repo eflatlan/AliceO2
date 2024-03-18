@@ -519,6 +519,10 @@ bool MatchHMP::prepareHMPClusters()
 
   int nTriggersInCurrentChunk = mHMPTriggersArray.size();
 
+
+  LOGP(info, "MatchHMP::prepareHMPClusters : numClusters {}, numMcClusters", mHMPClustersArray.size(),  mHMPClusLabels->getNElements());
+
+
   LOG(debug) << "nTriggersInCurrentChunk = " << nTriggersInCurrentChunk;
 
   mNumOfTriggers += nTriggersInCurrentChunk;
@@ -743,9 +747,13 @@ void MatchHMP::doMatching()
 
           auto& cluster = (o2::hmpid::Cluster&)mHMPClustersArray[j];
 
+
+
+
+          // ef : we should not need this in matching? :
+          // we read this from Cluster file? 
           /*
           LOGP(info, " mHMPClusLabels size : {}", mHMPClusLabels->getNElements());
-
           if(mMCTruthON) {
 
             if(mHMPClusLabels->getNElements() > j) {
@@ -910,7 +918,6 @@ void MatchHMP::doMatching()
 
         matching.setMipClusEvent(bestHmpCluster->getEventNumber()); // ef: set event number from cluster
 
-        // matching.setMipClusEvent(eventIDClu);
 
         // matching->setEventNumber(indexEvent);
 
@@ -921,7 +928,7 @@ void MatchHMP::doMatching()
         // ef : wrong to use xPc, yPc here? should be xPcConstrained, yPcConstrained??
 
         matching.setHMPIDtrk(xRa, yRa, xPcConstrained, yPcConstrained, thetaConst, phiConst);
-        
+
         matching.setUnconstrainedPc(xPc, yPc);
 
         // matching.setHMPIDtrk(xRa, yRa, xPc, yPc, theta, phi);
@@ -961,7 +968,6 @@ void MatchHMP::doMatching()
         matching.setChamber(iCh);
         matching.setMipClusEvent(eventIDClu);
         matching.setEventNumber(indexEvent); // 				matching.setEventNumber(iEvent);
-
         matching.setMipClusEvent(bestHmpCluster->getEventNumberFromTrack());
 
         /*Check values */
@@ -971,10 +977,14 @@ void MatchHMP::doMatching()
         const auto qMip = bestHmpCluster->q();
         const auto sizeMip = bestHmpCluster->size();
 
+
+
+        /*
         matching.setMipX(xMip);
         matching.setMipY(yMip);
         matching.setMipClusCharge(qMip);
         matching.setMipClusSize(sizeMip);
+        */ 
 
         Printf("bestHmpCluster  x %.2f y %.2f q  %.2f size :%d", xMip, yMip, qMip, sizeMip);
 
