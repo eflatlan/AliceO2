@@ -888,13 +888,13 @@ void MatchHMP::doMatching()
 
         // 5. Propagation in the last 10 cm with the fast method
 
-        double xPc0 = 0., yPc0 = 0.;
+        double xPcConstrained = 0., yPcConstrained = 0.;
 
         double thetaConst, phiConst;
 
-        intTrkCha(iCh, &hmpTrkConstrained, xPc0, yPc0, xRa, yRa, thetaConst, phiConst, bz);
+        intTrkCha(iCh, &hmpTrkConstrained, xPcConstrained, yPcConstrained, xRa, yRa, thetaConst, phiConst, bz);
 
-        Printf("5. intTrkCha   xRa %.2f xPc0 %.2f yRa %.2f,  yPc0 %.2f", xRa, xPc0, yRa, yPc0);
+        Printf("5. intTrkCha   xRa %.2f xPcConstrained %.2f yRa %.2f,  yPcConstrained %.2f", xRa, xPcConstrained, yRa, yPcConstrained);
 
         // 6. Set match information
 
@@ -918,18 +918,16 @@ void MatchHMP::doMatching()
 
         // matching.setMIPindex(index); // the position of the MIP in the qrray of clusters
 
-        // ef : wrong to use xPc, yPc here? should be xPc0, yPc0??
+        // ef : wrong to use xPc, yPc here? should be xPcConstrained, yPcConstrained??
 
-        matching.setHMPIDtrk(xRa, yRa, xPc0, yPc0, thetaConst, phiConst);
+        matching.setHMPIDtrk(xRa, yRa, xPcConstrained, yPcConstrained, thetaConst, phiConst);
+        
+        matching.setUnconstrainedPc(xPc, yPc);
 
         // matching.setHMPIDtrk(xRa, yRa, xPc, yPc, theta, phi);
 
         matching.setHMPsignal(pParam->kMipQdcCut);
 
-
-
-
-        matching.setHMPIDtrk(xPc, yPc, theta, phi);
 
         if (!isOkQcut) {
 
@@ -943,9 +941,8 @@ void MatchHMP::doMatching()
         const auto maxDistAcc = 1.5;
 
         if (dmin < maxDistAcc) {
-
           isOkDcut = kTRUE;
-        }
+        } 
 
         // isOkDcut = kTRUE; // switch OFF cut
 
@@ -993,9 +990,6 @@ void MatchHMP::doMatching()
           // trkType = type = o2::globaltracking::MatchHMP::trackType::CONSTR
           // ef TODO : add track from MC here
           // auto& labelTrack = TracksLblWork[trkType][itrk];
-
-          // OutTOFLabels[trkTypeSplitted].
-          // emplace_back(labelTrack).setFakeFlag(fake);
 
           // mOutHMPLabels[type].push_back(matching);
 
