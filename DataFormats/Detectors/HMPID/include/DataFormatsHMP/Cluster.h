@@ -99,18 +99,16 @@ class Cluster
     setEventNumber((*mDigs)[0]->getEventNumber());
 
     // assuming main digit now is the first...
-    // ef : does this really make sense ? Can check if they are from same mtrack?
     setTrackId((*mDigs)[0]->getTrackId());
     setMotherId((*mDigs)[0]->getMotherId());
     setPDG((*mDigs)[0]->getPDG());
 
+    /*
     LOGP(info, "======================");
     LOGP(info, "Based on charge : pdg {} mother {} tid {}", (*mDigs)[0]->getPDG(), (*mDigs)[0]->getMotherId(), (*mDigs)[0]->getTrackId());
     LOGP(info, "Based on pos : pdg {} mother {} tid {}", digs[0]->getPDG(), digs[0]->getMotherId(), digs[0]->getTrackId());
-
+    */
     const size_t digSize = mDigs->size();
-
-
   }
 
   Cluster() : mCh(-1), mSi(-1), mSt(kEmp), mBox(-1), mNlocMax(-1), mMaxQpad(-1), mMaxQ(-1), mQRaw(0), mQ(0), mErrQ(-1), mXX(0), mErrX(-1), mYY(0), mErrY(-1), mChi2(-1) {}
@@ -122,12 +120,12 @@ class Cluster
   void cleanPointers()
   {
 
+    /*
     // set the photon energy from the digits :
-
     size_t size = std::min(mDigs->size(), (size_t)12);
     for (size_t i = 0; i < size; ++i) {
       mPhotEnergy[i] = (*mDigs)[i]->getEnergy();
-    }
+    } */
 
     mDigs = nullptr;
   }

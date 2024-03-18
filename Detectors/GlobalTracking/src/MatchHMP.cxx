@@ -93,10 +93,6 @@ using Recon = o2::hmpid::Recon;
 
 using MatchInfo = o2::dataformats::MatchInfoHMP;
 
-using MLinfoHMP = o2::dataformats::MLinfoHMP;
-
-using MLinfoHMP = o2::dataformats::MLinfoHMP;
-
 using Trigger = o2::hmpid::Trigger;
 
 using GTrackID = o2::dataformats::GlobalTrackID;
@@ -432,9 +428,11 @@ void MatchHMP::addConstrainedSeed(o2::track::TrackParCov& trc, o2::dataformats::
 
       mTracksLblWork[o2::globaltracking::MatchHMP::trackType::CONSTR].emplace_back(mRecoCont->getTPCITSTrackMCLabel(srcGID));
 
+
+      /*
       int trackID, evID, srcID;
       bool fake;
-      // mTracksLblWork.back().get();
+
 
       const int currentSize = mTracksLblWork[o2::globaltracking::MatchHMP::trackType::CONSTR].size();
       LOGP(info, "matchHMP : mTracksLblWork currentSize {}", currentSize);
@@ -448,6 +446,10 @@ void MatchHMP::addConstrainedSeed(o2::track::TrackParCov& trc, o2::dataformats::
       // ef : nt marked as const in MCOMPLabel
       /// mcArray[j].get(trackID, evID, srcID, fake);
       LOGP(debug, "matchHMP : addConstrainedSeed got from ITSTPC : trackID {}, evID {}, srcID {}, fake {}", trackID, evID, srcID, fake);
+         
+      */
+      
+   
     }
 
     mTracksIndexCache[o2::globaltracking::MatchHMP::trackType::CONSTR].push_back(it);
@@ -774,7 +776,6 @@ void MatchHMP::doMatching()
           double qthre = pParam->qCut(); // ef : TODO add chargeCut from calibration!
 
           if (cluster.q() < 150. || cluster.size() > 10 || cluster.size() < 3) {
-
             continue;
           }
 
@@ -788,7 +789,10 @@ void MatchHMP::doMatching()
 
           cluLORS[1] = cluster.y(); // get the LORS coordinates of the cluster
 
-          double dist = 0.;
+
+        
+          double dist = 0.; 
+
 
           if (TMath::Abs((xPc - cluLORS[0]) * (xPc - cluLORS[0]) + (yPc - cluLORS[1]) * (yPc - cluLORS[1])) > 0.0001) {
 
@@ -922,11 +926,8 @@ void MatchHMP::doMatching()
 
         matching.setHMPsignal(pParam->kMipQdcCut);
 
-        matching.setHMPIDmip(bestHmpCluster->x(), bestHmpCluster->y(), (int)bestHmpCluster->q(), 0); // store mip info in any case
 
-        matching.setMipClusSize(bestHmpCluster->size());
 
-        matching.setIdxHMPClus(iCh, index + 1000 * cluSize); // set chamber, index of cluster + cluster size
 
         matching.setHMPIDtrk(xPc, yPc, theta, phi);
 
@@ -984,6 +985,8 @@ void MatchHMP::doMatching()
 
         LOGP(info, "Event number : iEvent {}  : indexEvent {} || evtTime {} | evtTracks {} | evClu {} getEventNumberFromTrack {}", iEvent, indexEvent, evtTime, evtTracks, eventIDClu, evNumFromCluTrk);
 
+
+
         if (!isMatched) {
           mMatchedTracks[type].push_back(matching);
 
@@ -1001,9 +1004,12 @@ void MatchHMP::doMatching()
           // ef : add MC track
 
           if (mMCTruthON) {
-            auto mcTrk = mTracksLblWork[type][cacheTrk[itrk]];
-            mOutHMPLabels[type].push_back(mcTrk);
+            auto itsTpcTrack = mTracksLblWork[type][cacheTrk[itrk]];
+            mOutHMPLabels[type].push_back(itsTpcTrack);
 
+
+
+            /*
             LOGP(info, " added Label-track ITS-TPC of iTrk {}; cacheTrk[itrk] {}", itrk, cacheTrk[itrk]);
 
             auto trackID = mcTrk.getTrackID(); // const { return static_cast<int>(mLabel & maskTrackID); }
@@ -1016,6 +1022,7 @@ void MatchHMP::doMatching()
             LOGP(info, "matchHMP : mcTrk trackID {}, evID {}, srcID {}, fake {}", trackID, evID, srcID, fake);
             LOGP(info, "matchHMP : mOutHMPLabels currentSize {}", mOutHMPLabels[type].size());
             LOGP(info, "matchHMP : mMatchedTracks currentSize {}", mMatchedTracks[type].size());
+            */
           }
 
           //
@@ -1034,16 +1041,17 @@ void MatchHMP::doMatching()
 
         Printf("eventNumber from clu : MIP %d from track : %d", eventIDClu, indexEvent);
 
-        Printf("Calling match :eventNumber from clu : %d  from track : %d", matching.getMipClusEvent(), matching.getEvent());
+        Printf("Calling match : eventNumber from clu : %d  from track : %d", matching.getMipClusEvent(), matching.getEvent());
 
         // add value indicating matched properly?
         matching.setMatchTrue();
         mMatchedTracks[type].push_back(matching);
 
         if (mMCTruthON) {
-          auto mcTrk = mTracksLblWork[type][cacheTrk[itrk]];
-          mOutHMPLabels[type].push_back(mcTrk);
+          auto itsTpcTrack = mTracksLblWork[type][cacheTrk[itrk]];
+          mOutHMPLabels[type].push_back(itsTpcTrack);
 
+          /*
           LOGP(info, " added MC track iTrk {}; cacheTrk[itrk] {}", itrk, cacheTrk[itrk]);
 
           auto trackID = mcTrk.getTrackID(); // const { return static_cast<int>(mLabel & maskTrackID); }
@@ -1057,6 +1065,7 @@ void MatchHMP::doMatching()
 
           LOGP(info, "matchHMP : mOutHMPLabels currentSize {}", mOutHMPLabels[type].size());
           LOGP(info, "matchHMP : mMatchedTracks currentSize {}", mMatchedTracks[type].size());
+          */
         }
 
         oneEventClusters.clear();

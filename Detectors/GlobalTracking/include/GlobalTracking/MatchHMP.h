@@ -44,9 +44,6 @@
 #include "TPCFastTransform.h"
 #include "CommonDataFormat/InteractionRecord.h"
 #include "ReconstructionDataFormats/MatchInfoHMP.h"
-#include "ReconstructionDataFormats/MLinfoHMP.h" // ef: moved below to this
-// #include "GlobalTracking/MLHMPID.h" // ef: added this
-
 #include "ReconstructionDataFormats/TrackHMP.h"
 
 #include "HMPIDBase/Geo.h"
@@ -112,12 +109,6 @@ class MatchHMP
                             ITSTPCTRD,
                             SIZEALL };
 
-  /*o2::globaltracking::HmpMLVector& getMLEventVector(o2::globaltracking::MatchHMP::trackType index)
-  {
-      return mMLEvents[index];
-  }*/
-
-
 
   std::vector<o2::dataformats::MatchInfoHMP>& getMatchedTrackVector(o2::globaltracking::MatchHMP::trackType index) { return mMatchedTracks[index]; }
 
@@ -130,7 +121,6 @@ class MatchHMP
   unsigned long getTS() const { return mTimestamp; }
 
  private:
-  // std::vector<o2::globaltracking::HmpMLVector> mMLEvents = {}; // ef added this
   //  bool prepareFITData();
   int prepareInteractionTimes();
   bool prepareTracks();
