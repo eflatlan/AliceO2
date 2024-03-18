@@ -20,7 +20,9 @@ o2_add_library(HMPIDReconstruction
                PUBLIC_LINK_LIBRARIES O2::HMPIDBase
                                      O2::DataFormatsHMP
                                      ROOT::Physics
-                                     O2::HMPIDSimulation)
+                                     O2::HMPIDSimulation
+                                     O2::Steer # ef : TODO remove this once verified pdg et c
+                                     O2::SimulationDataFormat)
 
 o2_target_root_dictionary(HMPIDReconstruction
                           HEADERS include/HMPIDReconstruction/Clusterer.h

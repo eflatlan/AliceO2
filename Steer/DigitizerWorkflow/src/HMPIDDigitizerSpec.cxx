@@ -118,10 +118,9 @@ class HMPIDDPLDigitizerTask : public o2::base::BaseDPLDigitizer
           // get the hits for this event and this source
           std::vector<o2::hmpid::HitType> hits;
           context->retrieveHits(mSimChains, "HMPHit", part.sourceID, part.entryID, &hits);
-          LOG(info) << "For collision " << collID << " eventID " << part.entryID << " found HMP " << hits.size() << " hits ";
+          LOG(debug) << "For collision " << collID << " eventID " << part.entryID << " found HMP " << hits.size() << " hits ";
 
           mDigitizer.setLabelContainer(&mLabels);
-          LOGP(info, "STEER sat the mDigitizer.setLabelContainer(&mLabels)");
           mLabels.clear();
           mDigits.clear();
 
@@ -139,10 +138,9 @@ class HMPIDDPLDigitizerTask : public o2::base::BaseDPLDigitizer
     pc.outputs().snapshot(Output{"HMP", "DIGITS", 0}, digitsAccum);
     pc.outputs().snapshot(Output{"HMP", "INTRECORDS", 0}, mIntRecord);
     
-    // use DIGITSMCTR ? 
+    // ef : use DIGITSMCTR instead of DIGITLBL
     if (pc.outputs().isAllowed({"HMP", "DIGITSMCTR", 0})) {
       pc.outputs().snapshot(Output{"HMP", "DIGITSMCTR", 0}, labelAccum);
-      LOGP(info, "STEER : got DIGITSMCTR!");
     }
     LOG(info) << "HMP: Sending ROMode= " << mROMode << " to GRPUpdater";
     pc.outputs().snapshot(Output{"HMP", "ROMode", 0}, mROMode);
@@ -173,8 +171,10 @@ o2::framework::DataProcessorSpec getHMPIDDigitizerSpec(int channel, bool mctruth
   std::vector<OutputSpec> outputs;
   outputs.emplace_back("HMP", "DIGITS", 0, Lifetime::Timeframe);
   outputs.emplace_back("HMP", "INTRECORDS", 0, Lifetime::Timeframe);
-  LOGP(info, "DataProcessorSpec in STEER");
-  if (mctruth) { //DIGITSMCTR instead of DIGITSMCTR?
+
+  
+  // ef : use DIGITSMCTR instead of DIGITLBL
+  if (mctruth) { 
     outputs.emplace_back("HMP", "DIGITSMCTR", 0, Lifetime::Timeframe);
   }
   outputs.emplace_back("HMP", "ROMode", 0, Lifetime::Timeframe);

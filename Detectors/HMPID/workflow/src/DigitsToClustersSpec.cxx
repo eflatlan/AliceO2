@@ -143,7 +143,10 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
 	
     // ef: if based on other.
     auto digitlabels = pc.inputs().get<o2::dataformats::MCTruthContainer<o2::MCCompLabel>*>("hmpiddigitlabels");
-		  
+  
+		 if(digitlabels == nullptr) {
+		 	LOGP(info, "digitlabels nullptr");
+		 }
 		  
 		// B) ef: if based on TOF:   
     //auto digitlabels = pc.inputs().get<std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>>*>("hmpiddigitlabels");
@@ -212,8 +215,8 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
       //    So it should be able to seperate based on tjis
       //    (Also seperate which event the digit corresponds to )
       
-      if (mUseMC) {
-        LOGP(info, "[HMPID DClusterization mUseMC {} :: mRec->Dig2Clu",mUseMC);      
+      if (mUseMC && labelVector!=nullptr) {
+        LOGP(info, "[HMPID DClusterization mUseMC {}", mUseMC);      
 
 
         // TOF mRec.process(mReader, mClustersArray, &(labelVector->at(i)));

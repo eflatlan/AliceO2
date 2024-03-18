@@ -20,7 +20,7 @@
 #include "SimulationDataFormat/MCCompLabel.h"
 #include "SimulationDataFormat/MCTruthContainer.h"
 #include <TStopwatch.h>
-
+#include "Steer/MCKinematicsReader.h"
 using namespace o2::hmpid;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -120,41 +120,142 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
           const auto& digsOfClu = *(clu.getDigits());
 
           for(int digIndex = 0; digIndex < digsOfClu.size(); digIndex++) {  
-
-              int digitLabel = digsOfClu[digIndex]->getLabel();
+							const auto& digOfClu = digsOfClu[digIndex];
+              int digitLabel = digOfClu->getLabel();
               const int digEventNum = digsOfClu[digIndex]->getEventNumber();
+              
+              
+            	const int pdgOfDig = digOfClu->getPDG();
 
               //printf("digitLabel = %d\n", digitLabel);
-              LOGP(info, "contributing digit = {}, digitLabel  = {}", digIndex, digitLabel);
+              LOGP(info, "contributing digit = {}, digitLabel  = {} || pdg of digit {}", digIndex, digitLabel, pdgOfDig);
 
 
               gsl::span<const o2::MCCompLabel> mcArray = digitMCTruth->getLabels(digitLabel);
+              
+              
               for (int j = 0; j < static_cast<int>(mcArray.size()); j++) {
-                int trackID, evID, srcID;
-                bool fake;
 
-                trackID = mcArray[j].getTrackID();// const { return static_cast<int>(mLabel & maskTrackID); }
-                evID = mcArray[j].getEventID();// const { return isFake() ? -getTrackID() : getTrackID(); }
-                srcID = mcArray[j].getSourceID();// const { return (mLabel >> nbitsTrackID) & maskEvID; }
-                fake = mcArray[j].isFake();// const { return (mLabel >> (nbitsTrackID + nbitsEvID)) & maskSrcID; }
-
-                // ef : nt marked as const in MCOMPLabel
-                /// mcArray[j].get(trackID, evID, srcID, fake);
                 auto label = digitMCTruth->getElement(digitMCTruth->getMCTruthHeader(digitLabel).index + j);
                 mClsLabels->addElement(lbl, label);
-                LOGP(info, "checking element {} in array of labels", j);
-                LOGP(info, "mcArray : trackID {}, evID {}, srcID {}, fake {}", trackID, evID, srcID, fake);
+                
+                
+                
+                /*
+                /// query an MC track given a basic label object
+								/// returns nullptr if no track was found
+								MCTrack const* getTrack(o2::MCCompLabel const&) const;
+								*/
+								// ef : this means we get the track of the hit ? 
+															
+                // ef :TODO remvoe print statements or add if
+                const o2::MCTrack* mcTrack = nullptr;
+                const o2::MCTrack* mcTrackFromDig = nullptr;
+                const o2::MCTrack* mcTrackFromMother = nullptr;                
 
-                //printf("checking element %d in the array of labels\n", j);
-                //printf("EventID = %d\n", label.getEventID());
-                LOGP(info, "EventID from MC-label  = {}",  label.getEventID());
 
-                LOGP(info, "EventID from MC-label : getTrackEventSourceID  = {}",  label.getTrackEventSourceID());
 
-                LOGP(info, "EventID from dig:  = {}", digEventNum);
+                const auto& mcReader = std::make_unique<o2::steer::MCKinematicsReader>("collisioncontext.root");
+                bool printVals = true;
+                if(printVals)
+                {
+                
+                	if(!mcReader)
+		              	continue;
+		              	
 
-                LOGP(info, "num Digits : = {}", digs.size());
+		              
+	              	if(mcReader->getTrack(label)) 
+	              	{	
+			            		
+			            		
+		            		try {
+		            			mcTrack = mcReader->getTrack(label);
+			            		}  catch (const std::exception& e) {
+		                      LOGP(error, "       Exception caught while trying to read MC track: %s", e.what());
+		                     continue;
+		                  } catch (...) {
+		                      LOGP(error, "       Unknown exception caught while trying to read MC track");
+		                    continue;
+		                  }
+			            	}
+									}			            
+		                 
+		              int pdgDigMcTruth = -2, pdgDigit = -2, pdgMother = -2;
+		              try	{
+		              	pdgDigMcTruth = mcTrack->GetPdgCode();
+		              } catch (const std::exception& e) {
+                    LOGP(error, "       Exception caught while trying to read MC track: %s", e.what());
+                  } catch (...) {
+                    LOGP(error, "       Unknown exception caught while trying to read MC track");
 
+                  }
+	              	
+		              // TParticlePDG* pPDG = TDatabasePDG::Instance()->GetParticle(mcTrack->GetPdgCode());
+
+
+		              int trackID, evID, srcID;
+		              bool fake;
+		              
+		              
+                  const auto eid = digOfClu->getEventNumber();		              
+                  const auto tid = digOfClu->getTrackId();
+                  const auto mid = digOfClu->getMotherId();
+                  const auto sid = digOfClu->getSourceId();
+
+                  if(!mcReader->getTrack(eid, tid)) {
+                    LOGP(info, "nullptr mcReader->getTrack(eid, tid)");                    		              
+				            
+				            try {
+				            	mcTrackFromDig = mcReader->getTrack(eid, tid);
+				            	pdgDigit = mcTrackFromDig->GetPdgCode();
+        			             	
+										} catch (const std::exception& e) {
+                      LOGP(error, "       Exception caught while trying to read MC track: %s", e.what());
+
+	                  } catch (...) {
+                      LOGP(error, "       Unknown exception caught while trying to read MC track");
+
+	                  }
+		            	}
+		            	
+									
+                  if(!mcReader->getTrack(eid, mid)) {
+                    LOGP(info, "nullptr mcReader->getTrack(eid, mid)");                    		              
+				            
+				            try {
+				            	mcTrackFromDig = mcReader->getTrack(eid, mid);
+				            	pdgMother = mcTrackFromMother->GetPdgCode();
+
+										} catch (const std::exception& e) {
+		                      LOGP(error, "       Exception caught while trying to read MC track: %s", e.what());
+
+	                  } catch (...) {
+                      LOGP(error, "       Unknown exception caught while trying to read MC track");
+
+	                  }			          
+		            	}									
+									
+
+		              trackID = mcArray[j].getTrackID();// const { return static_cast<int>(mLabel & maskTrackID); }
+		              evID = mcArray[j].getEventID();// const { return isFake() ? -getTrackID() : getTrackID(); }
+		              srcID = mcArray[j].getSourceID();// const { return (mLabel >> nbitsTrackID) & maskEvID; }
+		              fake = mcArray[j].isFake();// const { return (mLabel >> (nbitsTrackID + nbitsEvID)) & maskSrcID; }
+
+		              // ef : nt marked as const in MCOMPLabel
+		              /// mcArray[j].get(trackID, evID, srcID, fake);                
+		              
+		              LOGP(info, "checking element {} in array of labels", j);
+		              LOGP(info, "mcArray : trackID {}, evID {}, srcID {}, fake {}", trackID, evID, srcID, fake);
+
+		              //printf("checking element %d in the array of labels\n", j);
+		              LOGP(info, "EventID from MC-label = {}; from dig :", evID, digEventNum);
+									
+									LOGP(info, " pdg of digit {} || MC digit label {} | pdg from (digit-eid, digit-tid) {} | of mother (digit-eid, digit-mid) {}", pdgOfDig, pdgDigMcTruth, pdgDigit, pdgMother);
+
+
+		              // LOGP(info, "num Digits : = {}", digs.size());
+								}
               }
           }
       }

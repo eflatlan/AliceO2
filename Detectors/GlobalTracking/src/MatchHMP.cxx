@@ -520,7 +520,7 @@ bool MatchHMP::prepareHMPClusters()
   int nTriggersInCurrentChunk = mHMPTriggersArray.size();
 
 
-  LOGP(info, "MatchHMP::prepareHMPClusters : numClusters {}, numMcClusters", mHMPClustersArray.size(),  mHMPClusLabels->getNElements());
+  LOGP(info, "MatchHMP::prepareHMPClusters : numClusters {}, numMcClusters {}", mHMPClustersArray.size(),  mHMPClusLabels->getNElements());
 
 
   LOG(debug) << "nTriggersInCurrentChunk = " << nTriggersInCurrentChunk;
