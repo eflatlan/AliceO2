@@ -75,7 +75,7 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
     } // digits loop for current chamber
     
     
-    LOGP(info, "\n\n ============================== \n looping over digits");
+    LOGP(info, "\n\n ============================== \n looping over digits ============================================================\n ==============================\n");
     for (size_t iDig = 0; iDig < digs.size(); iDig++) { // digits loop for current chamber
       // o2::hmpid::Digit::pad2Absolute(digs[iDig].getPadID(), &module, &padChX, &padChY);
       if (vPad.at(iDig).m != iCh || (pUsedDig = UseDig(vPad.at(iDig).x, vPad.at(iDig).y, padMap)) == -1) { // this digit is from other module or already taken in FormClu(), go after next digit
@@ -112,7 +112,7 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
       if (digitMCTruth != nullptr) {
         int lbl = mClsLabels->getIndexedSize(); // this should correspond to the number of digits also;
 
-        LOGP(info, "\n ================================\n New iDig : {} \n================================\\n", iDig);
+        LOGP(info, "\n\n ================================\n New iDig : {} \n================================\n\n", iDig);
         LOGP(info, "lbl = {} (mClsLabels->getIndexedSize())", lbl);
         const auto& digsOfClu = *(clu.getDigits());
 
@@ -125,15 +125,20 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
           const int pdgOfDig = digOfClu->getPDG();
 
           //printf("digitLabel = %d\n", digitLabel);
-          LOGP(info, "contributing digit = {}, digitLabel  = {} || pdg of digit {}", digIndex, digitLabel, pdgOfDig);
+          
 
 
           gsl::span<const o2::MCCompLabel> mcArray = digitMCTruth->getLabels(digitLabel);
           
+          LOGP(info, "contributing digit = ({}/{}), digitLabel  = {} || pdg of digit {}", digIndex+1, digsOfClu.size(),digitLabel, pdgOfDig);
+          
+          LOGP(info, "mcArray size {}", mcArray.size());
           
           for (int j = 0; j < static_cast<int>(mcArray.size()); j++) {
-
+			
             auto label = digitMCTruth->getElement(digitMCTruth->getMCTruthHeader(digitLabel).index + j);
+            const auto& currentIndex = digitMCTruth->getMCTruthHeader(digitLabel).index + j;
+            LOGP(info, "digitMCTruth->getElement({}/{})", currentIndex, digitMCTruth->getNElements());            
             mClsLabels->addElement(lbl, label);
             
             
@@ -145,7 +150,7 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
             */
             // ef : this means we get the track of the hit ? 
                           
-            // ef :TODO remvoe print statements or add if
+            // ef :TODO remove print statements or add if
             const o2::MCTrack* mcTrack = nullptr;
             const o2::MCTrack* mcTrackFromDig = nullptr;
             const o2::MCTrack* mcTrackFromMother = nullptr;                
@@ -157,13 +162,14 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
             if(printVals)
             {
             
-              if(!mcReader)
+              if(!mcReader) {
+              	LOGP(info, "mcReader nullptr");
                 continue;
-                
+              }                
 
               
               if(mcReader->getTrack(label)) 
-              {				            		            		
+              {	    		
                 try {
                   mcTrack = mcReader->getTrack(label);
                 }  catch (const std::exception& e) {
@@ -173,11 +179,13 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
                   LOGP(error, "       Unknown exception caught while trying to read MC track");
                   continue;
                 }
+              } else {
+              	LOGP(info, "mcReader->getTrack(label) gave nullptr");
               }
                                 
                   
               int pdgDigMcTruth = -2, pdgDigit = -2, pdgMother = -2;
-              try	{
+              try {
                 pdgDigMcTruth = mcTrack->GetPdgCode();
               } catch (const std::exception& e) {
                 LOGP(error, "       Exception caught while trying to read MC track: %s", e.what());
@@ -211,8 +219,9 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
                   LOGP(error, "       Unknown exception caught while trying to read MC track");
 
                 }
+              } else {
+		LOGP(info, "mcReader->getTrack(eid, tid) gave nullptr");
               }
-              
               
               if(!mcReader->getTrack(eid, mid)) {
                 LOGP(info, "nullptr mcReader->getTrack(eid, mid)");                    		              
@@ -239,11 +248,14 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
               // ef : nt marked as const in MCOMPLabel
               /// mcArray[j].get(trackID, evID, srcID, fake);                
               
-              LOGP(info, "checking element {} in array of labels", j);
-              LOGP(info, "mcArray : trackID {}, evID {}, srcID {}, fake {}", trackID, evID, srcID, fake);
+              LOGP(info, "checking element {}/{} in array of labels", j+1, mcArray.size());
+              LOGP(info, "mcArray : evID {}, trackID {}, srcID {}, fake {}", evID, trackID, srcID, fake);
+              
+              
+	      LOGP(info, "from digit : eid {}, tid {}, mid {}, sid {}", eid, tid, mid, sid);              
 
               //printf("checking element %d in the array of labels\n", j);
-              LOGP(info, "EventID from MC-label = {}; from dig :", evID, digEventNum);
+              LOGP(info, "EventID from MC-label = {}; from dig : {}", evID, digEventNum);
               
               LOGP(info, " pdg of digit {} || MC digit label {} | pdg from (digit-eid, digit-tid) {} | of mother (digit-eid, digit-mid) {}", pdgOfDig, pdgDigMcTruth, pdgDigit, pdgMother);
 
