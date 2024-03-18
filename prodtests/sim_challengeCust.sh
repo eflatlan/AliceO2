@@ -132,7 +132,7 @@ if [ "$dosimp" == "1" ]; then
   echo "Running Pion gun simulation for $nev  "
   #taskwrapper sim.log o2-sim -n"$nev" --configKeyValues "Diamond.width[2]=6." -g "$gener" -e "$engine" $simWorker --run ${runNumber}
 
-o2-sim -n"$nev" -e TGeant3 -g boxgen --configKeyValues "BoxGun.pdg=211; BoxGun.phirange[0]=-5; BoxGun.phirange[1]=60; BoxGun.number=6; BoxGun.eta[0]=-0.01 ; BoxGun.eta[1]=0.01; BoxGun.prange[0]=2.8; BoxGun.prange[1]=2.83;" $simWorker --run ${runNumber}
+	o2-sim -n"$nev" -e TGeant3 -g boxgen --configKeyValues "BoxGun.pdg=211; BoxGun.phirange[0]=-5; BoxGun.phirange[1]=60; BoxGun.number=60; BoxGun.eta[0]=-0.01 ; BoxGun.eta[1]=0.01; BoxGun.prange[0]=2.8; BoxGun.prange[1]=2.83;" $simWorker --run ${runNumber}
 
 
 
@@ -149,7 +149,7 @@ if [ "$dosimk" == "1" ]; then
   echo "Running Ka gun simulation for $nev  "
   #taskwrapper sim.log o2-sim -n"$nev" --configKeyValues "Diamond.width[2]=6." -g "$gener" -e "$engine" $simWorker --run ${runNumber}
 
-o2-sim -n"$nev" -e TGeant3 -g boxgen --configKeyValues "BoxGun.pdg=321; BoxGun.phirange[0]=-5; BoxGun.phirange[1]=60; BoxGun.number=6; BoxGun.eta[0]=-0.5 ; BoxGun.eta[1]=0.5; BoxGun.prange[0]=2.8; BoxGun.prange[1]=2.83;" $simWorker --run ${runNumber}
+	o2-sim -n"$nev" -e TGeant3 -g boxgen --configKeyValues "BoxGun.pdg=321; BoxGun.phirange[0]=-5; BoxGun.phirange[1]=60; BoxGun.number=60; BoxGun.eta[0]=-0.5 ; BoxGun.eta[1]=0.5; BoxGun.prange[0]=2.8; BoxGun.prange[1]=2.83;" $simWorker --run ${runNumber}
 
 
 
@@ -168,7 +168,7 @@ if [ "$dosimpr" == "1" ]; then
   echo "Running Proton gun simulation for $nev  "
   #taskwrapper sim.log o2-sim -n"$nev" --configKeyValues "Diamond.width[2]=6." -g "$gener" -e "$engine" $simWorker --run ${runNumber}
 
-o2-sim -n"$nev" -e TGeant3 -g boxgen --configKeyValues "BoxGun.pdg=2212; BoxGun.phirange[0]=-5; BoxGun.phirange[1]=60; BoxGun.number=6; BoxGun.eta[0]=-0.5 ; BoxGun.eta[1]=0.5; BoxGun.prange[0]=2.8; BoxGun.prange[1]=2.83;" $simWorker --run ${runNumber}
+	o2-sim -n"$nev" -e TGeant3 -g boxgen --configKeyValues "BoxGun.pdg=2212; BoxGun.phirange[0]=-5; BoxGun.phirange[1]=60; BoxGun.number=60; BoxGun.eta[0]=-0.5 ; BoxGun.eta[1]=0.5; BoxGun.prange[0]=2.8; BoxGun.prange[1]=2.83;" $simWorker --run ${runNumber}
 
 
 
