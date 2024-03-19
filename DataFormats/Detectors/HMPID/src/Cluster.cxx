@@ -283,15 +283,18 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, b
   } else if (rawSize == 1) {
     mSt = kSi1;
   }
+
   if (rawSize > 100 || isTryUnfold == false || rawSize == 1) { // No deconv if: 1 - big cluster (also avoid no zero suppression!)
     // setClusterParams(mXX, mYY, mCh); //                               2 - flag is set to FALSE
     // new ((*pCluLst)[iCluCnt++]) Cluster(*this); //                      3 - size = 1
     pCluLst->push_back(o2::hmpid::Cluster(*this));
 
 
-
+    LOGP(info, "mNlocMax :: no deconv number of digits for cluster {}", mDigs->size());
     //if(useMC) { // EF: TODO: Set useMC cond here ? 
     pCluLst->back().setInfoFromDigits(pCluLst->size());
+    // pCluLst->back().setMC();
+
     // , pCluLst->size() to set the index of the cluster in teh vector to each element 
 
 
@@ -318,6 +321,7 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, b
   arglist[0] = 1;
   ierflg = fitter->ExecuteCommand("SET GRA", arglist, 1); // force Fitter to use my gradient
   fitter->SetFCN(Cluster::fitFunc);
+
   // Phase 1. Find number of local maxima. Strategy is to check if the current pad has QDC more then all neigbours. Also find the box contaning the cluster
   mNlocMax = 0;
   for (int iDig1 = 0; iDig1 < rawSize; iDig1++) {   // first digits loop
@@ -352,21 +356,28 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, b
   // Phase 2. Fit loc max number of Mathiesons or add this current cluster to the list
   // case 1 -> no loc max found
   if (mNlocMax == 0) { // case of no local maxima found: pads with same charge...
+
+    LOGP(info, "mNlocMax {} number of digits for cluster {}", mNlocMax,mDigs->size());
+    
     mNlocMax = 1;
     mSt = kNoLoc;
     // setClusterParams(mXX, mYY, mCh); //need to fill the AliCluster3D part
     pCluLst->push_back(o2::hmpid::Cluster(*this)); // add new unfolded cluster pCluLst->push_back(o2::hmpid::Cluster(*this));
     pCluLst->back().setInfoFromDigits(pCluLst->size());
+    // pCluLst->back().setMC();
     pCluLst->back().cleanPointers();
     return mNlocMax;
   }
 
   // case 2 -> loc max found. Check # of loc maxima
   if (mNlocMax >= kMaxLocMax) {
+    LOGP(info, "mNlocMax {} number of digits for cluster {}", mNlocMax,mDigs->size());
+
     // setClusterParams(mXX, mYY, mCh); // if # of local maxima exceeds kMaxLocMax...
     mSt = kMax;
     pCluLst->push_back(o2::hmpid::Cluster(*this)); //...add this raw cluster
-      pCluLst->back().setInfoFromDigits(pCluLst->size());
+    pCluLst->back().setInfoFromDigits(pCluLst->size());    
+    // pCluLst->back().setMC();
     pCluLst->back().cleanPointers();
   } else { // or resonable number of local maxima to fit and user requested it
     // Now ready for minimization step
@@ -431,8 +442,10 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, b
       }
       // setClusterParams(mXX, mYY, mCh); //need to fill the AliCluster3D part
       // Printf("********************loc. max. = %i, X= %f, Y = %f, Q = %f**************************",i,mXX,mYY,mQ);
+      LOGP(info, "cluNumber {} mNlocMax {} number of digits for cluster {}", i,mNlocMax,mDigs->size());
       pCluLst->push_back(o2::hmpid::Cluster(*this)); // add new unfolded cluster
       pCluLst->back().setInfoFromDigits(pCluLst->size());
+      // pCluLst->back().setMC();
       pCluLst->back().cleanPointers();
       if (mNlocMax > 1) {
         setSize(rawSize); // Original raw size is set again to its proper value
@@ -454,10 +467,14 @@ void Cluster::findClusterSize(int i, float* pSigmaCut)
     //  AliDebug(1,Form("Chamber %i X %i Y %i SigmaCut %i pad %i qpadMath %8.2f qPadRaw %8.2f Qtotal %8.2f cluster n.%i",
     //                 iCh, o2::hmpid::Digit::a2X(pDig->getPadID()), o2::hmpid::Digit::a2Y(pDig->getPadID()),
     //                 pSigmaCut[iCh],iDig,qPad,pDig->mQ,mQRaw,i));
-    if (qPad > pSigmaCut[iCh]) {
+    
+    // ef: can we set the MC-labels here ?
+    if (qPad > pSigmaCut[iCh]) {     
       size++;
     }
   }
+  LOGP(info, "findClusterSize {}", size);
+
   //  AliDebug(1,Form(" Calculated size %i",size));
   if (size > 0) {
     setSize(size); // in case of size == 0, original raw clustersize used
@@ -514,4 +531,3 @@ void Cluster::reset()
 
 } // namespace hmpid
 } // namespace o2
-
