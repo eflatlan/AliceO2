@@ -46,8 +46,13 @@ void ClusterReader::run(ProcessingContext& pc)
 
   pc.outputs().snapshot(Output{o2::header::gDataOriginTOF, "CLUSTERS", 0}, mClusters);
   pc.outputs().snapshot(Output{o2::header::gDataOriginTOF, "CLUSTERSMULT", 0}, mClustersMult);
+  
   if (mUseMC) {
     pc.outputs().snapshot(Output{o2::header::gDataOriginTOF, "CLUSTERSMCTR", 0}, mLabels);
+    
+    // ef :TODO: remove these 
+    LOGP(info, "[TOF ClustersReader - numclusters {}: mcLabels size : headerArray {}; truthArray {}", mClusters.size(), mLabels.getIndexedSize(),  mLabels.getNElements());
+    
   }
 
   if (mTree->GetReadEntry() + 1 >= mTree->GetEntries()) {

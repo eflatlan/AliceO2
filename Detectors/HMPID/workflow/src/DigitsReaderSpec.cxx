@@ -151,7 +151,7 @@ void DigitReader::run(ProcessingContext& pc)
 
 
     if(mUseMC) {
-      LOG(info) << "[HMPID DigitsReader - with useMC : mcLabels.size = " << mLabels.getNElements();
+      LOGP(info, "[HMPID DigitsReader - with useMC : mcLabels size : headerArray {}; truthArray {}", mLabels.getIndexedSize(),  mLabels.getNElements());      
     }
 
     mExTimer.logMes("End DigitsReader !  digits = " +

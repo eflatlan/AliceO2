@@ -78,6 +78,9 @@ void ClusterReaderTask::run(ProcessingContext& pc)
 
   if (mUseMC) {
     pc.outputs().snapshot(Output{"HMP", "CLUSTERSMCTR", 0}, mLabels);
+    
+    LOGP(info, "[HMPID ClustersReader - with useMC : mcLabels size : headerArray {}; truthArray {}", mLabels.getIndexedSize(),  mLabels.getNElements());
+    
   }
 
   if (mTree->GetReadEntry() + 1 >= mTree->GetEntries()) {

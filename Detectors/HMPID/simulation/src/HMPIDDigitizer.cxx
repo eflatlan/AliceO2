@@ -66,15 +66,16 @@ void HMPIDDigitizer::process(std::vector<o2::hmpid::HitType> const& hits, std::v
 {
 
   // ef: just temp fix: FIXME
-  const auto& mProcessMC = true;
+  const bool mProcessMC = true;
 
 
   LOG(info) << "Starting HMPID digitizer process function";
 
-  
+  int hitNum = 0;
   for (auto& hit : hits) {
     int chamber, pc, px, py;
     float totalQ;
+    hitNum++;
     // retrieves center pad and the total charge
     o2::hmpid::Digit::getPadAndTotalCharge(hit, chamber, pc, px, py, totalQ);
 
@@ -107,13 +108,22 @@ void HMPIDDigitizer::process(std::vector<o2::hmpid::HitType> const& hits, std::v
       // LOG(info) << "FRACTION ON PAD " << pad << " IS " << fraction;
       if (index != -1) {
         // digit exists ... reuse
+        
+        
+
         auto& digit = mDigits[index];
+        LOGP(info, "digit already existing : index {}, getLabelIdx{} : total digits aon {}", index, digit.getLabel() ,mDigits.size());        
+        
         digit.addCharge(totalQ * fraction);
 
         if (mRegisteredLabelContainer) {
+        	
+          // ef: should we get at index if already exists?
           auto labels = mTmpLabelContainer.getLabels(index);
           o2::MCCompLabel newlabel(hit.GetTrackID(), mEventID, mSrcID, false);
           
+          
+          // ef: print labels.size ? 
           bool newlabelneeded = true;
           for (auto& l : labels) {
             if (l == newlabel) {
@@ -121,45 +131,51 @@ void HMPIDDigitizer::process(std::vector<o2::hmpid::HitType> const& hits, std::v
               break;
             }
           }
+
           if (newlabelneeded) {
             mTmpLabelContainer.addElementRandomAccess(index, newlabel);
           }
         }
-        
+        /* 
         if(mProcessMC) {
           digit.setLabel(index);
-        }
-        else  {
+        } else  {
           digit.setLabel(-1);
-        }
+        } */
 
       } else {
         // create digit ... and register
         //        mDigits.emplace_back(mCurrentTriggerTime, pad, totalQ * fraction);
 
-
-
         // ef: corrected to take from hits to mEventId -- > mEventId is set in HMPIDDigitezerSpec
-        LOGP(info, "Emplacing mDigits; (from hit : event {}) mEventID {}", hit.getEventNumber(), mEventID);
+        LOGP(info, "Emplacing mDigits; (from hit num {}/{} : event {}) mEventID {}", hitNum, hits.size(), hit.getEventNumber(), mEventID);
         mDigits.emplace_back(pad, totalQ * fraction, hit.getParticlePdg(), hit.getTrackId(),  hit.getMother(), /*hit.getEventNumber()*/ mEventID, mSrcID, hit.getEnergy());
+        
+
+        
         mIndexForPad[pad] = mDigits.size() - 1;
         mInvolvedPads.emplace_back(pad);
 
         if (mRegisteredLabelContainer) {
           // add label for this digit
           mTmpLabelContainer.addElement(mDigits.size() - 1, o2::MCCompLabel(hit.GetTrackID(), mEventID, mSrcID, false));
+          
+          // ef : remove this print statement:
+          LOGP(info, "Adding MC at mDigits.size {}: ", mDigits.size());
+          
+          
+          LOGP(info, "mTmpLabelContainer size  {}:", mTmpLabelContainer.getNElements());
+          LOGP(info, "number of labels for dig {}", mTmpLabelContainer.getLabels(mDigits.size() - 1).size());
         }
+
         auto& digit = mDigits.back();
 
-
+        // her settes index til -1 uansett pga if (index!=-1/else) over 
         // ef : I am not sure how to deal with this 
         if(mProcessMC) {
-          digit.setLabel(index);
-        }
-        else  {
-          digit.setLabel(-1);
-        }
-      }
-    }
-  }
-}
+ 	  digit.setLabel(mDigits.size() - 1);    	     	  
+        } 
+      } // end of else
+    }  // end of loop over pads
+  }   // end of loop over hits
+}   // end of process function

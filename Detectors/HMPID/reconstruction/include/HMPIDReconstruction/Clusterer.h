@@ -46,18 +46,17 @@ class Clusterer
 
   // void process(std::vector<Digit> const& digits, std::vector<o2::hmpid::Cluster>& clusters, MCLabelContainer const* digitMCTruth);
 
-  // 
+  //
   void setMCTruthContainer(o2::dataformats::MCTruthContainer<o2::MCCompLabel>* truth) { mClsLabels = truth; }
 
   void Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::hmpid::Cluster>& clus, float* pUserCut, MCLabelContainer const* digitMCTruth, bool isUnfold = kTRUE); // digits->clusters
-  static void FormClu(Cluster& pClu, int pDig, gsl::span<const o2::hmpid::Digit> digs, TMatrixF& pDigMap);                                                                                                            // cluster formation recursive algorithm
-  static int UseDig(int padX, int padY, TMatrixF& pDigMap);                                                                                                                                                           // use this pad's digit to form a cluster
+  static void FormClu(Cluster& pClu, int pDig, gsl::span<const o2::hmpid::Digit> digs, TMatrixF& pDigMap);                                                                   // cluster formation recursive algorithm
+  static int UseDig(int padX, int padY, TMatrixF& pDigMap);                                                                                                                  // use this pad's digit to form a cluster
   inline bool IsDigSurvive(Digit* pDig) const;
 
   // void setDigitTruth()
 
   // ef FIX!                                                                                       // check for sigma cut
- 
 
  private:
   // void processChamber(std::vector<Cluster>& clusters, MCLabelContainer const* digitMCTruth);

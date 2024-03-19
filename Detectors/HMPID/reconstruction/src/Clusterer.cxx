@@ -32,322 +32,419 @@ using namespace o2::hmpid;
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 /*  virtual void process(gsl::span<o2::tpc::Digit const> const& digits, o2::dataformats::ConstMCLabelContainerView const& mcDigitTruth) = 0;
-*/
-//, 
-//void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::hmpid::Cluster>& clus, float* pUserCut, bool isUnfold, o2::dataformats::ConstMCLabelContainerView const& mcDigitTruth, )
+ */
+//,
+// void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::hmpid::Cluster>& clus, float* pUserCut, bool isUnfold, o2::dataformats::ConstMCLabelContainerView const& mcDigitTruth, )
 void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::hmpid::Cluster>& clus, float* pUserCut, MCLabelContainer const* digitMCTruth, bool isUnfold)
 {
 
   // Finds all clusters for a given digits list provided not empty. Currently digits list is a list of all digits for a single chamber.
+
   // Puts all found clusters in separate lists, one per clusters.
+
   // Arguments: pDigAll     - list of digits for all chambers
+
   //            pCluAll     - list of clusters for all chambers
+
   //            isTryUnfold - flag to choose between CoG and Mathieson fitting
+
   //  Returns: none
 
   const int numCluStart = clus.size();
+
   LOGP(info, "\n\n ============================== called Dig2Clu\n looping over digits");
+
   LOGP(info, " clus Size {}", clus.size());
-  LOGP(info, " digs Size {}", digs.size());  
-  
-  if(digitMCTruth == nullptr) {
+
+  LOGP(info, " digs Size {}", digs.size());
+
+  if (digitMCTruth == nullptr) {
+
     LOGP(info, "digitMCTruth was nullptr!");
   }
-  
+
   struct Pad {
+
     int x, y, m;
   };
 
   TMatrixF padMap(Param::kMinPx, Param::kMaxPcx, Param::kMinPy, Param::kMaxPcy); // pads map for single chamber 0..159 x 0..143
 
   int pUsedDig = -1;
+
   int padChX = 0, padChY = 0, module = 0;
+
   std::vector<Pad> vPad;
+
   std::vector<const Digit*> digVec;
+
   for (int iCh = Param::kMinCh; iCh <= Param::kMaxCh; iCh++) { // chambers loop
-    padMap = (Float_t)-1;                                      // reset map to -1 (means no digit for this pad)
+
+    padMap = (Float_t)-1; // reset map to -1 (means no digit for this pad)
+
     for (size_t iDig = 0; iDig < digs.size(); iDig++) {
+
       o2::hmpid::Digit::pad2Absolute(digs[iDig].getPadID(), &module, &padChX, &padChY);
+
       vPad.push_back({padChX, padChY, module});
+
       if (module == iCh) {
+
         padMap(padChX, padChY) = iDig; // fill the map for the given chamber, (padx,pady) cell takes digit index
       }
+
     } // digits loop for current chamber
-    
-    
+
     LOGP(info, "\n\n ============================== \n looping over digits ============================================================\n ==============================\n");
+
     for (size_t iDig = 0; iDig < digs.size(); iDig++) { // digits loop for current chamber
+
       // o2::hmpid::Digit::pad2Absolute(digs[iDig].getPadID(), &module, &padChX, &padChY);
+
       if (vPad.at(iDig).m != iCh || (pUsedDig = UseDig(vPad.at(iDig).x, vPad.at(iDig).y, padMap)) == -1) { // this digit is from other module or already taken in FormClu(), go after next digit
+
         continue;
       }
+
       digVec.clear();
+
       Cluster clu;
+
       clu.setDigits(&digVec);
 
-
       // denne skal mulgiens vaere nptr, men jeg skjonner ikke logikken!
+
       /*if(!clu.dig(0))
-    	Printf("dig2Clu Digit i0 nullptr ");
-      else 
-      	Printf("dig2Clu Digit i0 ok"); */
+
+      Printf("dig2Clu Digit i0 nullptr ");
+
+      else
+
+        Printf("dig2Clu Digit i0 ok"); */
 
       clu.setCh(iCh);
 
+      // ef : ad digitMCTruth
 
-      //ef : ad digitMCTruth
       FormClu(clu, pUsedDig, digs, padMap); // form cluster starting from this digit by recursion
 
+      // here we should propagate digit-MC truth label
 
+      // selected digits are gotten with pDig->getDigits(); which is a subset of Digits from digs; // then we should iterate over those to setMCTruth...
 
-      // here we should propagate digit-MC truth label 
-      // selected digits are gotten with pDig->getDigits(); which is a subset of Digits from digs; // then we should iterate over those to setMCTruth... 
       /*
+
       if(digitMCTruth != nullptr) {
+
         clu.setMCTruth(digitMCTruth); // we do this in Cluster.h
+
       } */
 
-      
       // filling the MC labels of this cluster; the first will be those of the main digit; then the others
+      // will be nullptr if useMc in Digits2Cluster is false
       if (digitMCTruth != nullptr) {
-        int lbl = mClsLabels->getIndexedSize(); // this should correspond to the number of digits also;
+
+        int lbl = mClsLabels->getIndexedSize(); // this should correspond to the current number of clusters? ;
 
         LOGP(info, "\n\n ================================\n New iDig : {} \n================================\n\n", iDig);
+
         LOGP(info, "lbl = {} (mClsLabels->getIndexedSize())", lbl);
+
         const auto& digsOfClu = *(clu.getDigits());
 
-        for(int digIndex = 0; digIndex < digsOfClu.size(); digIndex++) {  
+
+        // loop over all digits for cluster
+        // for all digits, unroll the MC-truth from the hits and add to 
+        // MC-truth for cluster
+        for (int digIndex = 0; digIndex < digsOfClu.size(); digIndex++) {
+
           const auto& digOfClu = digsOfClu[digIndex];
+
+          // ef: TODO: is this correct?
           int digitLabel = digOfClu->getLabel();
+          // ef: TODO it should be the index of the digit in the array of digits? Like this :
+          digitLabel = iDig;
+
           const int digEventNum = digsOfClu[digIndex]->getEventNumber();
-          
-          
+
           const int pdgOfDig = digOfClu->getPDG();
 
-          //printf("digitLabel = %d\n", digitLabel);
-          
+          // printf("digitLabel = %d\n", digitLabel);
 
 
+
+          // all MC-hits from the specific digit
           gsl::span<const o2::MCCompLabel> mcArray = digitMCTruth->getLabels(digitLabel);
-          
-          LOGP(info, "contributing digit = ({}/{}), digitLabel  = {} || pdg of digit {}", digIndex+1, digsOfClu.size(),digitLabel, pdgOfDig);
-          
+
+          LOGP(info, "contributing digit = ({}/{}), digitLabel  = {} || pdg of digit {}", digIndex + 1, digsOfClu.size(), digitLabel, pdgOfDig);
+
           LOGP(info, "mcArray size {}", mcArray.size());
           
+          LOGP(info, "======= Looping Labels of dig ===== ");
           for (int j = 0; j < static_cast<int>(mcArray.size()); j++) {
-			
-            auto label = digitMCTruth->getElement(digitMCTruth->getMCTruthHeader(digitLabel).index + j);
+
             const auto& currentIndex = digitMCTruth->getMCTruthHeader(digitLabel).index + j;
-            LOGP(info, "digitMCTruth->getElement({}/{})", currentIndex, digitMCTruth->getNElements());            
+
+            auto label = digitMCTruth->getElement(currentIndex);
+			
+			
+	    LOGP(info, "digitLabel {}, digitMCTruth->getMCTruthHeader(digitLabel).index {}, j {}", digitLabel, digitMCTruth->getMCTruthHeader(digitLabel).index, j);
+			
+            LOGP(info, "digitMCTruth->getElement({}/{})", currentIndex, digitMCTruth->getIndexedSize());
+
+            // same as digits having multiple hits
+            // clsuters have multiple digits
+
+            // we fill MC-Complabel label at index lbl for headArray
+            // this is the hit for a digit in the cluster
+            LOGP(info, "adding mc label at index {}", lbl);
             mClsLabels->addElement(lbl, label);
+
+
+            LOGP(info, "number of clusters {}", clus.size());
+            LOGP(info, "number of objs in cluster-headArray : {}", mClsLabels->getIndexedSize());
             
+            LOGP(info, "number of objs in cluster-TruthArray : {}", mClsLabels->getNElements());
+
+            LOGP(info, "number of labels for clu {} : clus.size() - 1", mClsLabels->getLabels(clus.size() - 1).size());
             
-            
+            LOGP(info, "number of labels for clu {}  : lbl", mClsLabels->getLabels(lbl).size());
+
+
+			
             /*
+
             /// query an MC track given a basic label object
+
             /// returns nullptr if no track was found
+
             MCTrack const* getTrack(o2::MCCompLabel const&) const;
+
             */
-            // ef : this means we get the track of the hit ? 
-                          
+
+            // ef : this means we get the track of the hit ?
+
             // ef :TODO remove print statements or add if
+
             const o2::MCTrack* mcTrack = nullptr;
+
             const o2::MCTrack* mcTrackFromDig = nullptr;
-            const o2::MCTrack* mcTrackFromMother = nullptr;                
 
-
+            const o2::MCTrack* mcTrackFromMother = nullptr;
 
             const auto& mcReader = std::make_unique<o2::steer::MCKinematicsReader>("collisioncontext.root");
-            bool printVals = true;
-            if(printVals)
-            {
-            
-              if(!mcReader) {
-              	LOGP(info, "mcReader nullptr");
-                continue;
-              }                
 
-              
-              if(mcReader->getTrack(label)) 
-              {	    		
+            bool printVals = true;
+
+            if (printVals)
+
+            {
+
+              if (!mcReader) {
+
+                LOGP(info, "mcReader nullptr");
+
+                continue;
+              }
+
+              if (mcReader->getTrack(label))
+
+              {
+
                 try {
+
                   mcTrack = mcReader->getTrack(label);
-                }  catch (const std::exception& e) {
+
+                } catch (const std::exception& e) {
+
                   LOGP(error, "       Exception caught while trying to read MC track: %s", e.what());
+
                   continue;
+
                 } catch (...) {
+
                   LOGP(error, "       Unknown exception caught while trying to read MC track");
+
                   continue;
                 }
+
               } else {
-              	LOGP(info, "mcReader->getTrack(label) gave nullptr");
+
+                LOGP(info, "mcReader->getTrack(label) gave nullptr");
               }
-                                
-                  
+
               int pdgDigMcTruth = -2, pdgDigit = -2, pdgMother = -2;
+
               try {
+
                 pdgDigMcTruth = mcTrack->GetPdgCode();
+
               } catch (const std::exception& e) {
+
                 LOGP(error, "       Exception caught while trying to read MC track: %s", e.what());
+
               } catch (...) {
+
                 LOGP(error, "       Unknown exception caught while trying to read MC track");
               }
-              
+
               // TParticlePDG* pPDG = TDatabasePDG::Instance()->GetParticle(mcTrack->GetPdgCode());
 
-
               int trackID, evID, srcID;
+
               bool fake;
-              
-              
-              const auto eid = digOfClu->getEventNumber();		              
+
+              const auto eid = digOfClu->getEventNumber();
+
               const auto tid = digOfClu->getTrackId();
+
               const auto mid = digOfClu->getMotherId();
+
               const auto sid = digOfClu->getSourceId();
 
-              if(!mcReader->getTrack(eid, tid)) {
-                LOGP(info, "nullptr mcReader->getTrack(eid, tid)");                    		              
-                
+              if (!mcReader->getTrack(eid, tid)) {
+
+                LOGP(info, "nullptr mcReader->getTrack(eid, tid)");
+
                 try {
+
                   mcTrackFromDig = mcReader->getTrack(eid, tid);
+
                   pdgDigit = mcTrackFromDig->GetPdgCode();
-                        
+
                 } catch (const std::exception& e) {
+
                   LOGP(error, "       Exception caught while trying to read MC track: %s", e.what());
 
                 } catch (...) {
-                  LOGP(error, "       Unknown exception caught while trying to read MC track");
 
+                  LOGP(error, "       Unknown exception caught while trying to read MC track");
                 }
+
               } else {
-		LOGP(info, "mcReader->getTrack(eid, tid) gave nullptr");
+
+                LOGP(info, "mcReader->getTrack(eid, tid) gave nullptr");
               }
-              
-              if(!mcReader->getTrack(eid, mid)) {
-                LOGP(info, "nullptr mcReader->getTrack(eid, mid)");                    		              
-                
+
+              if (!mcReader->getTrack(eid, mid)) {
+
+                LOGP(info, "nullptr mcReader->getTrack(eid, mid)");
+
                 try {
+
                   mcTrackFromDig = mcReader->getTrack(eid, mid);
+
                   pdgMother = mcTrackFromMother->GetPdgCode();
 
                 } catch (const std::exception& e) {
+
                   LOGP(error, "       Exception caught while trying to read MC track: %s", e.what());
 
                 } catch (...) {
+
                   LOGP(error, "       Unknown exception caught while trying to read MC track");
+                }
+              }
 
-                }			          
-              }									
-              
+              trackID = mcArray[j].getTrackID(); // const { return static_cast<int>(mLabel & maskTrackID); }
 
-              trackID = mcArray[j].getTrackID();// const { return static_cast<int>(mLabel & maskTrackID); }
-              evID = mcArray[j].getEventID();// const { return isFake() ? -getTrackID() : getTrackID(); }
-              srcID = mcArray[j].getSourceID();// const { return (mLabel >> nbitsTrackID) & maskEvID; }
-              fake = mcArray[j].isFake();// const { return (mLabel >> (nbitsTrackID + nbitsEvID)) & maskSrcID; }
+              evID = mcArray[j].getEventID(); // const { return isFake() ? -getTrackID() : getTrackID(); }
+
+              srcID = mcArray[j].getSourceID(); // const { return (mLabel >> nbitsTrackID) & maskEvID; }
+
+              fake = mcArray[j].isFake(); // const { return (mLabel >> (nbitsTrackID + nbitsEvID)) & maskSrcID; }
 
               // ef : nt marked as const in MCOMPLabel
-              /// mcArray[j].get(trackID, evID, srcID, fake);                
-              
-              LOGP(info, "checking element {}/{} in array of labels", j+1, mcArray.size());
-              LOGP(info, "mcArray : evID {}, trackID {}, srcID {}, fake {}", evID, trackID, srcID, fake);
-              
-              
-	      LOGP(info, "from digit : eid {}, tid {}, mid {}, sid {}", eid, tid, mid, sid);              
 
-              //printf("checking element %d in the array of labels\n", j);
+              /// mcArray[j].get(trackID, evID, srcID, fake);
+
+              LOGP(info, "checking element {}/{} in array of labels", j + 1, mcArray.size());
+
+              LOGP(info, "mcArray : evID {}, trackID {}, srcID {}, fake {}", evID, trackID, srcID, fake);
+
+              LOGP(info, "from digit : eid {}, tid {}, mid {}, sid {}", eid, tid, mid, sid);
+
+              // printf("checking element %d in the array of labels\n", j);
+
               LOGP(info, "EventID from MC-label = {}; from dig : {}", evID, digEventNum);
-              
+
               LOGP(info, " pdg of digit {} || MC digit label {} | pdg from (digit-eid, digit-tid) {} | of mother (digit-eid, digit-mid) {}", pdgOfDig, pdgDigMcTruth, pdgDigit, pdgMother);
 
-
               // LOGP(info, "num Digits : = {}", digs.size());
+
             } // end if printVals
+
           } // end for mcArray
+
         } // end for digIndex
+
       } // end if digitMCTruth != nullptr
-      
 
       // ,  MCLabelContainer const* digitMCTruth
+
       // clu now has a vector<Digit*>* field;
+
       // iterate over it and find cluster topology
 
       // denne skal ikke vaere nptr
 
       /*
+
       if(clu.dig(0)==nullptr)
-    	Printf("dig2Clu Digit i0 nullptr ");
-      else 
-      	Printf("dig2Clu Digit i0 ok");
+
+      Printf("dig2Clu Digit i0 nullptr ");
+
+      else
+
+        Printf("dig2Clu Digit i0 ok");
+
       */
-	
-			LOGP(info, "set CluCh {}", iCh);
+
+      LOGP(info, "set CluCh {}", iCh);
 
       clu.setCh(iCh);
 
-
       clu.solve(&clus, pUserCut, isUnfold); // solve this cluster and add all unfolded clusters to provided list
-			LOGP(info, "clu.solve ok");
+
+      LOGP(info, "clu.solve ok");
 
       /*
+
       if(clu.dig(0)==nullptr)
-    	Printf("dig2Clu Digit i0 nullptr ");
-      else 
-      	Printf("dig2Clu Digit i0 ok");
-      
+
+      Printf("dig2Clu Digit i0 nullptr ");
+
+      else
+
+        Printf("dig2Clu Digit i0 ok");
+
+
+
       if(clus.back().dig(0) == nullptr) {Printf("dig2Clu dig was nullptr!!");}
+
       */
-    }  // digits loop for current chamber
-    vPad.clear();
-  } // chambers loop
 
-
-  // const int numCluStart = clus.size();
-  LOGP(info, "\n\n ============================== called Dig2Clu\n looping over digits");
-  LOGP(info, " new Clusters  {}", clus.size() - numCluStart);
-  LOGP(info, " digs Size {}", digs.size());  
-  
-  return;
-} // Dig2Clu()
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-/*void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::hmpid::Cluster>& clus, float* pUserCut, bool isUnfold)
-{
-  // Finds all clusters for a given digits list provided not empty. Currently digits list is a list of all digits for a single chamber.
-  // Puts all found clusters in separate lists, one per clusters.
-  // Arguments: pDigAll     - list of digits for all chambers
-  //            pCluAll     - list of clusters for all chambers
-  //            isTryUnfold - flag to choose between CoG and Mathieson fitting
-  //  Returns: none
-
-  TMatrixF padMap(Param::kMinPx, Param::kMaxPcx, Param::kMinPy, Param::kMaxPcy); // pads map for single chamber 0..159 x 0..143
-
-  int pUsedDig = -1;
-  int padChX = 0, padChY = 0, module = 0;
-
-  for (int iCh = Param::kMinCh; iCh <= Param::kMaxCh; iCh++) { // chambers loop
-    padMap = (Float_t)-1;                                      // reset map to -1 (means no digit for this pad)
-    for (size_t iDig = 0; iDig < digs.size(); iDig++) {
-      o2::hmpid::Digit::pad2Absolute(digs[iDig].getPadID(), &module, &padChX, &padChY);
-      if (module == iCh) {
-        padMap(padChX, padChY) = iDig; // fill the map for the given chamber, (padx,pady) cell takes digit index
-      }
     } // digits loop for current chamber
 
-    for (size_t iDig = 0; iDig < digs.size(); iDig++) { // digits loop for current chamber
-      o2::hmpid::Digit::pad2Absolute(digs[iDig].getPadID(), &module, &padChX, &padChY);
-      if (module != iCh || (pUsedDig = UseDig(padChX, padChY, padMap)) == -1) { // this digit is from other module or already taken in FormClu(), go after next digit
-        continue;
-      }
-      Cluster clu;
-      clu.setCh(iCh);
-      FormClu(clu, pUsedDig, digs, padMap); // form cluster starting from this digit by recursion
-      clu.solve(&clus, pUserCut, isUnfold); // solve this cluster and add all unfolded clusters to provided list
-    }                                       // digits loop for current chamber
-  }                                         // chambers loop
+    vPad.clear();
+
+  } // chambers loop
+
+  // const int numCluStart = clus.size();
+
+  LOGP(info, "\n\n ============================== called Dig2Clu\n looping over digits");
+
+  LOGP(info, " new Clusters  {}", clus.size() - numCluStart);
+
+  LOGP(info, " digs Size {}", digs.size());
+
   return;
+
 } // Dig2Clu()
-*/
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-void Clusterer::FormClu(Cluster& pClu, int pDig, gsl::span<const o2::hmpid::Digit> digs, TMatrixF& pDigMap)
+
+
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  void Clusterer::FormClu(Cluster& pClu, int pDig, gsl::span<const o2::hmpid::Digit> digs, TMatrixF& pDigMap)
 {
   // Forms the initial cluster as a combination of all adjascent digits. Starts from the given digit then calls itself recursevly  for all neighbours.
   // Arguments: pClu - pointer to cluster being formed
@@ -363,8 +460,6 @@ void Clusterer::FormClu(Cluster& pClu, int pDig, gsl::span<const o2::hmpid::Digi
   int padChY = 0;
   int module = 0;
   o2::hmpid::Digit::pad2Absolute(digs[pDig].getPadID(), &module, &padChX, &padChY);
-
-
 
   if (padChX > Param::kMinPx) {
     cx[cnt] = padChX - 1;
