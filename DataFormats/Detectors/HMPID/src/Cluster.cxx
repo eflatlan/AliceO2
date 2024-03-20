@@ -621,9 +621,7 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, b
   // case 2 -> loc max found. Check # of loc maxima
 
   if (mNlocMax >= kMaxLocMax) {
-
-    LOGP(info, "mNlocMax {} number of digits for cluster {}", mNlocMax, mDigs->size());
-
+   
     // setClusterParams(mXX, mYY, mCh); // if # of local maxima exceeds kMaxLocMax...
 
     mSt = kMax;
@@ -815,22 +813,8 @@ int Cluster::solveMC(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut,
     // new ((*pCluLst)[iCluCnt++]) Cluster(*this); //                      3 - size = 1
 
     pCluLst->push_back(o2::hmpid::Cluster(*this));
-
-    LOGP(info, "mNlocMax :: no deconv number of digits for cluster {}", mDigs->size());
-
-    // if(useMC) { // EF: TODO: Set useMC cond here ?
-
+    
     pCluLst->back().setInfoFromDigits(pCluLst->size());
-
-    // pCluLst->back().setMC();
-
-    // , pCluLst->size() to set the index of the cluster in teh vector to each element
-
-    // if(useMC) {
-
-    //  pCluLst->back().setDigitTruth();
-
-    //}
 
     pCluLst->back().cleanPointers();
 
@@ -952,7 +936,7 @@ int Cluster::solveMC(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut,
   if (mNlocMax >= kMaxLocMax) {
 
     LOGP(info, "mNlocMax {} number of digits for cluster {}", mNlocMax, mDigs->size());
-
+    LOGP(info, "mNlocMax {} >= kMaxLocMax {}", mNlocMax, kMaxLocMax);
     // setClusterParams(mXX, mYY, mCh); // if # of local maxima exceeds kMaxLocMax...
 
     mSt = kMax;

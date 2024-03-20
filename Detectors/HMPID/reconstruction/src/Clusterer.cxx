@@ -166,7 +166,7 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
 
       // o2::hmpid::Digit::pad2Absolute(digs[iDig].getPadID(), &module, &padChX, &padChY);
 
-      LOGP(info, "\n\n ================================\n New iDig : {} \n================================\n\n", iDig);
+      // LOGP(info, "\n\n ================================\n New iDig : {} \n================================\n\n", iDig);
 
       if (vPad.at(iDig).m != iCh || (pUsedDig = UseDig(vPad.at(iDig).x, vPad.at(iDig).y, padMap)) == -1)
 
@@ -274,7 +274,7 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
         LOGP(info, "clu solve ok : cluSizeIn {} -> cluSizeOut {} formedClusters {}", cluSizeIn, cluSizeOut, formedClusters);
         LOGP(info, "Looping over resolved clusters");
         LOGP(info, "startIndex {} -> endIndex {} formedClusters {}", startIndex, endIndex, formedClusters);
-        if (formedClusters > 1) {
+        if (formedClusters > 1 && formedClusters < 6) {
           // use resolvedIndicesMap
           // for(int i = 0; i < resolvedClusters; i++) {
           //  cosnt auto& cluster = clus[i+cluSizeIn];
@@ -283,11 +283,15 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
 
           // map from "local" to global
           std::vector<int> globalInd;
+   
+   				LOGP(info, "\n\n\n=======================\n=======================");
           for (const auto& resolvedIndices : resolvedIndicesMap) {
             // 0.1.2....
             int numSolvedClu = resolvedIndices.first;
 
             // get cluster
+            LOGP(info, "\n=======================\n=======================");
+            
             LOGP(info, "Resolved cluster {} of {}", numSolvedClu + 1, formedClusters);
 
             int currentEntry = startIndex + numSolvedClu;
@@ -298,17 +302,44 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
             std::vector<int> resolvedInds = resolvedIndices.second;
             // get all the digits, and all the MC-labels from them
 
-
+            LOGP(info, "number of clusters {}", clus.size());
 	    // iterate over the local to map to global and fidn selected
             for (const auto& index : resolvedIndices.second) {
               globalInd.push_back(indicesUnresolved[index]);
             }
-            
-            iterateMcEntries(cluster, digs, globalInd, digitMCTruth, mClsLabels, clus.size());
+                      
+						const int nEntrisIn = mClsLabels->getIndexedSize();
+		        iterateMcEntries(cluster, digs, globalInd, digitMCTruth, mClsLabels, clus.size());
+		        const int nEntriesOut = mClsLabels->getIndexedSize();
+		        LOGP(info, "LOOP number of clusters {}", clus.size());
+		        LOGP(info, "LOOP IN {} OUT {} ; number of objs in cluster-headArray ", nEntrisIn, nEntriesOut);                      
+                                            
           }
-          // globalInd now is the indices of the digits from digs used in the cluster
+					
+          if(mClsLabels) {
+            const int nEntriesOut = static_cast<int>(mClsLabels->getIndexedSize());
+		  			int diff = nEntriesOut - clus.size();
 
-        } else if (formedClusters == 1) {
+		  			
+		  			if(diff!=0) {
+		  				Printf("ulik diff %d", diff);
+
+				      if (nEntriesOut != clu.size()) {
+				  			LOGP(info, "formedClusters = {} unequal sizes of labels ({}) and clusters ({}) diff : {}", formedClusters, nEntriesOut, clus.size(), diff);
+				  		 Printf("diff %d", diff);
+							}
+
+				      if (nEntriesOut == clu.size()) {
+				  			LOGP(info, "formedClusters = {} equal sizes of labels ({}) and clusters ({}) diff : {}", formedClusters, nEntriesOut, clus.size(), diff);
+							}
+		  			}	
+		  			
+		  			else {
+		  				Printf("diff ok %d", diff);
+		  			}	  					  				  		
+    			}
+        } else if (formedClusters == 1 || formedClusters >= 6 ) { // 6 is max allowed value kMaxLocMax
+          LOGP(info, "\n\n\n=======================\n =======================");
           //  const auto& cluster = clus[i+cluSizeIn];
           // the "unresolved" are here also the resolved,
           // since we only had 1 cluster to begin with in raw cluster
@@ -319,9 +350,38 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
               // index is used for mcDigitsTruth->getLabels(index)
               gsl::span<const o2::MCCompLabel> mcArray = digitMCTruth->getLabels(index);
           }*/
+					const int nEntrisIn = mClsLabels->getIndexedSize();
           iterateMcEntries(cluster, digs, indicesUnresolved, digitMCTruth, mClsLabels, clus.size());
+          LOGP(info, "number of clusters {}", clus.size());
+          
+					
+          if(mClsLabels) {
+             const int nEntriesOut = static_cast<int>(mClsLabels->getIndexedSize());
+					LOGP(info, "IN {} OUT {} ; number of objs in cluster-headArray ", nEntrisIn, nEntriesOut);
+					
+		  			int diff = nEntriesOut - clus.size();
+		  			
+		  			if(diff!=0) {
+		  				Printf("ulik diff %d", diff);
+				      if (nEntriesOut != clu.size()) {
+				  			LOGP(info, "formedClusters = {} unequal sizes of labels ({}) and clusters ({}) diff : {}", formedClusters, nEntriesOut, clus.size(), diff);
+				  		 Printf("diff %d", diff);
+							}
+
+				      if (nEntriesOut == clu.size()) {
+				  			LOGP(info, "formedClusters = {} equal sizes of labels ({}) and clusters ({}) diff : {}", formedClusters, nEntriesOut, clus.size(), diff);
+							}	
+		  			}	else {
+		  				Printf("diff ok %d", diff);
+		  			}	  				  			
+    			}
+          
+        } else {
+          LOGP(info, "\n\n\n formedClusters? {}", formedClusters);
         }
-      }
+        
+        
+      } // if digitsMcTruth
 
 
 
@@ -353,19 +413,19 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
 
   int lbl = mClsLabels->getIndexedSize(); // this should correspond to the current number of clusters? ;
 
-  LOGP(info, "lbl = {} (mClsLabels->getIndexedSize())", lbl);
+  // LOGP(info, "lbl = {} (mClsLabels->getIndexedSize())", lbl);
 
   // LOGP(info, "number of clusters {}", clus.size());
 
-  LOGP(info, "number of objs in cluster-headArray : {}", mClsLabels->getIndexedSize());
+  //LOGP(info, "number of objs in cluster-headArray : {}", mClsLabels->getIndexedSize());
 
-  LOGP(info, "number of objs in cluster-TruthArray : {}", mClsLabels->getNElements());
+  //LOGP(info, "number of objs in cluster-TruthArray : {}", mClsLabels->getNElements());
   // loop over resolvedIndexes array;
   int numDigitsCount = 0;
   for (int i = 0; i < indices.size(); i++) {
     const int& indexOfDigGlobal = indices[i];
     const auto& digOfClu = digits[indexOfDigGlobal];
-    LOGP(info, "digit  {}/{} : indexOfDigGlobal {}", i + 1, indices.size(), indexOfDigGlobal);
+    // LOGP(info, "digit  {}/{} : indexOfDigGlobal {}", i + 1, indices.size(), indexOfDigGlobal);
 
     /*if (iDig < 0 || iDig >= digs.size()) {
       LOGP(info, "iDig out of bounds");
@@ -398,11 +458,11 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
 
     // ef : vi maa sette en logikk som setter mcTruth fra digit til riktig cluster-indeks i mClsLabels/clus
 
-    LOGP(info, "contributing digit = ({}/{}), digitLabel  = {} || pdg of digit {}", numDigitsCount, cluster.size(), digitLabel, pdgOfDig);
+    //LOGP(info, "contributing digit = ({}/{}), digitLabel  = {} || pdg of digit {}", numDigitsCount, cluster.size(), digitLabel, pdgOfDig);
 
-    LOGP(info, "mcArray size {}", mcArray.size());
+    //LOGP(info, "mcArray size {}", mcArray.size());
 
-    LOGP(info, "======= Looping Labels of dig ===== ");
+    //LOGP(info, "======= Looping Labels of dig ===== ");
 
     for (int j = 0; j < static_cast<int>(mcArray.size()); j++)
 
@@ -411,8 +471,8 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
       const auto& currentIndex = digitMCTruth->getMCTruthHeader(digitLabel).index + j;
       auto label = digitMCTruth->getElement(currentIndex);
 
-      LOGP(info, "digitLabel {}, digitMCTruth->getMCTruthHeader(digitLabel).index {}, j {}", digitLabel, digitMCTruth->getMCTruthHeader(digitLabel).index, j);
-      LOGP(info, "digitMCTruth->getElement({}/{})", currentIndex, digitMCTruth->getIndexedSize());
+      //LOGP(info, "digitLabel {}, digitMCTruth->getMCTruthHeader(digitLabel).index {}, j {}", digitLabel, digitMCTruth->getMCTruthHeader(digitLabel).index, j);
+      //LOGP(info, "digitMCTruth->getElement({}/{})", currentIndex, digitMCTruth->getIndexedSize());
 
       // same as digits having multiple hits
       // clsuters have multiple digits
@@ -434,7 +494,8 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
       // lbl, label, mcArray
 
       mClsLabels->addElement(lbl, label);
-
+      LOGP(info, "number of labels for clu {}  : lbl", mClsLabels->getLabels(lbl).size());
+      /*
       LOGP(info, "number of clusters {}", cluSize);
 
       LOGP(info, "number of objs in cluster-headArray : {}", mClsLabels->getIndexedSize());
@@ -443,7 +504,7 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
 
       LOGP(info, "number of labels for clu {} : clus.size() - 1", mClsLabels->getLabels(cluSize - 1).size());
 
-      LOGP(info, "number of labels for clu {}  : lbl", mClsLabels->getLabels(lbl).size());
+      */ 
 
       /*
       /// query an MC track given a basic label object
@@ -581,7 +642,7 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
 
         {
 
-          LOGP(info, "mcReader->getTrack(eid, tid) gave nullptr");
+          LOGP(debug, "mcReader->getTrack(eid, tid) gave nullptr");
         }
 
         if (!mcReader->getTrack(eid, mid))
@@ -626,7 +687,7 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
 
         /// mcArray[j].get(trackID, evID, srcID, fake);
 
-        LOGP(info, "checking element {}/{} in array of labels", j + 1, mcArray.size());
+        // LOGP(info, "checking element {}/{} in array of labels", j + 1, mcArray.size());
 
         /*
 
@@ -649,14 +710,12 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
       } // end if printVals
     }   // end for mcArray
   }     // end for iDig : resolvedIndices
-
+  /* 
   if (mClsLabels) {
     LOGP(info, "number of objs in cluster-headArray : {}", mClsLabels->getIndexedSize());
     LOGP(info, "number of objs in cluster-TruthArray : {}", mClsLabels->getNElements());
-    if (mClsLabels->getIndexedSize() != cluSize) {
-      LOGP(info, "unequal sizes of labels and clusters");
-    }
-  } // end if mClsLabels
+    
+  } */ // end if mClsLabels
 
 } // end iterateMcEntries
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
