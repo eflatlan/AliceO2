@@ -49,6 +49,12 @@ class Clusterer
   //
   void setMCTruthContainer(o2::dataformats::MCTruthContainer<o2::MCCompLabel>* truth) { mClsLabels = truth; }
 
+  // ef : added
+  void iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmpid::Digit> digits, const std::vector<int>& indices, MCLabelContainer const* digitMCTruth, MCLabelContainer* mClsLabels, int cluSize);
+  
+  void FormCluMC(Cluster &pClu, int pDig, gsl::span<const o2::hmpid::Digit> digs, TMatrixF &pDigMap, std::vector<int>& indicesUnresolved);
+
+
   void Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::hmpid::Cluster>& clus, float* pUserCut, MCLabelContainer const* digitMCTruth, bool isUnfold = kTRUE); // digits->clusters
   static void FormClu(Cluster& pClu, int pDig, gsl::span<const o2::hmpid::Digit> digs, TMatrixF& pDigMap);                                                                   // cluster formation recursive algorithm
   static int UseDig(int padX, int padY, TMatrixF& pDigMap);                                                                                                                  // use this pad's digit to form a cluster
