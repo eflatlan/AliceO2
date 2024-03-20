@@ -103,18 +103,11 @@ class Cluster
     setMotherId((*mDigs)[0]->getMotherId());
     setPDG((*mDigs)[0]->getPDG());
 
-    
+    /*
     LOGP(info, "======================");
     LOGP(info, "Based on charge : pdg {} mother {} tid {}", (*mDigs)[0]->getPDG(), (*mDigs)[0]->getMotherId(), (*mDigs)[0]->getTrackId());
-
-    if(( (*mDigs)[0]->getPDG() != digs[0]->getPDG()) ||((*mDigs)[0]->getTrackId() !=digs[0]->getTrackId()) ) {
-    
-      LOGP(info, "Based on pos : pdg {} mother {} tid {}", digs[0]->getPDG(), digs[0]->getMotherId(), digs[0]->getTrackId());
-    /**/
-        
-      LOGP(info, "not equal pdg from size and charge for cluster");
-    }
-    
+    LOGP(info, "Based on pos : pdg {} mother {} tid {}", digs[0]->getPDG(), digs[0]->getMotherId(), digs[0]->getTrackId());
+    */
     const size_t digSize = mDigs->size();
   }
 
@@ -167,14 +160,30 @@ class Cluster
       mQRaw = 4095;
     }
   }
+  
   void setSize(int size) { mSi = size; }
   void setCh(int chamber) { mCh = chamber; }
   void setChi2(float chi2) { mChi2 = chi2; }
   void setStatus(int status) { mSt = status; }
   void findClusterSize(int i, float* pSigmaCut); // Find the clusterSize of deconvoluted clusters
 
+
+  // ef : added digit index for MC-label
+  void addUnresolvedIndex(int digIndex)                                       
+  {
+    unresolvedIndexes.push_back(digIndex);
+  }
+
+  void getUnresolvedIndexes() const                                       
+  {
+    return unresolvedIndexes;
+  }
+
   // public:
  protected:
+
+  std::vector<int> unresolvedIndexes, resolvedIndexes; // ef : added digit index for MC-label
+ 
   int mMotherTrackId = 0;
   int mSourceId = 0;
   int mEventNumber = 0, mEventNumberTrack = 0;
@@ -209,6 +218,54 @@ class Cluster
   {
     return mPhotEnergy;
   }
+
+
+  int unresolvedIndexes[maxDigitsInUnresolved] = {-1}; // array of photon energy [GeV] per digit
+  const int (&getUnresolvedIndexes() const)[maxDigitsInUnresolved]
+  {
+    return unresolvedIndexes;
+  }
+
+  const int getUnresolvedIndex(int index) const
+  {
+    if (index >= 0 && index < maxDigitsInUnresolved) {
+      return unresolvedIndexes[index];
+    } else {
+      std::cerr << "Index out of bounds" << std::endl;
+      return -1;
+    }
+  }
+
+
+  void setUnresolvedIndex(int value) {
+    for (int i = 0; i < maxDigitsInUnresolved; ++i) {
+      if (unresolvedIndexes[i] < 0) {
+        unresolvedIndexes[i] = value;
+        return;
+      }
+    }
+  }
+
+  void setResolvedIndex(int value) {
+    for (int i = 0; i < maxDigitsInUnresolved; ++i) {
+      if (unresolvedIndexes[i] < 0) {
+        resolvedIndexes[i] = value;
+        return;
+      }
+    }
+  }
+
+
+  // ef : added digit index for MC-label
+  // can also use this as bit, 2^12 = 4096 reading from the unresolvedIndexes
+  int resolvedIndexes[12] = {-1}; 
+  const int (&getResolvedIndexes() const)[12]
+  {
+    return resolvedIndexes;
+  }
+
+  // ef: alternative to above resolvedIndexes
+  uint16_t resolvedClusterBit = 0; // bit 2^12 for indexing unresolved cluster to resovled cluster
 
   int box() const { return mBox; }     // Dimension of the cluster
   int ch() const { return mCh; }       // chamber number

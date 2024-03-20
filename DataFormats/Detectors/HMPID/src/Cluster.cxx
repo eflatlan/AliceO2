@@ -302,7 +302,6 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, b
     //  pCluLst->back().setDigitTruth();
     //}
 
-
     pCluLst->back().cleanPointers();
     return 1; // add this raw cluster
   }
@@ -425,6 +424,11 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, b
         findClusterSize(i, pSigmaCut); // find clustersize for deconvoluted clusters
                                        // after this call, fSi temporarly is the calculated size. Later is set again
                                        // to its original value
+
+        if(useMC) {
+          findDigitsForCluster(i, solve);
+        }
+
       }
       if (mSt != kAbn) {
         if (mNlocMax != 1) {
@@ -459,6 +463,9 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, b
 // Estimate of the clustersize for a deconvoluted cluster
 void Cluster::findClusterSize(int i, float* pSigmaCut)
 {
+
+  std::vector<int> indexResolved;
+  auto indexUnresolved = getUnresolvedIndexes();
   int size = 0;
   for (int iDig = 0; iDig < mSi; iDig++) { // digits loop
     auto pDig = dig(iDig);                 // take digit
@@ -468,10 +475,20 @@ void Cluster::findClusterSize(int i, float* pSigmaCut)
     //                 iCh, o2::hmpid::Digit::a2X(pDig->getPadID()), o2::hmpid::Digit::a2Y(pDig->getPadID()),
     //                 pSigmaCut[iCh],iDig,qPad,pDig->mQ,mQRaw,i));
     
-    // ef: can we set the MC-labels here ?
     if (qPad > pSigmaCut[iCh]) {     
+      
+      // ef: can we set the MC-labels here ?
+      // ef : added to track indexes of resolved clusters
+      if(iDig < maxDigitsInUnresolved) {
+        int indexOfResolved = getUnresolvedIndex(iDig);      
+        setResolvedIndex(indexOfResolved);
+      }
+
+      // indexResolved.push_back(index);
+      //    
       size++;
     }
+
   }
   LOGP(info, "findClusterSize {}", size);
 
@@ -479,6 +496,10 @@ void Cluster::findClusterSize(int i, float* pSigmaCut)
   if (size > 0) {
     setSize(size); // in case of size == 0, original raw clustersize used
   }
+
+  // ef : set the resolved indexes
+  this->setResolvedIndexes(indexResolved);
+  setResolvedIndexes(indexResolved);
 }
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Bool_t Cluster::isInPc()
@@ -490,6 +511,7 @@ Bool_t Cluster::isInPc()
   if (!mDigs) {
     LOGP(fatal, "digits are missing in the cluster");
   }
+  
   int pc = (*mDigs)[0]->getPh(); // (o2::hmpid::Digit*)&mDigs.at(iDig)
 
   if (mXX < param->minPcX(pc) || mXX > param->maxPcX(pc) || mYY < param->minPcY(pc) || mYY > param->maxPcY(pc)) {
