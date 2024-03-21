@@ -76,6 +76,35 @@ void ClusterReaderTask::run(ProcessingContext& pc)
   mClustersReceived += mClustersFromFile.size();
   LOG(info) << "[HMPID ClusterReader - run() ] clusters  = " << mClustersFromFile.size();
 
+
+
+  // test hvilke evID som er her:
+  // ef remove latere :
+  int tnum = 0;
+  for(const auto trig : *mClusterTriggersFromFilePtr ) {
+  	LOGP(info, "trigger number {} : entries {}", tnum, trig.getNumberOfObjects());
+  	tnum++;
+    int cnt = 0;
+
+    for(int i = trig.getFirstEntry(); i <= trig.getLastEntry(); i++) {
+       if(i < mLabels.getIndexedSize() && i < mClustersFromFile.size()) {
+         const auto& labels = mLabels.getLabels(i);
+        LOGP(info, "cluster number {}", i);
+        for(const auto& label : labels){
+
+          if(label.getEventID() != mClustersFromFile[i].getEventNumber()) {
+            LOGP(info, "cluster number {}, cluEventNum {} labelEventId {}", i, mClustersFromFile[i].getEventNumber(), label.getEventID());
+          }
+        }
+      } else {
+        LOGP(info, "out of range {} > numLabels {}", i, mLabels.getIndexedSize());
+      }
+    }
+    LOGP(info, "cnt {} entries {}", cnt, trig.getNumberOfObjects());
+  }
+
+
+
   if (mUseMC) {
     pc.outputs().snapshot(Output{"HMP", "CLUSTERSMCTR", 0}, mLabels);
     
@@ -144,7 +173,6 @@ void ClusterReaderTask::initFileIn(const std::string& filename)
   }
 
   mTree->Print("toponly");
-
   mTree->SetBranchAddress("InteractionRecords", &mClusterTriggersFromFilePtr);
   mTree->Print("toponly");
 }

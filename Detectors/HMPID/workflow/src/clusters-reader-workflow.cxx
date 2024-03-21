@@ -46,6 +46,12 @@ void customize(std::vector<o2::framework::ConfigParamSpec>& workflowOptions)
                                    o2::framework::VariantType::Bool,
                                    false,
                                    {"read upstream by default"}}); */
+  // ef added
+  workflowOptions.push_back(
+    o2::framework::ConfigParamSpec{"disable-mc",
+                                   o2::framework::VariantType::Bool,
+                                   false,
+                                   {"Do not propagate MC info"}});
 
   o2::raw::HBFUtilsInitializer::addConfigOption(workflowOptions);
 }
@@ -62,8 +68,8 @@ WorkflowSpec defineDataProcessing(const ConfigContext& configcontext)
   o2::conf::ConfigurableParam::updateFromString(configcontext.options().get<std::string>("configKeyValues"));
 
 
-  // EF: FIX
-  bool useMC = true;
+  // EF: added
+  bool useMC = !configcontext.options().get<bool>("disable-mc");
   DataProcessorSpec consumer = o2::hmpid::getClusterReaderSpec(useMC);
 
   specs.push_back(consumer);

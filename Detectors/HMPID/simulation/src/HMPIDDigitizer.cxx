@@ -148,7 +148,7 @@ void HMPIDDigitizer::process(std::vector<o2::hmpid::HitType> const& hits, std::v
         //        mDigits.emplace_back(mCurrentTriggerTime, pad, totalQ * fraction);
 
         // ef: corrected to take from hits to mEventId -- > mEventId is set in HMPIDDigitezerSpec
-        LOGP(info, "Emplacing mDigits; (from hit num {}/{} : event {}) mEventID {}", hitNum, hits.size(), hit.getEventNumber(), mEventID);
+
         mDigits.emplace_back(pad, totalQ * fraction, hit.getParticlePdg(), hit.getTrackId(),  hit.getMother(), /*hit.getEventNumber()*/ mEventID, mSrcID, hit.getEnergy());
         
 
@@ -162,8 +162,7 @@ void HMPIDDigitizer::process(std::vector<o2::hmpid::HitType> const& hits, std::v
           
           // ef : remove this print statement:
           LOGP(info, "Adding MC at mDigits.size {}: ", mDigits.size());
-          
-          
+          LOGP(info, "with eventID {}", mEventID);
           LOGP(info, "mTmpLabelContainer size  {}:", mTmpLabelContainer.getNElements());
           LOGP(info, "number of labels for dig {}", mTmpLabelContainer.getLabels(mDigits.size() - 1).size());
         }

@@ -76,6 +76,8 @@ class Clusterer
   // ef FIX!                                                                                       // check for sigma cut
 
  private:
+
+  int startIndexDigMC = 0; // ef : TODO find a more elegant way
   // void processChamber(std::vector<Cluster>& clusters, MCLabelContainer const* digitMCTruth);
   // void fetchMCLabels(const Digit* dig, std::array<Label, Cluster::maxLabels>& labels, int& nfilled) const;
 

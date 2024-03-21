@@ -56,7 +56,7 @@ WorkflowSpec defineDataProcessing(const ConfigContext& configcontext)
 {  
 
 
-
+  // ef : added
   bool useMC = !configcontext.options().get<bool>("disable-mc");
   WorkflowSpec specs;
   o2::conf::ConfigurableParam::updateFromString(configcontext.options().get<std::string>("configKeyValues"));

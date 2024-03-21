@@ -52,14 +52,13 @@ class DigitsToRootTask : public framework::Task
   ExecutionTimer mExTimer;
   std::vector<o2::hmpid::Trigger> mTriggers;
   std::vector<o2::hmpid::Digit> mDigits;
-  //std::vector<o2::MCCompLabel> mDigitLabels; // ef : added...
   
-  //using LabelsType =
-  
+  // ef : added  
   std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>> mDigitLabels;
   
-  // or o2::dataformats::MCTruthContainer<o2::MCCompLabel>??
-  bool mUseMC = true;
+  // ef : added  
+  bool mUseMC = false;  
+  
   std::unique_ptr<TFile> mfileOut;
   std::unique_ptr<TTree> mDigitTree;
   std::string mOutRootFileName;
@@ -69,7 +68,7 @@ class DigitsToRootTask : public framework::Task
 };
 
 // ef add useMC
-o2::framework::DataProcessorSpec getDigitsToRootSpec(std::string inputSpec = "HMP/DIGITS", bool useMC = 1);
+o2::framework::DataProcessorSpec getDigitsToRootSpec(std::string inputSpec = "HMP/DIGITS", bool useMC = false);
 
 } // end namespace hmpid
 } // end namespace o2

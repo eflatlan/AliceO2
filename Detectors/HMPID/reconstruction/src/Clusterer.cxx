@@ -284,7 +284,7 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
           // map from "local" to global
 
    
-   				LOGP(info, "\n\n\n=======================\n=======================");
+          LOGP(info, "\n\n\n=======================\n=======================");
           for (const auto& resolvedIndices : resolvedIndicesMap) {
             // 0.1.2....
             int numSolvedClu = resolvedIndices.first;
@@ -315,14 +315,14 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
               LOGP(warn, "WARNING globalInd had no entries!");
             }
             
-						const int nEntrisIn = mClsLabels->getIndexedSize();
+			const int nEntrisIn = mClsLabels->getIndexedSize();
 		        iterateMcEntries(cluster, digs, globalInd, digitMCTruth, mClsLabels, clus.size());
 		        
-		        const int nEntriesOut = mClsLabels->getIndexedSize();
-		        
-		        LOGP(info, "LOOP number of clusters {} | ndigsResolved {}", clus.size(), cluster.size());
-		        
-		        LOGP(info, "LOOP IN {} OUT {} ; number of objs in cluster-headArray ", nEntrisIn, nEntriesOut);                      
+            const int nEntriesOut = mClsLabels->getIndexedSize();
+
+            LOGP(info, "LOOP number of clusters {} | ndigsResolved {}", clus.size(), cluster.size());
+
+            LOGP(info, "LOOP IN {} OUT {} ; number of objs in cluster-headArray ", nEntrisIn, nEntriesOut);
                                             
           }
 					
@@ -410,6 +410,11 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
   LOGP(info, " new Clusters  {}", clus.size() - numCluStart);
 
   LOGP(info, " digs Size {}", digs.size());
+  startIndexDigMC += digs.size();
+
+
+  LOGP(info, " starting next MC digit reading from {}", startIndexDigMC);
+
 
   return;
 
@@ -435,11 +440,15 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
   int numDigitsCount = 0;
   for (int i = 0; i < indices.size(); i++) {
     const int& indexOfDigGlobal = indices[i];
+
+    // ef :prøv, vil da sette + forrige size
+
+    // eller skal denne bare være indexOfDigGlobal??
     const auto& digOfClu = digits[indexOfDigGlobal];
     LOGP(info, "digit  {}/{} : indexOfDigGlobal {}", i + 1, indices.size(), indexOfDigGlobal);
     
 
-    LOGP(info, "digit numGlobal {} : x {} y {}", indexOfDigGlobal, digOfClu.getX(), digOfClu.getY());
+    LOGP(info, "digit numGlobal+startIndexDigMC {} : x {} y {}", indexOfDigGlobal+startIndexDigMC, digOfClu.getX(), digOfClu.getY());
     /*if (iDig < 0 || iDig >= digs.size()) {
       LOGP(info, "iDig out of bounds");
       break;
@@ -457,7 +466,7 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
     // ef: TODO it should be the index of the digit in the array of digits? Like this :
 
     // for MC-truth
-    digitLabel = indexOfDigGlobal;
+    digitLabel = startIndexDigMC + indexOfDigGlobal;
 
     const int digEventNum = digOfClu.getEventNumber();
 
@@ -468,6 +477,9 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
     // all MC-hits from the specific digit
 
     gsl::span<const o2::MCCompLabel> mcArray = digitMCTruth->getLabels(digitLabel);
+
+    // ef : remove later
+    LOGP(info, "digit number {}, digEventNum {}", digitLabel, digEventNum);
 
     // ef : vi maa sette en logikk som setter mcTruth fra digit til riktig cluster-indeks i mClsLabels/clus
 
@@ -489,8 +501,8 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
       // clsuters have multiple digits
       // we fill MC-Complabel label at index lbl for headArray
       // this is the hit for a digit in the cluster
-
-      LOGP(info, "adding mc label at index {}", lbl);
+      
+      LOGP(info, "adding mc label at index {} || ", lbl);
 
       // skal ikke dette være lblFromClu??
 
@@ -552,6 +564,7 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
           {
 
             mcTrack = mcReader->getTrack(label);
+            
           }
 
           catch (const std::exception& e)

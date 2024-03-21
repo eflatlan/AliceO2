@@ -115,10 +115,14 @@ class HMPIDDPLDigitizerTask : public o2::base::BaseDPLDigitizer
           mDigitizer.setEventID(part.entryID);
           mDigitizer.setSrcID(part.sourceID);
 
+
+
           // get the hits for this event and this source
           std::vector<o2::hmpid::HitType> hits;
           context->retrieveHits(mSimChains, "HMPHit", part.sourceID, part.entryID, &hits);
-          LOG(debug) << "For collision " << collID << " eventID " << part.entryID << " found HMP " << hits.size() << " hits ";
+
+          // ef :change back to debug:
+          LOG(info) << "For collision " << collID << " eventID " << part.entryID << " found HMP " << hits.size() << " hits ";
 
           mDigitizer.setLabelContainer(&mLabels);
           mLabels.clear();

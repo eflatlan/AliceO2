@@ -176,13 +176,13 @@ o2::framework::DataProcessorSpec getDigitsToRootSpec(std::string inputSpec, bool
   std::vector<o2::framework::InputSpec> inputs;
 
 
-  // ???? ef :: TODO: why is ther clusters here?
-  // ef; changed to digits
+  // ? ef :: TODO: why is ther "clusters" here?
+  // ef changed to digits
   inputs.emplace_back("digits", o2::header::gDataOriginHMP, "DIGITS", 0, Lifetime::Timeframe);
   inputs.emplace_back("intrecord", o2::header::gDataOriginHMP, "INTRECORDS", 0, Lifetime::Timeframe);
 
 
-  //auto useMC = false; // ef not yet
+
   if(useMC) {
     inputs.emplace_back("hmpiddigitlabels", o2::header::gDataOriginHMP, "DIGITSMCTR", 0, Lifetime::Timeframe);
   } // ef: do as from the steer..

@@ -141,6 +141,39 @@ void DigitReader::run(ProcessingContext& pc)
     pc.outputs().snapshot(Output{"HMP", "DIGITSMCTR", 0}, mLabels);
   }
 
+
+  // test hvilke evID som er her:
+  // ef remove latere :
+  int tnum = 0;
+  for(const auto trig : mTriggersFromFile ) {
+  	LOGP(info, "trigger number {} : entries {}", tnum, trig.getNumberOfObjects());
+  	tnum++;
+    int cnt = 0;
+
+    for(int i = trig.getFirstEntry(); i <= trig.getLastEntry(); i++) {
+       if(i < mLabels.getIndexedSize() && i < mDigitsFromFile.size()) {
+        const auto& labels = mLabels.getLabels(i);
+        LOGP(info, "digit number {}", i);
+
+        LOGP(info, "digit numGlobal {} : x {} y {}", i, mDigitsFromFile[i].getX(), mDigitsFromFile[i].getY());
+
+
+        for(const auto& label : labels){
+          LOGP(info, "digit number {}, digEventNum {} labelEventId {}", i, mDigitsFromFile[i].getEventNumber(), label.getEventID());
+
+
+          if(label.getEventID() != mDigitsFromFile[i].getEventNumber()) {
+            LOGP(info, "digit number labelEventId  ULIK digEvent");
+          }
+        }
+      }
+      else {
+        LOGP(info, "out of range {} > numLabels {}", i, mLabels.getIndexedSize());
+      }
+    }
+    LOGP(info, "cnt {} entries {}", cnt, trig.getNumberOfObjects());
+  }
+
   mDigitsReceived += mDigitsFromFile.size();
   LOG(info) << "[HMPID DigitsReader - run() ] digits  = " << mDigitsFromFile.size();
 
