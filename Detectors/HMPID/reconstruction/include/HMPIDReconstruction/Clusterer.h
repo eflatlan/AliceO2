@@ -24,6 +24,9 @@
 
 #include "TMatrixF.h" // ef: added
 
+// ef: added : TODO: remove once code is verified
+#include "Steer/MCKinematicsReader.h"
+
 namespace o2
 {
 
@@ -38,7 +41,15 @@ class Clusterer
  public:
   using MCLabelContainer = o2::dataformats::MCTruthContainer<o2::MCCompLabel>;
 
-  Clusterer() = default;
+  Clusterer(bool useMC) {
+    mUseMC = useMC;
+    
+    
+    // ef : TODO remove this wehn code is verified:
+    if(mUseMC) {
+      mcReader = std::make_unique<o2::steer::MCKinematicsReader>("collisioncontext.root");
+    }
+  }
   ~Clusterer() = default;
 
   Clusterer(const Clusterer&) = delete;
@@ -75,6 +86,12 @@ class Clusterer
   std::unique_ptr<o2::dataformats::MCLabelContainer> mHwClustersMCTruthArray; ///< Array for MCTruth information associated to cluster in mHwClustersArrays
 
   o2::dataformats::MCTruthContainer<o2::MCCompLabel>* mClsLabels = nullptr; // Cluster MC labels
+  
+  // ef : TODO :remove this when code and pdg etc is verified
+  std::unique_ptr<o2::steer::MCKinematicsReader> mcReader;
+  
+  // is set in initialization
+  bool mUseMC = false;
 
   // Digit* mContributingDigit[6];    //! array of digits contributing to the cluster; this will not be stored, it is temporary to build the final cluster
   // int mNumberOfContributingDigits; //! number of digits contributing to the cluster; this will not be stored, it is temporary to build the final cluster

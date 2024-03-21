@@ -31,7 +31,7 @@
 
 #include <TStopwatch.h>
 
-#include "Steer/MCKinematicsReader.h"
+
 
 using namespace o2::hmpid;
 
@@ -526,14 +526,12 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
       // ef :TODO remove print statements or add if
 
       const o2::MCTrack* mcTrack = nullptr;
-
+	
       const o2::MCTrack* mcTrackFromDig = nullptr;
 
-      const o2::MCTrack* mcTrackFromMother = nullptr;
+      const o2::MCTrack* mcTrackFromMother = nullptr;      
 
-      const auto& mcReader = std::make_unique<o2::steer::MCKinematicsReader>("collisioncontext.root");
-
-      bool printVals = true;
+      bool printVals = false;
 
       if (printVals) {
         if (!mcReader)
@@ -711,12 +709,18 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
         LOGP(info, "EventID from MC-label = {}; from dig : {}", evID, digEventNum);
 
         */
-
-        LOGP(info, " pdg of digit {} || MC digit label {} | pdg from (digit-eid, digit-tid) {} | of mother (digit-eid, digit-mid) {}", pdgOfDig, pdgDigMcTruth, pdgDigit, pdgMother);
-	if(pdgOfDig!=pdgDigMcTruth) {
-	  LOGP(info, "pdgOfDig ulik pdgDigMcTruth");
-	}
-        // LOGP(info, "num Digits : = {}", digs.size());
+				try {
+        	LOGP(info, " pdg of digit {} || MC digit label {} | pdg from (digit-eid, digit-tid) {} | of mother (digit-eid, digit-mid) {}", pdgOfDig, pdgDigMcTruth, pdgDigit, pdgMother);
+        } catch (const std::exception& e) {
+          LOGP(error, "       Exception caught %s", e.what());
+        } catch (...) {
+          LOGP(error, "       Unknown exception caught");
+        }         
+        
+				if(pdgOfDig!=pdgDigMcTruth) {
+					LOGP(info, "pdgOfDig ulik pdgDigMcTruth");
+				}
+				    // LOGP(info, "num Digits : = {}", digs.size());
 
       } // end if printVals
     }   // end for mcArray

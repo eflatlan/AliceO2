@@ -44,7 +44,10 @@ class DigitsToClustersTask : public framework::Task
       	mClsLabels.reset(new o2::dataformats::MCTruthContainer<o2::MCCompLabel>);
       }
   }
+  
   ~DigitsToClustersTask() override = default;
+  
+  
   void init(framework::InitContext& ic) final;
   void run(framework::ProcessingContext& pc) final;
   void endOfStream(framework::EndOfStreamContext& ec) override;
@@ -59,7 +62,7 @@ class DigitsToClustersTask : public framework::Task
   std::unique_ptr<o2::hmpid::Clusterer> mRec; // ef: changed to smart-pointer
   long mDigitsReceived;
   long mClustersReceived;
-  bool mUseMC = true; // ef do later
+  bool mUseMC = false; // is set in init
 
   void initFileIn(const std::string& fileName);
 

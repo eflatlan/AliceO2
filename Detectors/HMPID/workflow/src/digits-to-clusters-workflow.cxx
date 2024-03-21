@@ -50,6 +50,9 @@ void customize(std::vector<ConfigParamSpec>& workflowOptions)
 
   workflowOptions.push_back(ConfigParamSpec{"disable-root-output", VariantType::Bool, false, {"disable root-files output writers"}});
 
+  // ef : added
+workflowOptions.push_back(ConfigParamSpec{"disable-mc", o2::framework::VariantType::Bool, false, {"disable MC propagation even if available"}});
+
   o2::raw::HBFUtilsInitializer::addConfigOption(workflowOptions);
 }
 
@@ -72,7 +75,8 @@ WorkflowSpec defineDataProcessing(const ConfigContext& configcontext)
   auto disableRootOut = configcontext.options().get<bool>("disable-root-output"); // write upstream by default
 
 
-  bool useMC = true; // ef fix later
+  // ef : added
+  auto useMC = !configcontext.options().get<bool>("disable-mc");
   DataProcessorSpec consumer = hmpid::getDigitsToClustersSpec(useMC);
 
   specs.push_back(consumer);

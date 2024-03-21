@@ -84,7 +84,7 @@ void DigitsToClustersTask::init(framework::InitContext& ic)
 
   mDigitsReceived = 0, mClustersReceived = 0;
 
-  mRec.reset(new o2::hmpid::Clusterer()); // ef: changed to smart-pointer
+  mRec.reset(new o2::hmpid::Clusterer(mUseMC)); // ef: changed to smart-pointer
 
   mExTimer.start();
 }
@@ -92,7 +92,7 @@ void DigitsToClustersTask::init(framework::InitContext& ic)
 void DigitsToClustersTask::run(framework::ProcessingContext& pc)
 {
 
-  bool mUseMC = true; // ef do inout tu fcn
+  // bool mUseMC = true; // ef do inout tu fcn
   // outputs
   std::vector<o2::hmpid::Cluster> clusters;
   std::vector<o2::hmpid::Trigger> clusterTriggers;
@@ -306,8 +306,7 @@ o2::framework::DataProcessorSpec
   inputs.emplace_back("intrecord", o2::header::gDataOriginHMP, "INTRECORDS", 0,
                       o2::framework::Lifetime::Timeframe);
 
-  bool mUseMC = false; // ef do later
-
+  // ef: added
   if (useMC) {
     inputs.emplace_back("hmpiddigitlabels", o2::header::gDataOriginHMP, "DIGITSMCTR", 0, Lifetime::Timeframe);
   }
@@ -315,7 +314,7 @@ o2::framework::DataProcessorSpec
   // define outputs
   std::vector<o2::framework::OutputSpec> outputs;
 
-  // ef: FIX
+  // ef: added
   if (useMC) {
     outputs.emplace_back("HMP", "CLUSTERSMCTR", 0,
                          o2::framework::Lifetime::Timeframe);
