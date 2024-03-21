@@ -531,7 +531,7 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
 
       const o2::MCTrack* mcTrackFromMother = nullptr;      
 
-      bool printVals = false;
+      bool printVals = true;
 
       if (printVals) {
         if (!mcReader)
