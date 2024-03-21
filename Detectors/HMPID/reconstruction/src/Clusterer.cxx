@@ -282,7 +282,7 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
           //
 
           // map from "local" to global
-          std::vector<int> globalInd;
+
    
    				LOGP(info, "\n\n\n=======================\n=======================");
           for (const auto& resolvedIndices : resolvedIndicesMap) {
@@ -302,16 +302,26 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
             std::vector<int> resolvedInds = resolvedIndices.second;
             // get all the digits, and all the MC-labels from them
 
-            LOGP(info, "number of clusters {}", clus.size());
+            LOGP(info, "clu {}/{}",resolvedIndices.first, clus.size());
 	    // iterate over the local to map to global and fidn selected
+            
+            std::vector<int> globalInd;            
             for (const auto& index : resolvedIndices.second) {
               globalInd.push_back(indicesUnresolved[index]);
             }
-                      
+            
+            // ef: add catch if globalInd.size == 0 ? and add empty label?
+            if(globalInd.size() == 0) {
+              LOGP(warn, "WARNING globalInd had no entries!");
+            }
+            
 						const int nEntrisIn = mClsLabels->getIndexedSize();
 		        iterateMcEntries(cluster, digs, globalInd, digitMCTruth, mClsLabels, clus.size());
+		        
 		        const int nEntriesOut = mClsLabels->getIndexedSize();
-		        LOGP(info, "LOOP number of clusters {}", clus.size());
+		        
+		        LOGP(info, "LOOP number of clusters {} | ndigsResolved {}", clus.size(), cluster.size());
+		        
 		        LOGP(info, "LOOP IN {} OUT {} ; number of objs in cluster-headArray ", nEntrisIn, nEntriesOut);                      
                                             
           }
@@ -352,7 +362,8 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
           }*/
 					const int nEntrisIn = mClsLabels->getIndexedSize();
           iterateMcEntries(cluster, digs, indicesUnresolved, digitMCTruth, mClsLabels, clus.size());
-          LOGP(info, "number of clusters {}", clus.size());
+					
+					LOGP(info, "number of clusters {} | ndigsResolved {}", clus.size(), cluster.size());
           
 					
           if(mClsLabels) {
@@ -413,7 +424,7 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
 
   int lbl = mClsLabels->getIndexedSize(); // this should correspond to the current number of clusters? ;
 
-  // LOGP(info, "lbl = {} (mClsLabels->getIndexedSize())", lbl);
+  LOGP(info, "lbl = {} indices_size {} : cluster.size {}", lbl, indices.size(), cluster.size());
 
   // LOGP(info, "number of clusters {}", clus.size());
 
@@ -425,8 +436,10 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
   for (int i = 0; i < indices.size(); i++) {
     const int& indexOfDigGlobal = indices[i];
     const auto& digOfClu = digits[indexOfDigGlobal];
-    // LOGP(info, "digit  {}/{} : indexOfDigGlobal {}", i + 1, indices.size(), indexOfDigGlobal);
+    LOGP(info, "digit  {}/{} : indexOfDigGlobal {}", i + 1, indices.size(), indexOfDigGlobal);
+    
 
+    LOGP(info, "digit numGlobal {} : x {} y {}", indexOfDigGlobal, digOfClu.getX(), digOfClu.getY());
     /*if (iDig < 0 || iDig >= digs.size()) {
       LOGP(info, "iDig out of bounds");
       break;
@@ -460,10 +473,8 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
 
     //LOGP(info, "contributing digit = ({}/{}), digitLabel  = {} || pdg of digit {}", numDigitsCount, cluster.size(), digitLabel, pdgOfDig);
 
-    //LOGP(info, "mcArray size {}", mcArray.size());
-
-    //LOGP(info, "======= Looping Labels of dig ===== ");
-
+    LOGP(info, "mcArray size {}", mcArray.size());
+    LOGP(info, "======= Looping Labels of dig ===== ");
     for (int j = 0; j < static_cast<int>(mcArray.size()); j++)
 
     {
@@ -689,12 +700,12 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
 
         // LOGP(info, "checking element {}/{} in array of labels", j + 1, mcArray.size());
 
-        /*
+        
 
-        LOGP(info, "mcArray : evID {}, trackID {}, srcID {}, fake {}", evID, trackID, srcID, fake);
+        LOGP(info, "mcArray : evID {}, trackID {}, mid {}, srcID {}, fake {}", evID, trackID, mcTrack->getMotherTrackId(), srcID, fake);
 
         LOGP(info, "from digit : eid {}, tid {}, mid {}, sid {}", eid, tid, mid, sid);
-
+				/*
         // printf("checking element %d in the array of labels\n", j);
 
         LOGP(info, "EventID from MC-label = {}; from dig : {}", evID, digEventNum);

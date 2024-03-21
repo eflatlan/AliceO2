@@ -1033,7 +1033,10 @@ int Cluster::solveMC(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut,
 
         // add "local" indices to map of clusterNumer i
         resolvedIndicesMap[i] = indicesResolved;
-
+	/*
+	for(auto& res : resolvedIndicesMap) {
+	  LOGP(info, "for resolved cluster {i} : sat the resolvedIndicesMap w key {}", res.first);
+	}*/ 
         findClusterSize(i, pSigmaCut); // find clustersize for deconvoluted clusters
 
         // after this call, fSi temporarly is the calculated size. Later is set again
@@ -1074,7 +1077,7 @@ int Cluster::solveMC(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut,
 
       // Printf("********************loc. max. = %i, X= %f, Y = %f, Q = %f**************************",i,mXX,mYY,mQ);
 
-      LOGP(info, "cluNumber {} mNlocMax {} number of digits for cluster {}", i, mNlocMax, mDigs->size());
+      LOGP(info, "cluNumber {} mNlocMax {} number of digits for cluster {} | unresolved, {}", i, mNlocMax, this->size(), mDigs->size());
 
       pCluLst->push_back(o2::hmpid::Cluster(*this)); // add new unfolded cluster
 
@@ -1108,7 +1111,7 @@ void Cluster::findClusterSizeMC(int i, float* pSigmaCut, std::vector<int>& indic
   // auto indexUnresolved = getUnresolvedIndexes();
 
   int size = 0;
-
+  LOGP(info, " findClusterSizeMC : total digits for unresolved {}", mSi);
   for (int iDig = 0; iDig < mSi; iDig++) { // digits loop
 
     auto pDig = dig(iDig); // take digit
@@ -1137,17 +1140,16 @@ void Cluster::findClusterSizeMC(int i, float* pSigmaCut, std::vector<int>& indic
   //  AliDebug(1,Form(" Calculated size %i",size));
 
   if (size > 0) {
-
     setSize(size); // in case of size == 0, original raw clustersize used
+  } else if (size == 0) {
+    
+    LOGP(info, "size==0: using raw size {}", mSi);  
+    // we use raw-size; and we set for all the labels 
+    for (int iDig = 0; iDig < mSi; iDig++) {
+      indicesResolved.push_back(iDig); // ef : added to track indexes of resolved clusters
+      LOGP(info, "findClusterSizeMC :: added raw local iDig {} ", iDig);
+    }
   }
-
-  // ef : set the resolved indexes
-
-  // done above instead
-
-  // this->setResolvedIndexes(indexResolved);
-
-  // setResolvedIndex(indexResolved);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
