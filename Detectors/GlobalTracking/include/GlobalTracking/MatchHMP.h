@@ -120,6 +120,11 @@ class MatchHMP
   }
   unsigned long getTS() const { return mTimestamp; }
 
+
+  // ef : added
+  void useVerboseMode() { mVerbose = true; }
+
+
  private:
   //  bool prepareFITData();
   int prepareInteractionTimes();
@@ -128,8 +133,8 @@ class MatchHMP
   void doFastMatching();
   void doMatching();
 
-  static int intTrkCha(o2::track::TrackParCov* pTrk, double& xPc, double& yPc, double& xRa, double& yRa, double& theta, double& phi, double bz);               // find track-PC intersection, retuns chamber ID
-  static int intTrkCha(int ch, o2::dataformats::TrackHMP* pHmpTrk, double& xPc, double& yPc, double& xRa, double& yRa, double& theta, double& phi, double bz); // find track-PC intersection, retuns chamber ID
+  static int intTrkCha(o2::track::TrackParCov* pTrk, double& xPc, double& yPc, double& xRa, double& yRa, double& theta, double& phi, double bz, const o2::hmpid::Param* pParam);               // find track-PC intersection, retuns chamber ID
+  static int intTrkCha(int ch, o2::dataformats::TrackHMP* pHmpTrk, double& xPc, double& yPc, double& xRa, double& yRa, double& theta, double& phi, double bz, const o2::hmpid::Param* pParam); // find track-PC intersection, retuns chamber ID
 
   bool intersect(Double_t pnt[3], Double_t norm[3]) const;
 
@@ -209,6 +214,14 @@ class MatchHMP
   std::vector<int> mMatchedTracksIndex[o2::globaltracking::MatchHMP::trackType::SIZE];                  // vector of indexes of the tracks to be matched
 
   int mNumOfTriggers; // number of HMP triggers
+
+  // ef : added
+  bool mVerbose = false;
+
+  // ef : added the pParam here, to avoid doing it in intrTrkCh
+  // o2::hmpid::Param* pParam = nullptr;
+  // std::unique_ptr<o2::hmpid::Param> pParam;
+
 
   ///----------- aux stuff --------------///
   static constexpr float MAXSNP = 0.85; // max snp of ITS or TPC track at xRef to be matched

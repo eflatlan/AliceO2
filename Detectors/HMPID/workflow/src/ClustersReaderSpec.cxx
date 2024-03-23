@@ -82,25 +82,25 @@ void ClusterReaderTask::run(ProcessingContext& pc)
   // ef remove latere :
   int tnum = 0;
   for(const auto trig : *mClusterTriggersFromFilePtr ) {
-  	LOGP(info, "trigger number {} : entries {}", tnum, trig.getNumberOfObjects());
+  	LOGP(debug, "trigger number {} : entries {}", tnum, trig.getNumberOfObjects());
   	tnum++;
     int cnt = 0;
 
     for(int i = trig.getFirstEntry(); i <= trig.getLastEntry(); i++) {
        if(i < mLabels.getIndexedSize() && i < mClustersFromFile.size()) {
          const auto& labels = mLabels.getLabels(i);
-        LOGP(info, "cluster number {}", i);
+        LOGP(debug, "cluster number {}", i);
         for(const auto& label : labels){
 
           if(label.getEventID() != mClustersFromFile[i].getEventNumber()) {
-            LOGP(info, "cluster number {}, cluEventNum {} labelEventId {}", i, mClustersFromFile[i].getEventNumber(), label.getEventID());
+            LOGP(debug, "cluster number {}, cluEventNum {} labelEventId {}", i, mClustersFromFile[i].getEventNumber(), label.getEventID());
           }
         }
       } else {
-        LOGP(info, "out of range {} > numLabels {}", i, mLabels.getIndexedSize());
+        LOGP(debug, "out of range {} > numLabels {}", i, mLabels.getIndexedSize());
       }
     }
-    LOGP(info, "cnt {} entries {}", cnt, trig.getNumberOfObjects());
+    LOGP(debug, "cnt {} entries {}", cnt, trig.getNumberOfObjects());
   }
 
 

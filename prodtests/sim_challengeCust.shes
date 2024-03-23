@@ -201,7 +201,7 @@ if [ "$doreco" == "1" ]; then
   echo "Return status of tpcreco: $?"
 
   echo "Running ITS reco flow"
-  taskwrapper itsreco.log  o2-its-reco-workflow --trackerCA --tracking-mode async $gloOpt $ITSRecOpt
+  taskwrapper itsreco.log  o2-its-reco-workflow --disable-mc --trackerCA --tracking-mode async $gloOpt $ITSRecOpt 
   echo "Return status of itsreco: $?"
 
   # existing checks
@@ -211,21 +211,21 @@ if [ "$doreco" == "1" ]; then
   echo "Running MFT reco flow"
   #needs MFT digitized data
   MFTRecOpt=" --configKeyValues \"MFTTracking.forceZeroField=false;MFTTracking.LTFclsRCut=0.0100;\""
-  taskwrapper mftreco.log  o2-mft-reco-workflow  $gloOpt $MFTRecOpt
+  taskwrapper mftreco.log  o2-mft-reco-workflow  --disable-mc $gloOpt $MFTRecOpt
   echo "Return status of mftreco: $?"
 
   echo "Running MCH reco flow"
-  taskwrapper mchreco.log o2-mch-reco-workflow $gloOpt
+  taskwrapper mchreco.log o2-mch-reco-workflow --disable-mc $gloOpt
   echo "Return status of mchreco: $?"
 
   echo "Running FT0 reco flow"
   #needs FT0 digitized data
-  taskwrapper ft0reco.log o2-ft0-reco-workflow $gloOpt
+  taskwrapper ft0reco.log o2-ft0-reco-workflow --disable-mc $gloOpt
   echo "Return status of ft0reco: $?"
 
   echo "Running FDD reco flow"
   #needs FDD digitized data
-  taskwrapper fddreco.log o2-fdd-reco-workflow $gloOpt
+  taskwrapper fddreco.log o2-fdd-reco-workflow --disable-mc $gloOpt
   echo "Return status of fddreco: $?"
 
   echo "Running FV0 reco flow"
@@ -235,7 +235,7 @@ if [ "$doreco" == "1" ]; then
 
   echo "Running MID reco flow"
   #needs MID digitized data
-  taskwrapper midreco.log "o2-mid-digits-reader-workflow | o2-mid-reco-workflow $gloOpt"
+  taskwrapper midreco.log "o2-mid-digits-reader-workflow --disable-mc| o2-mid-reco-workflow $gloOpt --disable-mc"
   echo "Return status of midreco: $?"
 
   echo "Running HMPID reco flow to produce clusters"
@@ -244,7 +244,7 @@ if [ "$doreco" == "1" ]; then
   echo "Return status of hmpid cluster reco: $?"
 
   echo "Running MCH-MID matching flow"
-  taskwrapper mchmidMatch.log "o2-muon-tracks-matcher-workflow $gloOpt"
+  taskwrapper mchmidMatch.log "o2-muon-tracks-matcher-workflow --disable-mc $gloOpt"
   echo "Return status of mchmidmatch: $?"
 
   echo "Running ITS-TPC matching flow"
@@ -254,11 +254,16 @@ if [ "$doreco" == "1" ]; then
 
   echo "Running TRD matching to ITS-TPC and TPC"
   #needs results of o2-tpc-reco-workflow, o2-tpcits-match-workflow and o2-trd-tracklet-transformer
-  taskwrapper trdTrkltTransf.log o2-trd-tracklet-transformer $gloOpt
+  taskwrapper trdTrkltTransf.log o2-trd-tracklet-transformer --disable-mc $gloOpt
   echo "Return status of trdTrkltTransf: $?"
-  taskwrapper trdMatch.log o2-trd-global-tracking $gloOpt
+  taskwrapper trdMatch.log o2-trd-global-tracking --disable-mc $gloOpt
   echo "Return status of trdTracker: $?"
 
+  echo "Running MFT-MCH-MID matching flow"
+  #needs results of o2-mch-reco-workflow, o2-mft-reco-workflow and o2-muon-tracks-matcher-workflow
+  FwdMatchOpt=" --configKeyValues \"FwdMatching.useMIDMatch=true;\""
+  taskwrapper mftmchMatch.log o2-globalfwd-matcher-workflow $gloOpt $FwdMatchOpt
+  echo "Return status of globalfwdMatch: $?"
 
   echo "Running TOF reco flow to produce clusters"
   #needs results of TOF digitized data and results of o2-tpcits-match-workflow
@@ -274,4 +279,58 @@ if [ "$doreco" == "1" ]; then
   #needs results of HMPID clusters data from o2-hmpid-digits-to-clusters-workflow
   taskwrapper hmpidMatchTracks.log o2-hmpid-matcher-workflow $gloOpt
   echo "Return status of o2-hmpid-matcher-workflow: $?"
+
+  echo "Running TOF matching QA"
+  #need results of ITSTPC-TOF matching (+ TOF clusters and ITS-TPC tracks)
+  taskwrapper tofmatch_qa.log root -b -q -l $O2_ROOT/share/macro/checkTOFMatching.C
+  echo "Return status of TOF matching qa: $?"
+
+  echo "Running ZDC reconstruction"
+  #need ZDC digits
+  taskwrapper zdcreco.log o2-zdc-digits-reco $gloOpt
+  echo "Return status of ZDC reconstruction: $?"
+
+  echo "Running EMC reconstruction"
+  #need EMC digits
+  taskwrapper emcreco.log o2-emcal-reco-workflow --infile emcaldigits.root $gloOpt
+  echo "Return status of EMC reconstruction: $?"
+
+  echo "Running PHS reconstruction"
+  #need PHS digits
+  taskwrapper phsreco.log o2-phos-reco-workflow $gloOpt
+  echo "Return status of PHS reconstruction: $?"
+
+  echo "Running CPV reconstruction"
+  #need CPV digits
+  taskwrapper cpvreco.log o2-cpv-reco-workflow $gloOpt
+  echo "Return status of CPV reconstruction: $?"
+
+  echo "Running primary vertex finding flow"
+  #needs results of TPC-ITS matching and FIT workflows
+  taskwrapper pvfinder.log o2-primary-vertexing-workflow $gloOpt --condition-remap file://./GRP=GLO/Config/GRPECS
+  echo "Return status of primary vertexing: $?"
+
+  echo "Running secondary vertex finding flow"
+  #needs results of all trackers + P.Vertexer
+  taskwrapper svfinder.log o2-secondary-vertexing-workflow $gloOpt
+  echo "Return status of secondary vertexing: $?"
+
+  # the strangeness trackin is now called from the secondary-vertexing. To enable it as a standalone workflow
+  # one should run the previous o2-secondary-vertexing-workflow with options
+  # --configKeyValues "svertexer.createFullV0s=true;svertexer.createFullCascades=true;svertexer.createFull3Bodies=true" --disable-strangeness-tracker
+  #  echo "Running strangeness tracking flow"
+  #  #needs results of S.Vertexer + ITS reco
+  #  taskwrapper sttracking.log o2-strangeness-tracking-workflow $gloOpt
+  #  echo "Return status of strangeness tracking: $?"
+
+  echo "Producing AOD"
+  taskwrapper aod.log o2-aod-producer-workflow $gloOpt --aod-writer-keep dangling --aod-writer-resfile "AO2D" --aod-writer-resmode UPDATE --aod-timeframe-id 1 --ru
+  # let's do some very basic analysis tests (mainly to enlarge coverage in full CI) and enabled when SIM_CHALLENGE_ANATESTING=ON
+  if [[ ${O2DPG_ROOT} && ${SIM_CHALLENGE_ANATESTING} ]]; then
+    # to be added again: Efficiency
+    for t in ${ANATESTLIST:-MCHistograms Validation PIDTOF PIDTPC EventTrackQA WeakDecayTutorial}; do
+      ${O2DPG_ROOT}/MC/analysis_testing/analysis_test.sh ${t}
+      echo "Return status of ${t}: ${?}"
+    done
+  fi
 fi
