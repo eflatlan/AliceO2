@@ -120,10 +120,8 @@ class MatchHMP
   }
   unsigned long getTS() const { return mTimestamp; }
 
-
   // ef : added
   void useVerboseMode() { mVerbose = true; }
-
 
  private:
   //  bool prepareFITData();
@@ -221,7 +219,6 @@ class MatchHMP
   // ef : added the pParam here, to avoid doing it in intrTrkCh
   // o2::hmpid::Param* pParam = nullptr;
   // std::unique_ptr<o2::hmpid::Param> pParam;
-
 
   ///----------- aux stuff --------------///
   static constexpr float MAXSNP = 0.85; // max snp of ITS or TPC track at xRef to be matched
