@@ -41,6 +41,7 @@ void customize(std::vector<o2::framework::ConfigParamSpec>& workflowOptions)
 {
   std::vector<o2::framework::ConfigParamSpec> options{
     {"disable-mc", o2::framework::VariantType::Bool, false, {"Do not propagate MC info"}},
+    {"verbose", o2::framework::VariantType::Bool, false, {"Print verbose digit info"}},
     {"configKeyValues", o2::framework::VariantType::String, "", {"Semicolon separated key=value strings"}}
   };
   workflowOptions.insert(workflowOptions.end(), options.begin(), options.end());
@@ -54,14 +55,15 @@ using namespace o2::framework;
 
 WorkflowSpec defineDataProcessing(const ConfigContext& configcontext)
 {  
-
-
-  // ef : added
-  bool useMC = !configcontext.options().get<bool>("disable-mc");
   WorkflowSpec specs;
   o2::conf::ConfigurableParam::updateFromString(configcontext.options().get<std::string>("configKeyValues"));
 
-  DataProcessorSpec consumer = o2::hmpid::getDigitsReaderSpec(useMC);
+  // ef : added
+  bool useMC = !configcontext.options().get<bool>("disable-mc");
+
+  bool verbose = configcontext.options().get<bool>("verbose");
+
+  DataProcessorSpec consumer = o2::hmpid::getDigitsReaderSpec(useMC, verbose);
 
   specs.push_back(consumer);
   return specs;

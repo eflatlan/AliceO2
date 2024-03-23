@@ -80,7 +80,7 @@ class MatchInfoHMP
     dist = mDist;
     distThre = mDistThre;
   }
-  
+
   void setEventNumberFromTrack(int eventNumberTrack) { mEventNumberTrack = eventNumberTrack; }
   int getEventNumberFromTrack() const { return mEventNumberTrack; }  
 

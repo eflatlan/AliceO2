@@ -41,7 +41,10 @@ namespace hmpid
 class ClusterReaderTask : public framework::Task
 {
  public:
-  ClusterReaderTask() = default;
+  ClusterReaderTask(bool useMC, bool verbose) {
+    mUseMC = useMC;
+    mVerbose = verbose;
+  };
   //  : mReadFile(readFile) {}
   ~ClusterReaderTask() override = default;
 
@@ -52,7 +55,10 @@ class ClusterReaderTask : public framework::Task
 
  private:
 
-  bool mUseMC = true;
+  // ef : added
+  bool mUseMC = false;
+  bool mVerbose = false;
+
   
   std::string mClusterMCTruthBranchName = "HMPIDClusterLabels";
   
@@ -78,7 +84,7 @@ class ClusterReaderTask : public framework::Task
   // void strToFloatsSplit(std::string s, std::string delimiter, float* res, int maxElem = 7);
 };
 
-o2::framework::DataProcessorSpec getClusterReaderSpec(bool useMC);
+o2::framework::DataProcessorSpec getClusterReaderSpec(bool useMC, bool verbose = false);
 
 } // end namespace hmpid
 } // end namespace o2

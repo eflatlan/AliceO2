@@ -664,7 +664,6 @@ void MatchHMP::doMatching()
           continue;
         } // no intersection at all, go next track
 
-
         int index = -1;
 
         double dmin = 999999; //, distCut = 1.;

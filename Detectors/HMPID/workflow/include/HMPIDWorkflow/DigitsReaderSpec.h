@@ -41,8 +41,8 @@ namespace hmpid
 class DigitReader : public framework::Task
 {
  public:
-  DigitReader(bool useMC) : mUseMC(useMC) {}
-  //  : mReadFile(readFile) {}
+  DigitReader(bool useMC, bool verbose) : mUseMC(useMC), mVerbose(verbose) {}
+
   ~DigitReader() override = default;
 
   void init(framework::InitContext& ic) final;
@@ -52,16 +52,9 @@ class DigitReader : public framework::Task
 
  private:
 
-
-  bool mUseMC = true;
-
-
-
-
-  // ef : should this not be vector ? as we store one elem per trigger?
-  //std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>> mLabels, *mPlabels = &mLabels;
-
-
+	// ef : added
+  bool mUseMC = false;
+  bool mVerbose = false;
 
   o2::dataformats::MCTruthContainer<o2::MCCompLabel> mLabels, *mPlabels = &mLabels;
 
@@ -80,7 +73,9 @@ class DigitReader : public framework::Task
   // void strToFloatsSplit(std::string s, std::string delimiter, float* res, int maxElem = 7);
 };
 
-framework::DataProcessorSpec getDigitsReaderSpec(bool useMC);
+
+
+framework::DataProcessorSpec getDigitsReaderSpec(bool useMC, bool verbose = false); // default initializer for verbose
 
 } // end namespace hmpid
 } // end namespace o2

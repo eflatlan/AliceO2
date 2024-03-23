@@ -77,30 +77,29 @@ void ClusterReaderTask::run(ProcessingContext& pc)
   LOG(info) << "[HMPID ClusterReader - run() ] clusters  = " << mClustersFromFile.size();
 
 
+  if(mVerbose) {
+    int tnum = 0;
+    for(const auto trig : *mClusterTriggersFromFilePtr ) {
+      LOGP(info, "trigger number {} : entries {}", tnum, trig.getNumberOfObjects());
+      tnum++;
+      int cnt = 0;
 
-  // test hvilke evID som er her:
-  // ef remove latere :
-  int tnum = 0;
-  for(const auto trig : *mClusterTriggersFromFilePtr ) {
-    LOGP(debug, "trigger number {} : entries {}", tnum, trig.getNumberOfObjects());
-    tnum++;
-    int cnt = 0;
+      for(int i = trig.getFirstEntry(); i <= trig.getLastEntry(); i++) {
+        if(i < mLabels.getIndexedSize() && i < mClustersFromFile.size()) {
+          const auto& labels = mLabels.getLabels(i);
+          // LOGP(info, "cluster number {}", i);
+          for (const auto& label : labels) {
 
-    for(int i = trig.getFirstEntry(); i <= trig.getLastEntry(); i++) {
-       if(i < mLabels.getIndexedSize() && i < mClustersFromFile.size()) {
-         const auto& labels = mLabels.getLabels(i);
-         LOGP(debug, "cluster number {}", i);
-         for (const auto& label : labels) {
-
-           if (label.getEventID() != mClustersFromFile[i].getEventNumber()) {
-             LOGP(debug, "cluster number {}, cluEventNum {} labelEventId {}", i, mClustersFromFile[i].getEventNumber(), label.getEventID());
-           }
-         }
-      } else {
-         LOGP(debug, "out of range {} > numLabels {}", i, mLabels.getIndexedSize());
+            if (label.getEventID() != mClustersFromFile[i].getEventNumber()) {
+              LOGP(info, "cluster number {}, cluEventNum {} labelEventId {}", i, mClustersFromFile[i].getEventNumber(), label.getEventID());
+            }
+          }
+        } else {
+          LOGP(info, "out of range {} > numLabels {}", i, mLabels.getIndexedSize());
+        }
       }
+      LOGP(info, "cnt {} entries {}", cnt, trig.getNumberOfObjects());
     }
-    LOGP(debug, "cnt {} entries {}", cnt, trig.getNumberOfObjects());
   }
 
 
@@ -179,7 +178,7 @@ void ClusterReaderTask::initFileIn(const std::string& filename)
 
 //_________________________________________________________________________________________________
 
-o2::framework::DataProcessorSpec getClusterReaderSpec(bool useMC)
+o2::framework::DataProcessorSpec getClusterReaderSpec(bool useMC, bool verbose)
 {
 
   std::vector<o2::framework::OutputSpec> outputs;
@@ -196,7 +195,7 @@ o2::framework::DataProcessorSpec getClusterReaderSpec(bool useMC)
     "HMP-ClusterReader",
     Inputs{},
     outputs,
-    AlgorithmSpec{adaptFromTask<ClusterReaderTask>()},
+    AlgorithmSpec{adaptFromTask<ClusterReaderTask>(useMC, verbose)},
     Options{{"hmpid-cluster-infile" /*"qc-hmpid-clusters"*/, VariantType::String, "hmpidclusters.root", {"Name of the input file with clusters"}},
             {"input-dir", VariantType::String, "./", {"Input directory"}}}};
 }

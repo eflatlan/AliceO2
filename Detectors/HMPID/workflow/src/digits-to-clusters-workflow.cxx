@@ -84,7 +84,7 @@ WorkflowSpec defineDataProcessing(const ConfigContext& configcontext)
   // Read to File; input file and dir can be specified using
   // --hmpid-digit-infile and --input-dir (from DigitsReaderSpec Class)
   if (!disableRootInp) {
-    specs.emplace_back(hmpid::getDigitsReaderSpec(useMC));
+    specs.emplace_back(hmpid::getDigitsReaderSpec(useMC, false));
   }
 
   // Write to Cluster-File; output file and dir can be specified using
