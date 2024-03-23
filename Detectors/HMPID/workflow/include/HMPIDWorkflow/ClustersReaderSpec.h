@@ -41,7 +41,8 @@ namespace hmpid
 class ClusterReaderTask : public framework::Task
 {
  public:
-  ClusterReaderTask(bool useMC, bool verbose) {
+  ClusterReaderTask(bool useMC, bool verbose)
+  {
     mUseMC = useMC;
     mVerbose = verbose;
   };
@@ -54,12 +55,10 @@ class ClusterReaderTask : public framework::Task
   // void endOfStream(framework::EndOfStreamContext& ec) override;
 
  private:
-
   // ef : added
   bool mUseMC = false;
   bool mVerbose = false;
 
-  
   std::string mClusterMCTruthBranchName = "HMPIDClusterLabels";
   
   bool mReadFile = false;

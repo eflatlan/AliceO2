@@ -53,7 +53,6 @@ void customize(std::vector<o2::framework::ConfigParamSpec>& workflowOptions)
                                    false,
                                    {"Do not propagate MC info"}});
 
-
   // ef added
   workflowOptions.push_back(
     o2::framework::ConfigParamSpec{"verbose",
@@ -83,9 +82,6 @@ WorkflowSpec defineDataProcessing(const ConfigContext& configcontext)
   bool verbose = configcontext.options().get<bool>("verbose");
 
   DataProcessorSpec consumer = o2::hmpid::getClusterReaderSpec(useMC, verbose);
-
-
-
 
   specs.push_back(consumer);
   return specs;

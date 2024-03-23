@@ -51,8 +51,7 @@ class DigitReader : public framework::Task
   // void endOfStream(framework::EndOfStreamContext& ec) override;
 
  private:
-
-	// ef : added
+  // ef : added
   bool mUseMC = false;
   bool mVerbose = false;
 
@@ -72,8 +71,6 @@ class DigitReader : public framework::Task
 
   // void strToFloatsSplit(std::string s, std::string delimiter, float* res, int maxElem = 7);
 };
-
-
 
 framework::DataProcessorSpec getDigitsReaderSpec(bool useMC, bool verbose = false); // default initializer for verbose
 
