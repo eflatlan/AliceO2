@@ -664,8 +664,6 @@ void MatchHMP::doMatching()
           continue;
         } // no intersection at all, go next track
 
-        // ef : added tbis fields
-        matching.setUnconstrainedPc(xPc, yPc);
 
         int index = -1;
 
@@ -852,9 +850,7 @@ void MatchHMP::doMatching()
 
         // ef : wrong to use xPc, yPc here? should be xPcConstrained, yPcConstrained??
 
-        matching.setHMPIDtrk(xRa, yRa, xPcConstrained, yPcConstrained, thetaConst, phiConst);
-
-        matching.setUnconstrainedPc(xPc, yPc);
+        matching.setHMPIDtrk(xRa, yRa, xPc, yPc, thetaConst, phiConst);
 
         // matching.setHMPIDtrk(xRa, yRa, xPc, yPc, theta, phi);
 
@@ -893,23 +889,17 @@ void MatchHMP::doMatching()
         // ef : remove later
         if (mVerbose) {
           float testXunc, testYunc;
-          float testXcon, testYcon;
-          float testXmip, testYmip, testXra, testYra, phi, theta;
 
+          float testXmip, testYmip, testXra, testYra, phi, theta;
           int q, nph;
 
-          matching.getUnconstrainedPc(testXunc, testYunc);
-          matching.getHMPIDtrk(testXra, testYra, testXcon, testYcon, phi, theta);
+          matching.getHMPIDtrk(testXra, testYra, testXunc, testYunc, phi, theta);
           matching.getHMPIDmip(testXmip, testYmip, q, nph);
-
-          if (iChMatch != -1 && (testXcon == 0 || testYcon == 0)) {
-            LOGP(error, "isMatch {} testXcon {} testYcon", iChMatch, testXcon, testYcon);
-          }
 
           LOGP(info, "iChMatch {} : isOkQcut  {} isOkDcut {}", iChMatch, isOkQcut, isOkDcut);
           LOGP(info, "MIP w charge {} nPhotons {}", q, nph);
-          Printf("6. : Reading MatchInfoHMP | xRa %.2f xPcUnConstrained %.2f xPcConstrained %.2f xMip%.2f", testXra, testXunc, testXcon, testXmip);
-          Printf("6. : Reading MatchInfoHMP | yRa %.2f yPcUnConstrained %.2f yPcConstrained %.2f yMip%.2f", testYra, testYunc, testYcon, testYmip);
+          Printf("6. : Reading MatchInfoHMP | xRa %.2f testXunc %.2f xMip%.2f", testXra, testXunc, testXmip);
+          Printf("6. : Reading MatchInfoHMP | yRa %.2f  testYunc %.2f yMip%.2f", testYra, testYunc, testYmip);
         }
 
         matching.setRefIndex(nmean);

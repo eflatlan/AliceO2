@@ -166,7 +166,7 @@ void Cluster::corrSin()
 
 {
 
-  const auto param = o2::hmpid::Param::instanceNoGeo();
+  const auto param = o2::hmpid::Param::instanceNoGeo(); // ef: why do we not do this in initialization?
 
   int pc;
 
@@ -475,7 +475,7 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, b
 
   //   Returns: number of local maxima of original cluster
 
-  const auto param = o2::hmpid::Param::instanceNoGeo();
+  const auto param = o2::hmpid::Param::instanceNoGeo(); // ef : why not in initialization?
 
   if (!mDigs) {
 
@@ -780,7 +780,7 @@ int Cluster::solveMC(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut,
 
   //   Returns: number of local maxima of original cluster
 
-  const auto param = o2::hmpid::Param::instanceNoGeo();
+  const auto param = o2::hmpid::Param::instanceNoGeo(); // ef: why do we not do this in initialization?
 
   if (!mDigs) {
 
@@ -1198,7 +1198,7 @@ Bool_t Cluster::isInPc()
 
   //   Returns: True or False
 
-  const auto param = o2::hmpid::Param::instanceNoGeo();
+  const auto param = o2::hmpid::Param::instanceNoGeo(); // ef: why do we not do this in initialization?
 
   if (!mDigs) {
 

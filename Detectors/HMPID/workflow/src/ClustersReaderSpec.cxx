@@ -95,9 +95,9 @@ void ClusterReaderTask::run(ProcessingContext& pc)
            if (label.getEventID() != mClustersFromFile[i].getEventNumber()) {
              LOGP(debug, "cluster number {}, cluEventNum {} labelEventId {}", i, mClustersFromFile[i].getEventNumber(), label.getEventID());
            }
-        }
+         }
       } else {
-        LOGP(debug, "out of range {} > numLabels {}", i, mLabels.getIndexedSize());
+         LOGP(debug, "out of range {} > numLabels {}", i, mLabels.getIndexedSize());
       }
     }
     LOGP(debug, "cnt {} entries {}", cnt, trig.getNumberOfObjects());

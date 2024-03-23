@@ -80,18 +80,6 @@ class MatchInfoHMP
     dist = mDist;
     distThre = mDistThre;
   }
-
-  void setUnconstrainedPc(float x, float y)
-  {
-    xPcUnc = x;
-    yPcUnc = y;
-  }
-  void getUnconstrainedPc(float& x, float& y) const
-  {
-    x = xPcUnc;
-    y = yPcUnc;
-  }
-  
   
   void setEventNumberFromTrack(int eventNumberTrack) { mEventNumberTrack = eventNumberTrack; }
   int getEventNumberFromTrack() const { return mEventNumberTrack; }  
@@ -233,7 +221,6 @@ class MatchInfoHMP
 
   float mDist = -1., mDistThre = -1.; // distance to MIP, cut for distance used
 
-  float xPcUnc = -1., yPcUnc = -1.;
   /*
 
 
