@@ -157,6 +157,88 @@ class Cluster
     const size_t digSize = mDigs->size();
   }
 
+
+
+  void setInfoFromDigits2(const int currCluVecSize, std::vector<int> indicesResolvedDig)
+
+  {
+
+    //  Check for null or empty mDigs
+
+    if (!mDigs || mDigs->empty()) {
+
+      setEventNumber(-1);
+
+      return;
+    }
+
+    std::vector<const o2::hmpid::Digit*> digs;
+    std::vector<const o2::hmpid::Digit*> digs2;
+
+    for(int digIndex : indicesResolvedDig) {
+        if(digIndex > mDigs->size()) LOGP(error, "digIndex {} mDigs->size() {}",digIndex,mDigs->size());
+        else {
+          digs.push_back((*mDigs)[digIndex]);
+          digs2.push_back((*mDigs)[digIndex]);
+        }
+
+    }
+
+    std::sort(digs2.begin(), digs2.end(), [](const o2::hmpid::Digit* a, const o2::hmpid::Digit* b) {
+      return a->getCharge() < b->getCharge();
+    });
+
+    const int clux = this->x();
+
+    const int cluy = this->y();
+
+
+    std::sort(digs.begin(), digs.end(), [clux, cluy](const o2::hmpid::Digit* a, const o2::hmpid::Digit* b) {
+      int xa, ya;
+
+      int cha;
+
+      o2::hmpid::Digit::pad2Absolute(a->getPadID(), &cha, &xa, &ya);
+
+      int xb, yb, chb;
+
+      o2::hmpid::Digit::pad2Absolute(b->getPadID(), &chb, &xb, &yb);
+
+      // calc dist to Clu pos
+
+      auto digaR = (xa - clux) * (xa - clux) + (ya - cluy) * (ya - cluy);
+
+      auto digbR = (xb - clux) * (xb - clux) + (yb - cluy) * (yb - cluy);
+
+      return digaR < digbR;
+    });
+
+
+    if(digs2.size() == 0) {
+      return;
+    }
+    setEventNumber((digs2)[0]->getEventNumber());
+
+    // assuming main digit now is the first...
+
+    setTrackId((digs2)[0]->getTrackId());
+
+    setMotherId((digs2)[0]->getMotherId());
+
+    setPDG((digs2)[0]->getPDG());
+
+
+    LOGP(info, "======================");
+
+    LOGP(info, "Based on charge : pdg {} mother {} tid {}", (digs2)[0]->getPDG(), (digs2)[0]->getMotherId(), (digs2)[0]->getTrackId());
+
+    //LOGP(info, "Based on pos : pdg {} mother {} tid {}", digs[0]->getPDG(), digs[0]->getMotherId(), digs[0]->getTrackId());
+
+
+
+    const size_t digSize = mDigs->size();
+  }
+
   Cluster() : mCh(-1), mSi(-1), mSt(kEmp), mBox(-1), mNlocMax(-1), mMaxQpad(-1), mMaxQ(-1), mQRaw(0), mQ(0), mErrQ(-1), mXX(0), mErrX(-1), mYY(0), mErrY(-1), mChi2(-1) {}
 
   // Methods

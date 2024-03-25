@@ -543,8 +543,8 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
 
       const o2::MCTrack* mcTrackFromMother = nullptr;      
 
-      bool printVals = true;
-
+      bool printVals = false;
+			LOGP(info, "printVals");
       if (printVals) {
         if (!mcReader)
 
@@ -555,6 +555,7 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
           continue;
         }
 
+			LOGP(info, "printVals558");
         if (mcReader->getTrack(label))
 
         {
@@ -563,14 +564,15 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
 
           {
 
-            mcTrack = mcReader->getTrack(label);
+            mcTrack = mcReader->getTrack(label);LOGP(info, "printVals567");
             
+            if(!mcTrack) LOGP(info, "mcTrack nullptr");
           }
 
           catch (const std::exception& e)
 
           {
-
+LOGP(info, "printVals573");
             LOGP(error, "       Exception caught while trying to read MC track: %s", e.what());
 
             continue;
@@ -579,7 +581,7 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
           catch (...)
 
           {
-
+LOGP(info, "printVals583");
             LOGP(error, "       Unknown exception caught while trying to read MC track");
 
             continue;
@@ -589,35 +591,31 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
         else
 
         {
-
+			LOGP(info, "printValst593");
           LOGP(info, "mcReader->getTrack(label) gave nullptr");
         }
-
+				LOGP(info, "printVals597");
         int pdgDigMcTruth = -2, pdgDigit = -2, pdgMother = -2;
-
+        if(!mcTrack) LOGP(info, "mcTrack nullptr599");
         try
-
         {
-
-          pdgDigMcTruth = mcTrack->GetPdgCode();
+					LOGP(info, "printValst602");
+          if(mcTrack) 
+          pdgDigMcTruth = mcTrack->GetPdgCode();				// was  crash
+      		LOGP(info, "printValst604");
         }
-
         catch (const std::exception& e)
-
-        {
-
+        {LOGP(info, "printValst606");
           LOGP(error, "       Exception caught while trying to read MC track: %s", e.what());
         }
 
         catch (...)
-
-        {
-
+        {LOGP(info, "printValst611");
           LOGP(error, "       Unknown exception caught while trying to read MC track");
         }
 
         // TParticlePDG* pPDG = TDatabasePDG::Instance()->GetParticle(mcTrack->GetPdgCode());
-
+				LOGP(info, "printVals621");
         int trackID, evID, srcID;
 
         bool fake;
@@ -630,6 +628,8 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
 
         const auto sid = digOfClu.getSourceId();
 
+
+			LOGP(info, "printVals635");
         if (!mcReader->getTrack(eid, tid))
 
         {
@@ -639,7 +639,7 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
           try
 
           {
-
+			LOGP(info, "printVals645");
             mcTrackFromDig = mcReader->getTrack(eid, tid);
 
             pdgDigit = mcTrackFromDig->GetPdgCode();
@@ -697,6 +697,7 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
           }
         }
 
+			LOGP(info, "printVals703");
         trackID = mcArray[j].getTrackID(); // const { return static_cast<int>(mLabel & maskTrackID); }
 
         evID = mcArray[j].getEventID(); // const { return isFake() ? -getTrackID() : getTrackID(); }
@@ -870,7 +871,7 @@ void Clusterer::FormCluMC(Cluster& pClu, int pDig, gsl::span<const o2::hmpid::Di
 
   // pClu.setUnresolvedIndex(pDig);
 
-  LOGP(info, "FormClu : pDig = {} | x {} y {}", pDig, digs[pDig].getX(), digs[pDig].getY());
+  LOGP(info, "FormCluMC : pDig = {} | x {} y {}", pDig, digs[pDig].getX(), digs[pDig].getY());
 
   int cnt = 0;
 

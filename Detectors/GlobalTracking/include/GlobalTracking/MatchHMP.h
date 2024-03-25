@@ -50,6 +50,10 @@
 #include "DataFormatsHMP/Cluster.h"
 #include "DataFormatsHMP/Trigger.h"
 
+
+
+#include "Steer/MCKinematicsReader.h"
+
 namespace o2
 {
 
@@ -214,7 +218,8 @@ class MatchHMP
   int mNumOfTriggers; // number of HMP triggers
 
   // ef : added
-  bool mVerbose = false;
+  
+  bool mVerbose = true;
 
   // ef : added the pParam here, to avoid doing it in intrTrkCh
   // o2::hmpid::Param* pParam = nullptr;
@@ -222,7 +227,7 @@ class MatchHMP
 
   ///----------- aux stuff --------------///
   static constexpr float MAXSNP = 0.85; // max snp of ITS or TPC track at xRef to be matched
-
+  std::unique_ptr<o2::steer::MCKinematicsReader> mcReader;
   TStopwatch mTimerTot;
   TStopwatch mTimerMatchITSTPC;
   TStopwatch mTimerMatchTPC;

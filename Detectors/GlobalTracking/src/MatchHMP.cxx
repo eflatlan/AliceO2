@@ -484,18 +484,22 @@ bool MatchHMP::prepareHMPClusters()
   mHMPClusLabels = mRecoCont->getHMPClustersMCLabels();
 
   mMCTruthON = mHMPClusLabels && mHMPClusLabels->getNElements();
-
-  LOGP(debug, "MatchHMP : | mMCTruthON {}", mMCTruthON);
-
+  if (mVerbose) {
+  	LOGP(info, "MatchHMP : | mMCTruthON {}", mMCTruthON);
+	}
+	
   mNumOfTriggers = 0;
 
   mHMPTriggersWork.clear();
 
   int nTriggersInCurrentChunk = mHMPTriggersArray.size();
 
-  LOGP(debug, "MatchHMP::prepareHMPClusters : numClusters {}, numMcClusters {}", mHMPClustersArray.size(), mHMPClusLabels->getNElements());
 
-  LOG(debug) << "nTriggersInCurrentChunk = " << nTriggersInCurrentChunk;
+  if (mVerbose) {
+		LOGP(info, "MatchHMP::prepareHMPClusters : numClusters {}, numMcClusters {}", mHMPClustersArray.size(), mHMPClusLabels->getNElements());
+	}
+
+	LOG(debug) << "nTriggersInCurrentChunk = " << nTriggersInCurrentChunk;
 
   mNumOfTriggers += nTriggersInCurrentChunk;
 
@@ -547,6 +551,7 @@ bool MatchHMP::prepareHMPClusters()
 void MatchHMP::doMatching()
 
 {
+	mcReader= std::make_unique<o2::steer::MCKinematicsReader>("collisioncontext.root");
 
   // ef : do this here :
   // pParam = std::make_unique<>
@@ -637,8 +642,9 @@ void MatchHMP::doMatching()
       if (evtTime < maxTrkTime && evtTime > minTrkTime) {
 
         evtTracks++;
-
-        LOGP(debug, "========== NEW TRACK in time =========== evtTracks {}", evtTracks);
+				if(mVerbose) {
+	        LOGP(info, "========== NEW TRACK in time =========== evtTracks {} indexEvent {}", evtTracks, indexEvent);
+        }
 
         TrackHMP hmpTrk(trefTrk); // create a hmpid track to be used for propagation and matching
 
@@ -675,8 +681,14 @@ void MatchHMP::doMatching()
         bool isMatched = kFALSE;
 
         const o2::hmpid::Cluster* bestHmpCluster = nullptr;
+				
+				if(mVerbose) {
+	        LOGP(info, "Track Intersected :::: clusters loop {} -- {}", event.getFirstEntry(), event.getLastEntry());
+					LOGP(info, "mHMPClustersArray Size  {}", mHMPClustersArray.size());
 
-        LOGP(debug, "Track Intersected :::: clusters loop {} -- {}", event.getFirstEntry(), event.getLastEntry());
+					LOGP(info, "==================  clusters loop ==================");
+				}
+
 
         std::vector<Cluster> oneEventClusters;
 
@@ -685,10 +697,8 @@ void MatchHMP::doMatching()
 
         // oneEventClusters.reserve(mHMPClustersArray.size());
 
-        LOGP(debug, "mHMPClustersArray Size  {}", mHMPClustersArray.size());
 
-        LOGP(debug, "==================  clusters loop ==================");
-
+				int indexGlbl = 0;
         for (int j = event.getFirstEntry(); j <= event.getLastEntry(); j++) { // event clusters loops
 
           /* ef : can add this trigger-loop
@@ -703,8 +713,12 @@ void MatchHMP::doMatching()
             continue;
           }
 
-          LOGP(debug, "Event number : iEvent {}  : || evtTime {} | evtTracks {} ", iEvent, evtTime, evtTracks);
 
+					if(mVerbose) {
+	          LOGP(debug, "Event number : iEvent {}  : || evtTime {} | evtTracks {} ", iEvent, evtTime, evtTracks);
+					}
+					
+					
           int i = j - event.getFirstEntry();
 
           oneEventClusters.push_back(cluster);
@@ -742,6 +756,7 @@ void MatchHMP::doMatching()
             // index = oneEventClusters.size() - 1; // not valid w resize/
 
             bestHmpCluster = &cluster;
+            indexGlbl = j;
           }
 
         } // event clusters loop
@@ -906,7 +921,63 @@ void MatchHMP::doMatching()
         matching.setEventNumber(indexEvent); // 				matching.setEventNumber(iEvent);
         matching.setMipClusEvent(bestHmpCluster->getEventNumberFromTrack());
 
+        if(isMatched)
+        {
+          auto itsTpcTrack = mTracksLblWork[type][cacheTrk[itrk]];
+          auto clusterLabelMipMC = mHMPClusLabels->getLabels(indexGlbl);
+
+
+					auto cluterTmp = mHMPClustersArray[indexGlbl];
+		                LOGP(info, "    cluster pdg  = {} ", cluterTmp.getPDG());
+
+					LOGP(info, "\n\n Check MC-truth for indexEvent {} evtTracks {} ", indexEvent, evtTracks);
+					
+					auto cluSize = cluterTmp.size();
+					
+					LOGP(info, "cluSize {}",cluSize);
+					
+					if( iEvent-1 > 0 && iEvent < cacheTriggerHMP.size()-1) {
+					    auto pEvent = cacheTriggerHMP[iEvent-1];
+					    auto nEvent = cacheTriggerHMP[iEvent+1];
+					    LOGP(info, " pEvent {} indexEvent {} nEvent {} iEvent {}",pEvent, indexEvent, nEvent, iEvent);
+					    
+					}
+
+
+          for(const auto& cluLabel : clusterLabelMipMC) {
+
+            LOGP(info, "        From cluLabel | Event: {}, track: {}, source: {}", cluLabel.getEventID(), cluLabel.getTrackID(), cluLabel.getSourceID());
+						
+
+						
+            if(mcReader->getTrack(cluLabel)) {
+              const auto& mcCluFromTrack = mcReader->getTrack(cluLabel);
+              if(mcCluFromTrack) {
+                int pdgCluFromTrack = mcCluFromTrack->GetPdgCode();
+
+                LOGP(info, "        pdgCluFromTrack pdgCode = {} ", pdgCluFromTrack);
+                
+
+              }
+            }
+          }
+
+          if(mcReader->getTrack(itsTpcTrack)) {
+            auto mcTrack = mcReader->getTrack(itsTpcTrack);
+            if(mcTrack) {
+              int pdgTrack = mcTrack->GetPdgCode();
+              
+              LOGP(info, "        From mcTrack | Event: {}, track: {}, source: {}", itsTpcTrack.getEventID(), itsTpcTrack.getTrackID(), itsTpcTrack.getSourceID());
+							           
+              LOGP(info, "MC-track pdg : {}", pdgTrack);
+            }
+          }
+        }
+
+
         if (!isMatched) {
+        
+        	LOGP(info, "!isMatched new track emplaced > size {}", mMatchedTracks[type].size());
           mMatchedTracks[type].push_back(matching);
 
           // trkType = type = o2::globaltracking::MatchHMP::trackType::CONSTR
@@ -935,6 +1006,8 @@ void MatchHMP::doMatching()
 
         recon->setImpPC(xPc, yPc);                                             // store track impact to PC
         recon->ckovAngle(&matching, oneEventClusters, index, nmean, xRa, yRa); // search for Cerenkov angle of this track
+        LOGP(info, "ckovangle {}", matching.getHMPsignal());
+        LOGP(info, "momentum {}", matching.getHmpMom());
 
         // ef : added this field
         matching.setDistCut(dmin, maxDistAcc);
@@ -943,13 +1016,21 @@ void MatchHMP::doMatching()
         // ef : added this field
         matching.setMatchTrue();
 
-        mMatchedTracks[type].push_back(matching);
 
-        if (mMCTruthON) {
-          auto itsTpcTrack = mTracksLblWork[type][cacheTrk[itrk]];
-          mOutHMPLabels[type].push_back(itsTpcTrack);
+        //
+
+        //
+
+        if(isMatched) {
+          LOGP(info, "isMatched new track emplaced > size {}", mMatchedTracks[type].size());
+          mMatchedTracks[type].push_back(matching);
+
+          if (mMCTruthON) {
+            auto itsTpcTrack = mTracksLblWork[type][cacheTrk[itrk]];
+            mOutHMPLabels[type].push_back(itsTpcTrack);
+          }
         }
-
+				
         oneEventClusters.clear();
 
       } // if matching in time

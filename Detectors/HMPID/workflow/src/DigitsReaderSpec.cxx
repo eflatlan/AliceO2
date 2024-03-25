@@ -188,19 +188,6 @@ void DigitReader::run(ProcessingContext& pc)
     mTreeDig->SetBranchAddress("HMPIDDigitMCTruth", &mPlabels);
   }
 
-  TBranch* branch = mTreeDig->GetBranch("HMPIDDigitMCTruth");
-
-  if (branch) {
-
-      //const char* className = branch->GetClassName();
-
-      //std::cout << "Class type of the objects in this branch is: " << className << std::endl;
-
-  } else {
-
-      std::cout << "Branch not found!" << std::endl;
-  }
-
   auto ent = mTreeDig->GetReadEntry() + 1;
 
   assert(ent < mTreeDig->GetEntries()); // this should not happen
@@ -217,7 +204,6 @@ void DigitReader::run(ProcessingContext& pc)
   }
 
   // ef remove latere :
-
   if (mUseMC && mVerbose) {
 
       int tnum = 0;
@@ -226,39 +212,112 @@ void DigitReader::run(ProcessingContext& pc)
 
         LOGP(info, "trigger number {} : entries {}", tnum, trig.getNumberOfObjects());
 
-        tnum++;
 
         int cnt = 0;
+        int prevEventDig;
+        bool isEventDigSame = true;
+
+
+        std::vector<int> digLabels;
+        std::vector<int> eventLabels;
+
+        if(trig.getNumberOfObjects() > 0) {
+          auto firstentry = trig.getFirstEntry();
+          prevEventDig = mDigitsFromFile[firstentry].getEventNumber();
+          digLabels.push_back(prevEventDig);
+        }
 
         for (int i = trig.getFirstEntry(); i <= trig.getLastEntry(); i++) {
 
-          if (i < mLabels.getIndexedSize() && i < mDigitsFromFile.size()) {
 
-            const auto& labels = mLabels.getLabels(i);
+          if(prevEventDig != mDigitsFromFile[i].getEventNumber())
+          {
 
-            LOGP(info, "digit number {}", i);
+            auto digLbl = mDigitsFromFile[i].getEventNumber();
+            digLabels.push_back(digLbl);
 
-            LOGP(info, "digit numGlobal {} : x {} y {}", i, mDigitsFromFile[i].getX(), mDigitsFromFile[i].getY());
-
-            for (const auto& label : labels) {
-
-              LOGP(info, "digit number {}, digEventNum {} labelEventId {}", i, mDigitsFromFile[i].getEventNumber(), label.getEventID());
-
-              if (label.getEventID() != mDigitsFromFile[i].getEventNumber()) {
-
-                LOGP(info, "digit number labelEventId  ULIK digEvent");
-              }
-            }
-
+            isEventDigSame = false;
+            LOGP(info, "trigger number {} : event from digit changed!", tnum);
+            LOGP(info, "digit number {}, digEventNum {}", i, mDigitsFromFile[i].getEventNumber());
           }
 
+          prevEventDig = mDigitsFromFile[i].getEventNumber();
+
+          if (i < mLabels.getIndexedSize() && i < mDigitsFromFile.size()) {
+
+
+            bool isLabelEventSame = true;
+            const auto& labels = mLabels.getLabels(i);
+            int prevEventLabel;
+            if(labels.size() > 0) {
+              prevEventLabel = labels[0].getEventID();
+              eventLabels.push_back(prevEventLabel);
+            }
+            int lblNum = 0;
+            for (const auto& label : labels) {
+
+              if(label.getEventID() != prevEventLabel) {
+
+                eventLabels.push_back(label.getEventID());
+                isLabelEventSame = false;
+
+                LOGP(info, "trigger number {} lblNum {} : event from labelEventId changed!", tnum, lblNum);
+
+                LOGP(info, "digit number {}, digEventNum {} labelEventId {} prevEventLabel {}", i, mDigitsFromFile[i].getEventNumber(), label.getEventID(), prevEventLabel);
+              }
+
+              lblNum++;
+
+              if (label.getEventID() != mDigitsFromFile[i].getEventNumber()) {
+                LOGP(info, "digit number labelEventId ULIK digEvent");
+
+                LOGP(info, "trigger number {} : entries {}", tnum, trig.getNumberOfObjects());
+
+                LOGP(info, "digit numGlobal {} : x {} y {}", i, mDigitsFromFile[i].getX(), mDigitsFromFile[i].getY());
+
+                LOGP(info, "digit number {}, digEventNum {} labelEventId {}", i, mDigitsFromFile[i].getEventNumber(), label.getEventID());
+              }
+              prevEventLabel = label.getEventID();
+
+            }
+          }
           else {
 
             LOGP(info, "out of range {} > numLabels {}", i, mLabels.getIndexedSize());
           }
         }
 
+        LOGP(info, "trigger number {} : entries {}", tnum, trig.getNumberOfObjects());
+        LOGP(info, "\n different labels from digLabels {} ::: " , digLabels.size());
+
+
+
+        for(const auto& dl : digLabels)
+        {
+          std::cout<< dl << " , ";
+        }
+
+        LOGP(info, "\ndifferent labels from eventLabels {} :::", eventLabels.size());
+        std::vector<int> sortedVec = eventLabels;
+
+        std::sort(sortedVec.begin(), sortedVec.end());
+
+        std::cout << "eventLabels values: ";
+        for (size_t i = 0; i < sortedVec.size(); ++i) {
+          if (i == sortedVec.size() - 1 || sortedVec[i] != sortedVec[i + 1]) {
+            std::cout << sortedVec[i] << " , ";
+          }
+        }
+
+        /*for(const auto& el : eventLabels)
+        {
+          std::cout<< el << " , ";
+        }*/
+
         LOGP(info, "cnt {} entries {}", cnt, trig.getNumberOfObjects());
+
+        tnum++;
+
       }
   }
 

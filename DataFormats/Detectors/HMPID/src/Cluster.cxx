@@ -621,7 +621,7 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, b
   // case 2 -> loc max found. Check # of loc maxima
 
   if (mNlocMax >= kMaxLocMax) {
-   
+
     // setClusterParams(mXX, mYY, mCh); // if # of local maxima exceeds kMaxLocMax...
 
     mSt = kMax;
@@ -813,8 +813,9 @@ int Cluster::solveMC(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut,
     // new ((*pCluLst)[iCluCnt++]) Cluster(*this); //                      3 - size = 1
 
     pCluLst->push_back(o2::hmpid::Cluster(*this));
-    
+
     pCluLst->back().setInfoFromDigits(pCluLst->size());
+      LOGP(info, "setInfoFromDigits");
 
     pCluLst->back().cleanPointers();
 
@@ -925,6 +926,7 @@ int Cluster::solveMC(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut,
     pCluLst->back().setInfoFromDigits(pCluLst->size());
 
     // pCluLst->back().setMC();
+      LOGP(info, "setInfoFromDigits");
 
     pCluLst->back().cleanPointers();
 
@@ -944,6 +946,7 @@ int Cluster::solveMC(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut,
     pCluLst->push_back(o2::hmpid::Cluster(*this)); //...add this raw cluster
 
     pCluLst->back().setInfoFromDigits(pCluLst->size());
+      LOGP(info, "setInfoFromDigits");
 
     // pCluLst->back().setMC();
 
@@ -1033,10 +1036,11 @@ int Cluster::solveMC(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut,
 
         // add "local" indices to map of clusterNumer i
         resolvedIndicesMap[i] = indicesResolved;
+        LOGP(info, "size resolvedIndicesMap[i] {}", resolvedIndicesMap[i].size());
 	/*
 	for(auto& res : resolvedIndicesMap) {
 	  LOGP(info, "for resolved cluster {i} : sat the resolvedIndicesMap w key {}", res.first);
-	}*/ 
+	}*/
         findClusterSize(i, pSigmaCut); // find clustersize for deconvoluted clusters
 
         // after this call, fSi temporarly is the calculated size. Later is set again
@@ -1079,9 +1083,15 @@ int Cluster::solveMC(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut,
 
       LOGP(info, "cluNumber {} mNlocMax {} number of digits for cluster {} | unresolved, {}", i, mNlocMax, this->size(), mDigs->size());
 
-      pCluLst->push_back(o2::hmpid::Cluster(*this)); // add new unfolded cluster
 
+      pCluLst->push_back(o2::hmpid::Cluster(*this)); // add new unfolded cluster
       pCluLst->back().setInfoFromDigits(pCluLst->size());
+      LOGP(info, "setInfoFromDigits");
+      if (mNlocMax > 1) {
+        pCluLst->back().setInfoFromDigits2(pCluLst->size(), resolvedIndicesMap[i]);
+        LOGP(info, "setInfoFromDigits2");
+      }
+      // pass indices to MC labeling : resolvedIndicesMap[i]
 
       // pCluLst->back().setMC();
 
@@ -1142,9 +1152,9 @@ void Cluster::findClusterSizeMC(int i, float* pSigmaCut, std::vector<int>& indic
   if (size > 0) {
     setSize(size); // in case of size == 0, original raw clustersize used
   } else if (size == 0) {
-    
-    LOGP(info, "size==0: using raw size {}", mSi);  
-    // we use raw-size; and we set for all the labels 
+
+    LOGP(info, "size==0: using raw size {}", mSi);
+    // we use raw-size; and we set for all the labels
     for (int iDig = 0; iDig < mSi; iDig++) {
       indicesResolved.push_back(iDig); // ef : added to track indexes of resolved clusters
       LOGP(info, "findClusterSizeMC :: added raw local iDig {} ", iDig);
