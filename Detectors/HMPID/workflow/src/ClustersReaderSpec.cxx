@@ -79,25 +79,103 @@ void ClusterReaderTask::run(ProcessingContext& pc)
   if (mVerbose) {
     int tnum = 0;
     for (const auto trig : *mClusterTriggersFromFilePtr) {
-      LOGP(info, "trigger number {} : entries {}", tnum, trig.getNumberOfObjects());
-      tnum++;
+      LOGP(info, "START : trigger number {} : entries {}", tnum, trig.getNumberOfObjects());
+
       int cnt = 0;
 
-      for (int i = trig.getFirstEntry(); i <= trig.getLastEntry(); i++) {
-        if (i < mLabels.getIndexedSize() && i < mClustersFromFile.size()) {
-          const auto& labels = mLabels.getLabels(i);
-          // LOGP(info, "cluster number {}", i);
-          for (const auto& label : labels) {
 
-            if (label.getEventID() != mClustersFromFile[i].getEventNumber()) {
-              LOGP(info, "cluster number {}, cluEventNum {} labelEventId {}", i, mClustersFromFile[i].getEventNumber(), label.getEventID());
+
+        int prevEventDig = 0;
+        bool isEventDigSame = true;
+
+
+        std::vector<int> cluLabels;
+        std::vector<int> eventLabels;
+
+        if(trig.getNumberOfObjects() > 0) {
+          auto firstentry = trig.getFirstEntry();
+          prevEventDig = mClustersFromFile[firstentry].getEventNumber();
+          cluLabels.push_back(prevEventDig);
+        }
+
+      for (int i = trig.getFirstEntry(); i <= trig.getLastEntry(); i++) {
+      
+     
+         
+      
+      
+      	if(prevEventDig != mClustersFromFile[i].getEventNumber())
+          {
+
+            auto cluLbl = mClustersFromFile[i].getEventNumber();
+            cluLabels.push_back(cluLbl);
+
+            isEventDigSame = false;
+            LOGP(info, "trigger number {} : event from clu changed!", tnum);
+            LOGP(info, "clu number {}, cluEventNum {}", i, mClustersFromFile[i].getEventNumber());
+          }
+
+          prevEventDig = mClustersFromFile[i].getEventNumber();
+      
+        	/*****insert from digitsreder*///
+      
+
+          if (i < mLabels.getIndexedSize() && i < mClustersFromFile.size()) {
+            bool isLabelEventSame = true;
+            const auto& labels = mLabels.getLabels(i);
+             int prevEventLabel=0;
+
+            if(labels.size() > 0) {
+              prevEventLabel = labels[0].getEventID();
+              eventLabels.push_back(prevEventLabel);
+            }
+            int lblNum = 0;
+            for (const auto& label : labels) {
+
+              if(label.getEventID() != prevEventLabel) {
+                eventLabels.push_back(label.getEventID());
+                isLabelEventSame = false;
+                LOGP(info, "trigger number {} lblNum {} : event from labelEventId changed!", tnum, lblNum);
+                LOGP(info, "digit number {}, digEventNum {} labelEventId {} prevEventLabel {}", i, mClustersFromFile[i].getEventNumber(), label.getEventID(), prevEventLabel);
+              }
+              lblNum++;
+              if (label.getEventID() != mClustersFromFile[i].getEventNumber()) {
+                LOGP(info, "digit number labelEventId ULIK digEvent");
+                LOGP(info, "trigger number {} : entries {}", tnum, trig.getNumberOfObjects());
+ 
+                LOGP(info, "digit number {}, digEventNum {} labelEventId {}", i, mClustersFromFile[i].getEventNumber(), label.getEventID());
+              }
+              prevEventLabel = label.getEventID();
             }
           }
-        } else {
-          LOGP(info, "out of range {} > numLabels {}", i, mLabels.getIndexedSize());
+       
+      	}
+          
+        LOGP(info, "trigger number {} : entries {}", tnum, trig.getNumberOfObjects());
+        LOGP(info, "\n different labels from cluLabels {} ::: " , cluLabels.size());
+
+        for(const auto& dl : cluLabels)
+        {
+          std::cout<< dl << " , ";
         }
-      }
-      LOGP(info, "cnt {} entries {}", cnt, trig.getNumberOfObjects());
+
+        LOGP(info, "\ndifferent labels from eventLabels {} :::", eventLabels.size());
+        std::vector<int> sortedVec = eventLabels;
+
+        std::sort(sortedVec.begin(), sortedVec.end());
+
+        std::cout << "eventLabels values: ";
+        for (size_t i = 0; i < sortedVec.size(); ++i) {
+          if (i == sortedVec.size() - 1 || sortedVec[i] != sortedVec[i + 1]) {
+            std::cout << sortedVec[i] << " , ";
+          }
+        }
+          
+      	/*****insert from digitsreder*///
+    
+            	
+      LOGP(info, "eND {} entries {}", tnum, trig.getNumberOfObjects());
+      tnum++;
     }
   }
 

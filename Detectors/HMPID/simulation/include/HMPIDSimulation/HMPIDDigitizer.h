@@ -63,6 +63,8 @@ class HMPIDDigitizer
   uint32_t getOrbit() { return mOrbit; };
   uint16_t getBc() { return mBc; };
 
+  int getEventID() const { return mEventID;}
+
   void setEventID(int eventID) { mEventID = eventID; }
   void setSrcID(int sID) { mSrcID = sID; }
 

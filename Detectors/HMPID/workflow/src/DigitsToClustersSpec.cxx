@@ -178,23 +178,6 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
       size_t clStart = clusters.size();
       LOGP(info, "[HMPID DClusterization  clStart {}", clStart);
 
-      // ef; taken from TOF, does it work?
-      // &(labelVector->at(i)) ?
-
-      // A)  labelVector->at(i) : if we use vector<MCTruthContainer>
-      // B) labelVector : if we use MCTruthContainer
-
-      // as of now we store triggers in vector, and
-      // mcTruth for digits as MCTruthContainer<o2::MCCompLabel> :
-      // https://github.com/AliceO2Group/AliceO2/blob/25fed0222034939656422b6c0d727dd9cad1983b/Steer/DigitizerWorkflow/src/HMPIDDigitizerSpec.cxx#L92
-
-      //
-
-      // ef : I am not sure about labelVector, should we not do as labelVector->at(i) ?
-      // 		to sort this based on each trigger?
-      //    I anyway changed to store the label of the digits in Digitizer
-      //    So it should be able to seperate based on tjis
-      //    (Also seperate which event the digit corresponds to )
 
       if (mUseMC && labelVector != nullptr) {
         LOGP(info, "[HMPID DClusterization mUseMC {}", mUseMC);
@@ -227,6 +210,8 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
         // by : mRec->setMCTruthContainer(mClsLabels.get()
 
         // ef :should this not be vectors?
+        
+        LOGP(info, "trigger number {} ", i);
         mRec->Dig2Clu(trigDigits, clusters, mSigmaCut, labelVector.get(), true);
 
         // mRec->Dig2Clu(trigDigits, clusters, mSigmaCut, &(labelVector->at(i)), true);

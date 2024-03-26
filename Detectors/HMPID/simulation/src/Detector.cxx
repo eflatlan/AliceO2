@@ -240,7 +240,15 @@ o2::hmpid::HitType* Detector::AddHit(float x, float y, float z, float time, floa
 {
   mHits->emplace_back(x, y, z, time, energy, trackId, detId, particlePdg, motherTrackId, event);
 
-  // LOGP(info, "Emplacing mDigits; (from hit : event {}) mEventID {}",
+  LOGP(info, "Emplacing hit; (from hit : event {})", event);
+  
+  // ef : TODO: loop over hits and check eventid?
+  
+  for(const auto& hit : *mHits) {
+  	std::cout<< " " << hit.getEventNumber();  
+  }
+  
+  LOGP(info, "");
   return &(mHits->back());
 }
 //*********************************************************************************************************

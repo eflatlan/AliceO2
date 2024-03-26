@@ -38,7 +38,6 @@ void HMPIDDigitizer::zeroSuppress(std::vector<o2::hmpid::Digit> const& digits, s
       if (newlabels) {
         // copy the labels to the new place with the right new index
         newlabels->addElements(newdigits.size() - 1, labels.getLabels(index));
-        // ef : do we need to set label for digit here ? 
       }
       //   }
     }
@@ -49,6 +48,8 @@ void HMPIDDigitizer::zeroSuppress(std::vector<o2::hmpid::Digit> const& digits, s
 void HMPIDDigitizer::flush(std::vector<o2::hmpid::Digit>& digits)
 {
   // flushing and finalizing digits in the workspace
+  
+  // ef : TODO, read eventID here ? 
   zeroSuppress(mDigits, digits, mTmpLabelContainer, mRegisteredLabelContainer);
   reset();
 }
@@ -65,6 +66,8 @@ void HMPIDDigitizer::reset()
 void HMPIDDigitizer::process(std::vector<o2::hmpid::HitType> const& hits, std::vector<o2::hmpid::Digit>& digits)
 {
 
+	LOGP(info, "HMPIDDigitizer::process eventID {}", getEventID());
+
   // ef: just temp fix: FIXME
   const bool mProcessMC = true;
 
@@ -73,6 +76,8 @@ void HMPIDDigitizer::process(std::vector<o2::hmpid::HitType> const& hits, std::v
 
   int hitNum = 0;
   for (auto& hit : hits) {
+  
+  	// LOGP(info, "process eventID {} hitEventID {}", getEventID(), hit.getEventNumber());
     int chamber, pc, px, py;
     float totalQ;
     hitNum++;
@@ -117,7 +122,7 @@ void HMPIDDigitizer::process(std::vector<o2::hmpid::HitType> const& hits, std::v
 
         if (mRegisteredLabelContainer) {
           auto labels = mTmpLabelContainer.getLabels(index);
-          o2::MCCompLabel newlabel(hit.GetTrackID(), mEventID, mSrcID, false);
+          o2::MCCompLabel newlabel(hit.GetTrackID(), getEventID(), mSrcID, false);
 
           bool newlabelneeded = true;
           for (auto& l : labels) {
@@ -138,7 +143,7 @@ void HMPIDDigitizer::process(std::vector<o2::hmpid::HitType> const& hits, std::v
 
         // ef: corrected to take from hits to mEventId -- > mEventId is set in HMPIDDigitezerSpec
 
-        mDigits.emplace_back(pad, totalQ * fraction, hit.getParticlePdg(), hit.getTrackId(),  hit.getMother(), /*hit.getEventNumber()*/ mEventID, mSrcID, hit.getEnergy());
+        mDigits.emplace_back(pad, totalQ * fraction, hit.getParticlePdg(), hit.getTrackId(),  hit.getMother(), /*hit.getEventNumber()*/ getEventID(), mSrcID, hit.getEnergy());
         
 
         

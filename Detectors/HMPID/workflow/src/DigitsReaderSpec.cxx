@@ -214,7 +214,7 @@ void DigitReader::run(ProcessingContext& pc)
 
 
         int cnt = 0;
-        int prevEventDig;
+        int prevEventDig = 0;
         bool isEventDigSame = true;
 
 

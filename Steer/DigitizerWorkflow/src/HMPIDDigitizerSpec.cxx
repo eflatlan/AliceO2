@@ -86,17 +86,19 @@ class HMPIDDPLDigitizerTask : public o2::base::BaseDPLDigitizer
       mLabels.clear();
       mDigitizer.flush(mDigits);
       LOG(info) << "HMPID flushed " << mDigits.size() << " digits at this time ";
-      LOG(info) << "NUMBER OF LABEL OBTAINED " << mLabels.getNElements();
+      LOG(info) << "NUMBER OF LABEL OBTAINED " << mLabels.getIndexedSize();
       int32_t first = digitsAccum.size(); // this is the first
       std::copy(mDigits.begin(), mDigits.end(), std::back_inserter(digitsAccum));
       
-      
-      
+
       labelAccum.mergeAtBack(mLabels);
 
       // save info for the triggers accepted
       LOG(info) << "Trigger  Orbit :" << mDigitizer.getOrbit() << "  BC:" << mDigitizer.getBc();
       mIntRecord.push_back(o2::hmpid::Trigger(o2::InteractionRecord(mDigitizer.getBc(), mDigitizer.getOrbit()), first, digitsAccum.size() - first));
+
+      LOGP(info, "current trigger {}", mIntRecord.size()); // ef :remove
+
     };
 
     // loop over all composite collisions given from context
@@ -105,17 +107,25 @@ class HMPIDDPLDigitizerTask : public o2::base::BaseDPLDigitizer
       // try to start new readout cycle by setting the trigger time
       auto triggeraccepted = mDigitizer.setTriggerTime(irecords[collID].getTimeNS());
       if (triggeraccepted) {
+        LOGP(info, "triggerAccepted"); // ef :remove
         flushDigitsAndLabels(); // flush previous readout cycle
+      } else {
+        LOGP(info, "trigger not Accepted"); // ef :remove
       }
+
       auto withinactivetime = mDigitizer.setEventTime(irecords[collID].getTimeNS());
       if (withinactivetime) {
         // for each collision, loop over the constituents event and source IDs
         // (background signal merging is basically taking place here)
         for (auto& part : eventParts[collID]) {
+
+          //
+          LOGP(info, "collID {} mDigitizer.setEventID {}", collID, part.entryID);
+
           mDigitizer.setEventID(part.entryID);
           mDigitizer.setSrcID(part.sourceID);
 
-
+          LOGP(info, "mDigitizer.getEventID {}", mDigitizer.getEventID());
 
           // get the hits for this event and this source
           std::vector<o2::hmpid::HitType> hits;
@@ -127,6 +137,8 @@ class HMPIDDPLDigitizerTask : public o2::base::BaseDPLDigitizer
           mDigitizer.setLabelContainer(&mLabels);
           mLabels.clear();
           mDigits.clear();
+
+          LOGP(info, "mDigitizer->process()");
 
           mDigitizer.process(hits, mDigits);
         }
@@ -146,6 +158,7 @@ class HMPIDDPLDigitizerTask : public o2::base::BaseDPLDigitizer
     if (pc.outputs().isAllowed({"HMP", "DIGITSMCTR", 0})) {
       pc.outputs().snapshot(Output{"HMP", "DIGITSMCTR", 0}, labelAccum);
     }
+
     LOG(info) << "HMP: Sending ROMode= " << mROMode << " to GRPUpdater";
     pc.outputs().snapshot(Output{"HMP", "ROMode", 0}, mROMode);
 
