@@ -478,8 +478,6 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
 
     gsl::span<const o2::MCCompLabel> mcArray = digitMCTruth->getLabels(digitLabel);
 
-		
-
     // ef : remove later
     LOGP(info, "digit number {}, digEventNum {}", digitLabel, digEventNum);
 
@@ -503,8 +501,6 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
       // clsuters have multiple digits
       // we fill MC-Complabel label at index lbl for headArray
       // this is the hit for a digit in the cluster
-      
-
 
       // skal ikke dette være lblFromClu??
 
@@ -518,9 +514,8 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
 
       // lbl, label, mcArray
 
-
-			// ef :remove 
-			LOGP(info, "eventID from clulbl {}", label.getEventID());
+      // ef :remove
+      LOGP(info, "eventID from clulbl {}", label.getEventID());
 
       mClsLabels->addElement(lbl, label);
       // LOGP(info, "number of labels for clu {}  : lbl", mClsLabels->getLabels(lbl).size());
@@ -533,7 +528,7 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
 
       LOGP(info, "number of labels for clu {} : clus.size() - 1", mClsLabels->getLabels(cluSize - 1).size());
 
-      */ 
+      */
 
       /*
       /// query an MC track given a basic label object
@@ -550,7 +545,7 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
       const o2::MCTrack* mcTrackFromMother = nullptr;      
 
       bool printVals = false;
-			// LOGP(info, "printVals");
+      // LOGP(info, "printVals");
       if (printVals) {
         if (!mcReader)
 

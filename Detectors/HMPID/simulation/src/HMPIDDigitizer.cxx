@@ -48,8 +48,8 @@ void HMPIDDigitizer::zeroSuppress(std::vector<o2::hmpid::Digit> const& digits, s
 void HMPIDDigitizer::flush(std::vector<o2::hmpid::Digit>& digits)
 {
   // flushing and finalizing digits in the workspace
-  
-  // ef : TODO, read eventID here ? 
+
+  // ef : TODO, read eventID here ?
   zeroSuppress(mDigits, digits, mTmpLabelContainer, mRegisteredLabelContainer);
   reset();
 }
@@ -66,7 +66,7 @@ void HMPIDDigitizer::reset()
 void HMPIDDigitizer::process(std::vector<o2::hmpid::HitType> const& hits, std::vector<o2::hmpid::Digit>& digits)
 {
 
-	LOGP(info, "HMPIDDigitizer::process eventID {}", getEventID());
+  LOGP(info, "HMPIDDigitizer::process eventID {}", getEventID());
 
   // ef: just temp fix: FIXME
   const bool mProcessMC = true;
@@ -76,8 +76,8 @@ void HMPIDDigitizer::process(std::vector<o2::hmpid::HitType> const& hits, std::v
 
   int hitNum = 0;
   for (auto& hit : hits) {
-  
-  	// LOGP(info, "process eventID {} hitEventID {}", getEventID(), hit.getEventNumber());
+
+    // LOGP(info, "process eventID {} hitEventID {}", getEventID(), hit.getEventNumber());
     int chamber, pc, px, py;
     float totalQ;
     hitNum++;
@@ -143,10 +143,8 @@ void HMPIDDigitizer::process(std::vector<o2::hmpid::HitType> const& hits, std::v
 
         // ef: corrected to take from hits to mEventId -- > mEventId is set in HMPIDDigitezerSpec
 
-        mDigits.emplace_back(pad, totalQ * fraction, hit.getParticlePdg(), hit.getTrackId(),  hit.getMother(), /*hit.getEventNumber()*/ getEventID(), mSrcID, hit.getEnergy());
-        
+        mDigits.emplace_back(pad, totalQ * fraction, hit.getParticlePdg(), hit.getTrackId(), hit.getMother(), /*hit.getEventNumber()*/ getEventID(), mSrcID, hit.getEnergy());
 
-        
         mIndexForPad[pad] = mDigits.size() - 1;
         mInvolvedPads.emplace_back(pad);
 

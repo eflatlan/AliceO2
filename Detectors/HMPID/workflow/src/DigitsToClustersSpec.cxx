@@ -178,7 +178,6 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
       size_t clStart = clusters.size();
       LOGP(info, "[HMPID DClusterization  clStart {}", clStart);
 
-
       if (mUseMC && labelVector != nullptr) {
         LOGP(info, "[HMPID DClusterization mUseMC {}", mUseMC);
 
@@ -210,7 +209,7 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
         // by : mRec->setMCTruthContainer(mClsLabels.get()
 
         // ef :should this not be vectors?
-        
+
         LOGP(info, "trigger number {} ", i);
         mRec->Dig2Clu(trigDigits, clusters, mSigmaCut, labelVector.get(), true);
 

@@ -237,8 +237,8 @@ void DigitReader::run(ProcessingContext& pc)
             digLabels.push_back(digLbl);
 
             isEventDigSame = false;
-            //LOGP(info, "trigger number {} : event from digit changed!", tnum);
-            //LOGP(info, "digit number {}, digEventNum {}", i, mDigitsFromFile[i].getEventNumber());
+            // LOGP(info, "trigger number {} : event from digit changed!", tnum);
+            // LOGP(info, "digit number {}, digEventNum {}", i, mDigitsFromFile[i].getEventNumber());
           }
 
           prevEventDig = mDigitsFromFile[i].getEventNumber();
@@ -261,9 +261,9 @@ void DigitReader::run(ProcessingContext& pc)
                 eventLabels.push_back(label.getEventID());
                 isLabelEventSame = false;
 
-                //LOGP(info, "trigger number {} lblNum {} : event from labelEventId changed!", tnum, lblNum);
+                // LOGP(info, "trigger number {} lblNum {} : event from labelEventId changed!", tnum, lblNum);
 
-                //LOGP(info, "digit number {}, digEventNum {} labelEventId {} prevEventLabel {}", i, mDigitsFromFile[i].getEventNumber(), label.getEventID(), prevEventLabel);
+                // LOGP(info, "digit number {}, digEventNum {} labelEventId {} prevEventLabel {}", i, mDigitsFromFile[i].getEventNumber(), label.getEventID(), prevEventLabel);
               }
 
               lblNum++;

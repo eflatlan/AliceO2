@@ -73,14 +73,13 @@ class HMPIDDPLDigitizerTask : public o2::base::BaseDPLDigitizer
     auto& irecords = context->getEventRecords();
     int i = 0;
     for (auto& record : irecords) {
-      LOG(info) << i++ <<"HMPID TIME RECEIVED " << record.getTimeNS();
+      LOG(info) << i++ << "HMPID TIME RECEIVED " << record.getTimeNS();
     }
 
     auto& eventParts = context->getEventParts();
-    
-    
+
     LOGP(info, "irecords size {} eventParts {}", irecords.size(), eventParts.size());
-    
+
     std::vector<o2::hmpid::Digit> digitsAccum;                     // accumulator for digits
     o2::dataformats::MCTruthContainer<o2::MCCompLabel> labelAccum; // timeframe accumulator for labels
     mIntRecord.clear();
@@ -94,7 +93,6 @@ class HMPIDDPLDigitizerTask : public o2::base::BaseDPLDigitizer
       LOG(info) << "NUMBER OF LABELS OBTAINED " << mLabels.getIndexedSize();
       int32_t first = digitsAccum.size(); // this is the first
       std::copy(mDigits.begin(), mDigits.end(), std::back_inserter(digitsAccum));
-      
 
       labelAccum.mergeAtBack(mLabels);
 

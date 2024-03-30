@@ -74,52 +74,52 @@ namespace globaltracking
 class MatchHMP
 {
 
+  float calcCkovFromMass(float p, float n, int pdg)
+  {
+    // Constants for particle masses (in GeV/c^2)
+    const float mass_Muon = 0.10566, mass_Pion = 0.1396, mass_Kaon = 0.4937, mass_Proton = 0.938;
 
-float calcCkovFromMass(float p, float n, int pdg) {
-  // Constants for particle masses (in GeV/c^2)
-  const float mass_Muon = 0.10566, mass_Pion = 0.1396, mass_Kaon = 0.4937, mass_Proton = 0.938;
+    float m; // variable to hold the mass
+    p = std::abs(p);
+    // Switch based on absolute value of PDG code
+    switch (std::abs(pdg)) {
+      case 13:
+        m = mass_Muon;
+        break;
+      case 211:
+        m = mass_Pion;
+        break;
+      case 321:
+        m = mass_Kaon;
+        break;
+      case 2212:
+        m = mass_Proton;
+        break;
+      default:
+        return 0; // return 0 if PDG code doesn't match any known codes
+    }
 
-  float m; // variable to hold the mass
-  p = std::abs(p);
-  // Switch based on absolute value of PDG code
-  switch (std::abs(pdg)) {
-  case 13:
-    m = mass_Muon;
-    break;
-  case 211:
-    m = mass_Pion;
-    break;
-  case 321:
-    m = mass_Kaon;
-    break;
-  case 2212:
-    m = mass_Proton;
-    break;
-  default:
-    return 0; // return 0 if PDG code doesn't match any known codes
-  }
+    const float p_sq = p * p;
+    const float refIndexFreon = n; // Assuming n is the refractive index
+    const float cos_ckov_denom = p * refIndexFreon;
 
-  const float p_sq = p * p;
-  const float refIndexFreon = n; // Assuming n is the refractive index
-  const float cos_ckov_denom = p * refIndexFreon;
+    // Sanity check
+    if (p_sq + m * m < 0) {
+      return 0;
+    }
 
-  // Sanity check
-  if (p_sq + m * m < 0) {
-    return 0;
-  }
-
-  const auto cos_ckov =
+    const auto cos_ckov =
       static_cast<float>(TMath::Sqrt(p_sq + m * m) / cos_ckov_denom);
 
-  // Sanity check
-  if (cos_ckov > 1 || cos_ckov < -1) {
-    return 0;
+    // Sanity check
+    if (cos_ckov > 1 || cos_ckov < -1) {
+      return 0;
+    }
+
+    const auto ckovAngle = static_cast<float>(TMath::ACos(cos_ckov));
+
+    return ckovAngle;
   }
-
-  const auto ckovAngle = static_cast<float>(TMath::ACos(cos_ckov));
-
-  return ckovAngle;
-}
 
   using Geo = o2::hmpid::Geo;
   using Cluster = o2::hmpid::Cluster;
