@@ -233,7 +233,6 @@ bool MatchHMP::prepareTracks()
 
   // Unconstrained tracks
 
-  /*
 
     if (mIsTPCused) {
 
@@ -267,7 +266,7 @@ bool MatchHMP::prepareTracks()
 
     } // unconstrained tracks
 
-  */
+//auto cibc mTracksIndexCache[o2::globaltracking::MatchHMP::trackType::CONSTR];
 
   // Constrained tracks
 
@@ -514,7 +513,7 @@ bool MatchHMP::prepareHMPClusters()
     LOGP(info, "MatchHMP::prepareHMPClusters : numClusters {}, numMcClusters {}", mHMPClustersArray.size(), mHMPClusLabels->getIndexedSize());
   }
 
-  LOG(debug) << "nTriggersInCurrentChunk = " << nTriggersInCurrentChunk;
+  LOG(info) << "nTriggersInCurrentChunk = " << nTriggersInCurrentChunk;
 
   mNumOfTriggers += nTriggersInCurrentChunk;
 
@@ -627,7 +626,7 @@ void MatchHMP::doMatching()
 
     auto evtTime = event.getIr().differenceInBCMUS(mStartIR);
 
-    LOGP(info, "Event number : iEvent {}  : indexEvent {} || evtTime {}",iEvent, indexEvent,evtTime);
+    LOGP(info, "Event number : iEvent {}  : indexEvent {} || evtTime {}",iEvent, indexEvent, evtTime);
 
 
 
@@ -654,6 +653,23 @@ void MatchHMP::doMatching()
 
       float maxTrkTime = (trackWork.second.getTimeStamp() + mSigmaTimeCut * timeUncert);
 
+			auto trkTime = trackWork.second.getTimeStamp();
+
+
+
+
+
+	    /*
+			LOGP(info, "itrk {} iEvent {}", itrk, iEvent);			
+
+			
+			Printf("timeUncert %.3f", timeUncert);												
+			LOGP(info, "trkTime {}", trkTime);
+								
+			LOGP(info, "minTrkTime {}", minTrkTime);
+			LOGP(info, "evtTime {}", evtTime);						
+			LOGP(info, "maxTrkTime {}", maxTrkTime);						
+			*////////
       // if (evtTime < (maxTrkTime + timeFromTF) && evtTime > (minTrkTime + timeFromTF)) {
 
       if (evtTime < maxTrkTime && evtTime > minTrkTime) {
@@ -712,7 +728,7 @@ void MatchHMP::doMatching()
         // we only need for 1 chamber
 
         // oneEventClusters.reserve(mHMPClustersArray.size());
-
+        LOGP(info, "Number of clusters : {}", event.getNumberOfObjects());
         int indexGlbl = 0;
         for (int j = event.getFirstEntry(); j <= event.getLastEntry(); j++) { // event clusters loops
 
@@ -922,15 +938,17 @@ void MatchHMP::doMatching()
           matching.getHMPIDmip(testXmip, testYmip, q, nph);
 
           LOGP(info, "iChMatch {} : isOkQcut  {} isOkDcut {}", iChMatch, isOkQcut, isOkDcut);
-          LOGP(info, "MIP w charge {} nPhotons {}", q, nph);
-          Printf("6. : Reading MatchInfoHMP | xRa %.2f testXunc %.2f xMip%.2f", testXra, testXunc, testXmip);
-          Printf("6. : Reading MatchInfoHMP | yRa %.2f  testYunc %.2f yMip%.2f", testYra, testYunc, testYmip);
+          //LOGP(info, "MIP w charge {} nPhotons {}", q, nph);
+          //Printf("6. : Reading MatchInfoHMP | xRa %.2f testXunc %.2f xMip%.2f", testXra, testXunc, testXmip);
+          //Printf("6. : Reading MatchInfoHMP | yRa %.2f  testYunc %.2f yMip%.2f", testYra, testYunc, testYmip);
         }
 
         matching.setRefIndex(nmean);
         matching.setChamber(iCh);
         matching.setEventNumber(indexEvent); // 				matching.setEventNumber(iEvent);
         matching.setMipClusEvent(bestHmpCluster->getEventNumberFromTrack());
+
+				int eventIdClu = 0, eventIdTrk = 0;
 
         if (isMatched || !isMatched) {
           auto itsTpcTrack = mTracksLblWork[type][cacheTrk[itrk]];
@@ -961,7 +979,7 @@ void MatchHMP::doMatching()
           for (const auto& cluLabel : clusterLabelMipMC) {
 
             LOGP(info, "        From cluLabel | Event: {}, track: {}, source: {}", cluLabel.getEventID(), cluLabel.getTrackID(), cluLabel.getSourceID());
-
+								eventIdClu = cluLabel.getEventID();
             if (mcReader->getTrack(cluLabel)) {
               const auto& mcCluFromTrack = mcReader->getTrack(cluLabel);
               if (mcCluFromTrack) {
@@ -976,13 +994,19 @@ void MatchHMP::doMatching()
             auto mcTrack = mcReader->getTrack(itsTpcTrack);
             if (mcTrack) {
               pdgTrack = mcTrack->GetPdgCode();
-
+								eventIdTrk = itsTpcTrack.getEventID();
               LOGP(info, "        From mcTrack | Event: {}, track: {}, source: {}", itsTpcTrack.getEventID(), itsTpcTrack.getTrackID(), itsTpcTrack.getSourceID());
 
               LOGP(info, "MC-track pdg : {}", pdgTrack);
             }
           }
         }
+
+
+				if(eventIdTrk!=eventIdClu)
+					LOGP(info, "Ulik eventIdTrk {}, eventIdClu {}", eventIdTrk , eventIdClu);
+				else
+					LOGP(info, "Lik eventIdTrk {}, eventIdClu {}", eventIdTrk , eventIdClu);
 
         if (!isMatched) {
 

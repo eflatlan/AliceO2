@@ -180,19 +180,14 @@ if [ "$doreco" == "1" ]; then
   taskwrapper fv0reco.log o2-fv0-reco-workflow $gloOpt
   echo "Return status of fv0reco: $?"
 
-  echo "Running MID reco flow"
-  #needs MID digitized data
-  taskwrapper midreco.log "o2-mid-digits-reader-workflow | o2-mid-reco-workflow $gloOpt"
-  echo "Return status of midreco: $?"
+ 
 
   echo "Running HMPID reco flow to produce clusters"
   #needs HMPID digitized data
   taskwrapper hmpreco.log "o2-hmpid-digits-to-clusters-workflow $gloOpt"
   echo "Return status of hmpid cluster reco: $?"
 
-  echo "Running MCH-MID matching flow"
-  taskwrapper mchmidMatch.log "o2-muon-tracks-matcher-workflow $gloOpt"
-  echo "Return status of mchmidmatch: $?"
+
 
   echo "Running ITS-TPC matching flow"
   #needs results of o2-tpc-reco-workflow, o2-its-reco-workflow and o2-fit-reco-workflow
@@ -206,11 +201,7 @@ if [ "$doreco" == "1" ]; then
   taskwrapper trdMatch.log o2-trd-global-tracking $gloOpt
   echo "Return status of trdTracker: $?"
 
-  echo "Running MFT-MCH-MID matching flow"
-  #needs results of o2-mch-reco-workflow, o2-mft-reco-workflow and o2-muon-tracks-matcher-workflow
-  FwdMatchOpt=" --configKeyValues \"FwdMatching.useMIDMatch=true;\""
-  taskwrapper mftmchMatch.log o2-globalfwd-matcher-workflow $gloOpt $FwdMatchOpt
-  echo "Return status of globalfwdMatch: $?"
+
 
   echo "Running TOF reco flow to produce clusters"
   #needs results of TOF digitized data and results of o2-tpcits-match-workflow

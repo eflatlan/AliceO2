@@ -170,7 +170,7 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
   for (const auto& trig : triggers) {
     if (trig.getNumberOfObjects()) {
 
-      LOGP(info, "[HMPID DClusterization - run() ] trig.numObjects : {} <<< calling clusterer->Dig2Clu", trig.getNumberOfObjects());
+      LOGP(info, "[HMPID DClusterization - run() ] trig.numObjects : {} <<< for trigger number {}", trig.getNumberOfObjects(), i);
 
       gsl::span<const o2::hmpid::Digit> trigDigits{
         digits.data() + trig.getFirstEntry(),
@@ -228,8 +228,7 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
       // if(clusters.back().dig(0) == nullptr) {Printf("DigtisToClusterSpec:: dig was nullptr!!");}
       clusterTriggers.emplace_back(trig.getIr(), clStart, clusters.size() - clStart);
     } else {
-
-      LOGP(info, "[HMPID DClusterization - run() ] trig.numObjects 0");
+      LOGP(info, "[HMPID DClusterization - run() ] trig.numObjects 0 for trigger number {}", i);
     }
     i++;
   }

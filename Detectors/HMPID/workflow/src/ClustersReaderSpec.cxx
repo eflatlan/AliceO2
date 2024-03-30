@@ -111,8 +111,8 @@ void ClusterReaderTask::run(ProcessingContext& pc)
             cluLabels.push_back(cluLbl);
 
             isEventDigSame = false;
-            LOGP(info, "trigger number {} : event from clu changed!", tnum);
-            LOGP(info, "clu number {}, cluEventNum {}", i, mClustersFromFile[i].getEventNumber());
+            /*LOGP(info, "trigger number {} : event from clu changed!", tnum);
+            LOGP(info, "clu number {}, cluEventNum {}", i, mClustersFromFile[i].getEventNumber());*/
           }
 
           prevEventDig = mClustersFromFile[i].getEventNumber();
@@ -135,15 +135,15 @@ void ClusterReaderTask::run(ProcessingContext& pc)
               if(label.getEventID() != prevEventLabel) {
                 eventLabels.push_back(label.getEventID());
                 isLabelEventSame = false;
-                LOGP(info, "trigger number {} lblNum {} : event from labelEventId changed!", tnum, lblNum);
-                LOGP(info, "digit number {}, digEventNum {} labelEventId {} prevEventLabel {}", i, mClustersFromFile[i].getEventNumber(), label.getEventID(), prevEventLabel);
+                //LOGP(info, "trigger number {} lblNum {} : event from labelEventId changed!", tnum, lblNum);
+                //LOGP(info, "digit number {}, digEventNum {} labelEventId {} prevEventLabel {}", i, mClustersFromFile[i].getEventNumber(), label.getEventID(), prevEventLabel);
               }
               lblNum++;
               if (label.getEventID() != mClustersFromFile[i].getEventNumber()) {
-                LOGP(info, "digit number labelEventId ULIK digEvent");
-                LOGP(info, "trigger number {} : entries {}", tnum, trig.getNumberOfObjects());
+               // LOGP(info, "digit number labelEventId ULIK digEvent");
+               // LOGP(info, "trigger number {} : entries {}", tnum, trig.getNumberOfObjects());
  
-                LOGP(info, "digit number {}, digEventNum {} labelEventId {}", i, mClustersFromFile[i].getEventNumber(), label.getEventID());
+                //LOGP(info, "digit number {}, digEventNum {} labelEventId {}", i, mClustersFromFile[i].getEventNumber(), label.getEventID());
               }
               prevEventLabel = label.getEventID();
             }
@@ -152,14 +152,24 @@ void ClusterReaderTask::run(ProcessingContext& pc)
       	}
           
         LOGP(info, "trigger number {} : entries {}", tnum, trig.getNumberOfObjects());
-        LOGP(info, "\n different labels from cluLabels {} ::: " , cluLabels.size());
-
-        for(const auto& dl : cluLabels)
+        
         {
-          std::cout<< dl << " , ";
-        }
+		      LOGP(info, "\ndifferent labels from cluLabels {} :::", cluLabels.size());
+		      
+		      std::vector<int> sortedVec = cluLabels;
 
+		      std::sort(sortedVec.begin(), sortedVec.end());
+
+		      std::cout << "cluLabels values: ";
+		      for (size_t i = 0; i < sortedVec.size(); ++i) {
+		        if (i == sortedVec.size() - 1 || sortedVec[i] != sortedVec[i + 1]) {
+		          std::cout << sortedVec[i] << " , ";
+		        }
+		      }
+	      }
+        
         LOGP(info, "\ndifferent labels from eventLabels {} :::", eventLabels.size());
+        
         std::vector<int> sortedVec = eventLabels;
 
         std::sort(sortedVec.begin(), sortedVec.end());
@@ -169,7 +179,7 @@ void ClusterReaderTask::run(ProcessingContext& pc)
           if (i == sortedVec.size() - 1 || sortedVec[i] != sortedVec[i + 1]) {
             std::cout << sortedVec[i] << " , ";
           }
-        }
+        }        
           
       	/*****insert from digitsreder*///
     

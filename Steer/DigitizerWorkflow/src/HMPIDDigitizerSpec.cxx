@@ -71,11 +71,16 @@ class HMPIDDPLDigitizerTask : public o2::base::BaseDPLDigitizer
     context->initSimChains(o2::detectors::DetID::HMP, mSimChains);
 
     auto& irecords = context->getEventRecords();
+    int i = 0;
     for (auto& record : irecords) {
-      LOG(info) << "HMPID TIME RECEIVED " << record.getTimeNS();
+      LOG(info) << i++ <<"HMPID TIME RECEIVED " << record.getTimeNS();
     }
 
     auto& eventParts = context->getEventParts();
+    
+    
+    LOGP(info, "irecords size {} eventParts {}", irecords.size(), eventParts.size());
+    
     std::vector<o2::hmpid::Digit> digitsAccum;                     // accumulator for digits
     o2::dataformats::MCTruthContainer<o2::MCCompLabel> labelAccum; // timeframe accumulator for labels
     mIntRecord.clear();
@@ -86,7 +91,7 @@ class HMPIDDPLDigitizerTask : public o2::base::BaseDPLDigitizer
       mLabels.clear();
       mDigitizer.flush(mDigits);
       LOG(info) << "HMPID flushed " << mDigits.size() << " digits at this time ";
-      LOG(info) << "NUMBER OF LABEL OBTAINED " << mLabels.getIndexedSize();
+      LOG(info) << "NUMBER OF LABELS OBTAINED " << mLabels.getIndexedSize();
       int32_t first = digitsAccum.size(); // this is the first
       std::copy(mDigits.begin(), mDigits.end(), std::back_inserter(digitsAccum));
       
@@ -97,7 +102,7 @@ class HMPIDDPLDigitizerTask : public o2::base::BaseDPLDigitizer
       LOG(info) << "Trigger  Orbit :" << mDigitizer.getOrbit() << "  BC:" << mDigitizer.getBc();
       mIntRecord.push_back(o2::hmpid::Trigger(o2::InteractionRecord(mDigitizer.getBc(), mDigitizer.getOrbit()), first, digitsAccum.size() - first));
 
-      LOGP(info, "current trigger {}", mIntRecord.size()); // ef :remove
+      LOGP(info, "current trigger {} ", mIntRecord.size() - 1); // ef :remove
 
     };
 
