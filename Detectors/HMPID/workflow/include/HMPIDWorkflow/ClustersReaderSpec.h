@@ -60,7 +60,7 @@ class ClusterReaderTask : public framework::Task
   bool mVerbose = false;
 
   std::string mClusterMCTruthBranchName = "HMPIDClusterLabels";
-  
+
   bool mReadFile = false;
   void initFileIn(const std::string& filename);
 
@@ -72,7 +72,6 @@ class ClusterReaderTask : public framework::Task
 
   // ef: add mLabels for clusteres
   o2::dataformats::MCTruthContainer<o2::MCCompLabel> mLabels, *mLabelsPtr = &mLabels;
-
 
   std::vector<o2::hmpid::Trigger> mClusterTriggersFromFile, *mClusterTriggersFromFilePtr = &mClusterTriggersFromFile;
   std::vector<o2::hmpid::Cluster> mClustersFromFile, *mClustersFromFilePtr = &mClustersFromFile;

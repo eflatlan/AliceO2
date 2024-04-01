@@ -651,7 +651,7 @@ void MatchHMP::doMatching()
 
       auto trkTime = trackWork.second.getTimeStamp();
 
-      /*
+
       LOGP(info, "itrk {} iEvent {}", itrk, iEvent);
 
 
@@ -661,6 +661,8 @@ void MatchHMP::doMatching()
       LOGP(info, "minTrkTime {}", minTrkTime);
       LOGP(info, "evtTime {}", evtTime);
       LOGP(info, "maxTrkTime {}", maxTrkTime);
+      
+      /*
       */
       ///////
       // if (evtTime < (maxTrkTime + timeFromTF) && evtTime > (minTrkTime + timeFromTF)) {
@@ -776,6 +778,7 @@ void MatchHMP::doMatching()
 
             bestHmpCluster = &cluster;
             indexGlbl = j;
+            matching.setMipclusIndex(j);
           }
 
         } // event clusters loop
@@ -944,6 +947,9 @@ void MatchHMP::doMatching()
         int eventIdClu = 0, eventIdTrk = 0;
 
         if (isMatched || !isMatched) {
+
+
+
           auto itsTpcTrack = mTracksLblWork[type][cacheTrk[itrk]];
 
           auto mctrk = mcReader->getTrack(itsTpcTrack);
@@ -952,9 +958,11 @@ void MatchHMP::doMatching()
           auto actualP = matching.getHmpMom();
           LOGP(info, "MC momentum = {} measured momentum = {}", p, actualP);
 
-          auto clusterLabelMipMC = mHMPClusLabels->getLabels(indexGlbl);
+          int indexOfMip = matching.getMipclusIndex();
 
-          auto cluterTmp = mHMPClustersArray[indexGlbl];
+
+          auto clusterLabelMipMC = mHMPClusLabels->getLabels(indexOfMip/*indexGlbl*/);
+          auto cluterTmp = mHMPClustersArray[indexOfMip/*indexGlbl*/];
           LOGP(info, "    cluster pdg  = {} ", cluterTmp.getPDG());
 
           // LOGP(info, "\n\n Check MC-truth for indexEvent {} evtTracks {} ", indexEvent, evtTracks);
@@ -1168,3 +1176,4 @@ int MatchHMP::intTrkCha(int ch, o2::dataformats::TrackHMP* pHmpTrk, double& xPc,
 } // IntTrkCha()
 
 //==================================================================================================================================================
+

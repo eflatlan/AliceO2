@@ -21,7 +21,7 @@
 
 // ef ::added
 
-// ef : TODO: have to add setInfoFromDig here ? 
+// ef : TODO: have to add setInfoFromDig here ?
 // #pragma link C++ function o2::hmpid::Cluster::setInfoFromDig;
 
 #pragma link C++ class o2::hmpid::Digit + ;

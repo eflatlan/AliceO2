@@ -157,8 +157,6 @@ class Cluster
     const size_t digSize = mDigs->size();
   }
 
-
-
   void setInfoFromDigits2(const int currCluVecSize, std::vector<int> indicesResolvedDig)
 
   {
@@ -175,13 +173,13 @@ class Cluster
     std::vector<const o2::hmpid::Digit*> digs;
     std::vector<const o2::hmpid::Digit*> digs2;
 
-    for(int digIndex : indicesResolvedDig) {
-        if(digIndex > mDigs->size()) LOGP(error, "digIndex {} mDigs->size() {}",digIndex,mDigs->size());
-        else {
-          digs.push_back((*mDigs)[digIndex]);
-          digs2.push_back((*mDigs)[digIndex]);
-        }
-
+    for (int digIndex : indicesResolvedDig) {
+      if (digIndex > mDigs->size())
+        LOGP(error, "digIndex {} mDigs->size() {}", digIndex, mDigs->size());
+      else {
+        digs.push_back((*mDigs)[digIndex]);
+        digs2.push_back((*mDigs)[digIndex]);
+      }
     }
 
     std::sort(digs2.begin(), digs2.end(), [](const o2::hmpid::Digit* a, const o2::hmpid::Digit* b) {
@@ -191,7 +189,6 @@ class Cluster
     const int clux = this->x();
 
     const int cluy = this->y();
-
 
     std::sort(digs.begin(), digs.end(), [clux, cluy](const o2::hmpid::Digit* a, const o2::hmpid::Digit* b) {
       int xa, ya;
@@ -213,8 +210,7 @@ class Cluster
       return digaR < digbR;
     });
 
-
-    if(digs2.size() == 0) {
+    if (digs2.size() == 0) {
       return;
     }
     setEventNumber((digs2)[0]->getEventNumber());
@@ -227,14 +223,11 @@ class Cluster
 
     setPDG((digs2)[0]->getPDG());
 
-
     LOGP(info, "======================");
 
     LOGP(info, "Based on charge : pdg {} mother {} tid {}", (digs2)[0]->getPDG(), (digs2)[0]->getMotherId(), (digs2)[0]->getTrackId());
 
-    //LOGP(info, "Based on pos : pdg {} mother {} tid {}", digs[0]->getPDG(), digs[0]->getMotherId(), digs[0]->getTrackId());
-
-
+    // LOGP(info, "Based on pos : pdg {} mother {} tid {}", digs[0]->getPDG(), digs[0]->getMotherId(), digs[0]->getTrackId());
 
     const size_t digSize = mDigs->size();
   }

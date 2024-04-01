@@ -63,12 +63,12 @@ struct CompressedInfos {
   std::vector<uint32_t> ndiaCrate;  /// number of diagnostic/pattern words per crate in ROF
 
   // Hit data
-  std::vector<int16_t> timeFrameInc;  /// time increment with respect of previous digit in TimeFrame units
-  std::vector<uint16_t> timeTDCInc;   /// time increment with respect of previous digit in TDC channel (about 24.4 ps) within timeframe
-  std::vector<uint16_t> stripID;      /// increment of stripID wrt that of prev. strip
-  std::vector<uint8_t> chanInStrip;   /// channel in strip 0-95 (ordered in time)
-  std::vector<uint16_t> tot;          /// Time-Over-Threshold in TOF channel (about 48.8 ps)
-  std::vector<uint8_t> pattMap;       /// explict patterns container
+  std::vector<int16_t> timeFrameInc; /// time increment with respect of previous digit in TimeFrame units
+  std::vector<uint16_t> timeTDCInc;  /// time increment with respect of previous digit in TDC channel (about 24.4 ps) within timeframe
+  std::vector<uint16_t> stripID;     /// increment of stripID wrt that of prev. strip
+  std::vector<uint8_t> chanInStrip;  /// channel in strip 0-95 (ordered in time)
+  std::vector<uint16_t> tot;         /// Time-Over-Threshold in TOF channel (about 48.8 ps)
+  std::vector<uint8_t> pattMap;      /// explict patterns container
 
   CompressedInfos() = default;
 

@@ -43,6 +43,10 @@ class MatchInfoHMP
   void setIdxTrack(GTrackID index) { mIdxTrack = index; }
   int getTrackIndex() const { return mIdxTrack.getIndex(); }
 
+  void setMipclusIndex(int index) { mipIndex = index; } // ef : remove these three
+  int getMipclusIndex() const { return mipIndex; }
+  int mipIndex = -1;
+
   GTrackID getTrackRef() const { return mIdxTrack; }
 
   void setMipX(float x) { mMipX = x; }
@@ -267,3 +271,4 @@ class MatchInfoHMP
 } // namespace dataformats
 } // namespace o2
 #endif
+

@@ -41,12 +41,12 @@ class Clusterer
  public:
   using MCLabelContainer = o2::dataformats::MCTruthContainer<o2::MCCompLabel>;
 
-  Clusterer(bool useMC) {
+  Clusterer(bool useMC)
+  {
     mUseMC = useMC;
-    
-    
+
     // ef : TODO remove this wehn code is verified:
-    if(mUseMC) {
+    if (mUseMC) {
       mcReader = std::make_unique<o2::steer::MCKinematicsReader>("collisioncontext.root");
     }
   }
@@ -62,9 +62,8 @@ class Clusterer
 
   // ef : added
   void iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmpid::Digit> digits, const std::vector<int>& indices, MCLabelContainer const* digitMCTruth, MCLabelContainer* mClsLabels, int cluSize);
-  
-  void FormCluMC(Cluster &pClu, int pDig, gsl::span<const o2::hmpid::Digit> digs, TMatrixF &pDigMap, std::vector<int>& indicesUnresolved);
 
+  void FormCluMC(Cluster& pClu, int pDig, gsl::span<const o2::hmpid::Digit> digs, TMatrixF& pDigMap, std::vector<int>& indicesUnresolved);
 
   void Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::hmpid::Cluster>& clus, float* pUserCut, MCLabelContainer const* digitMCTruth, bool isUnfold = kTRUE); // digits->clusters
   static void FormClu(Cluster& pClu, int pDig, gsl::span<const o2::hmpid::Digit> digs, TMatrixF& pDigMap);                                                                   // cluster formation recursive algorithm
@@ -76,7 +75,6 @@ class Clusterer
   // ef FIX!                                                                                       // check for sigma cut
 
  private:
-
   int startIndexDigMC = 0; // ef : TODO find a more elegant way
   // void processChamber(std::vector<Cluster>& clusters, MCLabelContainer const* digitMCTruth);
   // void fetchMCLabels(const Digit* dig, std::array<Label, Cluster::maxLabels>& labels, int& nfilled) const;
@@ -88,10 +86,10 @@ class Clusterer
   std::unique_ptr<o2::dataformats::MCLabelContainer> mHwClustersMCTruthArray; ///< Array for MCTruth information associated to cluster in mHwClustersArrays
 
   o2::dataformats::MCTruthContainer<o2::MCCompLabel>* mClsLabels = nullptr; // Cluster MC labels
-  
+
   // ef : TODO :remove this when code and pdg etc is verified
   std::unique_ptr<o2::steer::MCKinematicsReader> mcReader;
-  
+
   // is set in initialization
   bool mUseMC = false;
 

@@ -110,7 +110,7 @@ class HMPIDDigitizer
   int mReadoutCounter = -1;
 
   // other stuff needed for digitization
-  o2::dataformats::MCTruthContainer<o2::MCCompLabel> mTmpLabelContainer;                   // temp label container as workspace
+  o2::dataformats::MCTruthContainer<o2::MCCompLabel> mTmpLabelContainer; // temp label container as workspace
 
   o2::dataformats::MCTruthContainer<o2::MCCompLabel>* mRegisteredLabelContainer = nullptr; // label container to be filled
 

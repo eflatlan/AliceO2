@@ -41,8 +41,8 @@ namespace hmpid
 
 class DigitsToRootTask : public framework::Task
 {
- public:  
-  DigitsToRootTask(bool useMC) :  mUseMC(useMC) {}
+ public:
+  DigitsToRootTask(bool useMC) : mUseMC(useMC) {}
   ~DigitsToRootTask() override = default;
   void init(framework::InitContext& ic) final;
   void run(framework::ProcessingContext& pc) final;
@@ -52,19 +52,18 @@ class DigitsToRootTask : public framework::Task
   ExecutionTimer mExTimer;
   std::vector<o2::hmpid::Trigger> mTriggers;
   std::vector<o2::hmpid::Digit> mDigits;
-  
-  // ef : added  
+
+  // ef : added
   std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>> mDigitLabels;
-  
-  // ef : added  
-  bool mUseMC = false;  
-  
+
+  // ef : added
+  bool mUseMC = false;
+
   std::unique_ptr<TFile> mfileOut;
   std::unique_ptr<TTree> mDigitTree;
   std::string mOutRootFileName;
 
   std::string mDigitMCTruthBranchName = "HMPIDDigitMCTruth";
-
 };
 
 // ef add useMC

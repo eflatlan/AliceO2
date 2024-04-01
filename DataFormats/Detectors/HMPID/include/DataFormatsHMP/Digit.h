@@ -51,7 +51,7 @@ class Digit
   static void absolute2Equipment(int Module, int x, int y, int* Equi, int* Colu, int* Dilo, int* Chan);
   static void equipment2Absolute(int Equi, int Colu, int Dilo, int Chan, int* Module, int* x, int* y);
 
-  // ef: add labels for MC 
+  // ef: add labels for MC
   Int_t getLabel() const { return mLabel; }
   void setLabel(Int_t label) { mLabel = label; }
 
@@ -144,8 +144,8 @@ class Digit
  public:
   // Members
 
-  // ef: init to -1 
-  Int_t mLabel = -1;            ///< Index of the corresponding entry in the MC label array
+  // ef: init to -1
+  Int_t mLabel = -1; ///< Index of the corresponding entry in the MC label array
 
   int mMotherTrackId;
   int mSourceId;

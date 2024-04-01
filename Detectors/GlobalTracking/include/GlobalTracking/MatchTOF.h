@@ -300,7 +300,7 @@ class MatchTOF
 
   /// <<<-----
 
-  ///<working copy of the input tracks
+  ///< working copy of the input tracks
   std::vector<matchTrack> mTracksWork[o2::constants::math::NSectors][trkType::SIZE];                   ///< track params prepared for matching + time value
   std::vector<o2::MCCompLabel> mTracksLblWork[o2::constants::math::NSectors][trkType::SIZE];           ///< TPCITS track labels
   std::vector<o2::track::TrackLTIntegral> mLTinfos[o2::constants::math::NSectors][trkType::SIZE];      ///< expected times and others

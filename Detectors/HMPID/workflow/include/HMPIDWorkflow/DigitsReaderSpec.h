@@ -63,7 +63,7 @@ class DigitReader : public framework::Task
   long mDigitsReceived;
   ExecutionTimer mExTimer;
 
-  std::unique_ptr<TFile> mFile; // root file with digits
+  std::unique_ptr<TFile> mFile;    // root file with digits
   std::unique_ptr<TTree> mTreeDig; // tree inside the file
 
   unsigned long mNumberOfEntries = 0; // number of entries from TTree

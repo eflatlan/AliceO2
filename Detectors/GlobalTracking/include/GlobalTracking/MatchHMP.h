@@ -50,8 +50,6 @@
 #include "DataFormatsHMP/Cluster.h"
 #include "DataFormatsHMP/Trigger.h"
 
-
-
 #include "Steer/MCKinematicsReader.h"
 
 namespace o2
@@ -160,7 +158,6 @@ class MatchHMP
                             ITSTPCTRD,
                             SIZEALL };
 
-
   std::vector<o2::dataformats::MatchInfoHMP>& getMatchedTrackVector(o2::globaltracking::MatchHMP::trackType index) { return mMatchedTracks[index]; }
 
   std::vector<o2::MCCompLabel>& getMatchedHMPLabelsVector(o2::globaltracking::MatchHMP::trackType index) { return mOutHMPLabels[index]; } ///< get vector of HMP label of matched tracks
@@ -238,8 +235,8 @@ class MatchHMP
 
   ///>>>------ these are input arrays which should not be modified by the matching code
   //           since this info is provided by external device
-  gsl::span<const Cluster> mHMPClustersArray;                      ///< input HMPID clusters
-  gsl::span<const Trigger> mHMPTriggersArray;                      ///< input HMPID triggers
+  gsl::span<const Cluster> mHMPClustersArray; ///< input HMPID clusters
+  gsl::span<const Trigger> mHMPTriggersArray; ///< input HMPID triggers
 
   const o2::dataformats::MCTruthContainer<o2::MCCompLabel>* mHMPClusLabels; ///< input HMP clusters MC labels (pointer to read from tree)
 
@@ -256,7 +253,6 @@ class MatchHMP
   ///< array of matched HMPCluster with matching information
   std::vector<o2::dataformats::MatchInfoHMP> mMatchedTracks[o2::globaltracking::MatchHMP::trackType::SIZE]; // this is the output of the matching -> UNCONS, CONSTR
 
-
   std::vector<o2::MCCompLabel> mOutHMPLabels[o2::globaltracking::MatchHMP::trackType::SIZE]; ///< HMP label of matched tracks
 
   std::vector<o2::dataformats::GlobalTrackID> mTrackGid[o2::globaltracking::MatchHMP::trackType::SIZE]; ///< expected times and others
@@ -265,7 +261,7 @@ class MatchHMP
   int mNumOfTriggers; // number of HMP triggers
 
   // ef : added
-  
+
   bool mVerbose = true;
 
   // ef : added the pParam here, to avoid doing it in intrTrkCh

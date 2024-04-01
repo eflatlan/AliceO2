@@ -356,7 +356,10 @@ class MatchTPCITS
                       pmr::vector<o2::itsmft::TrkClusRef>& ABTrackletRefs, pmr::vector<o2::dataformats::Triplet<float, float, float>>& calib);
   bool refitABTrack(int iITSAB, const TPCABSeed& seed, pmr::vector<o2::dataformats::TrackTPCITS>& matchedTracks, pmr::vector<int>& ABTrackletClusterIDs, pmr::vector<o2::itsmft::TrkClusRef>& ABTrackletRefs);
 #endif // CLING
-  void setSkipTPCOnly(bool v) { mSkipTPCOnly = v; }
+  void setSkipTPCOnly(bool v)
+  {
+    mSkipTPCOnly = v;
+  }
   void setCosmics(bool v) { mCosmics = v; }
   bool isCosmics() const { return mCosmics; }
   void setNThreads(int n);
@@ -651,9 +654,9 @@ class MatchTPCITS
   size_t mNMatchesControl = 0;
 
   size_t mNABRefsClus = 0;
-  float mAB2MatchGuess = 0.2;                                          // heuristic guess about fraction of AB matches in total matches
-  std::vector<InteractionCandidate> mInteractions;                     ///< possible interaction times
-  std::vector<int> mInteractionMUSLUT;                                 ///< LUT for interactions in 1MUS bins
+  float mAB2MatchGuess = 0.2;                      // heuristic guess about fraction of AB matches in total matches
+  std::vector<InteractionCandidate> mInteractions; ///< possible interaction times
+  std::vector<int> mInteractionMUSLUT;             ///< LUT for interactions in 1MUS bins
 
   ///< container for record the match of TPC track to single ITS track
   std::vector<MatchRecord> mMatchRecordsTPC; // RSS DEQ
@@ -661,12 +664,12 @@ class MatchTPCITS
   std::vector<MatchRecord> mMatchRecordsITS; // RSS DEQ
 
   ////  std::vector<int> mITSROFofTPCBin;    ///< aux structure for mapping of TPC time-bins on ITS ROFs
-  std::vector<BracketF> mITSROFTimes;  ///< min/max times of ITS ROFs in \mus
-  std::vector<TrackLocTPC> mTPCWork;   ///< TPC track params prepared for matching
-  std::vector<TrackLocITS> mITSWork;   ///< ITS track params prepared for matching
+  std::vector<BracketF> mITSROFTimes;       ///< min/max times of ITS ROFs in \mus
+  std::vector<TrackLocTPC> mTPCWork;        ///< TPC track params prepared for matching
+  std::vector<TrackLocITS> mITSWork;        ///< ITS track params prepared for matching
   std::vector<o2::MCCompLabel> mTPCLblWork; ///< TPC track labels
   std::vector<o2::MCCompLabel> mITSLblWork; ///< ITS track labels
-  std::vector<float> mWinnerChi2Refit; ///< vector of refitChi2 for winners
+  std::vector<float> mWinnerChi2Refit;      ///< vector of refitChi2 for winners
 
   // ------------------------------
   std::vector<TPCABSeed> mTPCABSeeds; ///< pool of primary TPC seeds for AB
