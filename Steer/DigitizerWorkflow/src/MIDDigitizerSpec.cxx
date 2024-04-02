@@ -101,9 +101,9 @@ class MIDDPLDigitizerTask : public o2::base::BaseDPLDigitizer
         // get the hits for this event and this source
         std::vector<o2::mid::Hit> hits;
         context->retrieveHits(mSimChains, "MIDHit", part.sourceID, part.entryID, &hits);
-        
-        if(hits.size() > 0) // ef change back to debug        
-        	LOG(info) << "For collision " << collID << " eventID " << part.entryID << " found MID " << hits.size() << " hits ";
+
+        if (hits.size() > 0) // ef change back to debug
+          LOG(info) << "For collision " << collID << " eventID " << part.entryID << " found MID " << hits.size() << " hits ";
 
         mDigitizer->process(hits, digits, labels);
         if (digits.empty()) {

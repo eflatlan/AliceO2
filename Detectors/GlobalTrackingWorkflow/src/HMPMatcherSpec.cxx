@@ -57,10 +57,8 @@ namespace globaltracking
 class HMPMatcherSpec : public Task
 {
  public:
-  HMPMatcherSpec(std::shared_ptr<DataRequest> dr, std::shared_ptr<o2::base::GRPGeomRequest> gr, bool useMC, bool verbose = false) : mDataRequest(dr), mGGCCDBRequest(gr), mUseMC(useMC), mVerbose (verbose) 
+  HMPMatcherSpec(std::shared_ptr<DataRequest> dr, std::shared_ptr<o2::base::GRPGeomRequest> gr, bool useMC, bool verbose = false) : mDataRequest(dr), mGGCCDBRequest(gr), mUseMC(useMC), mVerbose(verbose)
   {
-  	
-  	
   }
   ~HMPMatcherSpec() override = default;
   void init(InitContext& ic) final;
@@ -77,11 +75,10 @@ class HMPMatcherSpec : public Task
   bool mStrict = false;
 
   TStopwatch mTimer;
-  
-  bool mVerbose = false; // ef remove 
-  
+
+  bool mVerbose = false; // ef remove
+
   MatchHMP mMatcher; ///< Cluster finder
-  
 };
 
 void HMPMatcherSpec::init(InitContext& ic)
@@ -135,9 +132,8 @@ void HMPMatcherSpec::run(ProcessingContext& pc)
   bool isITSTPCTRDTOFused = recoData.isTrackSourceLoaded(o2::dataformats::GlobalTrackID::Source::ITSTPCTRDTOF);
   //  uint32_t ss = o2::globaltracking::getSubSpec(mStrict ? o2::globaltracking::MatchingType::Strict : o2::globaltracking::MatchingType::Standard);
 
-
-	if (mVerbose)
-	  mMatcher.useVerboseMode();
+  if (mVerbose)
+    mMatcher.useVerboseMode();
 
   mMatcher.run(recoData);
 

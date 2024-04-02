@@ -128,7 +128,7 @@ class FT0DPLDigitizerTask : public o2::base::BaseDPLDigitizer
         context->retrieveHits(mSimChains, "FT0Hit", part.sourceID, part.entryID, &hits);
 
         if (hits.size() > 0) { // ef change back to debug
-		      LOG(info) << "For collision " << collID << " eventID " << part.entryID << " source ID " << part.sourceID << " found " << hits.size() << " hits ";        
+          LOG(info) << "For collision " << collID << " eventID " << part.entryID << " source ID " << part.sourceID << " found " << hits.size() << " hits ";
           // call actual digitization procedure
           mDigitizer.setEventID(part.entryID);
           mDigitizer.setSrcID(part.sourceID);

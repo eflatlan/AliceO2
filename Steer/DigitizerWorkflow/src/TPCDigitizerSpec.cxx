@@ -422,9 +422,9 @@ class TPCDPLDigitizerTask : public BaseDPLDigitizer
         std::vector<o2::tpc::HitGroup> hitsRight;
         context->retrieveHits(mSimChains, getBranchNameLeft(sector).c_str(), part.sourceID, part.entryID, &hitsLeft);
         context->retrieveHits(mSimChains, getBranchNameRight(sector).c_str(), part.sourceID, part.entryID, &hitsRight);
-        
-        if(hitsRight.size() > 0 || hitsLeft.size() > 0)
-        	LOG(info) << "TPC: Found " << hitsLeft.size() << " hit groups left and " << hitsRight.size() << " hit groups right in collision " << collID << " eventID " << part.entryID;
+
+        if (hitsRight.size() > 0 || hitsLeft.size() > 0)
+          LOG(info) << "TPC: Found " << hitsLeft.size() << " hit groups left and " << hitsRight.size() << " hit groups right in collision " << collID << " eventID " << part.entryID;
 
         mDigitizer.process(hitsLeft, eventID, sourceID);
         mDigitizer.process(hitsRight, eventID, sourceID);

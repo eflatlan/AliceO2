@@ -116,9 +116,9 @@ class ZDCDPLDigitizerTask : public o2::base::BaseDPLDigitizer
       for (auto& part : eventParts[collID]) {
 
         context->retrieveHits(mSimChains, "ZDCHit", part.sourceID, part.entryID, &hits);
-        
-        if(hits.size() > 0)
-        	LOG(info) << "For collision " << collID << " eventID " << part.entryID << " found ZDC " << hits.size() << " hits ";
+
+        if (hits.size() > 0)
+          LOG(info) << "For collision " << collID << " eventID " << part.entryID << " found ZDC " << hits.size() << " hits ";
 
         mDigitizer.setEventID(part.entryID);
         mDigitizer.setSrcID(part.sourceID);

@@ -105,9 +105,9 @@ class FDDDPLDigitizerTask : public o2::base::BaseDPLDigitizer
 
         // get the hits for this event and this source
         context->retrieveHits(mSimChains, "FDDHit", part.sourceID, part.entryID, &hits);
-        
-        if(hits.size() > 0) // ef change back to debug
-        	LOG(info) << "For collision " << collID << " eventID " << part.entryID << " found FDD " << hits.size() << " hits ";
+
+        if (hits.size() > 0) // ef change back to debug
+          LOG(info) << "For collision " << collID << " eventID " << part.entryID << " found FDD " << hits.size() << " hits ";
 
         mDigitizer.setEventID(part.entryID);
         mDigitizer.setSrcID(part.sourceID);

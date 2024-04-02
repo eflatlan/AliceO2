@@ -74,23 +74,21 @@ class MatchHMP
 
   float calcMassFromCkov(float p, float n, float ckov)
   {
-      p = std::abs(p); 
-      const float refIndexFreon = n; 
+    p = std::abs(p);
+    const float refIndexFreon = n;
 
-      const float cos_ckov = std::cos(ckov);
+    const float cos_ckov = std::cos(ckov);
 
-      const float term = n * p * cos_ckov;
-      float m_squared = term * term - p * p;
+    const float term = n * p * cos_ckov;
+    float m_squared = term * term - p * p;
 
-      // Sanity check to avoid taking the square root of a negative number
-      if (m_squared < 0) {
-          return 0; 
-      }
+    // Sanity check to avoid taking the square root of a negative number
+    if (m_squared < 0) {
+      return 0;
+    }
 
-      return std::sqrt(m_squared); 
+    return std::sqrt(m_squared);
   }
-
-
 
   float calcCkovFromMass(float p, float n, int pdg)
   {
@@ -192,8 +190,6 @@ class MatchHMP
 
   // ef : added
   void useVerboseMode() { mVerbose = true; }
-
-
 
  private:
   //  bool prepareFITData();

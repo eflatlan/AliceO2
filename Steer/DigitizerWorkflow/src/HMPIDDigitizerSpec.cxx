@@ -73,7 +73,7 @@ class HMPIDDPLDigitizerTask : public o2::base::BaseDPLDigitizer
     auto& irecords = context->getEventRecords();
     int i = 0;
     for (auto& record : irecords) {
-      LOG(info) << i++ << "HMPID TIME RECEIVED " << record.getTimeNS()/ 1000.f << " us";
+      LOG(info) << i++ << "HMPID TIME RECEIVED " << record.getTimeNS() / 1000.f << " us";
     }
 
     auto& eventParts = context->getEventParts();
@@ -106,33 +106,32 @@ class HMPIDDPLDigitizerTask : public o2::base::BaseDPLDigitizer
 
     // loop over all composite collisions given from context
     // (aka loop over all the interaction records)
-    
-    
+
     std::vector<int> eventInds;
     for (int collID = 0; collID < irecords.size(); ++collID) {
       // try to start new readout cycle by setting the trigger time
       auto triggeraccepted = mDigitizer.setTriggerTime(irecords[collID].getTimeNS());
       if (triggeraccepted) {
         LOGP(info, "triggerAccepted"); // ef :remove
-        
+
         LOGP(info, "> flushing digits, different eventIDs "); // ef :remove
-        if(eventInds.size()>0) {
-		      for(const auto& ev : eventInds) LOGP(info, " ev  {}", ev) ;  
-		      LOGP(info, "> "); // ef :remove            
-      	}  
-	      else {
-	      	LOGP(info, " eventInds was none > (this means we   flushed digitis before we sat the eventIDs)"); // ef :remove            
-	      }
-	      
+        if (eventInds.size() > 0) {
+          for (const auto& ev : eventInds)
+            LOGP(info, " ev  {}", ev);
+          LOGP(info, "> "); // ef :remove
+        } else {
+          LOGP(info, " eventInds was none > (this means we   flushed digitis before we sat the eventIDs)"); // ef :remove
+        }
+
         flushDigitsAndLabels(); // flush previous readout cycle
         eventInds.clear();
 
       } else {
         LOGP(info, "trigger not Accepted"); // ef :remove
       }
-           
-     	LOG(info) << i++ << "HMPID TIME RECEIVED " << irecords[collID].getTimeNS()/1000.f  << " us";
-      
+
+      LOG(info) << i++ << "HMPID TIME RECEIVED " << irecords[collID].getTimeNS() / 1000.f << " us";
+
       auto withinactivetime = mDigitizer.setEventTime(irecords[collID].getTimeNS());
       if (withinactivetime) {
         // for each collision, loop over the constituents event and source IDs
@@ -145,7 +144,7 @@ class HMPIDDPLDigitizerTask : public o2::base::BaseDPLDigitizer
           mDigitizer.setEventID(part.entryID);
           mDigitizer.setSrcID(part.sourceID);
 
-					eventInds.push_back(part.entryID);
+          eventInds.push_back(part.entryID);
 
           // get the hits for this event and this source
           std::vector<o2::hmpid::HitType> hits;
@@ -164,10 +163,8 @@ class HMPIDDPLDigitizerTask : public o2::base::BaseDPLDigitizer
         }
 
       } // problem if the firssst isnt withinactivetime
-      
-      
-      
-       else {
+
+      else {
         LOG(info) << "COLLISION " << collID << "FALLS WITHIN A DEAD TIME";
       }
     }

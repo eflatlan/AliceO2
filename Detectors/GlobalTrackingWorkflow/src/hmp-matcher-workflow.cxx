@@ -59,19 +59,19 @@ void customize(std::vector<o2::framework::ConfigParamSpec>& workflowOptions)
  LOGP(info, "hmp-matcher-workflow.cxx ustomize(std::vector<o2::framework::ConfigParamSpec>& workflowOptions)");
 
   // option allowing to set parameters
-  std::vector<o2::framework::ConfigParamSpec> options{
-    {"disable-mc", o2::framework::VariantType::Bool, false, {"disable MC propagation even if available"}},
-    {"disable-root-input", o2::framework::VariantType::Bool, false, {"disable root-files input reader"}},
-    {"disable-root-output", o2::framework::VariantType::Bool, false, {"disable root-files output writer"}},
-    {"track-sources", VariantType::String, std::string{GID::ALL}, {"comma-separated list of sources to use: allowed ITS-TPC,TPC-TRD,TPC-TOF,TPC-TRD-TOF,ITS-TPC-TRD,ITS-TPC-TRD-TOF (all)"}},
-    {"trd-extra-tolerance", o2::framework::VariantType::Float, 0.0f, {"Extra time tolerance for TRD tracks in microsec"}},
-    {"tof-extra-tolerance", o2::framework::VariantType::Float, 0.0f, {"Extra time tolerance for TRD tracks in microsec"}},
-    {"combine-devices", o2::framework::VariantType::Bool, false, {"merge DPL source/writer devices"}},
-    {"verbose", o2::framework::VariantType::Bool, false, {"verbose printing"}},
+ std::vector<o2::framework::ConfigParamSpec> options{
+   {"disable-mc", o2::framework::VariantType::Bool, false, {"disable MC propagation even if available"}},
+   {"disable-root-input", o2::framework::VariantType::Bool, false, {"disable root-files input reader"}},
+   {"disable-root-output", o2::framework::VariantType::Bool, false, {"disable root-files output writer"}},
+   {"track-sources", VariantType::String, std::string{GID::ALL}, {"comma-separated list of sources to use: allowed ITS-TPC,TPC-TRD,TPC-TOF,TPC-TRD-TOF,ITS-TPC-TRD,ITS-TPC-TRD-TOF (all)"}},
+   {"trd-extra-tolerance", o2::framework::VariantType::Float, 0.0f, {"Extra time tolerance for TRD tracks in microsec"}},
+   {"tof-extra-tolerance", o2::framework::VariantType::Float, 0.0f, {"Extra time tolerance for TRD tracks in microsec"}},
+   {"combine-devices", o2::framework::VariantType::Bool, false, {"merge DPL source/writer devices"}},
+   {"verbose", o2::framework::VariantType::Bool, false, {"verbose printing"}},
 
-    {"configKeyValues", VariantType::String, "", {"Semicolon separated key=value strings ..."}}};
-  o2::raw::HBFUtilsInitializer::addConfigOption(options);
-  std::swap(workflowOptions, options);
+   {"configKeyValues", VariantType::String, "", {"Semicolon separated key=value strings ..."}}};
+ o2::raw::HBFUtilsInitializer::addConfigOption(options);
+ std::swap(workflowOptions, options);
 }
 // ------------------------------------------------------------------
 
@@ -93,10 +93,9 @@ WorkflowSpec defineDataProcessing(ConfigContext const& configcontext)
   auto extratolerancetof = configcontext.options().get<float>("tof-extra-tolerance");
   auto disableRootIn = configcontext.options().get<bool>("disable-root-input");
   auto disableRootOut = configcontext.options().get<bool>("disable-root-output");
-  
+
   auto verbose = configcontext.options().get<bool>("verbose");
-  
-  
+
   LOGP(info, "hmp-matcher-workflow.cxx With use MC {}", useMC);
 
   bool writematching = 0;

@@ -80,15 +80,9 @@ void ClusterReaderTask::run(ProcessingContext& pc)
     int tnum = 0;
     for (const auto trig : *mClusterTriggersFromFilePtr) {
 
+      auto timeA = o2::InteractionRecord::bc2ns(trig.getBc(), trig.getOrbit());
+      LOGP(info, "START : trigger number {} : entries {} time {}", tnum, trig.getNumberOfObjects(), timeA / 1000.0f);
 
-      
-
-
-
-
-			auto timeA = o2::InteractionRecord::bc2ns(trig.getBc(), trig.getOrbit());      
-		  LOGP(info, "START : trigger number {} : entries {} time {}", tnum, trig.getNumberOfObjects(), timeA/1000.0f);
-      
       int cnt = 0;
 
       int prevEventDig = 0;
@@ -102,8 +96,6 @@ void ClusterReaderTask::run(ProcessingContext& pc)
         prevEventDig = mClustersFromFile[firstentry].getEventNumber();
         cluLabels.push_back(prevEventDig);
       }
-      
-      
 
       for (int i = trig.getFirstEntry(); i <= trig.getLastEntry(); i++) {
 
