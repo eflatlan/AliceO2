@@ -670,6 +670,10 @@ void MatchHMP::doMatching()
 
       if (evtTime < maxTrkTime && evtTime > minTrkTime) {
 
+        // ef > prover aa legge til en paa index< remove later\1
+        if(iEvent + 1 < cacheTriggerHMP.size())
+          auto& event = mHMPTriggersWork[cacheTriggerHMP[iEvent+1]];
+
         evtTracks++;
         /*if (mVerbose) {
           LOGP(info, "========== NEW TRACK in time =========== evtTracks {} indexEvent {}", evtTracks, indexEvent);
