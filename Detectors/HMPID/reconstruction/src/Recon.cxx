@@ -140,8 +140,10 @@ void Recon::ckovAngle(o2::dataformats::MatchInfoHMP* match, const std::vector<o2
 
   double thetaC = findRingCkov(clusters.size()); // find the best reconstructed theta Cherenkov
   findRingGeom(thetaC, 2);
-
+  LOGP(info, "thetaC {} occupancy {}", thetaC,  occupancy); // ef remove 
   match->setHMPsignal(thetaC + occupancy); // store theta Cherenkov and chmaber occupancy
+  
+
   // match->SetHMPIDchi2(fCkovSigma2);                                                        //store experimental ring angular resolution squared
 
   // deleteVars(); ef : in case of smart-pointers, should not be necessary?

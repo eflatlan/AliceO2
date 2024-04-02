@@ -232,7 +232,7 @@ bool MatchHMP::prepareTracks()
   }
 
   // Unconstrained tracks
-
+		/*
     if (mIsTPCused) {
 
 
@@ -264,6 +264,7 @@ bool MatchHMP::prepareTracks()
       // } // loop over tracks of single sector
 
     } // unconstrained tracks
+    */
 
     // auto cibc mTracksIndexCache[o2::globaltracking::MatchHMP::trackType::CONSTR];
 
@@ -384,7 +385,7 @@ void MatchHMP::addTPCTOFSeed(const o2::dataformats::TrackTPCTOF& _tr, o2::datafo
 void MatchHMP::addConstrainedSeed(o2::track::TrackParCov& trc, o2::dataformats::GlobalTrackID srcGID, timeEst timeMUS)
 
 {
-
+  mcReader = std::make_unique<o2::steer::MCKinematicsReader>("collisioncontext.root");
   std::array<float, 3> globalPos;
 
   // current track index
@@ -422,6 +423,10 @@ void MatchHMP::addConstrainedSeed(o2::track::TrackParCov& trc, o2::dataformats::
     if (mMCTruthON) {
       // ef : added
       mTracksLblWork[o2::globaltracking::MatchHMP::trackType::CONSTR].emplace_back(mRecoCont->getTPCITSTrackMCLabel(srcGID));
+		  auto itstpc = mRecoCont->getTPCITSTrackMCLabel(srcGID);
+
+		  if (mVerbose && false) LOGP(info, "constrained itstpc eventID {} timeMUS {} ", itstpc.getEventID(), timeMUS.getTimeStamp());
+      
       /*mcReader = std::make_unique<o2::steer::MCKinematicsReader>("collisioncontext.root");
 
       auto itsTpcTrack = mRecoCont->getTPCITSTrackMCLabel(srcGID);
@@ -441,7 +446,7 @@ void MatchHMP::addConstrainedSeed(o2::track::TrackParCov& trc, o2::dataformats::
 void MatchHMP::addTPCSeed(const o2::tpc::TrackTPC& _tr, o2::dataformats::GlobalTrackID srcGID, float time0, float terr)
 
 {
-
+  mcReader = std::make_unique<o2::steer::MCKinematicsReader>("collisioncontext.root");
   mIsTPCused = true;
 
   std::array<float, 3> globalPos;
@@ -474,6 +479,10 @@ void MatchHMP::addTPCSeed(const o2::tpc::TrackTPC& _tr, o2::dataformats::GlobalT
 
   if (mMCTruthON) {
     mTracksLblWork[o2::globaltracking::MatchHMP::trackType::UNCONS].emplace_back(mRecoCont->getTPCTrackMCLabel(srcGID));
+    auto itstpc = mRecoCont->getTPCITSTrackMCLabel(srcGID);
+
+    LOGP(info, "constrained itstpc eventID {} trackTime0 {} ",itstpc.getEventID(), trackTime0);
+    
     /*mcReader = std::make_unique<o2::steer::MCKinematicsReader>("collisioncontext.root");
 
     auto itsTpcTrack = mRecoCont->getTPCITSTrackMCLabel(srcGID);
@@ -624,8 +633,6 @@ void MatchHMP::doMatching()
 
     auto evtTime = event.getIr().differenceInBCMUS(mStartIR);
 
-    LOGP(info, "Event number : iEvent {}  : indexEvent {} || evtTime {}", iEvent, indexEvent, evtTime);
-
     int evtTracks = 0;
 
     double nmean = (1.29197 + 1.29044) / 2.; // ef TODO: get this from calibration
@@ -644,24 +651,21 @@ void MatchHMP::doMatching()
       double bz = -bxyz[2];
 
       double timeUncert = trackWork.second.getTimeStampError();
-
-      float minTrkTime = (trackWork.second.getTimeStamp() - mSigmaTimeCut * timeUncert);
-
-      float maxTrkTime = (trackWork.second.getTimeStamp() + mSigmaTimeCut * timeUncert);
-
       auto trkTime = trackWork.second.getTimeStamp();
+      float minTrkTime = (trkTime - mSigmaTimeCut * timeUncert);
+
+      float maxTrkTime = (trkTime + mSigmaTimeCut * timeUncert);
+
+			
+			if(mVerbose)
+			{
+		    LOGP(info, "itrk {} iEvent {}", itrk, iEvent);
 
 
-      LOGP(info, "itrk {} iEvent {}", itrk, iEvent);
+		    //Printf("timeUncert %.3f", timeUncert);
+		    LOGP(info, "trkTime {} | minTrkTime {} <  evtTime {} < maxTrkTime {}", trkTime, minTrkTime, evtTime, maxTrkTime);
 
-
-      Printf("timeUncert %.3f", timeUncert);
-      LOGP(info, "trkTime {}", trkTime);
-
-      LOGP(info, "minTrkTime {}", minTrkTime);
-      LOGP(info, "evtTime {}", evtTime);
-      LOGP(info, "maxTrkTime {}", maxTrkTime);
-      
+      }
       /*
       */
       ///////
@@ -855,9 +859,9 @@ void MatchHMP::doMatching()
 
         double xPcConstrained = 0., yPcConstrained = 0.;
 
-        double thetaConst, phiConst;
+        double thetaConst = 0., phiConst = 0.;
 
-        int iChMatch = intTrkCha(iCh, &hmpTrkConstrained, xPcConstrained, yPcConstrained, xRa, yRa, thetaConst, phiConst, bz, pParam);
+        int iChMatch = intTrkCha(iCh, &hmpTrkConstrained, xPcConstrained, yPcConstrained, xRa, yRa, theta, phi, bz, pParam);
 
         /*if (mVerbose) {
           Printf("5. intTrkCha   xRa %.2f xPcConstrained %.2f yRa %.2f,  yPcConstrained %.2f", xRa, xPcConstrained, yRa, yPcConstrained);
@@ -882,10 +886,9 @@ void MatchHMP::doMatching()
         matching.setMipClusCharge(bestHmpCluster->q()); // ef: set event number from cluster
 
         // matching.setMIPindex(index); // the position of the MIP in the qrray of clusters
+        matching.setHMPIDtrk(xPc, yPc, theta, phi);
 
-        // ef : wrong to use xPc, yPc here? should be xPcConstrained, yPcConstrained??
-
-        matching.setHMPIDtrk(xRa, yRa, xPc, yPc, thetaConst, phiConst);
+        //matching.setHMPIDtrk(xRa, yRa, thetaConst, phiConst);
 
         // matching.setHMPIDtrk(xRa, yRa, xPc, yPc, theta, phi);
 
@@ -921,7 +924,7 @@ void MatchHMP::doMatching()
 
         } // MIP-Track matched !!
 
-        int pdgTrack = 0;
+        int pdgTrack = 0, pdgCluFromTrack = 0, pdgCluFromChosen = 0;
 
         // ef : remove later
         if (mVerbose) {
@@ -945,69 +948,71 @@ void MatchHMP::doMatching()
         matching.setMipClusEvent(bestHmpCluster->getEventNumberFromTrack());
 
         int eventIdClu = 0, eventIdTrk = 0;
-
-        if (isMatched || !isMatched) {
-
-
-
-          auto itsTpcTrack = mTracksLblWork[type][cacheTrk[itrk]];
-
-          auto mctrk = mcReader->getTrack(itsTpcTrack);
-
-          auto p = mctrk->GetP();
-          auto actualP = matching.getHmpMom();
-          LOGP(info, "MC momentum = {} measured momentum = {}", p, actualP);
-
-          int indexOfMip = matching.getMipclusIndex();
+				if(mVerbose) {
+		      if (isMatched || !isMatched) {
 
 
-          auto clusterLabelMipMC = mHMPClusLabels->getLabels(indexOfMip/*indexGlbl*/);
-          auto cluterTmp = mHMPClustersArray[indexOfMip/*indexGlbl*/];
-          LOGP(info, "    cluster pdg  = {} ", cluterTmp.getPDG());
 
-          // LOGP(info, "\n\n Check MC-truth for indexEvent {} evtTracks {} ", indexEvent, evtTracks);
+		        auto itsTpcTrack = mTracksLblWork[type][cacheTrk[itrk]];
 
-          auto cluSize = cluterTmp.size();
+		        auto mctrk = mcReader->getTrack(itsTpcTrack);
 
-          LOGP(info, "cluSize {}", cluSize);
+		        auto p = mctrk->GetP();
+		        auto actualP = matching.getHmpMom();
+		        LOGP(info, "MC momentum = {} measured momentum = {}", p, actualP);
 
-          if (iEvent - 1 > 0 && iEvent < cacheTriggerHMP.size() - 1) {
-            auto pEvent = cacheTriggerHMP[iEvent - 1];
-            auto nEvent = cacheTriggerHMP[iEvent + 1];
-            LOGP(info, " pEvent {} indexEvent {} nEvent {} iEvent {}", pEvent, indexEvent, nEvent, iEvent);
-          }
+		        int indexOfMip = matching.getMipclusIndex();
 
-          for (const auto& cluLabel : clusterLabelMipMC) {
 
-            LOGP(info, "        From cluLabel | Event: {}, track: {}, source: {}", cluLabel.getEventID(), cluLabel.getTrackID(), cluLabel.getSourceID());
-            eventIdClu = cluLabel.getEventID();
-            if (mcReader->getTrack(cluLabel)) {
-              const auto& mcCluFromTrack = mcReader->getTrack(cluLabel);
-              if (mcCluFromTrack) {
-                int pdgCluFromTrack = mcCluFromTrack->GetPdgCode();
+		        auto clusterLabelMipMC = mHMPClusLabels->getLabels(indexOfMip/*indexGlbl*/);
+		        auto cluterTmp = mHMPClustersArray[indexOfMip/*indexGlbl*/];
+		        LOGP(info, "    cluster pdg  = {} ", cluterTmp.getPDG());
 
-                LOGP(info, "        pdgCluFromTrack pdgCode = {} ", pdgCluFromTrack);
-              }
-            }
-          }
+		        // LOGP(info, "\n\n Check MC-truth for indexEvent {} evtTracks {} ", indexEvent, evtTracks);
 
-          if (mcReader->getTrack(itsTpcTrack)) {
-            auto mcTrack = mcReader->getTrack(itsTpcTrack);
-            if (mcTrack) {
-              pdgTrack = mcTrack->GetPdgCode();
-              eventIdTrk = itsTpcTrack.getEventID();
-              LOGP(info, "        From mcTrack | Event: {}, track: {}, source: {}", itsTpcTrack.getEventID(), itsTpcTrack.getTrackID(), itsTpcTrack.getSourceID());
+		        auto cluSize = cluterTmp.size();
 
-              LOGP(info, "MC-track pdg : {}", pdgTrack);
-            }
-          }
-        }
+		        LOGP(info, "cluSize {}", cluSize);
 
-        if (eventIdTrk != eventIdClu)
-          LOGP(info, "Ulik eventIdTrk {}, eventIdClu {}", eventIdTrk, eventIdClu);
-        else
-          LOGP(info, "Lik eventIdTrk {}, eventIdClu {}", eventIdTrk, eventIdClu);
+		        if (iEvent - 1 > 0 && iEvent < cacheTriggerHMP.size() - 1) {
+		          auto pEvent = cacheTriggerHMP[iEvent - 1];
+		          auto nEvent = cacheTriggerHMP[iEvent + 1];
+		          LOGP(info, " pEvent {} indexEvent {} nEvent {} iEvent {}", pEvent, indexEvent, nEvent, iEvent);
+		        }
 
+		        for (const auto& cluLabel : clusterLabelMipMC) {
+
+		          LOGP(info, "        From cluLabel | Event: {}, track: {}, source: {}", cluLabel.getEventID(), cluLabel.getTrackID(), cluLabel.getSourceID());
+		          eventIdClu = cluLabel.getEventID();
+		          if (mcReader->getTrack(cluLabel)) {
+		            const auto& mcCluFromTrack = mcReader->getTrack(cluLabel);
+		            if (mcCluFromTrack) {
+		              pdgCluFromTrack = mcCluFromTrack->GetPdgCode();
+                  if(pdgCluFromTrack!=50000050) pdgCluFromChosen = pdgCluFromTrack; // ef remove > choose as pdg if not photon
+		              LOGP(info, "        pdgCluFromTrack pdgCode = {} ", pdgCluFromTrack);
+		            }
+		          }
+		        }
+
+		        if (mcReader->getTrack(itsTpcTrack)) {
+		          auto mcTrack = mcReader->getTrack(itsTpcTrack);
+		          if (mcTrack) {
+		            pdgTrack = mcTrack->GetPdgCode();
+		            eventIdTrk = itsTpcTrack.getEventID();
+		            LOGP(info, "        \n \n From mcTrack | Event: {}, track: {}, source: {}", itsTpcTrack.getEventID(), itsTpcTrack.getTrackID(), itsTpcTrack.getSourceID());
+
+		            LOGP(info, "MC-track pdg : {}", pdgTrack);
+		          }
+		        }
+		      }
+
+		      if (eventIdTrk != eventIdClu)
+		        LOGP(info, "Ulik eventIdTrk {}, eventIdClu {}", eventIdTrk, eventIdClu);
+		      else
+		        LOGP(info, "Lik eventIdTrk {}, eventIdClu {}", eventIdTrk, eventIdClu);
+				} // end if mVerbose
+
+				
         if (!isMatched) {
 
           LOGP(info, "!isMatched new track emplaced > size {}", mMatchedTracks[type].size());
@@ -1039,18 +1044,53 @@ void MatchHMP::doMatching()
 
         recon->setImpPC(xPc, yPc);                                             // store track impact to PC
         recon->ckovAngle(&matching, oneEventClusters, index, nmean, xRa, yRa); // search for Cerenkov angle of this track
-        LOGP(info, "ckovangle {}", matching.getHMPsignal());
-        LOGP(info, "momentum {}", matching.getHmpMom());
+        
 
-        // float p, float n, int pdg
-        int pdgs[3] = {211, 321, 2212};
-        for (auto pdg : pdgs) {
-          auto ckov = calcCkovFromMass(matching.getHmpMom(), 1.2904, pdg);
-          std::cout << " pdg " << pdg << " ckov: " << ckov;
 
-          auto ns = (matching.getHMPsignal() - ckov) / 0.01;
-          LOGP(info, "actual ckov {} th {} nSigma {}", matching.getHMPsignal(), ckov, ns);
-        }
+				if(mVerbose) {
+
+        
+          float testXmip, testYmip, testXra, testYra, phi, theta;
+          int q, nph;
+
+          matching.getHMPIDmip(testXmip, testYmip, q, nph);
+
+          
+          
+          LOGP(info, "ckovAngle with xRa {} yRa {} xPc {} yPc {} xMip {}  yMip {}  ", xRa, yRa, xPc, yPc, testXmip, testYmip);
+          LOGP(info, "matched with distance {} ", dmin);
+
+
+
+
+
+		      LOGP(info, "ckovangle {}", matching.getHMPsignal());
+		      LOGP(info, "momentum {}", matching.getHmpMom());
+		      LOGP(info, "occupancy {}", matching.getOccupancy());
+
+		      // float p, float n, int pdg
+		      int pdgs[3] = {211, 321, 2212};
+		      for (auto pdg : pdgs) {
+		        auto ckov = calcCkovFromMass(matching.getHmpMom(), 1.2904, pdg);
+		        std::cout << " pdg " << pdg << " ckov: " << ckov;
+
+		        auto ns = (matching.getHMPsignal() - ckov) / 0.01;
+		        LOGP(info, "actual ckov {} th {} nSigma {}", matching.getHMPsignal(), ckov, ns);
+		      }
+				  //pdgTrack, mcCluFromTrack
+          auto predictedMass = calcMassFromCkov(matching.getHmpMom(), 1.2904, matching.getHMPsignal());
+
+          auto massFromTrack = calcCkovFromMass(matching.getHmpMom(), 1.2904, pdgTrack);
+          auto massFromClu = calcCkovFromMass(matching.getHmpMom(), 1.2904, pdgCluFromChosen);
+
+          LOGP(info, "massFromTrack {}", massFromTrack);
+          LOGP(info, "massFromClu {}", massFromClu);
+
+          LOGP(info, "predictedMass {}", predictedMass);
+        } // end if mVerbose
+				
+
+
 
         // add value indicating matched properly?
         // ef : added this field

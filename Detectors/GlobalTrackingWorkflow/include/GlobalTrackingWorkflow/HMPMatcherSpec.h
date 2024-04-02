@@ -25,7 +25,7 @@ namespace globaltracking
 {
 
 /// create a processor spec
-framework::DataProcessorSpec getHMPMatcherSpec(o2::dataformats::GlobalTrackID::mask_t src, bool useMC, float extratolerancetrd, float extratolerancetof);
+framework::DataProcessorSpec getHMPMatcherSpec(o2::dataformats::GlobalTrackID::mask_t src, bool useMC, float extratolerancetrd, float extratolerancetof, bool verbose = false);
 
 } // namespace globaltracking
 } // namespace o2

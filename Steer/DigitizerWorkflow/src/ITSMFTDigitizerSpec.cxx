@@ -140,7 +140,12 @@ class ITSMFTDPLDigitizerTask : BaseDPLDigitizer
       mDigitizer.setEventTime(irt);
       mDigitizer.resetEventROFrames(); // to estimate min/max ROF for this collID
       // for each collision, loop over the constituents event and source IDs
-      // (background signal merging is basically taking place here)
+      // (background signal merging is basically taking place here)  
+      
+      
+      const double eventTime = irt.getTimeNS() / 1000.f;
+      LOG(info) << "ITSMFT: Event time " << eventTime << " us";
+      
       for (auto& part : eventParts[collID]) {
 
         // get the hits for this event and this source
@@ -148,8 +153,10 @@ class ITSMFTDPLDigitizerTask : BaseDPLDigitizer
         context->retrieveHits(mSimChains, o2::detectors::SimTraits::DETECTORBRANCHNAMES[mID][0].c_str(), part.sourceID, part.entryID, &mHits);
 
         if (mHits.size() > 0) {
-          LOG(debug) << "For collision " << collID << " eventID " << part.entryID
+          LOG(info) << "For collision " << collID << " eventID " << part.entryID
                      << " found " << mHits.size() << " hits ";
+                     
+
           mDigitizer.process(&mHits, part.entryID, part.sourceID); // call actual digitization procedure
         }
       }

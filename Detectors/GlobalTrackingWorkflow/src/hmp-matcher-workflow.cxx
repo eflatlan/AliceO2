@@ -67,6 +67,8 @@ void customize(std::vector<o2::framework::ConfigParamSpec>& workflowOptions)
     {"trd-extra-tolerance", o2::framework::VariantType::Float, 0.0f, {"Extra time tolerance for TRD tracks in microsec"}},
     {"tof-extra-tolerance", o2::framework::VariantType::Float, 0.0f, {"Extra time tolerance for TRD tracks in microsec"}},
     {"combine-devices", o2::framework::VariantType::Bool, false, {"merge DPL source/writer devices"}},
+    {"verbose", o2::framework::VariantType::Bool, false, {"verbose printing"}},
+
     {"configKeyValues", VariantType::String, "", {"Semicolon separated key=value strings ..."}}};
   o2::raw::HBFUtilsInitializer::addConfigOption(options);
   std::swap(workflowOptions, options);
@@ -91,7 +93,10 @@ WorkflowSpec defineDataProcessing(ConfigContext const& configcontext)
   auto extratolerancetof = configcontext.options().get<float>("tof-extra-tolerance");
   auto disableRootIn = configcontext.options().get<bool>("disable-root-input");
   auto disableRootOut = configcontext.options().get<bool>("disable-root-output");
-
+  
+  auto verbose = configcontext.options().get<bool>("verbose");
+  
+  
   LOGP(info, "hmp-matcher-workflow.cxx With use MC {}", useMC);
 
   bool writematching = 0;
@@ -130,7 +135,7 @@ WorkflowSpec defineDataProcessing(ConfigContext const& configcontext)
       specs.push_back(s);
     }
   }
-  specs.emplace_back(o2::globaltracking::getHMPMatcherSpec(src, useMC, extratolerancetrd, extratolerancetof));
+  specs.emplace_back(o2::globaltracking::getHMPMatcherSpec(src, useMC, extratolerancetrd, extratolerancetof, verbose));
 
   if (!disableRootOut) {
     std::vector<DataProcessorSpec> writers;

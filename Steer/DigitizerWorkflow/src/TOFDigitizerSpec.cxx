@@ -235,8 +235,8 @@ class TOFDPLDigitizerTask : public o2::base::BaseDPLDigitizer
         // get the hits for this event and this source
         hits.clear();
         context->retrieveHits(*mSimChains.get(), "TOFHit", part.sourceID, part.entryID, &hits);
-
-        //        LOG(info) << "For collision " << collID << " eventID " << part.entryID << " found " << hits.size() << " hits ";
+        if(hits.size() > 0)
+        	LOG(info) << "For collision " << collID << " eventID " << part.entryID << " found " << hits.size() << " hits ";
 
         // call actual digitization procedure
         mLabels->clear();

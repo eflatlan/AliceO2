@@ -210,8 +210,9 @@ void DigitReader::run(ProcessingContext& pc)
 
       for (const auto trig : mTriggersFromFile) {
 
-        LOGP(info, "trigger number {} : entries {}", tnum, trig.getNumberOfObjects());
 
+				auto timeA = o2::InteractionRecord::bc2ns(trig.getBc(), trig.getOrbit());      
+				LOGP(info, "START : trigger number {} : entries {} time {}", tnum, trig.getNumberOfObjects(), timeA/1000.0f);
 
         int cnt = 0;
         int prevEventDig = 0;
