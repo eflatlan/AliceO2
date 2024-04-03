@@ -83,6 +83,27 @@ void ClusterReaderTask::run(ProcessingContext& pc)
     mExTimer.logMes("End ClusterReader !  clusters = " +
                     std::to_string(mClustersReceived));
   }
+
+
+    int tnum = 0;
+
+    LOGP(info, "triggers > {}", mClusterTriggersFromFile.size());
+    for (const auto trig : *mClusterTriggersFromFilePtr) {
+
+      auto timeA = o2::InteractionRecord::bc2ns(trig.getBc(), trig.getOrbit());
+      int cnt = 0;
+      int firstentry = trig.getFirstEntry(); int lastEntry = trig.getLastEntry();
+      LOGP(info, "START : trigger number {} : entries {} first {}  lasrt {}  time {} ",tnum, trig.getNumberOfObjects(),  firstentry, lastEntry, timeA / 1000.0f);
+
+      LOGP(info, " bc {} orbit {} ", trig.getBc(), trig.getOrbit());
+      LOGP(info, "end{} entries {}", tnum, trig.getNumberOfObjects());
+      tnum++;
+    }
+
+
+
+
+
 }
 
 void ClusterReaderTask::initFileIn(const std::string& filename)
@@ -122,7 +143,61 @@ void ClusterReaderTask::initFileIn(const std::string& filename)
       << filename.c_str();
     throw std::runtime_error(
       "HMPID ClusterReaderTask::init() : Did not find Branch HMPIDClusters in clusters tree");
-  }
+    }
+
+    int tnum = 0;
+
+    LOGP(info, "triggers > {}", mClusterTriggersFromFile.size());
+    for (const auto trig : *mClusterTriggersFromFilePtr) {
+
+      auto timeA = o2::InteractionRecord::bc2ns(trig.getBc(), trig.getOrbit());
+      int cnt = 0;
+      int firstentry = trig.getFirstEntry(); int lastEntry = trig.getLastEntry();
+      LOGP(info, "START : trigger number {} : entries {} first {}  lasrt {}  time {} ",tnum, trig.getNumberOfObjects(),  firstentry, lastEntry, timeA / 1000.0f);
+
+      LOGP(info, " bc {} orbit {} ", trig.getBc(), trig.getOrbit());
+
+
+      /*std::vector<int> eventLabels;
+
+      for (int i = trig.getFirstEntry(); i <= trig.getLastEntry(); i++) {
+
+        /*****insert from digitsreder* / //
+
+        if (i < mLabels.getIndexedSize() && i < mClustersFromFile.size()) {
+          bool isLabelEventSame = true;
+          const auto& labels = mLabels.getLabels(i);
+          int prevEventLabel = 0;
+
+          if (labels.size() > 0) {
+            prevEventLabel = labels[0].getEventID();
+            eventLabels.push_back(prevEventLabel);
+          }
+          int lblNum = 0;
+          for (const auto& label : labels) {
+
+            if (label.getEventID() != prevEventLabel) {
+              eventLabels.push_back(label.getEventID());
+              isLabelEventSame = false;
+              // LOGP(info, "trigger number {} lblNum {} : event from labelEventId changed!", tnum, lblNum);
+              // LOGP(info, "digit number {}, digEventNum {} labelEventId {} prevEventLabel {}", i, mClustersFromFile[i].getEventNumber(), label.getEventID(), prevEventLabel);
+            }
+            lblNum++;
+
+            prevEventLabel = label.getEventID();
+          }
+        }
+      } 
+      */
+
+ 
+
+      /*****insert from digitsreder*/ //
+
+      LOGP(info, "end{} entries {}", tnum, trig.getNumberOfObjects());
+      tnum++;
+    }
+
 
   mTree->SetBranchAddress("InteractionRecords", &mClusterTriggersFromFilePtr);
   mTree->Print("toponly");
