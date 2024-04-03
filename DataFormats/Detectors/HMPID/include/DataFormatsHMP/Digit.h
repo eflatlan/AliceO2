@@ -35,16 +35,15 @@ namespace hmpid
 class Digit
 {
 
- // ef > moved digit member vars to protected
- protected:
+  // ef > moved digit member vars to protected
+protected:
   uint16_t mQ = 0;
   uint8_t mCh = 0; // 0xFF indicates invalid digit
   uint8_t mPh = 0;
   uint8_t mX = 0;
   uint8_t mY = 0;
 
-
- public:
+public:
   // Coordinates Conversion Functions
   static inline uint32_t abs(int ch, int pc, int x, int y) { return ch << 24 | pc << 16 | x << 8 | y; }
   static inline int ddl2C(int ddl) { return ddl >> 1; }                    // ddl -> chamber
@@ -62,8 +61,8 @@ class Digit
   static void equipment2Absolute(int Equi, int Colu, int Dilo, int Chan, int* Module, int* x, int* y);
 
   // ef: add labels for MC
-  //Int_t getLabel() const { return mLabel; }
-  //void setLabel(Int_t label) { mLabel = label; }
+  // Int_t getLabel() const { return mLabel; }
+  // void setLabel(Int_t label) { mLabel = label; }
 
   // Trigger time Conversion Functions
   //  static inline uint64_t orbitBcToEventId(uint32_t Orbit, uint16_t BC) { return ((Orbit << 12) | (0x0FFF & BC)); };
@@ -114,7 +113,6 @@ class Digit
     return;
   };
 
-
   /*
   void setTrackId(int tid) { mTrackId = tid; }
   int getTrackId() const { return mTrackId; }
@@ -151,7 +149,7 @@ class Digit
   uint8_t getPh() const { return mPh; }
   uint8_t getX() const { return mX; }
   uint8_t getY() const { return mY; }
-  //float getEnergy() const { return mEnergy; }
+  // float getEnergy() const { return mEnergy; }
 
   // Members
 
@@ -171,7 +169,7 @@ class Digit
 
   */
 
-  //float mEnergy = 0; // energy in GeV
+  // float mEnergy = 0; // energy in GeV
 
   // The Pad Unique Id, code a pad inside one HMPID chamber.
   // Bit Map : 0000.0000.cccc.pppp.xxxx.xxxx.yyyy.yyyy
@@ -193,8 +191,6 @@ class Digit
   static double intMathieson(double localX, double localY, int pad);
   static double mathiesonX(double x); // Mathieson distribution along wires X
   static double mathiesonY(double x); // Mathieson distribution perp to wires Y
-
-
 
   ClassDefNV(Digit, 2);
 };

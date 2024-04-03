@@ -883,7 +883,6 @@ void MatchHMP::doMatching()
 
         matching.setIdxHMPClus(iCh, index + 1000 * cluSize); // set chamber, index of cluster + cluster size
 
-
         // matching->setEventNumber(indexEvent);
 
         matching.setMipClusCharge(bestHmpCluster->q()); // ef: set event number from cluster
@@ -947,7 +946,8 @@ void MatchHMP::doMatching()
 
         matching.setRefIndex(nmean);
         matching.setChamber(iCh);
-        matching.setEventNumber(indexEvent); // 				matching.setEventNumber(iEvent);
+        matching.setEventNumber(
+            indexEvent); // 				matching.setEventNumber(iEvent);
 
         int eventIdClu = 0, eventIdTrk = 0;
         if (mVerbose) {

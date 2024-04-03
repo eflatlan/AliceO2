@@ -225,7 +225,46 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
       LOG(info) << "[HMPID DClusterization - return from dig2clu";
 
       // if(clusters.back().dig(0) == nullptr) {Printf("DigtisToClusterSpec:: dig was nullptr!!");}
+      
+      
+      
+      
+			{
+		    auto timeA = o2::InteractionRecord::bc2ns(trig.getBc(), trig.getOrbit());
+		    int cnt = 0;
+		    int firstentry = trig.getFirstEntry(); int lastEntry = trig.getLastEntry();
+		    LOGP(info, "START :DIGIT TRIGGER  entries {} first {}  lasrt {}  time {} ",trig.getNumberOfObjects(),  firstentry, lastEntry, timeA / 1000.0f);
+
+		    LOGP(info, " bc {} orbit {} ", trig.getBc(), trig.getOrbit());
+		    LOGP(info, " entries {}", trig.getNumberOfObjects());					
+			
+			}
+      
+      
+      
+      
       clusterTriggers.emplace_back(trig.getIr(), clStart, clusters.size() - clStart);
+      
+      
+      auto t = clusterTriggers.back();
+      
+      
+      
+      
+			{
+		    auto timeA = o2::InteractionRecord::bc2ns(t.getBc(), t.getOrbit());
+		    int cnt = 0;
+		    int firstentry = t.getFirstEntry(); int lastEntry = t.getLastEntry();
+		    LOGP(info, "START : CLUSTER TRIGGER entries {} first {}  lasrt {}  time {} ", t.getNumberOfObjects(),  firstentry, lastEntry, timeA / 1000.0f);
+
+		    LOGP(info, " bc {} orbit {} ", trig.getBc(), trig.getOrbit());
+		    LOGP(info, "entries {}", trig.getNumberOfObjects());					
+			
+			}      
+      
+      
+      
+      
     } else {
       LOGP(info, "[HMPID DClusterization - run() ] trig.numObjects 0 for trigger number {}", i);
     }

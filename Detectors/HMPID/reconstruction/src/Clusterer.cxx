@@ -59,7 +59,8 @@ using namespace o2::hmpid;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-/*  virtual void process(gsl::span<o2::tpc::Digit const> const& digits, o2::dataformats::ConstMCLabelContainerView const& mcDigitTruth) = 0;
+/*  virtual void process(gsl::span<o2::tpc::Digit const> const& digits,
+   o2::dataformats::ConstMCLabelContainerView const& mcDigitTruth) = 0;
 
 
  */
@@ -405,8 +406,8 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
 void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmpid::Digit> digits, const std::vector<int>& indices, MCLabelContainer const* digitMCTruth, MCLabelContainer* mClsLabels, int cluSize)
 {
 
-
-  // LOGP(info, "Based on pos : pdg {} mother {} tid {}", cluster.getPDG(), cluster.getMotherId(), cluster.getTrackId());
+  // LOGP(info, "Based on pos : pdg {} mother {} tid {}", cluster.getPDG(),
+  // cluster.getMotherId(), cluster.getTrackId());
 
   int lbl = mClsLabels->getIndexedSize(); // this should correspond to the current number of clusters? ;
 
@@ -443,9 +444,9 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
     }
 
     // ef: TODO: is this correct?
-    //int digitLabel = digOfClu.getLabel();
-    // ef: TODO it should be the index of the digit in the array of digits? Like this :
-    // for MC-truth
+    // int digitLabel = digOfClu.getLabel();
+    // ef: TODO it should be the index of the digit in the array of digits? Like
+    // this : for MC-truth
     int digitLabel = startIndexDigMC + indexOfDigGlobal;
 
     // printf("digitLabel = %d\n", digitLabel);
@@ -455,13 +456,11 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
 
     // ef : remove later
 
-
     //LOGP(info, "contributing digit = ({}/{}), digitLabel  = {} || pdg of digit {}", numDigitsCount, cluster.size(), digitLabel, pdgOfDig);
 
     LOGP(info, "mcArray size {}", mcArray.size());
     LOGP(info, "======= Looping Labels of dig ===== ");
-    for (int j = 0; j < static_cast<int>(mcArray.size()); j++)
-    {
+    for (int j = 0; j < static_cast<int>(mcArray.size()); j++) {
 
       const auto& currentIndex = digitMCTruth->getMCTruthHeader(digitLabel).index + j;
       auto label = digitMCTruth->getElement(currentIndex);
@@ -474,13 +473,9 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
       // we fill MC-Complabel label at index lbl for headArray
       // this is the hit for a digit in the cluster
 
-
       // lbl = mClsLabels->getIndexedSize()
 
-
       // Det ga runtime error
-
-
 
       // ef :remove
       LOGP(info, "eventID from clulbl {}", label.getEventID());
@@ -532,23 +527,28 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
 
           {
 
-            mcTrack = mcReader->getTrack(label);
-            
-            if(!mcTrack) LOGP(info, "mcTrack nullptr");
+                                        mcTrack = mcReader->getTrack(label);
+
+                                        if (!mcTrack)
+                                                LOGP(info, "mcTrack nullptr");
           }
 
-          catch (const std::exception& e)
-          {
-            LOGP(error, "       Exception caught while trying to read MC track: %s", e.what());
-            continue;
+          catch (const std::exception &e) {
+                                        LOGP(error,
+                                             "       Exception caught while "
+                                             "trying to read MC track: %s",
+                                             e.what());
+                                        continue;
           }
 
           catch (...)
 
           {
-            LOGP(error, "       Unknown exception caught while trying to read MC track");
+                                        LOGP(error,
+                                             "       Unknown exception caught "
+                                             "while trying to read MC track");
 
-            continue;
+                                        continue;
           }
         }
 
@@ -556,27 +556,31 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
           LOGP(info, "mcReader->getTrack(label) gave nullptr");
         }
 
-
         int pdgDigMcTruth = -2, pdgDigit = -2, pdgMother = -2;
-        if(!mcTrack) 
-        try
-        {
-				
-          if(mcTrack) 
-          pdgDigMcTruth = mcTrack->GetPdgCode();				// was  crash
-      		
-        }
-        catch (const std::exception& e)
-        {
-          LOGP(error, "       Exception caught while trying to read MC track: %s", e.what());
-        }
+        if (!mcTrack)
+          try {
 
-        catch (...)
-        {
-          LOGP(error, "       Unknown exception caught while trying to read MC track");
-        }
+                                        if (mcTrack)
+                                                pdgDigMcTruth =
+                                                    mcTrack
+                                                        ->GetPdgCode(); // was
+                                                                        // crash
 
-        // TParticlePDG* pPDG = TDatabasePDG::Instance()->GetParticle(mcTrack->GetPdgCode());
+          } catch (const std::exception &e) {
+                                        LOGP(error,
+                                             "       Exception caught while "
+                                             "trying to read MC track: %s",
+                                             e.what());
+          }
+
+          catch (...) {
+                                        LOGP(error,
+                                             "       Unknown exception caught "
+                                             "while trying to read MC track");
+          }
+
+        // TParticlePDG* pPDG =
+        // TDatabasePDG::Instance()->GetParticle(mcTrack->GetPdgCode());
         int trackID, evID, srcID;
 
         bool fake;
@@ -599,12 +603,13 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
 
         LOGP(info, "mcArray : evID {}, trackID {}, mid {}, srcID {}, fake {}", evID, trackID, mcTrack->getMotherTrackId(), srcID, fake);
 
-        //LOGP(info, "from digit : eid {}, tid {}, mid {}, sid {}", eid, tid, mid, sid);
-				/*
-        // printf("checking element %d in the array of labels\n", j);
+        // LOGP(info, "from digit : eid {}, tid {}, mid {}, sid {}", eid, tid,
+        // mid, sid);
+        /*
+// printf("checking element %d in the array of labels\n", j);
 
-        LOGP(info, "EventID from MC-label = {}; from dig : {}", evID, digEventNum);
-        */
+LOGP(info, "EventID from MC-label = {}; from dig : {}", evID, digEventNum);
+*/
 
       } // end if printVals
     }   // end for mcArray

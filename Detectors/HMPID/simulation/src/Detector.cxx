@@ -72,8 +72,7 @@ bool Detector::ProcessHits(FairVolume* v)
 {
   Int_t copy;
   Int_t volID = fMC->CurrentVolID(copy);
-  auto stack = (o2::data::Stack*)fMC->GetStack();
-
+  auto stack = (o2::data::Stack *)fMC->GetStack();
 
   //Treat photons
   //photon (Ckov or feedback) hits on module PC (Hpad)
@@ -81,11 +80,9 @@ bool Detector::ProcessHits(FairVolume* v)
   bool isTrackEnteringPad = (volID == mHpad0VolID || volID == mHpad1VolID || volID == mHpad2VolID || volID == mHpad3VolID || volID == mHpad4VolID || volID == mHpad5VolID || volID == mHpad6VolID);
 
 
-  if ((fMC->TrackPid() == 50000050 || fMC->TrackPid() == 50000051 ) && isTrackEnteringPad) { 
+  if ((fMC->TrackPid() == 50000050 || fMC->TrackPid() == 50000051 ) && isTrackEnteringPad) {
 
-
-
-    TParticle* currentParticleTrack = stack->GetCurrentTrack();
+    TParticle *currentParticleTrack = stack->GetCurrentTrack();
     const auto motherTrackId = currentParticleTrack->GetFirstMother();
     auto energy = currentParticleTrack->Energy();
     // printf("|Photon %d| volID: %d | VolName %s|\n", fMC->TrackPid(), volID, fMC->CurrentVolName());
@@ -121,7 +118,8 @@ bool Detector::ProcessHits(FairVolume* v)
       // ef : TODO remove these prints pdgs etc
       // printf("|Photon volID: %d | VolName %s | chamber %d  | energy %.8f | energy %.8f  |\n", volID, fMC->CurrentVolName(), idch, etot* 1000000000, energy* 1000000000);
       o2::hmpid::Param::instance()->mars2Lors(idch, x, xl, yl); //take LORS position
-      AddHit(x[0], x[1], x[2], hitTime, etot, tid, idch); //HIT for photon, position at P, etot will be set to Q
+      AddHit(x[0], x[1], x[2], hitTime, etot, tid,
+             idch); // HIT for photon, position at P, etot will be set to Q
       GenFee(etot);                                       //generate feedback photons etot is modified in hit ctor to Q of hit
       stack->addHit(GetDetId());
 
@@ -183,34 +181,36 @@ bool Detector::ProcessHits(FairVolume* v)
       Double_t xl, yl;
       o2::hmpid::Param::instance()->mars2Lors(idch, out, xl, yl); // take LORS position
       if (eloss > 0) {
- 	      const int particlePdg = fMC->TrackPid();
+        const int particlePdg = fMC->TrackPid();
         // HIT for MIP, position near anod plane, eloss will be set to Q
 
-
-        TParticle* currentParticleTrack = stack->GetCurrentTrack();
+        TParticle *currentParticleTrack = stack->GetCurrentTrack();
         auto energy = currentParticleTrack->Energy();
-
 
         AddHit(out[0], out[1], out[2], hitTime, eloss, tid, idch);
 
-      	//printf("|GenFee(eloss); eloss =  %.2f  |\n", eloss);
+        //printf("|GenFee(eloss); eloss =  %.2f  |\n", eloss);
         GenFee(eloss); //generate feedback photons
         stack->addHit(GetDetId());
         eloss = 0;
-        //printParticleInfo(stack);
+        // printParticleInfo(stack);
 
         Float_t px, py, pz, etot;
         fMC->TrackMomentum(px, py, pz, etot);
 
-        // printf("|Charged volID: %d | VolName %s | eloss %.2f | photon-energy %.2f  |  GetNDaughters %d   | \n", volID, fMC->CurrentVolName(), idch, eloss* 1000000000, energy* 1000000000, currentParticleTrack->GetNDaughters()); 
+        // printf("|Charged volID: %d | VolName %s | eloss %.2f | photon-energy
+        // %.2f  |  GetNDaughters %d   | \n", volID, fMC->CurrentVolName(),
+        // idch, eloss* 1000000000, energy* 1000000000,
+        // currentParticleTrack->GetNDaughters());
 
-        //printf("|Charged volID: %d | VolName %s | p %.2f %.2f %.2f|\n", volID, fMC->CurrentVolName(), px, py, pz);
-        //LOGP(info, "Charged {}, event {}", particlePdg, event);
+        // printf("|Charged volID: %d | VolName %s | p %.2f %.2f %.2f|\n",
+        // volID, fMC->CurrentVolName(), px, py, pz); LOGP(info, "Charged {},
+        // event {}", particlePdg, event);
       }
     } else {
-    //just going inside
-      eloss += fMC->Edep(); //collect this step eloss
-    } 
+      // just going inside
+      eloss += fMC->Edep(); // collect this step eloss
+    }
     return kTRUE;
   } //MIP in GAP
 
@@ -222,7 +222,9 @@ bool Detector::ProcessHits(FairVolume* v)
 //*********************************************************************************************************
 
 // ef: must add track particle type here??
-o2::hmpid::HitType* Detector::AddHit(float x, float y, float z, float time, float energy, Int_t trackId, Int_t detId) // energy in GeV
+o2::hmpid::HitType *Detector::AddHit(float x, float y, float z, float time,
+                                     float energy, Int_t trackId,
+                                     Int_t detId) // energy in GeV
 {
   mHits->emplace_back(x, y, z, time, energy, trackId, detId);
   return &(mHits->back());

@@ -250,7 +250,8 @@ void Cluster::fitFunc(int& iNpars, double* deriv, double& chi2, double* par, int
 
     if (dQpadMath > 0 && pClu->dig(i)->getCharge() > 0) {
 
-      chi2 += std::pow((pClu->dig(i)->getCharge() - dQpadMath), 2.0) / pClu->dig(i)->getCharge(); // chi2 function to be minimized
+      chi2 += std::pow((pClu->dig(i)->getCharge() - dQpadMath), 2.0) /
+              pClu->dig(i)->getCharge(); // chi2 function to be minimized
     }
   }
 
@@ -559,9 +560,12 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, b
 
       } // the same digit, no need to compare
 
-      const auto pDig2 = (*mDigs)[iDig2]; // take second digit to compare with the first one
+      const auto pDig2 =
+          (*mDigs)[iDig2]; // take second digit to compare with the first one
 
-      int dist = TMath::Sign(int(pDig1->getX() - pDig2->getX()), 1) + TMath::Sign(int(pDig1->getY() - pDig2->getY()), 1); // distance between pads
+      int dist = TMath::Sign(int(pDig1->getX() - pDig2->getX()), 1) +
+                 TMath::Sign(int(pDig1->getY() - pDig2->getY()),
+                             1); // distance between pads
 
       if (dist == 1) { // means dig2 is a neighbour of dig1
 
@@ -591,7 +595,9 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, b
 
       ierflg = fitter->SetParameter(3 * mNlocMax + 1, Form("y%i", mNlocMax), yStart, 0.1, yMin, yMax); // X, Y constrained to be near the loc max
 
-      ierflg = fitter->SetParameter(3 * mNlocMax + 2, Form("q%i", mNlocMax), pDig1->getCharge(), 0.1, 0, 10000); // Q constrained to be positive
+      ierflg = fitter->SetParameter(3 * mNlocMax + 2, Form("q%i", mNlocMax),
+                                    pDig1->getCharge(), 0.1, 0,
+                                    10000); // Q constrained to be positive
 
       mNlocMax++;
 
@@ -814,7 +820,6 @@ int Cluster::solveMC(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut,
 
     pCluLst->push_back(o2::hmpid::Cluster(*this));
 
-
     pCluLst->back().cleanPointers();
 
     return 1; // add this raw cluster
@@ -865,9 +870,12 @@ int Cluster::solveMC(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut,
 
       } // the same digit, no need to compare
 
-      const auto pDig2 = (*mDigs)[iDig2]; // take second digit to compare with the first one
+      const auto pDig2 =
+          (*mDigs)[iDig2]; // take second digit to compare with the first one
 
-      int dist = TMath::Sign(int(pDig1->getX() - pDig2->getX()), 1) + TMath::Sign(int(pDig1->getY() - pDig2->getY()), 1); // distance between pads
+      int dist = TMath::Sign(int(pDig1->getX() - pDig2->getX()), 1) +
+                 TMath::Sign(int(pDig1->getY() - pDig2->getY()),
+                             1); // distance between pads
 
       if (dist == 1) { // means dig2 is a neighbour of dig1
 
@@ -897,7 +905,9 @@ int Cluster::solveMC(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut,
 
       ierflg = fitter->SetParameter(3 * mNlocMax + 1, Form("y%i", mNlocMax), yStart, 0.1, yMin, yMax); // X, Y constrained to be near the loc max
 
-      ierflg = fitter->SetParameter(3 * mNlocMax + 2, Form("q%i", mNlocMax), pDig1->getCharge(), 0.1, 0, 10000); // Q constrained to be positive
+      ierflg = fitter->SetParameter(3 * mNlocMax + 2, Form("q%i", mNlocMax),
+                                    pDig1->getCharge(), 0.1, 0,
+                                    10000); // Q constrained to be positive
 
       mNlocMax++;
 
@@ -1026,7 +1036,8 @@ int Cluster::solveMC(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut,
         LOGP(info, "size resolvedIndicesMap[i] {}", resolvedIndicesMap[i].size());
         /*
         for(auto& res : resolvedIndicesMap) {
-          LOGP(info, "for resolved cluster {i} : sat the resolvedIndicesMap w key {}", res.first);
+          LOGP(info, "for resolved cluster {i} : sat the resolvedIndicesMap w
+        key {}", res.first);
         }*/
         findClusterSize(i, pSigmaCut); // find clustersize for deconvoluted clusters
 
@@ -1069,7 +1080,6 @@ int Cluster::solveMC(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut,
       // Printf("********************loc. max. = %i, X= %f, Y = %f, Q = %f**************************",i,mXX,mYY,mQ);
 
       LOGP(info, "cluNumber {} mNlocMax {} number of digits for cluster {} | unresolved, {}", i, mNlocMax, this->size(), mDigs->size());
-
 
       pCluLst->push_back(o2::hmpid::Cluster(*this)); // add new unfolded cluster
 

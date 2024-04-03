@@ -85,6 +85,9 @@ void ClusterReaderTask::run(ProcessingContext& pc)
       int firstentry = trig.getFirstEntry(); int lastEntry = trig.getLastEntry();
       LOGP(info, "START : trigger number {} : entries {} first {}  lasrt {}  time {} ",tnum, trig.getNumberOfObjects(),  firstentry, lastEntry, timeA / 1000.0f);
 
+      LOGP(info, " bc {} orbit {} ", trig.getBc(), trig.getOrbit());
+      LOGP(info, "end{} entries {}", tnum, trig.getNumberOfObjects());
+
       std::vector<int> eventLabels;
 
       for (int i = trig.getFirstEntry(); i <= trig.getLastEntry(); i++) {

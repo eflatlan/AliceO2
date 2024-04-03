@@ -30,9 +30,8 @@ namespace hmpid
 
 // define HMPID hit type
 // class Hit : public o2::BasicXYZQHit<float>
-class HitType : public o2::BasicXYZEHit<float>
-{
- public:
+class HitType : public o2::BasicXYZEHit<float> {
+public:
   using BasicXYZEHit<float>::BasicXYZEHit;
 
   ClassDefNV(HitType, 1);

@@ -141,10 +141,10 @@ void HMPIDDigitizer::process(std::vector<o2::hmpid::HitType> const& hits, std::v
         // create digit ... and register
         //        mDigits.emplace_back(mCurrentTriggerTime, pad, totalQ * fraction);
 
-
-        //mDigits.emplace_back(pad, totalQ * fraction, hit.getParticlePdg(), hit.getTrackId(), hit.getMother(), /*hit.getEventNumber()*/ getEventID(), mSrcID, hit.getEnergy());
+        // mDigits.emplace_back(pad, totalQ * fraction, hit.getParticlePdg(),
+        // hit.getTrackId(), hit.getMother(), /*hit.getEventNumber()*/
+        // getEventID(), mSrcID, hit.getEnergy());
         mDigits.emplace_back(pad, totalQ * fraction);
-
 
         mIndexForPad[pad] = mDigits.size() - 1;
         mInvolvedPads.emplace_back(pad);
