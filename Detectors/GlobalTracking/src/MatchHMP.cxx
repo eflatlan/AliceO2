@@ -404,6 +404,7 @@ void MatchHMP::doMatching()
 
       // if (evtTime < (maxTrkTime + timeFromTF) && evtTime > (minTrkTime + timeFromTF)) {
       if (evtTime < maxTrkTime && evtTime > minTrkTime) {
+        LOGP(info, "matched in time : not shifted");
 
         evtTracks++;
 
@@ -563,11 +564,194 @@ void MatchHMP::doMatching()
         recon->setImpPC(xPc, yPc);                                             // store track impact to PC
         recon->ckovAngle(&matching, oneEventClusters, index, nmean, xRa, yRa); // search for Cerenkov angle of this track
 
+        LOGP(info, "matched in time : not shifted ckov {}", matching.getHMPsignal());
+
         mMatchedTracks[type].push_back(matching);
 
         oneEventClusters.clear();
 
       } // if matching in time
+      LOGP(info, "  end track times not shifting");
+
+
+      LOGP(info, "  track times shifting");
+      if (evtTime < maxTrkTime && evtTime > minTrkTime) {
+
+
+        if(iEvent + 1 < cacheTriggerHMP.size()) {
+          event = mHMPTriggersWork[cacheTriggerHMP[iEvent+1]];
+          LOGP(info, "shifted track.. ");
+        } else {
+          event = mHMPTriggersWork[cacheTriggerHMP[iEvent]];
+          LOGP(info, "not shifted track because out of index ");
+
+        }
+
+
+        evtTracks++;
+
+        MatchInfo matching(999999, mTrackGid[type][cacheTrk[itrk]]);
+
+        matching.setHMPIDtrk(0, 0, 0, 0);            // no intersection found
+        matching.setHMPIDmip(0, 0, 0, 0);            // store mip info in any case
+        matching.setIdxHMPClus(99, 99999);           // chamber not found, mip not yet considered
+        matching.setHMPsignal(Recon::kNotPerformed); // ring reconstruction not yet performed
+        matching.setIdxTrack(trackGid);
+        TrackHMP hmpTrk(trefTrk); // create a hmpid track to be used for propagation and matching
+
+        hmpTrk.set(trefTrk.getX(), trefTrk.getAlpha(), trefTrk.getParams(), trefTrk.getCharge(), trefTrk.getPID());
+
+        double xPc, yPc, xRa, yRa, theta, phi;
+
+        Int_t iCh = intTrkCha(&trefTrk, xPc, yPc, xRa, yRa, theta, phi, bz); // find the intersected chamber for this track
+        if (iCh < 0) {
+          continue;
+        } // no intersection at all, go next track
+
+        matching.setHMPIDtrk(xPc, yPc, theta, phi); // store initial infos
+        matching.setIdxHMPClus(iCh, 9999);          // set chamber, index of cluster + cluster size
+
+        int index = -1;
+
+        double dmin = 999999; //, distCut = 1.;
+
+        bool isOkDcut = kFALSE;
+        bool isOkQcut = kFALSE;
+        bool isMatched = kFALSE;
+
+        Cluster* bestHmpCluster = nullptr; // the best matching cluster
+        std::vector<Cluster> oneEventClusters;
+
+        for (int j = event.getFirstEntry(); j <= event.getLastEntry(); j++) { // event clusters loop
+          auto& cluster = (o2::hmpid::Cluster&)mHMPClustersArray[j];
+
+          if (cluster.ch() != iCh) {
+            continue;
+          }
+          oneEventClusters.push_back(cluster);
+          double qthre = pParam->qCut();
+
+          if (cluster.q() < 150. || cluster.size() > 10) {
+            continue;
+          }
+
+          isOkQcut = kTRUE;
+
+          cluLORS[0] = cluster.x();
+          cluLORS[1] = cluster.y(); // get the LORS coordinates of the cluster
+
+          double dist = 0.;
+
+          if (TMath::Abs((xPc - cluLORS[0]) * (xPc - cluLORS[0]) + (yPc - cluLORS[1]) * (yPc - cluLORS[1])) > 0.0001) {
+
+            dist = TMath::Sqrt((xPc - cluLORS[0]) * (xPc - cluLORS[0]) + (yPc - cluLORS[1]) * (yPc - cluLORS[1]));
+          }
+
+          if (dist < dmin) {
+            dmin = dist;
+            index = oneEventClusters.size() - 1;
+            bestHmpCluster = &cluster;
+          }
+
+        } // event clusters loop
+
+        // 2. Propagate track to the MIP cluster using the central method
+
+        if (!bestHmpCluster) {
+          oneEventClusters.clear();
+          continue;
+        }
+
+        TVector3 vG = pParam->lors2Mars(iCh, bestHmpCluster->x(), bestHmpCluster->y());
+        float gx = vG.X();
+        float gy = vG.Y();
+        float gz = vG.Z();
+        float alpha = TMath::ATan2(gy, gx);
+        float radiusH = TMath::Sqrt(gy * gy + gx * gx);
+        if (!(hmpTrk.rotate(alpha))) {
+          continue;
+        }
+        if (!prop->PropagateToXBxByBz(hmpTrk, radiusH, o2::base::Propagator::MAX_SIN_PHI, o2::base::Propagator::MAX_STEP, matCorr)) {
+          oneEventClusters.clear();
+          continue;
+        }
+
+        // 3. Update the track with MIP cluster (Improved angular and position resolution - to be used for Cherenkov angle calculation)
+
+        o2::track::TrackParCov trackC(hmpTrk);
+
+        std::array<float, 2> trkPos{0, gz};
+        std::array<float, 3> trkCov{0.1 * 0.1, 0., 0.1 * 0.1};
+
+        // auto chi2 = trackC.getPredictedChi2(trkPos, trkCov);
+        trackC.update(trkPos, trkCov);
+
+        // 4. Propagate back the constrained track to the radiator radius
+
+        TrackHMP hmpTrkConstrained(trackC);
+        hmpTrkConstrained.set(trackC.getX(), trackC.getAlpha(), trackC.getParams(), trackC.getCharge(), trackC.getPID());
+        if (!prop->PropagateToXBxByBz(hmpTrkConstrained, radiusH - kdRadiator, o2::base::Propagator::MAX_SIN_PHI, o2::base::Propagator::MAX_STEP, matCorr)) {
+          oneEventClusters.clear();
+          continue;
+        }
+
+        float hmpMom = hmpTrkConstrained.getP() * hmpTrkConstrained.getSign();
+
+        matching.setHmpMom(hmpMom);
+
+        // 5. Propagation in the last 10 cm with the fast method
+
+        double xPc0 = 0., yPc0 = 0.;
+        intTrkCha(iCh, &hmpTrkConstrained, xPc0, yPc0, xRa, yRa, theta, phi, bz);
+
+        // 6. Set match information
+
+        int cluSize = bestHmpCluster->size();
+        matching.setHMPIDmip(bestHmpCluster->x(), bestHmpCluster->y(), (int)bestHmpCluster->q(), 0); // store mip info in any case
+        matching.setMipClusSize(bestHmpCluster->size());
+        matching.setIdxHMPClus(iCh, index + 1000 * cluSize); // set chamber, index of cluster + cluster size
+        matching.setHMPIDtrk(xPc, yPc, theta, phi);
+
+        if (!isOkQcut) {
+          matching.setHMPsignal(pParam->kMipQdcCut);
+        }
+
+        // dmin recalculated
+
+        dmin = TMath::Sqrt((xPc - bestHmpCluster->x()) * (xPc - bestHmpCluster->x()) + (yPc - bestHmpCluster->y()) * (yPc - bestHmpCluster->y()));
+
+        if (dmin < 6.) {
+          isOkDcut = kTRUE;
+        }
+        // isOkDcut = kTRUE; // switch OFF cut
+
+        if (!isOkDcut) {
+          matching.setHMPsignal(pParam->kMipDistCut); // closest cluster with enough charge is still too far from intersection
+        }
+
+        if (isOkQcut * isOkDcut) {
+          isMatched = kTRUE;
+        } // MIP-Track matched !!
+
+        if (!isMatched) {
+          mMatchedTracks[type].push_back(matching);
+          oneEventClusters.clear();
+          continue;
+        } // If matched continue...
+
+        double nmean = pParam->meanIdxRad();
+
+        // 7. Calculate the Cherenkov angle
+
+        recon->setImpPC(xPc, yPc);                                             // store track impact to PC
+        recon->ckovAngle(&matching, oneEventClusters, index, nmean, xRa, yRa); // search for Cerenkov angle of this track
+        LOGP(info, "matched in time ckov {}", matching.getHMPsignal());
+        mMatchedTracks[type].push_back(matching);
+
+        oneEventClusters.clear();
+
+      } // if matching in time
+
     }   // tracks loop
   }     // events loop
 
