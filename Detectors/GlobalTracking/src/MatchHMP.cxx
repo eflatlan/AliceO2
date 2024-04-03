@@ -883,9 +883,6 @@ void MatchHMP::doMatching()
 
         matching.setIdxHMPClus(iCh, index + 1000 * cluSize); // set chamber, index of cluster + cluster size
 
-        matching.setMipClusPDG(bestHmpCluster->getPDG()); // ef: set event number from cluster
-
-        matching.setMipClusEvent(bestHmpCluster->getEventNumber()); // ef: set event number from cluster
 
         // matching->setEventNumber(indexEvent);
 
@@ -951,7 +948,6 @@ void MatchHMP::doMatching()
         matching.setRefIndex(nmean);
         matching.setChamber(iCh);
         matching.setEventNumber(indexEvent); // 				matching.setEventNumber(iEvent);
-        matching.setMipClusEvent(bestHmpCluster->getEventNumberFromTrack());
 
         int eventIdClu = 0, eventIdTrk = 0;
         if (mVerbose) {
@@ -969,7 +965,6 @@ void MatchHMP::doMatching()
 
             auto clusterLabelMipMC = mHMPClusLabels->getLabels(indexOfMip /*indexGlbl*/);
             auto cluterTmp = mHMPClustersArray[indexOfMip /*indexGlbl*/];
-            LOGP(info, "    cluster pdg  = {} ", cluterTmp.getPDG());
 
             // LOGP(info, "\n\n Check MC-truth for indexEvent {} evtTracks {} ", indexEvent, evtTracks);
 

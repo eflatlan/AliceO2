@@ -43,19 +43,13 @@ namespace hmpid
 
 
 
-Digit::Digit(int pad, uint16_t charge,  int particlePdg, Int_t trackId, int motherTrack, int eventId, int sourceId, float energy)
+Digit::Digit(int pad, uint16_t charge)
 {
   mQ = charge > 0x0FFF ? 0x0FFF : charge;
   mCh = a2C(pad);
   mPh = a2P(pad);
   mX = a2X(pad);
   mY = a2Y(pad);
-  mParticlePdg = particlePdg;
-  mTrackId = trackId;
-  mMotherTrackId = motherTrack;
-  mEventNumber = eventId;
-  mSourceId = sourceId;
-  mEnergy = energy;
 }
 
 
@@ -67,14 +61,13 @@ Digit::Digit(int pad, uint16_t charge,  int particlePdg, Int_t trackId, int moth
 /// @param[in] x : the horizontal in cathode displacement [0 .. 79]
 /// @param[in] y : the vertical in cathode displacement [0 .. 47]
 /// @param[in] charge : the value of the charge [0 .. 2^12-1]
-Digit::Digit(int chamber, int photo, int x, int y, uint16_t charge, int particlePdg)
+Digit::Digit(int chamber, int photo, int x, int y, uint16_t charge)
 {
   mQ = charge > 0x0FFF ? 0x0FFF : charge;
   mCh = chamber;
   mPh = photo;
   mX = x;
   mY = y;
-  mParticlePdg = particlePdg;
 }
 
 /// Constructor : Create the Digit structure. Accepts the trigger time (Orbit,BC)
@@ -85,11 +78,10 @@ Digit::Digit(int chamber, int photo, int x, int y, uint16_t charge, int particle
 /// @param[in] column : the readout column number [0 .. 23]
 /// @param[in] dilogic : the displacement in the Dilogics chain [0 .. 9]
 /// @param[in] channel : the number of gassiplexes channels [0 .. 47]
-Digit::Digit(uint16_t charge, int equipment, int column, int dilogic, int channel, int particlePdg)
+Digit::Digit(uint16_t charge, int equipment, int column, int dilogic, int channel)
 {
   mQ = charge > 0x0FFF ? 0x0FFF : charge;
   pad2Photo(equipment2Pad(equipment, column, dilogic, channel), &mCh, &mPh, &mX, &mY);
-  mParticlePdg = particlePdg;
 }
 
 /// Constructor : Create the Digit structure. Accepts the trigger time (Orbit,BC)
@@ -99,12 +91,10 @@ Digit::Digit(uint16_t charge, int equipment, int column, int dilogic, int channe
 /// @param[in] module : the HMPID Module [0 .. 6]
 /// @param[in] x : the horizontal in Module displacement [0 .. 159]
 /// @param[in] y : the vertical in Module displacement [0 .. 143]
-Digit::Digit(uint16_t charge, int module, int x, int y, Int_t particlePdg)
+Digit::Digit(uint16_t charge, int module, int x, int y)
 {
   mQ = charge > 0x0FFF ? 0x0FFF : charge;
   pad2Photo(absolute2Pad(module, x, y), &mCh, &mPh, &mX, &mY);
-  mParticlePdg = particlePdg;
-
 }
 
 // Digit ASCCI format Dump := [Chamber,PhotoCathod,X,Y]@(Orbit,BunchCrossing)=Charge

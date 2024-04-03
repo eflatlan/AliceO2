@@ -104,7 +104,7 @@ void Cluster::coG()
 
     } // MinY
 
-    float q = (*mDigs)[iDig]->mQ; // get QDC
+    float q = (*mDigs)[iDig]->getCharge(); // get QDC
 
     mXX += o2::hmpid::Digit::lorsX(padId) * q;
 
@@ -248,9 +248,9 @@ void Cluster::fitFunc(int& iNpars, double* deriv, double& chi2, double* par, int
       dQpadMath += par[baseOff2] * fracMathi; // par[3*j+2] is charge par[3*j] is x par[3*j+1] is y of current Mathieson
     }
 
-    if (dQpadMath > 0 && pClu->dig(i)->mQ > 0) {
+    if (dQpadMath > 0 && pClu->dig(i)->getCharge() > 0) {
 
-      chi2 += std::pow((pClu->dig(i)->mQ - dQpadMath), 2.0) / pClu->dig(i)->mQ; // chi2 function to be minimized
+      chi2 += std::pow((pClu->dig(i)->getCharge() - dQpadMath), 2.0) / pClu->dig(i)->getCharge(); // chi2 function to be minimized
     }
   }
 
@@ -300,7 +300,7 @@ void Cluster::fitFunc(int& iNpars, double* deriv, double& chi2, double* par, int
 
       int iPadId = pClu->dig(i)->getPadID();
 
-      double dPadmQ = pClu->dig(i)->mQ;
+      double dPadmQ = pClu->dig(i)->getCharge();
 
       double dQpadMath = 0.0; // pad charge collector
 
@@ -559,13 +559,13 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, b
 
       } // the same digit, no need to compare
 
-      auto pDig2 = (*mDigs)[iDig2]; // take second digit to compare with the first one
+      const auto pDig2 = (*mDigs)[iDig2]; // take second digit to compare with the first one
 
-      int dist = TMath::Sign(int(pDig1->mX - pDig2->mX), 1) + TMath::Sign(int(pDig1->mY - pDig2->mY), 1); // distance between pads
+      int dist = TMath::Sign(int(pDig1->getX() - pDig2->getX()), 1) + TMath::Sign(int(pDig1->getY() - pDig2->getY()), 1); // distance between pads
 
       if (dist == 1) { // means dig2 is a neighbour of dig1
 
-        if (pDig2->mQ >= pDig1->mQ) {
+        if (pDig2->getCharge() >= pDig1->getCharge()) {
 
           iCnt++; // count number of pads with Q more then Q of current pad
         }
@@ -591,7 +591,7 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, b
 
       ierflg = fitter->SetParameter(3 * mNlocMax + 1, Form("y%i", mNlocMax), yStart, 0.1, yMin, yMax); // X, Y constrained to be near the loc max
 
-      ierflg = fitter->SetParameter(3 * mNlocMax + 2, Form("q%i", mNlocMax), pDig1->mQ, 0.1, 0, 10000); // Q constrained to be positive
+      ierflg = fitter->SetParameter(3 * mNlocMax + 2, Form("q%i", mNlocMax), pDig1->getCharge(), 0.1, 0, 10000); // Q constrained to be positive
 
       mNlocMax++;
 
@@ -814,8 +814,6 @@ int Cluster::solveMC(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut,
 
     pCluLst->push_back(o2::hmpid::Cluster(*this));
 
-    pCluLst->back().setInfoFromDigits(pCluLst->size());
-      LOGP(info, "setInfoFromDigits");
 
     pCluLst->back().cleanPointers();
 
@@ -855,7 +853,7 @@ int Cluster::solveMC(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut,
 
   for (int iDig1 = 0; iDig1 < rawSize; iDig1++) { // first digits loop
 
-    auto pDig1 = (*mDigs)[iDig1]; // take next digit
+    const auto pDig1 = (*mDigs)[iDig1]; // take next digit
 
     int iCnt = 0; // counts how many neighbouring pads has QDC more then current one
 
@@ -867,13 +865,13 @@ int Cluster::solveMC(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut,
 
       } // the same digit, no need to compare
 
-      auto pDig2 = (*mDigs)[iDig2]; // take second digit to compare with the first one
+      const auto pDig2 = (*mDigs)[iDig2]; // take second digit to compare with the first one
 
-      int dist = TMath::Sign(int(pDig1->mX - pDig2->mX), 1) + TMath::Sign(int(pDig1->mY - pDig2->mY), 1); // distance between pads
+      int dist = TMath::Sign(int(pDig1->getX() - pDig2->getX()), 1) + TMath::Sign(int(pDig1->getY() - pDig2->getY()), 1); // distance between pads
 
       if (dist == 1) { // means dig2 is a neighbour of dig1
 
-        if (pDig2->mQ >= pDig1->mQ) {
+        if (pDig2->getCharge() >= pDig1->getCharge()) {
 
           iCnt++; // count number of pads with Q more then Q of current pad
         }
@@ -899,7 +897,7 @@ int Cluster::solveMC(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut,
 
       ierflg = fitter->SetParameter(3 * mNlocMax + 1, Form("y%i", mNlocMax), yStart, 0.1, yMin, yMax); // X, Y constrained to be near the loc max
 
-      ierflg = fitter->SetParameter(3 * mNlocMax + 2, Form("q%i", mNlocMax), pDig1->mQ, 0.1, 0, 10000); // Q constrained to be positive
+      ierflg = fitter->SetParameter(3 * mNlocMax + 2, Form("q%i", mNlocMax), pDig1->getCharge(), 0.1, 0, 10000); // Q constrained to be positive
 
       mNlocMax++;
 
@@ -923,11 +921,6 @@ int Cluster::solveMC(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut,
 
     pCluLst->push_back(o2::hmpid::Cluster(*this)); // add new unfolded cluster pCluLst->push_back(o2::hmpid::Cluster(*this));
 
-    pCluLst->back().setInfoFromDigits(pCluLst->size());
-
-    // pCluLst->back().setMC();
-      LOGP(info, "setInfoFromDigits");
-
     pCluLst->back().cleanPointers();
 
     return mNlocMax;
@@ -944,12 +937,6 @@ int Cluster::solveMC(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut,
     mSt = kMax;
 
     pCluLst->push_back(o2::hmpid::Cluster(*this)); //...add this raw cluster
-
-    pCluLst->back().setInfoFromDigits(pCluLst->size());
-      LOGP(info, "setInfoFromDigits");
-
-    // pCluLst->back().setMC();
-
     pCluLst->back().cleanPointers();
   } else { // or resonable number of local maxima to fit and user requested it
 
@@ -1037,10 +1024,10 @@ int Cluster::solveMC(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut,
         // add "local" indices to map of clusterNumer i
         resolvedIndicesMap[i] = indicesResolved;
         LOGP(info, "size resolvedIndicesMap[i] {}", resolvedIndicesMap[i].size());
-	/*
-	for(auto& res : resolvedIndicesMap) {
-	  LOGP(info, "for resolved cluster {i} : sat the resolvedIndicesMap w key {}", res.first);
-	}*/
+        /*
+        for(auto& res : resolvedIndicesMap) {
+          LOGP(info, "for resolved cluster {i} : sat the resolvedIndicesMap w key {}", res.first);
+        }*/
         findClusterSize(i, pSigmaCut); // find clustersize for deconvoluted clusters
 
         // after this call, fSi temporarly is the calculated size. Later is set again
@@ -1085,14 +1072,8 @@ int Cluster::solveMC(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut,
 
 
       pCluLst->push_back(o2::hmpid::Cluster(*this)); // add new unfolded cluster
-      pCluLst->back().setInfoFromDigits(pCluLst->size());
-      LOGP(info, "setInfoFromDigits");
-      if (mNlocMax > 1) {
-        pCluLst->back().setInfoFromDigits2(pCluLst->size(), resolvedIndicesMap[i]);
-        LOGP(info, "setInfoFromDigits2");
-      }
-      // pass indices to MC labeling : resolvedIndicesMap[i]
 
+      // pass indices to MC labeling : resolvedIndicesMap[i]
       // pCluLst->back().setMC();
 
       pCluLst->back().cleanPointers();
@@ -1124,9 +1105,9 @@ void Cluster::findClusterSizeMC(int i, float* pSigmaCut, std::vector<int>& indic
   LOGP(info, " findClusterSizeMC : total digits for unresolved {}", mSi);
   for (int iDig = 0; iDig < mSi; iDig++) { // digits loop
 
-    auto pDig = dig(iDig); // take digit
+    const auto pDig = dig(iDig); // take digit
 
-    int iCh = pDig->mCh;
+    int iCh = pDig->getCh();
 
     double qPad = mQ * o2::hmpid::Digit::intMathieson(x(), y(), pDig->getPadID()); // pad charge  pDig->
 
@@ -1134,7 +1115,7 @@ void Cluster::findClusterSizeMC(int i, float* pSigmaCut, std::vector<int>& indic
 
     //                 iCh, o2::hmpid::Digit::a2X(pDig->getPadID()), o2::hmpid::Digit::a2Y(pDig->getPadID()),
 
-    //                 pSigmaCut[iCh],iDig,qPad,pDig->mQ,mQRaw,i));
+    //                 pSigmaCut[iCh],iDig,qPad,pDig->getCharge(),mQRaw,i));
 
     if (qPad > pSigmaCut[iCh]) {
 
@@ -1173,9 +1154,9 @@ void Cluster::findClusterSize(int i, float* pSigmaCut)
 
   for (int iDig = 0; iDig < mSi; iDig++) { // digits loop
 
-    auto pDig = dig(iDig); // take digit
+    const auto pDig = dig(iDig); // take digit
 
-    int iCh = pDig->mCh;
+    int iCh = pDig->getCh();
 
     double qPad = mQ * o2::hmpid::Digit::intMathieson(x(), y(), pDig->getPadID()); // pad charge  pDig->
 
@@ -1183,7 +1164,7 @@ void Cluster::findClusterSize(int i, float* pSigmaCut)
 
     //                 iCh, o2::hmpid::Digit::a2X(pDig->getPadID()), o2::hmpid::Digit::a2Y(pDig->getPadID()),
 
-    //                 pSigmaCut[iCh],iDig,qPad,pDig->mQ,mQRaw,i));
+    //                 pSigmaCut[iCh],iDig,qPad,pDig->getCharge(),mQRaw,i));
 
     if (qPad > pSigmaCut[iCh]) {
       size++;
@@ -1211,7 +1192,6 @@ Bool_t Cluster::isInPc()
   const auto param = o2::hmpid::Param::instanceNoGeo(); // ef: why do we not do this in initialization?
 
   if (!mDigs) {
-
     LOGP(fatal, "digits are missing in the cluster");
   }
 

@@ -73,13 +73,7 @@ bool Detector::ProcessHits(FairVolume* v)
   Int_t copy;
   Int_t volID = fMC->CurrentVolID(copy);
   auto stack = (o2::data::Stack*)fMC->GetStack();
-  const auto& event = fMC->CurrentEvent();
 
-  const int particlePdg = fMC->TrackPid();
-  const int charge = TMath::Abs(particlePdg);  
-
-  // ef :TODO remove
-  LOGP(info, "current event {}", event);
 
   //Treat photons
   //photon (Ckov or feedback) hits on module PC (Hpad)
@@ -91,9 +85,9 @@ bool Detector::ProcessHits(FairVolume* v)
 
 
 
-	TParticle* currentParticleTrack = stack->GetCurrentTrack();
-  const auto motherTrackId = currentParticleTrack->GetFirstMother();
-  auto energy = currentParticleTrack->Energy();
+    TParticle* currentParticleTrack = stack->GetCurrentTrack();
+    const auto motherTrackId = currentParticleTrack->GetFirstMother();
+    auto energy = currentParticleTrack->Energy();
     // printf("|Photon %d| volID: %d | VolName %s|\n", fMC->TrackPid(), volID, fMC->CurrentVolName());
     if (fMC->Edep() > 0) { //photon survided QE test i.e. produces electron
       if (IsLostByFresnel()) {
@@ -123,12 +117,11 @@ bool Detector::ProcessHits(FairVolume* v)
         idch = 6;
       }
       Double_t xl, yl;
-      const int particlePdg = fMC->TrackPid(); 
 
       // ef : TODO remove these prints pdgs etc
       // printf("|Photon volID: %d | VolName %s | chamber %d  | energy %.8f | energy %.8f  |\n", volID, fMC->CurrentVolName(), idch, etot* 1000000000, energy* 1000000000);
       o2::hmpid::Param::instance()->mars2Lors(idch, x, xl, yl); //take LORS position
-      AddHit(x[0], x[1], x[2], hitTime, etot, tid, idch, particlePdg, motherTrackId, event); //HIT for photon, position at P, etot will be set to Q
+      AddHit(x[0], x[1], x[2], hitTime, etot, tid, idch); //HIT for photon, position at P, etot will be set to Q
       GenFee(etot);                                       //generate feedback photons etot is modified in hit ctor to Q of hit
       stack->addHit(GetDetId());
 
@@ -190,42 +183,35 @@ bool Detector::ProcessHits(FairVolume* v)
       Double_t xl, yl;
       o2::hmpid::Param::instance()->mars2Lors(idch, out, xl, yl); // take LORS position
       if (eloss > 0) {
- 	    const int particlePdg = fMC->TrackPid();
+ 	      const int particlePdg = fMC->TrackPid();
         // HIT for MIP, position near anod plane, eloss will be set to Q
 
 
         TParticle* currentParticleTrack = stack->GetCurrentTrack();
-        const auto motherTrackId = currentParticleTrack->GetFirstMother();
         auto energy = currentParticleTrack->Energy();
 
 
-        AddHit(out[0], out[1], out[2], hitTime, eloss, tid, idch, particlePdg, motherTrackId, event);
+        AddHit(out[0], out[1], out[2], hitTime, eloss, tid, idch);
 
       	//printf("|GenFee(eloss); eloss =  %.2f  |\n", eloss);
         GenFee(eloss); //generate feedback photons
         stack->addHit(GetDetId());
         eloss = 0;
- 	//printParticleInfo(stack);
+        //printParticleInfo(stack);
 
-	Float_t px, py, pz, etot;
- 	fMC->TrackMomentum(px, py, pz, etot);
+        Float_t px, py, pz, etot;
+        fMC->TrackMomentum(px, py, pz, etot);
 
+        // printf("|Charged volID: %d | VolName %s | eloss %.2f | photon-energy %.2f  |  GetNDaughters %d   | \n", volID, fMC->CurrentVolName(), idch, eloss* 1000000000, energy* 1000000000, currentParticleTrack->GetNDaughters()); 
 
-
-
-
-	// printf("|Charged volID: %d | VolName %s | eloss %.2f | photon-energy %.2f  |  GetNDaughters %d   | \n", volID, fMC->CurrentVolName(), idch, eloss* 1000000000, energy* 1000000000, currentParticleTrack->GetNDaughters()); 
-
-
-
-	//printf("|Charged volID: %d | VolName %s | p %.2f %.2f %.2f|\n", volID, fMC->CurrentVolName(), px, py, pz);
-	//LOGP(info, "Charged {}, event {}", particlePdg, event);
-}
-} else {
-//just going inside
-eloss += fMC->Edep(); //collect this step eloss
-}
-return kTRUE;
+        //printf("|Charged volID: %d | VolName %s | p %.2f %.2f %.2f|\n", volID, fMC->CurrentVolName(), px, py, pz);
+        //LOGP(info, "Charged {}, event {}", particlePdg, event);
+      }
+    } else {
+    //just going inside
+      eloss += fMC->Edep(); //collect this step eloss
+    } 
+    return kTRUE;
   } //MIP in GAP
 
   // later on return true if there was a hit!
@@ -236,19 +222,9 @@ return kTRUE;
 //*********************************************************************************************************
 
 // ef: must add track particle type here??
-o2::hmpid::HitType* Detector::AddHit(float x, float y, float z, float time, float energy, Int_t trackId, Int_t detId, Int_t particlePdg, int motherTrackId, int event) // energy in GeV
+o2::hmpid::HitType* Detector::AddHit(float x, float y, float z, float time, float energy, Int_t trackId, Int_t detId) // energy in GeV
 {
-  mHits->emplace_back(x, y, z, time, energy, trackId, detId, particlePdg, motherTrackId, event);
-
-  LOGP(info, "Emplacing hit; (from hit : event {})", event);
-
-  // ef : TODO: loop over hits and check eventid?
-
-  for (const auto& hit : *mHits) {
-std::cout << " " << hit.getEventNumber();
-  }
-
-  LOGP(info, "");
+  mHits->emplace_back(x, y, z, time, energy, trackId, detId);
   return &(mHits->back());
 }
 //*********************************************************************************************************

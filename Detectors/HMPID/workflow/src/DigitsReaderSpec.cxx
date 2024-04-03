@@ -215,37 +215,13 @@ void DigitReader::run(ProcessingContext& pc)
         LOGP(info, "START : trigger number {} : entries {} first {}  lasrt {}  time {} ",tnum, trig.getNumberOfObjects(),  firstentry, lastEntry, timeA / 1000.0f);
 
         int cnt = 0;
-        int prevEventDig = 0;
-        bool isEventDigSame = true;
 
 
-        std::vector<int> digLabels;
         std::vector<int> eventLabels;
-
-        if(trig.getNumberOfObjects() > 0) {
-          auto firstentry = trig.getFirstEntry();
-          prevEventDig = mDigitsFromFile[firstentry].getEventNumber();
-          digLabels.push_back(prevEventDig);
-        }
 
         for (int i = trig.getFirstEntry(); i <= trig.getLastEntry(); i++) {
 
-
-          if(prevEventDig != mDigitsFromFile[i].getEventNumber())
-          {
-
-            auto digLbl = mDigitsFromFile[i].getEventNumber();
-            digLabels.push_back(digLbl);
-
-            isEventDigSame = false;
-            // LOGP(info, "trigger number {} : event from digit changed!", tnum);
-            // LOGP(info, "digit number {}, digEventNum {}", i, mDigitsFromFile[i].getEventNumber());
-          }
-
-          prevEventDig = mDigitsFromFile[i].getEventNumber();
-
           if (i < mLabels.getIndexedSize() && i < mDigitsFromFile.size()) {
-
 
             bool isLabelEventSame = true;
             const auto& labels = mLabels.getLabels(i);
@@ -269,15 +245,6 @@ void DigitReader::run(ProcessingContext& pc)
 
               lblNum++;
 
-              /*if (label.getEventID() != mDigitsFromFile[i].getEventNumber()) {
-                LOGP(info, "digit number labelEventId ULIK digEvent");
-
-                LOGP(info, "trigger number {} : entries {}", tnum, trig.getNumberOfObjects());
-
-                LOGP(info, "digit numGlobal {} : x {} y {}", i, mDigitsFromFile[i].getX(), mDigitsFromFile[i].getY());
-
-                LOGP(info, "digit number {}, digEventNum {} labelEventId {}", i, mDigitsFromFile[i].getEventNumber(), label.getEventID());
-              }*/
               prevEventLabel = label.getEventID();
 
             }
@@ -289,14 +256,7 @@ void DigitReader::run(ProcessingContext& pc)
         }
 
         LOGP(info, "trigger number {} : entries {}", tnum, trig.getNumberOfObjects());
-        LOGP(info, "\n different labels from digLabels {} ::: " , digLabels.size());
 
-
-
-        for(const auto& dl : digLabels)
-        {
-          std::cout<< dl << " , ";
-        }
 
         LOGP(info, "\ndifferent labels from eventLabels {} :::", eventLabels.size());
         std::vector<int> sortedVec = eventLabels;
@@ -309,11 +269,6 @@ void DigitReader::run(ProcessingContext& pc)
             std::cout << sortedVec[i] << " , ";
           }
         }
-
-        /*for(const auto& el : eventLabels)
-        {
-          std::cout<< el << " , ";
-        }*/
 
         LOGP(info, "cnt {} entries {}", cnt, trig.getNumberOfObjects());
 

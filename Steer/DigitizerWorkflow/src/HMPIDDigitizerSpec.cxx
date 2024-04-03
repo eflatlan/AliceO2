@@ -143,7 +143,6 @@ class HMPIDDPLDigitizerTask : public o2::base::BaseDPLDigitizer
 
           mDigitizer.setEventID(part.entryID);
           mDigitizer.setSrcID(part.sourceID);
-
           eventInds.push_back(part.entryID);
 
           // get the hits for this event and this source

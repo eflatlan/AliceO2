@@ -34,6 +34,16 @@ namespace hmpid
 /// \brief HMPID Digit declaration
 class Digit
 {
+
+ // ef > moved digit member vars to protected
+ protected:
+  uint16_t mQ = 0;
+  uint8_t mCh = 0; // 0xFF indicates invalid digit
+  uint8_t mPh = 0;
+  uint8_t mX = 0;
+  uint8_t mY = 0;
+
+
  public:
   // Coordinates Conversion Functions
   static inline uint32_t abs(int ch, int pc, int x, int y) { return ch << 24 | pc << 16 | x << 8 | y; }
@@ -52,8 +62,8 @@ class Digit
   static void equipment2Absolute(int Equi, int Colu, int Dilo, int Chan, int* Module, int* x, int* y);
 
   // ef: add labels for MC
-  Int_t getLabel() const { return mLabel; }
-  void setLabel(Int_t label) { mLabel = label; }
+  //Int_t getLabel() const { return mLabel; }
+  //void setLabel(Int_t label) { mLabel = label; }
 
   // Trigger time Conversion Functions
   //  static inline uint64_t orbitBcToEventId(uint32_t Orbit, uint16_t BC) { return ((Orbit << 12) | (0x0FFF & BC)); };
@@ -74,16 +84,15 @@ class Digit
 
   friend std::ostream& operator<<(std::ostream& os, const Digit& d);
 
- public:
   Digit() = default;
 
-  Digit(int pad, uint16_t charge, int particlePdg, Int_t trackId, int motherTrack, int eventId, int sourceId, float energy);
+  Digit(int pad, uint16_t charge);
 
   //        mDigits.emplace_back(pad, totalQ * fraction, hit.getParticlePdg(), hit.getTrackId(),  hit.getMother(), /*hit.getEventNumber()*/ mEventID, mSrcID,  hit.getMother(),  hit.getEnergy());
 
-  Digit(int chamber, int photo, int x, int y, uint16_t charge, int particlePdg);
-  Digit(uint16_t charge, int equipment, int column, int dilogic, int channel, int particlePdg);
-  Digit(uint16_t charge, int module, int x, int y, int particlePdg);
+  Digit(int chamber, int photo, int x, int y, uint16_t charge);
+  Digit(uint16_t charge, int equipment, int column, int dilogic, int channel);
+  Digit(uint16_t charge, int module, int x, int y);
 
   // Getter & Setters
   uint16_t getCharge() const { return mQ; }
@@ -105,6 +114,8 @@ class Digit
     return;
   };
 
+
+  /*
   void setTrackId(int tid) { mTrackId = tid; }
   int getTrackId() const { return mTrackId; }
 
@@ -115,6 +126,7 @@ class Digit
   int getMotherId() const { return mMotherTrackId; }
 
   int getSourceId() const { return mSourceId; }
+  */
 
   // // convenience wrapper function for conversion to x-y pad coordinates
   // int getPx() const { return A2X(mPad); }
@@ -139,10 +151,11 @@ class Digit
   uint8_t getPh() const { return mPh; }
   uint8_t getX() const { return mX; }
   uint8_t getY() const { return mY; }
-  float getEnergy() const { return mEnergy; }
+  //float getEnergy() const { return mEnergy; }
 
- public:
   // Members
+
+  /*
 
   // ef: init to -1
   Int_t mLabel = -1; ///< Index of the corresponding entry in the MC label array
@@ -152,13 +165,13 @@ class Digit
   int mEventNumber;
   int mTrackId;
   int mParticlePdg;
-  uint16_t mQ = 0;
-  uint8_t mCh = 0; // 0xFF indicates invalid digit
-  uint8_t mPh = 0;
-  uint8_t mX = 0;
-  uint8_t mY = 0;
 
-  float mEnergy = 0; // energy in GeV
+  int getPDG() const { return mParticlePdg; }
+  void setPDG(int pdg) { mParticlePdg = pdg; }
+
+  */
+
+  //float mEnergy = 0; // energy in GeV
 
   // The Pad Unique Id, code a pad inside one HMPID chamber.
   // Bit Map : 0000.0000.cccc.pppp.xxxx.xxxx.yyyy.yyyy
@@ -181,8 +194,7 @@ class Digit
   static double mathiesonX(double x); // Mathieson distribution along wires X
   static double mathiesonY(double x); // Mathieson distribution perp to wires Y
 
-  int getPDG() const { return mParticlePdg; }
-  void setPDG(int pdg) { mParticlePdg = pdg; }
+
 
   ClassDefNV(Digit, 2);
 };

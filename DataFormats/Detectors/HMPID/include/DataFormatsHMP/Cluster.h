@@ -65,7 +65,7 @@ class Cluster
                         kEmp = -1 }; // status flags
 
  public:
-  float getEnergy() const { return mEnergy; }
+  /*float getEnergy() const { return mEnergy; }
 
   void setEnergy(float energy) { mEnergy = energy; }
 
@@ -90,6 +90,7 @@ class Cluster
   int getMotherId() const { return mMotherTrackId; }
 
   int getSourceId() const { return mSourceId; }
+
 
   void setInfoFromDigits(const int currCluVecSize)
 
@@ -134,7 +135,7 @@ class Cluster
       return digaR < digbR;
     });
 
-    setEventNumber((*mDigs)[0]->getEventNumber());
+    //setEventNumber((*mDigs)[0]->getEventNumber());
 
     // assuming main digit now is the first...
 
@@ -144,15 +145,14 @@ class Cluster
 
     setPDG((*mDigs)[0]->getPDG());
 
-    /*
-
+ 
     LOGP(info, "======================");
 
     LOGP(info, "Based on charge : pdg {} mother {} tid {}", (*mDigs)[0]->getPDG(), (*mDigs)[0]->getMotherId(), (*mDigs)[0]->getTrackId());
 
     LOGP(info, "Based on pos : pdg {} mother {} tid {}", digs[0]->getPDG(), digs[0]->getMotherId(), digs[0]->getTrackId());
 
-    */
+   
 
     const size_t digSize = mDigs->size();
   }
@@ -231,7 +231,7 @@ class Cluster
 
     const size_t digSize = mDigs->size();
   }
-
+  */
   Cluster() : mCh(-1), mSi(-1), mSt(kEmp), mBox(-1), mNlocMax(-1), mMaxQpad(-1), mMaxQ(-1), mQRaw(0), mQ(0), mErrQ(-1), mXX(0), mErrX(-1), mYY(0), mErrY(-1), mChi2(-1) {}
 
   // Methods
@@ -245,19 +245,6 @@ class Cluster
   void cleanPointers()
 
   {
-
-    /*
-
-    // set the photon energy from the digits :
-
-    size_t size = std::min(mDigs->size(), (size_t)12);
-
-    for (size_t i = 0; i < size; ++i) {
-
-      mPhotEnergy[i] = (*mDigs)[i]->getEnergy();
-
-    } */
-
     mDigs = nullptr;
   }
 
@@ -332,15 +319,6 @@ class Cluster
   // public:
 
  protected:
-  int mMotherTrackId = 0;
-
-  int mSourceId = 0;
-
-  int mEventNumber = 0, mEventNumberTrack = 0;
-
-  int mTrackId = 0;
-
-  int mParticlePdg = 0;
 
   // int  digsXArr[9], digsYArr[9], digsQArr[9], digsPDGArr[9];//, digsTIDArr[9], digsMIDArr[9];//.push_back(dig
 
@@ -378,9 +356,10 @@ class Cluster
 
   std::vector<const o2::hmpid::Digit*>* mDigs = nullptr; //! list of digits forming this cluster
 
-  float mEnergy = 0; // energy in GeV
 
  public:
+
+  // ef : added const methods
   int box() const { return mBox; } // Dimension of the cluster
 
   int ch() const { return mCh; } // chamber number
@@ -404,6 +383,8 @@ class Cluster
   float ye() const { return mErrY; } // cluster charge in QDC channels
 
   float chi2() const { return mChi2; } // chi2 of the fit
+
+
 
   int box() { return mBox; } // Dimension of the cluster
 

@@ -48,25 +48,11 @@ using namespace o2::hmpid;
 {
 
 
-
-
-
-
-
   // mDigs = {nullptr};
 
 
 
-
-
-
-
   // mClus = {nullptr};
-
-
-
-
-
 
 
 }*/
@@ -74,11 +60,6 @@ using namespace o2::hmpid;
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 /*  virtual void process(gsl::span<o2::tpc::Digit const> const& digits, o2::dataformats::ConstMCLabelContainerView const& mcDigitTruth) = 0;
-
-
-
-
-
 
 
  */
@@ -425,7 +406,7 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
 {
 
 
-  LOGP(info, "Based on pos : pdg {} mother {} tid {}", cluster.getPDG(), cluster.getMotherId(), cluster.getTrackId());
+  // LOGP(info, "Based on pos : pdg {} mother {} tid {}", cluster.getPDG(), cluster.getMotherId(), cluster.getTrackId());
 
   int lbl = mClsLabels->getIndexedSize(); // this should correspond to the current number of clusters? ;
 
@@ -462,33 +443,24 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
     }
 
     // ef: TODO: is this correct?
-    int digitLabel = digOfClu.getLabel();
+    //int digitLabel = digOfClu.getLabel();
     // ef: TODO it should be the index of the digit in the array of digits? Like this :
-
     // for MC-truth
-    digitLabel = startIndexDigMC + indexOfDigGlobal;
-
-    const int digEventNum = digOfClu.getEventNumber();
-
-    const int pdgOfDig = digOfClu.getPDG();
+    int digitLabel = startIndexDigMC + indexOfDigGlobal;
 
     // printf("digitLabel = %d\n", digitLabel);
 
     // all MC-hits from the specific digit
-
     gsl::span<const o2::MCCompLabel> mcArray = digitMCTruth->getLabels(digitLabel);
 
     // ef : remove later
-    LOGP(info, "digit number {}, digEventNum {}", digitLabel, digEventNum);
 
-    // ef : vi maa sette en logikk som setter mcTruth fra digit til riktig cluster-indeks i mClsLabels/clus
 
     //LOGP(info, "contributing digit = ({}/{}), digitLabel  = {} || pdg of digit {}", numDigitsCount, cluster.size(), digitLabel, pdgOfDig);
 
     LOGP(info, "mcArray size {}", mcArray.size());
     LOGP(info, "======= Looping Labels of dig ===== ");
     for (int j = 0; j < static_cast<int>(mcArray.size()); j++)
-
     {
 
       const auto& currentIndex = digitMCTruth->getMCTruthHeader(digitLabel).index + j;
@@ -502,17 +474,13 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
       // we fill MC-Complabel label at index lbl for headArray
       // this is the hit for a digit in the cluster
 
-      // skal ikke dette være lblFromClu??
 
       // lbl = mClsLabels->getIndexedSize()
 
-      auto lblFromClu = cluSize - 1;
 
       // Det ga runtime error
 
-      // må vi gjøre dette i clu. solve?
 
-      // lbl, label, mcArray
 
       // ef :remove
       LOGP(info, "eventID from clulbl {}", label.getEventID());
@@ -556,7 +524,6 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
           continue;
         }
 
-			LOGP(info, "printVals558");
         if (mcReader->getTrack(label))
 
         {
@@ -565,140 +532,55 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
 
           {
 
-            mcTrack = mcReader->getTrack(label);LOGP(info, "printVals567");
+            mcTrack = mcReader->getTrack(label);
             
             if(!mcTrack) LOGP(info, "mcTrack nullptr");
           }
 
           catch (const std::exception& e)
-
           {
-LOGP(info, "printVals573");
             LOGP(error, "       Exception caught while trying to read MC track: %s", e.what());
-
             continue;
           }
 
           catch (...)
 
           {
-LOGP(info, "printVals583");
             LOGP(error, "       Unknown exception caught while trying to read MC track");
 
             continue;
           }
         }
 
-        else
-
-        {
-			LOGP(info, "printValst593");
+        else {
           LOGP(info, "mcReader->getTrack(label) gave nullptr");
         }
-				LOGP(info, "printVals597");
+
+
         int pdgDigMcTruth = -2, pdgDigit = -2, pdgMother = -2;
-        if(!mcTrack) LOGP(info, "mcTrack nullptr599");
+        if(!mcTrack) 
         try
         {
-					LOGP(info, "printValst602");
+				
           if(mcTrack) 
           pdgDigMcTruth = mcTrack->GetPdgCode();				// was  crash
-      		LOGP(info, "printValst604");
+      		
         }
         catch (const std::exception& e)
-        {LOGP(info, "printValst606");
+        {
           LOGP(error, "       Exception caught while trying to read MC track: %s", e.what());
         }
 
         catch (...)
-        {LOGP(info, "printValst611");
+        {
           LOGP(error, "       Unknown exception caught while trying to read MC track");
         }
 
         // TParticlePDG* pPDG = TDatabasePDG::Instance()->GetParticle(mcTrack->GetPdgCode());
-				LOGP(info, "printVals621");
         int trackID, evID, srcID;
 
         bool fake;
 
-        const auto eid = digOfClu.getEventNumber();
-
-        const auto tid = digOfClu.getTrackId();
-
-        const auto mid = digOfClu.getMotherId();
-
-        const auto sid = digOfClu.getSourceId();
-
-
-			LOGP(info, "printVals635");
-        if (!mcReader->getTrack(eid, tid))
-
-        {
-
-          LOGP(info, "nullptr mcReader->getTrack(eid, tid)");
-
-          try
-
-          {
-			LOGP(info, "printVals645");
-            mcTrackFromDig = mcReader->getTrack(eid, tid);
-
-            pdgDigit = mcTrackFromDig->GetPdgCode();
-          }
-
-          catch (const std::exception& e)
-
-          {
-
-            LOGP(error, "       Exception caught while trying to read MC track: %s", e.what());
-          }
-
-          catch (...)
-
-          {
-
-            LOGP(error, "       Unknown exception caught while trying to read MC track");
-          }
-        }
-
-        else
-
-        {
-
-          LOGP(debug, "mcReader->getTrack(eid, tid) gave nullptr");
-        }
-
-        if (!mcReader->getTrack(eid, mid))
-
-        {
-
-          // LOGP(info, "nullptr mcReader->getTrack(eid, mid)");
-
-          try
-
-          {
-
-            mcTrackFromDig = mcReader->getTrack(eid, mid);
-
-            pdgMother = mcTrackFromMother->GetPdgCode();
-          }
-
-          catch (const std::exception& e)
-
-          {
-
-            LOGP(error, "       Exception caught while trying to read MC track: %s", e.what());
-          }
-
-          catch (...)
-
-          {
-
-            LOGP(error, "       Unknown exception caught while trying to read MC track");
-          }
-        }
-
-			LOGP(info, "printVals703");
         trackID = mcArray[j].getTrackID(); // const { return static_cast<int>(mLabel & maskTrackID); }
 
         evID = mcArray[j].getEventID(); // const { return isFake() ? -getTrackID() : getTrackID(); }
@@ -717,25 +599,12 @@ LOGP(info, "printVals583");
 
         LOGP(info, "mcArray : evID {}, trackID {}, mid {}, srcID {}, fake {}", evID, trackID, mcTrack->getMotherTrackId(), srcID, fake);
 
-        LOGP(info, "from digit : eid {}, tid {}, mid {}, sid {}", eid, tid, mid, sid);
+        //LOGP(info, "from digit : eid {}, tid {}, mid {}, sid {}", eid, tid, mid, sid);
 				/*
         // printf("checking element %d in the array of labels\n", j);
 
         LOGP(info, "EventID from MC-label = {}; from dig : {}", evID, digEventNum);
-
         */
-				try {
-        	LOGP(info, " pdg of digit {} || MC digit label {} | pdg from (digit-eid, digit-tid) {} | of mother (digit-eid, digit-mid) {}", pdgOfDig, pdgDigMcTruth, pdgDigit, pdgMother);
-        } catch (const std::exception& e) {
-          LOGP(error, "       Exception caught %s", e.what());
-        } catch (...) {
-          LOGP(error, "       Unknown exception caught");
-        }         
-        
-				if(pdgOfDig!=pdgDigMcTruth) {
-					LOGP(info, "pdgOfDig ulik pdgDigMcTruth");
-				}
-				    // LOGP(info, "num Digits : = {}", digs.size());
 
       } // end if printVals
     }   // end for mcArray

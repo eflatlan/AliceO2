@@ -32,55 +32,11 @@ namespace hmpid
 // class Hit : public o2::BasicXYZQHit<float>
 class HitType : public o2::BasicXYZEHit<float>
 {
- private:
-  Int_t mParticlePdg;
-  int mMotherTrack; // ef: added particlePdg
-  Int_t mEvent;
-  Int_t mTrackId;
-
-  float energy;
-
  public:
-  Int_t getEventNumber() const { return mEvent; }
-  Int_t getParticlePdg() const { return mParticlePdg; }
-  Int_t getTrackId() const { return mTrackId; }
-  Int_t getMother() const { return mMotherTrack; }
-  float getEnergy() const { return energy; } // ef: added
-  HitType() = default;
-  inline HitType(
-    float x,
-    float y,
-    float z,
-    float time,
-    float energy,
-    Int_t trackId,
-    Int_t detId,
-    Int_t particlePdg,
-    int motherTrack,
-    int mEvent); // ef: added particlePdg
-
-  // using BasicXYZEHit<float>::BasicXYZEHit;
+  using BasicXYZEHit<float>::BasicXYZEHit;
 
   ClassDefNV(HitType, 1);
 };
-
-HitType::HitType(float x,
-                 float y,
-                 float z,
-                 float time,
-                 float energy,
-                 Int_t trackId,
-                 Int_t detId,
-                 Int_t particlePdg,
-                 int motherTrack,
-                 int event)
-  : BasicXYZEHit(x, y, z, time, energy, trackId, detId),
-    mParticlePdg(particlePdg),
-    mTrackId(trackId),
-    mMotherTrack(motherTrack),
-    mEvent(event)
-{
-}
 
 } // namespace hmpid
 } // namespace o2
