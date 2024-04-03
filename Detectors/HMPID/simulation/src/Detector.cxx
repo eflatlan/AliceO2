@@ -79,8 +79,8 @@ bool Detector::ProcessHits(FairVolume* v)
 
   bool isTrackEnteringPad = (volID == mHpad0VolID || volID == mHpad1VolID || volID == mHpad2VolID || volID == mHpad3VolID || volID == mHpad4VolID || volID == mHpad5VolID || volID == mHpad6VolID);
 
-
-  if ((fMC->TrackPid() == 50000050 || fMC->TrackPid() == 50000051 ) && isTrackEnteringPad) {
+  if ((fMC->TrackPid() == 50000050 || fMC->TrackPid() == 50000051) &&
+      isTrackEnteringPad) {
 
     TParticle *currentParticleTrack = stack->GetCurrentTrack();
     const auto motherTrackId = currentParticleTrack->GetFirstMother();
@@ -127,8 +127,7 @@ bool Detector::ProcessHits(FairVolume* v)
     } //photon hit PC and DE >0
 
     return kTRUE;
-  } //photon hit PC
-
+  } // photon hit PC
 
   // Treat charged particles
   static Float_t eloss; // need to store mip parameters between different steps
@@ -189,7 +188,7 @@ bool Detector::ProcessHits(FairVolume* v)
 
         AddHit(out[0], out[1], out[2], hitTime, eloss, tid, idch);
 
-        //printf("|GenFee(eloss); eloss =  %.2f  |\n", eloss);
+        // printf("|GenFee(eloss); eloss =  %.2f  |\n", eloss);
         GenFee(eloss); //generate feedback photons
         stack->addHit(GetDetId());
         eloss = 0;

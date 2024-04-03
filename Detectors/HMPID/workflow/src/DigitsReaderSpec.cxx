@@ -210,12 +210,20 @@ void DigitReader::run(ProcessingContext& pc)
 
       for (const auto trig : mTriggersFromFile) {
 
-				auto timeA = o2::InteractionRecord::bc2ns(trig.getBc(), trig.getOrbit());
-				int firstentry = trig.getFirstEntry(); int lastEntry = trig.getLastEntry();
-				LOGP(info, "START : trigger number {} : entries {} first {}  lasrt {}  time {} ",tnum, trig.getNumberOfObjects(),  firstentry, lastEntry, timeA / 1000.0f);
-				//  LOGP(info, "START : trigger number {} : entries {} first {}  lasrt {}  time {} ",tnum, trig.getNumberOfObjects(),  firstentry, lastEntry, timeA / 1000.0f);
+        auto timeA =
+            o2::InteractionRecord::bc2ns(trig.getBc(), trig.getOrbit());
+        int firstentry = trig.getFirstEntry();
+        int lastEntry = trig.getLastEntry();
+        LOGP(info,
+             "START : trigger number {} : entries {} first {}  lasrt {}  time "
+             "{} ",
+             tnum, trig.getNumberOfObjects(), firstentry, lastEntry,
+             timeA / 1000.0f);
+        //  LOGP(info, "START : trigger number {} : entries {} first {}  lasrt
+        //  {}  time {} ",tnum, trig.getNumberOfObjects(),  firstentry,
+        //  lastEntry, timeA / 1000.0f);
 
-				LOGP(info, " bc {} orbit {} ", trig.getBc(), trig.getOrbit());
+        LOGP(info, " bc {} orbit {} ", trig.getBc(), trig.getOrbit());
         int cnt = 0;
 
         std::vector<int> eventLabels;
