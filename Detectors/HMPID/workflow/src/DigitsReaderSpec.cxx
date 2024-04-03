@@ -115,6 +115,17 @@ void DigitReader::run(ProcessingContext& pc)
   assert(ent < mTree->GetEntries()); // this should not happen
   mTree->GetEntry(ent);
 
+  int tnum = 0;
+  for(const auto& trig : mTriggersFromFile)	{
+    //int tnum = 0;
+    //iLOGP(info, "trigger : numberOfEntreies {}", trig.getNumberOfObjects());
+    auto timeA = o2::InteractionRecord::bc2ns(trig.getBc(), trig.getOrbit());
+    int firstentry = trig.getFirstEntry(); int lastEntry = trig.getLastEntry();
+    LOGP(info, "START : trigger number {} : entries {} first {}  lasrt {}  time {} ",tnum, trig.getNumberOfObjects(),  firstentry, lastEntry, timeA / 1000.0f);
+    tnum++;
+
+  }
+
   pc.outputs().snapshot(Output{"HMP", "DIGITS", 0}, mDigitsFromFile);
   pc.outputs().snapshot(Output{"HMP", "INTRECORDS", 0}, mTriggersFromFile);
   mDigitsReceived += mDigitsFromFile.size();

@@ -423,7 +423,7 @@ void MatchHMP::doMatching()
 
         Int_t iCh = intTrkCha(&trefTrk, xPc, yPc, xRa, yRa, theta, phi, bz); // find the intersected chamber for this track
         if (iCh < 0) {
-          continue;
+          goto if2;
         } // no intersection at all, go next track
 
         matching.setHMPIDtrk(xPc, yPc, theta, phi); // store initial infos
@@ -444,13 +444,13 @@ void MatchHMP::doMatching()
           auto& cluster = (o2::hmpid::Cluster&)mHMPClustersArray[j];
 
           if (cluster.ch() != iCh) {
-            continue;
+            goto if2;
           }
           oneEventClusters.push_back(cluster);
           double qthre = pParam->qCut();
 
           if (cluster.q() < 150. || cluster.size() > 10) {
-            continue;
+            goto if2;
           }
 
           isOkQcut = kTRUE;
@@ -477,7 +477,7 @@ void MatchHMP::doMatching()
 
         if (!bestHmpCluster) {
           oneEventClusters.clear();
-          continue;
+          goto if2;
         }
 
         TVector3 vG = pParam->lors2Mars(iCh, bestHmpCluster->x(), bestHmpCluster->y());
@@ -487,11 +487,11 @@ void MatchHMP::doMatching()
         float alpha = TMath::ATan2(gy, gx);
         float radiusH = TMath::Sqrt(gy * gy + gx * gx);
         if (!(hmpTrk.rotate(alpha))) {
-          continue;
+          goto if2;
         }
         if (!prop->PropagateToXBxByBz(hmpTrk, radiusH, o2::base::Propagator::MAX_SIN_PHI, o2::base::Propagator::MAX_STEP, matCorr)) {
           oneEventClusters.clear();
-          continue;
+          goto if2;
         }
 
         // 3. Update the track with MIP cluster (Improved angular and position resolution - to be used for Cherenkov angle calculation)
@@ -510,7 +510,7 @@ void MatchHMP::doMatching()
         hmpTrkConstrained.set(trackC.getX(), trackC.getAlpha(), trackC.getParams(), trackC.getCharge(), trackC.getPID());
         if (!prop->PropagateToXBxByBz(hmpTrkConstrained, radiusH - kdRadiator, o2::base::Propagator::MAX_SIN_PHI, o2::base::Propagator::MAX_STEP, matCorr)) {
           oneEventClusters.clear();
-          continue;
+          goto if2;
         }
 
         float hmpMom = hmpTrkConstrained.getP() * hmpTrkConstrained.getSign();
@@ -554,7 +554,7 @@ void MatchHMP::doMatching()
         if (!isMatched) {
           mMatchedTracks[type].push_back(matching);
           oneEventClusters.clear();
-          continue;
+          //continue;
         } // If matched continue...
 
         double nmean = pParam->meanIdxRad();
@@ -570,19 +570,21 @@ void MatchHMP::doMatching()
 
         oneEventClusters.clear();
 
-      } // if matching in time
-      LOGP(info, "  end track times not shifting");
-
-
-      LOGP(info, "  track times shifting");
+       // if matching in time
+      }
+       LOGP(info, "  end track times not shifting\n\n");
+      //}
+      
+      if2:
+      LOGP(info, "  start track times shifting");
       if (evtTime < maxTrkTime && evtTime > minTrkTime) {
 
 
-        if(iEvent + 1 < cacheTriggerHMP.size()) {
-          event = mHMPTriggersWork[cacheTriggerHMP[iEvent+1]];
+        if(ievt + 1 < cacheTriggerHMP.size()) {
+          event = mHMPTriggersWork[cacheTriggerHMP[ievt+1]];
           LOGP(info, "shifted track.. ");
         } else {
-          event = mHMPTriggersWork[cacheTriggerHMP[iEvent]];
+          event = mHMPTriggersWork[cacheTriggerHMP[ievt]];
           LOGP(info, "not shifted track because out of index ");
 
         }
@@ -745,13 +747,13 @@ void MatchHMP::doMatching()
 
         recon->setImpPC(xPc, yPc);                                             // store track impact to PC
         recon->ckovAngle(&matching, oneEventClusters, index, nmean, xRa, yRa); // search for Cerenkov angle of this track
-        LOGP(info, "matched in time ckov {}", matching.getHMPsignal());
+        LOGP(info, "matched in time || shifted event,  ckov {}", matching.getHMPsignal());
         mMatchedTracks[type].push_back(matching);
 
         oneEventClusters.clear();
 
       } // if matching in time
-
+      LOGP(info, "end if matching in time >> shifted");
     }   // tracks loop
   }     // events loop
 

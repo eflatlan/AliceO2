@@ -112,6 +112,11 @@ elif [ "$fromstage" == "simpr" ]; then
   dodigi="1"
   dotrdtrap="1"
   doreco="1"
+elif [ "$fromstage" == "sim" ]; then
+  dosim="1"
+  dodigi="1"
+  dotrdtrap="1"
+  doreco="1"
 elif [ "$fromstage" == "digi" ]; then
   dodigi="1"
   dotrdtrap="1"
@@ -171,6 +176,19 @@ if [ "$dosimpr" == "1" ]; then
 	o2-sim -n"$nev" -e TGeant3 -g boxgen --configKeyValues "BoxGun.pdg=2212; BoxGun.phirange[0]=-5; BoxGun.phirange[1]=60; BoxGun.number=60; BoxGun.eta[0]=-0.5 ; BoxGun.eta[1]=0.5; BoxGun.prange[0]=2.8; BoxGun.prange[1]=2.83;" $simWorker --run ${runNumber}
 
 
+
+  ##------ extract number of hits
+  taskwrapper hitstats.log root -q -b -l ${O2_ROOT}/share/macro/analyzeHits.C
+fi
+
+if [ "$dosim" == "1" ]; then
+  #---- GRP creation ------
+  echo "Creating GRPs ... and publishing in local CCDB overwrite"
+  taskwrapper grp.log o2-grp-simgrp-tool createGRPs --run ${runNumber} --publishto GRP -o mcGRP
+
+  #---------------------------------------------------
+  echo "Running simulation for $nev $collSyst events with $gener generator and engine $engine and run number $runNumber"
+  taskwrapper sim.log o2-sim -n"$nev" --configKeyValues "Diamond.width[2]=6." -g "$gener" -e "$engine" $simWorker --run ${runNumber}
 
   ##------ extract number of hits
   taskwrapper hitstats.log root -q -b -l ${O2_ROOT}/share/macro/analyzeHits.C
