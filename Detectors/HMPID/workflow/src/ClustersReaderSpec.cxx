@@ -88,54 +88,57 @@ void ClusterReaderTask::run(ProcessingContext& pc)
       LOGP(info, " bc {} orbit {} ", trig.getBc(), trig.getOrbit());
       LOGP(info, "end{} entries {}", tnum, trig.getNumberOfObjects());
 
-      std::vector<int> eventLabels;
 
-      for (int i = trig.getFirstEntry(); i <= trig.getLastEntry(); i++) {
 
-        /*****insert from digitsreder*/ //
+				if(mUseMC) {
+		    std::vector<int> eventLabels;
 
-        if (i < mLabels.getIndexedSize() && i < mClustersFromFile.size()) {
-          bool isLabelEventSame = true;
-          const auto& labels = mLabels.getLabels(i);
-          int prevEventLabel = 0;
+		    for (int i = trig.getFirstEntry(); i <= trig.getLastEntry(); i++) {
 
-          if (labels.size() > 0) {
-            prevEventLabel = labels[0].getEventID();
-            eventLabels.push_back(prevEventLabel);
-          }
-          int lblNum = 0;
-          for (const auto& label : labels) {
+		      /*****insert from digitsreder*/ //
 
-            if (label.getEventID() != prevEventLabel) {
-              eventLabels.push_back(label.getEventID());
-              isLabelEventSame = false;
-              // LOGP(info, "trigger number {} lblNum {} : event from labelEventId changed!", tnum, lblNum);
-              // LOGP(info, "digit number {}, digEventNum {} labelEventId {} prevEventLabel {}", i, mClustersFromFile[i].getEventNumber(), label.getEventID(), prevEventLabel);
-            }
-            lblNum++;
+		      if (i < mLabels.getIndexedSize() && i < mClustersFromFile.size()) {
+		        bool isLabelEventSame = true;
+		        const auto& labels = mLabels.getLabels(i);
+		        int prevEventLabel = 0;
 
-            prevEventLabel = label.getEventID();
-          }
-        }
-      }
+		        if (labels.size() > 0) {
+		          prevEventLabel = labels[0].getEventID();
+		          eventLabels.push_back(prevEventLabel);
+		        }
+		        int lblNum = 0;
+		        for (const auto& label : labels) {
 
-      LOGP(info, "trigger number {} : entries {}", tnum, trig.getNumberOfObjects());
+		          if (label.getEventID() != prevEventLabel) {
+		            eventLabels.push_back(label.getEventID());
+		            isLabelEventSame = false;
+		            // LOGP(info, "trigger number {} lblNum {} : event from labelEventId changed!", tnum, lblNum);
+		            // LOGP(info, "digit number {}, digEventNum {} labelEventId {} prevEventLabel {}", i, mClustersFromFile[i].getEventNumber(), label.getEventID(), prevEventLabel);
+		          }
+		          lblNum++;
 
-      LOGP(info, "\ndifferent labels from eventLabels {} :::", eventLabels.size());
+		          prevEventLabel = label.getEventID();
+		        }
+		      }
+		    }
 
-      std::vector<int> sortedVec = eventLabels;
+		    LOGP(info, "trigger number {} : entries {}", tnum, trig.getNumberOfObjects());
 
-      std::sort(sortedVec.begin(), sortedVec.end());
+		    LOGP(info, "\ndifferent labels from eventLabels {} :::", eventLabels.size());
 
-      std::cout << "eventLabels values: ";
-      for (size_t i = 0; i < sortedVec.size(); ++i) {
-        if (i == sortedVec.size() - 1 || sortedVec[i] != sortedVec[i + 1]) {
-          std::cout << sortedVec[i] << " , ";
-        }
-      }
+		    std::vector<int> sortedVec = eventLabels;
 
-      /*****insert from digitsreder*/ //
+		    std::sort(sortedVec.begin(), sortedVec.end());
 
+		    std::cout << "eventLabels values: ";
+		    for (size_t i = 0; i < sortedVec.size(); ++i) {
+		      if (i == sortedVec.size() - 1 || sortedVec[i] != sortedVec[i + 1]) {
+		        std::cout << sortedVec[i] << " , ";
+		      }
+		    }
+
+		    /*****insert from digitsreder*/ //
+			}
       LOGP(info, "end{} entries {}", tnum, trig.getNumberOfObjects());
       tnum++;
     }
