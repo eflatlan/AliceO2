@@ -102,6 +102,11 @@ if [ "$fromstage" == "simp" ]; then
   dodigi="1"
   dotrdtrap="1"
   doreco="1"
+elif [ "$fromstage" == "sim" ]; then
+  dosim="1"
+  dodigi="1"
+  dotrdtrap="1"
+  doreco="1"    
 elif [ "$fromstage" == "simk" ]; then
   dosimk="1"
   dodigi="1"
@@ -120,6 +125,21 @@ elif [ "$fromstage" == "reco" ]; then
   doreco="1"
 else
   echo "Wrong stage string $fromstage provided, should be sim or digi or reco"
+fi
+
+
+
+if [ "$dosim" == "1" ]; then
+  #---- GRP creation ------
+  echo "Creating GRPs ... and publishing in local CCDB overwrite"
+  taskwrapper grp.log o2-grp-simgrp-tool createGRPs --run ${runNumber} --publishto GRP -o mcGRP
+
+  #---------------------------------------------------
+  echo "Running simulation for $nev $collSyst events with $gener generator and engine $engine and run number $runNumber"
+  taskwrapper sim.log o2-sim -n"$nev" --configKeyValues "Diamond.width[2]=6." -g "$gener" -e "$engine" $simWorker --run ${runNumber}
+
+  ##------ extract number of hits
+  taskwrapper hitstats.log root -q -b -l ${O2_ROOT}/share/macro/analyzeHits.C
 fi
 
 
@@ -214,47 +234,47 @@ if [ "$doreco" == "1" ]; then
   taskwrapper mftreco.log  o2-mft-reco-workflow  $gloOpt $MFTRecOpt
   echo "Return status of mftreco: $?"
 
-  echo "Running MCH reco flow"
-  taskwrapper mchreco.log o2-mch-reco-workflow $gloOpt
-  echo "Return status of mchreco: $?"
+  #echo "Running MCH reco flow"
+  #taskwrapper mchreco.log o2-mch-reco-workflow $gloOpt
+  #echo "Return status of mchreco: $?"
 
   echo "Running FT0 reco flow"
   #needs FT0 digitized data
-  taskwrapper ft0reco.log o2-ft0-reco-workflow $gloOpt
+  taskwrapper ft0reco.log o2-ft0-reco-workflow --disable-mc $gloOpt
   echo "Return status of ft0reco: $?"
 
-  echo "Running FDD reco flow"
-  #needs FDD digitized data
-  taskwrapper fddreco.log o2-fdd-reco-workflow $gloOpt
-  echo "Return status of fddreco: $?"
+  #echo "Running FDD reco flow"
+  #needs FDD digitized data  
+  #taskwrapper fddreco.log o2-fdd-reco-workflow --disable-mc $gloOpt
+  #echo "Return status of fddreco: $?"
 
   echo "Running FV0 reco flow"
   #needs FV0 digitized data
-  taskwrapper fv0reco.log o2-fv0-reco-workflow $gloOpt
+  taskwrapper fv0reco.log o2-fv0-reco-workflow  --disable-mc $gloOpt
   echo "Return status of fv0reco: $?"
 
-  echo "Running MID reco flow"
+  #echo "Running MID reco flow"
   #needs MID digitized data
-  taskwrapper midreco.log "o2-mid-digits-reader-workflow | o2-mid-reco-workflow $gloOpt"
-  echo "Return status of midreco: $?"
+  #taskwrapper midreco.log "o2-mid-digits-reader-workflow | o2-mid-reco-workflow $gloOpt"
+  #echo "Return status of midreco: $?"
 
   echo "Running HMPID reco flow to produce clusters"
   #needs HMPID digitized data
-  taskwrapper hmpreco.log "o2-hmpid-digits-to-clusters-workflow $gloOpt"
+  taskwrapper hmpreco.log "o2-hmpid-digits-to-clusters-workflow $gloOpt" # can not disable --disable-mc
   echo "Return status of hmpid cluster reco: $?"
 
-  echo "Running MCH-MID matching flow"
-  taskwrapper mchmidMatch.log "o2-muon-tracks-matcher-workflow $gloOpt"
-  echo "Return status of mchmidmatch: $?"
+  #echo "Running MCH-MID matching flow"
+  #taskwrapper mchmidMatch.log "o2-muon-tracks-matcher-workflow $gloOpt"
+  #echo "Return status of mchmidmatch: $?"
 
   echo "Running ITS-TPC matching flow"
   #needs results of o2-tpc-reco-workflow, o2-its-reco-workflow and o2-fit-reco-workflow
-  taskwrapper itstpcMatch.log o2-tpcits-match-workflow --use-ft0 $gloOpt
+  taskwrapper itstpcMatch.log o2-tpcits-match-workflow --use-ft0  $gloOpt # can not disable --disable-mc
   echo "Return status of itstpcMatch: $?"
 
   echo "Running TRD matching to ITS-TPC and TPC"
   #needs results of o2-tpc-reco-workflow, o2-tpcits-match-workflow and o2-trd-tracklet-transformer
-  taskwrapper trdTrkltTransf.log o2-trd-tracklet-transformer $gloOpt
+  taskwrapper trdTrkltTransf.log o2-trd-tracklet-transformer --disable-mc $gloOpt
   echo "Return status of trdTrkltTransf: $?"
   taskwrapper trdMatch.log o2-trd-global-tracking $gloOpt
   echo "Return status of trdTracker: $?"
@@ -262,12 +282,12 @@ if [ "$doreco" == "1" ]; then
 
   echo "Running TOF reco flow to produce clusters"
   #needs results of TOF digitized data and results of o2-tpcits-match-workflow
-  taskwrapper tofReco.log o2-tof-reco-workflow $gloOpt
+  taskwrapper tofReco.log o2-tof-reco-workflow  $gloOpt # can not disable --disable-mc
   echo "Return status of tof cluster reco : $?"
 
   echo "Running Track-TOF macthing flow"
   #needs results of TOF clusters data from o2-tof-reco-workflow and results of o2-tpc-reco-workflow and ITS-TPC matching
-  taskwrapper tofMatchTracks.log o2-tof-matcher-workflow $gloOpt
+  taskwrapper tofMatchTracks.log o2-tof-matcher-workflow $gloOpt  # can not disable --disable-mc
   echo "Return status of o2-tof-matcher-workflow: $?"
 
   echo "Running Track-HMPID macthing flow"

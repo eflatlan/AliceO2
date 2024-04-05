@@ -425,17 +425,6 @@ void MatchHMP::addConstrainedSeed(o2::track::TrackParCov& trc, o2::dataformats::
       mTracksLblWork[o2::globaltracking::MatchHMP::trackType::CONSTR].emplace_back(mRecoCont->getTPCITSTrackMCLabel(srcGID));
       auto itstpc = mRecoCont->getTPCITSTrackMCLabel(srcGID);
 
-      if (mVerbose && false)
-        LOGP(info, "constrained itstpc eventID {} timeMUS {} ", itstpc.getEventID(), timeMUS.getTimeStamp());
-
-      /*mcReader = std::make_unique<o2::steer::MCKinematicsReader>("collisioncontext.root");
-
-      auto itsTpcTrack = mRecoCont->getTPCITSTrackMCLabel(srcGID);
-
-      auto mctrk = mcReader->getTrack(itsTpcTrack);
-
-      auto p = mctrk->GetP();
-      LOGP(info, "addConstrainedSeed MC momentum = {} measured momentum = {}", p, trc.getP());*/
     }
 
     mTracksIndexCache[o2::globaltracking::MatchHMP::trackType::CONSTR].push_back(it);
@@ -481,17 +470,6 @@ void MatchHMP::addTPCSeed(const o2::tpc::TrackTPC& _tr, o2::dataformats::GlobalT
   if (mMCTruthON) {
     mTracksLblWork[o2::globaltracking::MatchHMP::trackType::UNCONS].emplace_back(mRecoCont->getTPCTrackMCLabel(srcGID));
     auto itstpc = mRecoCont->getTPCITSTrackMCLabel(srcGID);
-
-    LOGP(info, "constrained itstpc eventID {} trackTime0 {} ", itstpc.getEventID(), trackTime0);
-
-    /*mcReader = std::make_unique<o2::steer::MCKinematicsReader>("collisioncontext.root");
-
-    auto itsTpcTrack = mRecoCont->getTPCITSTrackMCLabel(srcGID);
-
-    auto mctrk = mcReader->getTrack(itsTpcTrack);
-
-    auto p = mctrk->GetP();
-    //LOGP(info, "addTPCSeed MC momentum = {} measured momentum = {}", p, trc.getP());*/
   }
   mTracksIndexCache[o2::globaltracking::MatchHMP::trackType::UNCONS].push_back(it);
 }
@@ -657,13 +635,15 @@ void MatchHMP::doMatching()
 
       float maxTrkTime = (trkTime + mSigmaTimeCut * timeUncert);
 
+
+
+      /*
       if (mVerbose) {
         LOGP(info, "itrk {} iEvent {}", itrk, iEvent);
-
         // Printf("timeUncert %.3f", timeUncert);
         LOGP(info, "trkTime {} | minTrkTime {} <  evtTime {} < maxTrkTime {}", trkTime, minTrkTime, evtTime, maxTrkTime);
       }
-      /*
+
       */
       ///////
       // if (evtTime < (maxTrkTime + timeFromTF) && evtTime > (minTrkTime + timeFromTF)) {
@@ -677,7 +657,6 @@ void MatchHMP::doMatching()
         } else {
           event = mHMPTriggersWork[cacheTriggerHMP[iEvent]];
           LOGP(info, "not shifted track.. ");
-
         }
         evtTracks++;
         /*if (mVerbose) {
@@ -729,11 +708,6 @@ void MatchHMP::doMatching()
 
         std::vector<Cluster> oneEventClusters;
 
-        // ef : this would reserve space for all clusters in all chambers
-        // we only need for 1 chamber
-
-        // oneEventClusters.reserve(mHMPClustersArray.size());
-        LOGP(info, "Number of clusters : {}", event.getNumberOfObjects());
         int indexGlbl = 0;
         for (int j = event.getFirstEntry(); j <= event.getLastEntry(); j++) { // event clusters loops
 
@@ -869,12 +843,8 @@ void MatchHMP::doMatching()
 
         int iChMatch = intTrkCha(iCh, &hmpTrkConstrained, xPcConstrained, yPcConstrained, xRa, yRa, theta, phi, bz, pParam);
 
-        /*if (mVerbose) {
-          Printf("5. intTrkCha   xRa %.2f xPcConstrained %.2f yRa %.2f,  yPcConstrained %.2f", xRa, xPcConstrained, yRa, yPcConstrained);
-        }*/
 
         // 6. Set match information
-
         int cluSize = bestHmpCluster->size();
 
         matching.setHMPIDmip(bestHmpCluster->x(), bestHmpCluster->y(), bestHmpCluster->q(), 0); // store mip info in any case
@@ -883,20 +853,12 @@ void MatchHMP::doMatching()
 
         matching.setIdxHMPClus(iCh, index + 1000 * cluSize); // set chamber, index of cluster + cluster size
 
-        // matching->setEventNumber(indexEvent);
-
         matching.setMipClusCharge(bestHmpCluster->q()); // ef: set event number from cluster
 
         // matching.setMIPindex(index); // the position of the MIP in the qrray of clusters
         matching.setHMPIDtrk(xPc, yPc, theta, phi);
 
-        // matching.setHMPIDtrk(xRa, yRa, thetaConst, phiConst);
-
-        // matching.setHMPIDtrk(xRa, yRa, xPc, yPc, theta, phi);
-
         matching.setHMPsignal(pParam->kMipQdcCut);
-
-        // ef : remove or true
 
         if (!isOkQcut) {
 
@@ -946,8 +908,7 @@ void MatchHMP::doMatching()
 
         matching.setRefIndex(nmean);
         matching.setChamber(iCh);
-        matching.setEventNumber(
-            indexEvent); // 				matching.setEventNumber(iEvent);
+        matching.setEventNumber(indexEvent); // 				matching.setEventNumber(iEvent);
 
         int eventIdClu = 0, eventIdTrk = 0;
         if (mVerbose) {
@@ -1013,8 +974,8 @@ void MatchHMP::doMatching()
 
         if (!isMatched) {
 
-          LOGP(info, "!isMatched new track emplaced > size {}", mMatchedTracks[type].size());
-          mMatchedTracks[type].push_back(matching);
+          //LOGP(info, "!isMatched new track emplaced > size {}", mMatchedTracks[type].size()); ef > remove
+          mMatchedTracks[type].push_back(matching); 
 
           // trkType = type = o2::globaltracking::MatchHMP::trackType::CONSTR
           // ef TODO : add track from MC here
@@ -1078,13 +1039,8 @@ void MatchHMP::doMatching()
           LOGP(info, "predictedMass {}", predictedMass);
         } // end if mVerbose
 
-        // add value indicating matched properly?
-        // ef : added this field
+
         matching.setMatchTrue();
-
-        //
-
-        //
 
         if (isMatched) {
 
