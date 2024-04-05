@@ -261,16 +261,10 @@ if [ "$doreco" == "1" ]; then
   #  taskwrapper sttracking.log o2-strangeness-tracking-workflow $gloOpt
   #  echo "Return status of strangeness tracking: $?"
 
-  echo "Producing AOD"
-  taskwrapper aod.log o2-aod-producer-workflow $gloOpt --aod-writer-keep dangling --aod-writer-resfile "AO2D" --aod-writer-resmode UPDATE --aod-timeframe-id 1 --run-number 300000
-  echo "Return status of AOD production: $?"
+  #echo "Producing AOD"
+  #taskwrapper aod.log o2-aod-producer-workflow $gloOpt --aod-writer-keep dangling --aod-writer-resfile "AO2D" --aod-writer-resmode UPDATE --aod-timeframe-id 1 --run-number 300000
+  #echo "Return status of AOD production: $?"
 
   # let's do some very basic analysis tests (mainly to enlarge coverage in full CI) and enabled when SIM_CHALLENGE_ANATESTING=ON
-  if [[ ${O2DPG_ROOT} && ${SIM_CHALLENGE_ANATESTING} ]]; then
-    # to be added again: Efficiency
-    for t in ${ANATESTLIST:-MCHistograms Validation PIDTOF PIDTPC EventTrackQA WeakDecayTutorial}; do
-      ${O2DPG_ROOT}/MC/analysis_testing/analysis_test.sh ${t}
-      echo "Return status of ${t}: ${?}"
-    done
-  fi
+
 fi

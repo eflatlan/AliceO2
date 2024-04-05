@@ -319,6 +319,9 @@ class Cluster
     }
   }
 
+
+  void setRawSize(int size) { mSiRaw = size; } // ef > added, size of raw cluster
+
   void setSize(int size) { mSi = size; }
 
   void setCh(int chamber) { mCh = chamber; }
@@ -336,7 +339,11 @@ protected:
 
   // std::vector<int>  digsX, digsY, digsQ, digsPDG;//, digsTID, digsMID;//.push_back(dig->getX()); // pos of digit
 
+
+  // ef : why do we not use uint8 for some of these? 
   int mCh; // chamber number
+
+  int mSiRaw; // ef > added, size of raw cluster
 
   int mSi; // size of the formed cluster from which this cluster deduced
 
@@ -375,6 +382,10 @@ protected:
    int ch() const { return mCh; } // chamber number
 
    int size() const { return mSi; } // returns number of pads in formed cluster
+   
+   int sizeRaw() const { return mSiRaw; } // ef > added : returns number of pads in raw cluster
+
+   int numLocMax() const { return mNlocMax; } // ef > added : returns number local maxima
 
    int status() const { return mSt; } // Status of cluster
 
@@ -396,6 +407,8 @@ protected:
 
    int box() { return mBox; } // Dimension of the cluster
 
+
+   // ef : why do we not use uint8 for some of these? 
    int ch() { return mCh; } // chamber number
 
    int size() { return mSi; } // returns number of pads in formed cluster

@@ -90,7 +90,7 @@ void ClusterReaderTask::run(ProcessingContext& pc)
 
 
 
-				if(mUseMC) {
+      if(mUseMC) {
 		    std::vector<int> eventLabels;
 
 		    for (int i = trig.getFirstEntry(); i <= trig.getLastEntry(); i++) {
@@ -112,11 +112,10 @@ void ClusterReaderTask::run(ProcessingContext& pc)
 		          if (label.getEventID() != prevEventLabel) {
 		            eventLabels.push_back(label.getEventID());
 		            isLabelEventSame = false;
-		            // LOGP(info, "trigger number {} lblNum {} : event from labelEventId changed!", tnum, lblNum);
-		            // LOGP(info, "digit number {}, digEventNum {} labelEventId {} prevEventLabel {}", i, mClustersFromFile[i].getEventNumber(), label.getEventID(), prevEventLabel);
+		            /*LOGP(info, "trigger number {} lblNum {}: event from labelEventId changed!", tnum, lblNum);
+		            LOGP(info, "digit number {}, labelEventId {} prevEventLabel {}", i, label.getEventID(), prevEventLabel);*/
 		          }
 		          lblNum++;
-
 		          prevEventLabel = label.getEventID();
 		        }
 		      }

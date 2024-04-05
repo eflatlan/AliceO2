@@ -128,26 +128,16 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
   auto triggers = pc.inputs().get<gsl::span<o2::hmpid::Trigger>>("intrecord");
   auto digits = pc.inputs().get<gsl::span<o2::hmpid::Digit>>("digits");
 
-  // auto labelVector = std::make_shared<std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>>>();
-
   auto labelVector = std::make_shared<o2::dataformats::MCTruthContainer<o2::MCCompLabel>>();
   if (mUseMC) {
 
     LOGP(info, "Trying to acces digitLabels");
 
-    // ef: I dont understand which to use :
-    // auto digitlabels = pc.inputs().get<o2::dataformats::MCTruthContainer<o2::MCCompLabel>*>("hmpiddigitlabels");
-
-    // ef: if based on other.
     auto digitlabels = pc.inputs().get<o2::dataformats::MCTruthContainer<o2::MCCompLabel>*>("hmpiddigitlabels");
 
     if (digitlabels == nullptr) {
       LOGP(info, "digitlabels nullptr");
     }
-
-    // B) ef: if based on TOF:
-    // auto digitlabels = pc.inputs().get<std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>>*>("hmpiddigitlabels");
-    // LOGP(info, "digitlabels size : {}", digitlabels->getSize());
 
     LOGP(info, "triggers {} : digits : {}", triggers.size(), digits.size());
 
@@ -266,12 +256,6 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
        triggers.size(), digits.size(), clusterTriggers.size(), clusters.size());
   mDigitsReceived += digits.size();
   mClustersReceived += clusters.size();
-
-
-
-
-  
-
 
   pc.outputs().snapshot(o2::framework::Output{"HMP", "CLUSTERS", 0}, clusters);
   pc.outputs().snapshot(o2::framework::Output{"HMP", "INTRECORDS1", 0}, clusterTriggers);

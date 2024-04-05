@@ -512,6 +512,8 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, b
 
     pCluLst->back().cleanPointers();
 
+    pCluLst->back().setRawSize(rawSize); // ef added this field 
+
     return 1; // add this raw cluster
   }
 
@@ -621,6 +623,8 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, b
 
     pCluLst->back().cleanPointers();
 
+    pCluLst->back().setRawSize(mDigs->size()); // ef added this field 
+
     return mNlocMax;
   }
 
@@ -635,6 +639,9 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, b
     pCluLst->push_back(o2::hmpid::Cluster(*this)); //...add this raw cluster
 
     pCluLst->back().cleanPointers();
+
+    pCluLst->back().setRawSize(rawSize); // ef added this field 
+
   } else { // or resonable number of local maxima to fit and user requested it
 
     // Now ready for minimization step
@@ -753,6 +760,8 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, b
 
       pCluLst->back().cleanPointers();
 
+      pCluLst->back().setRawSize(rawSize); // ef added this field 
+
       if (mNlocMax > 1) {
 
         setSize(rawSize); // Original raw size is set again to its proper value
@@ -821,6 +830,8 @@ int Cluster::solveMC(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut,
     pCluLst->push_back(o2::hmpid::Cluster(*this));
 
     pCluLst->back().cleanPointers();
+
+    pCluLst->back().setRawSize(rawSize); // ef added this field 
 
     return 1; // add this raw cluster
   }
@@ -933,6 +944,8 @@ int Cluster::solveMC(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut,
 
     pCluLst->back().cleanPointers();
 
+    pCluLst->back().setRawSize(mDigs->size()); // ef added this field 
+
     return mNlocMax;
   }
 
@@ -948,6 +961,8 @@ int Cluster::solveMC(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut,
 
     pCluLst->push_back(o2::hmpid::Cluster(*this)); //...add this raw cluster
     pCluLst->back().cleanPointers();
+    pCluLst->back().setRawSize(mDigs->size()); // ef added this field 
+
   } else { // or resonable number of local maxima to fit and user requested it
 
     // Now ready for minimization step
@@ -1087,6 +1102,8 @@ int Cluster::solveMC(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut,
       // pCluLst->back().setMC();
 
       pCluLst->back().cleanPointers();
+
+      pCluLst->back().setRawSize(rawSize); // ef added this field 
 
       if (mNlocMax > 1) {
 

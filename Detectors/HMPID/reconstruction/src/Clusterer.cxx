@@ -211,24 +211,11 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
 
       /*
 
-
-
-
-
-
-
       if(digitMCTruth != nullptr) {
-
-
-
         clu.setMCTruth(digitMCTruth); // we do this in Cluster.h
-
-
-
       } */
 
       // filling the MC labels of this cluster; the first will be those of the main digit; then the others
-
       // will be nullptr if useMc in Digits2Cluster is false
 
       int formedClusters = -1;
@@ -285,7 +272,7 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
             // get all the digits, and all the MC-labels from them
 
             LOGP(info, "clu {}/{}",resolvedIndices.first, clus.size());
-	    // iterate over the local to map to global and fidn selected
+            // iterate over the local to map to global and fidn selected
             
             std::vector<int> globalInd;            
             for (const auto& index : resolvedIndices.second) {
@@ -297,7 +284,7 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
               LOGP(warn, "WARNING globalInd had no entries!");
             }
             
-			const int nEntrisIn = mClsLabels->getIndexedSize();
+			      const int nEntrisIn = mClsLabels->getIndexedSize();
 		        iterateMcEntries(cluster, digs, globalInd, digitMCTruth, mClsLabels, clus.size());
 		        
             const int nEntriesOut = mClsLabels->getIndexedSize();
