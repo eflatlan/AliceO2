@@ -45,11 +45,12 @@ class Clusterer
   {
     mUseMC = useMC;
 
-    // ef : TODO remove this wehn code is verified:
+    // ef : TODO remove this when code is verified:
     if (mUseMC) {
       mcReader = std::make_unique<o2::steer::MCKinematicsReader>("collisioncontext.root");
     }
   }
+
   ~Clusterer() = default;
 
   Clusterer(const Clusterer&) = delete;
@@ -60,7 +61,7 @@ class Clusterer
   //
   void setMCTruthContainer(o2::dataformats::MCTruthContainer<o2::MCCompLabel>* truth) { mClsLabels = truth; }
 
-  // ef : added
+  // ef : added; set labels in mClsLabels
   void iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmpid::Digit> digits, const std::vector<int>& indices, MCLabelContainer const* digitMCTruth, MCLabelContainer* mClsLabels, int cluSize);
 
   void FormCluMC(Cluster& pClu, int pDig, gsl::span<const o2::hmpid::Digit> digs, TMatrixF& pDigMap, std::vector<int>& indicesUnresolved);
@@ -75,15 +76,16 @@ class Clusterer
   // ef FIX!                                                                                       // check for sigma cut
 
  private:
+
+  // ef : taken from  Cluster::solve
+  // > TODO : make it global Hmpid base?
+  static constexpr int kMaxLocMax = 6;      // max allowed number of loc max for fitting
+
+
   int startIndexDigMC = 0; // ef : TODO find a more elegant way
   // void processChamber(std::vector<Cluster>& clusters, MCLabelContainer const* digitMCTruth);
   // void fetchMCLabels(const Digit* dig, std::array<Label, Cluster::maxLabels>& labels, int& nfilled) const;
 
-  // ef : added :
-  // std::unique_ptr<const o2::dataformats::ConstMCLabelContainerView> mDigitMCTruthArray; ///< Array for MCTruth information associated to digits in mDigitsArrray
-
-  // ef : added :
-  std::unique_ptr<o2::dataformats::MCLabelContainer> mHwClustersMCTruthArray; ///< Array for MCTruth information associated to cluster in mHwClustersArrays
 
   o2::dataformats::MCTruthContainer<o2::MCCompLabel>* mClsLabels = nullptr; // Cluster MC labels
 
