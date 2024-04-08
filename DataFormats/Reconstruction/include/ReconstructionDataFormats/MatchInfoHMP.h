@@ -65,6 +65,7 @@ class MatchInfoHMP
   float getTrkY() const { return mTrkY; }
 
   void setHMPsignal(float angle) { mCkovAngle = angle; }
+  
   float getHMPsignal() const
   {
     if (mCkovAngle > 0) {
@@ -73,6 +74,29 @@ class MatchInfoHMP
       return mCkovAngle;
     }
   }
+
+
+  // ef added
+  void setHMPsignalMassHyp(float angle) { mCkovAngleMassHyp = angle; }
+  
+  float getHMPsignalMassHyp() const
+  {
+    if (mCkovAngleMassHyp > 0) {
+      return mCkovAngleMassHyp - (Int_t)mCkovAngle;
+    } else {
+      return mCkovAngleMassHyp;
+    }
+  }
+
+  void setMassHypNumPhot(int nPhot) {
+    mNPhotsMassHyp = nPhot;
+  }
+
+
+  int getMassHypNumPhot() const { return mNPhotsMassHyp; }
+
+  //
+
 
   void setDistCut(float dist, float distThre)
   {
@@ -265,6 +289,10 @@ class MatchInfoHMP
   int mHMPqn;         // 1000000*number of photon clusters + QDC
   float mHmpMom;      // track momentum at HMPID chambers
   float mPhotCharge[10] = {};
+
+  float mCkovAngleMassHyp; // ef aadded
+  int mNPhotsMassHyp;
+
 
   ClassDefNV(MatchInfoHMP, 2);
 };

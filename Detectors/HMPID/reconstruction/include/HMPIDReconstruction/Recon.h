@@ -90,13 +90,25 @@ class Recon : public TNamed
   bool findPhotCkov(double cluX, double cluY, double& thetaCer, double& phiCer); // find ckov angle for single photon candidate
   bool findPhotCkov2(double cluX, double cluY, double& thetaCer, double& phiCer);
   double findRingCkov(int iNclus);                  // best ckov for ring formed by found photon candidates
+
+
   void findRingGeom(double ckovAng, int level = 1); // estimated area of ring in cm^2 and portion accepted by geometry
 
   // template <typename T = double>
   const TVector2 intWithEdge(TVector2 p1, TVector2 p2); // find intercection between plane and lines of 2 thetaC
 
-  int flagPhot(double ckov, const std::vector<o2::hmpid::Cluster> clusters, float* photChargeVec); // is photon ckov near most probable track ckov
+  int flagPhot(double ckov, const std::vector<o2::hmpid::Cluster>& clusters, float* photChargeVec); // is photon ckov near most probable track ckov
                                                                                                    //  int flagPhot(double ckov, const std::vector<o2::hmpid::Cluster> clusters); // is photon ckov near most probable track ckov
+
+
+  // ef : added MassHyp functions > 
+  
+  double houghResponseMassHyp(); // most probable track ckov angle
+  int flagPhotMassHyp(double ckov, const std::vector<o2::hmpid::Cluster>& clusters, float* photChargeVecMassHyp); // is photon ckov near most probable track ckov
+  double findRingCkovMassHyp(int iNclusMassHyp);                  // best ckov for ring formed by found photon candidates
+  bool findPhotCkovMassHyp(double cluX, double cluY, double& thetaCer, double& phiCer); // find ckov angle for single photon candidate
+  void findRingGeomMassHyp(double ckovAng, int level = 1); // estimated area of ring in cm^2 and portion accepted by geometry
+
 
   double houghResponse(); // most probable track ckov angle
   // template <typename T = double>
@@ -124,6 +136,17 @@ class Recon : public TNamed
   {
     return fRingArea;
   } // area of the current ring in cm^2
+
+  double getRingAreaMassHyp() const
+  {
+    return fRingAreaMassHyp;
+  } // area of the current ring in cm^2
+
+  // ef : added 
+  double getRingAccMassHyp() const
+  {
+    return fRingAccMassHyp;
+  }       
 
   double getRingAcc() const
   {
@@ -163,9 +186,22 @@ class Recon : public TNamed
   std::unique_ptr<double[]> fPhotPhi;    // phis of photons candidates, [rad]
   std::unique_ptr<double[]> fPhotWei;    // weigths of photon candidates
 
+  // ef > added fields for massHyp
+
+  int fPhotCntMassHyp; // counter of photons candidate
+  std::unique_ptr<int[]> fPhotFlagMassHyp;      // flags of photon candidates
+  std::unique_ptr<int[]> fPhotClusIndexMassHyp; // cluster index of photon candidates
+  std::unique_ptr<double[]> fPhotCkovMassHyp;   // Ckov angles of photon candidates, [rad]
+  std::unique_ptr<double[]> fPhotPhiMassHyp;    // phis of photons candidates, [rad]
+  std::unique_ptr<double[]> fPhotWeiMassHyp;    // weigths of photon candidates  
+
   // int    *fPhotClusIndex;                     // cluster index of photon candidates
 
   double fCkovSigma2; // sigma2 of the reconstructed ring
+
+  // ef > added
+  double fCkovSigma2MassHyp; // sigma2 of the reconstructed ring with massHyp
+
 
   bool fIsWEIGHT;     // flag to consider weight procedure
   float fDTheta;      // Step for sliding window
@@ -173,6 +209,10 @@ class Recon : public TNamed
 
   double fRingArea; // area of a given ring
   double fRingAcc;  // fraction of the ring accepted by geometry
+
+  //ef added
+  double fRingAccMassHyp;
+  double fRingAreaMassHyp;
 
   TVector3 fTrkDir; // track direction in LORS at RAD
 

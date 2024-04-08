@@ -65,7 +65,6 @@ void Recon::ckovAngle(o2::dataformats::MatchInfoHMP* match, const std::vector<o2
   float xPc, yPc, th, ph;
 
 
-
   match->getHMPIDtrk(xPc, yPc, th, ph); // initialize this track: th and ph angles at middle of RAD
 
   setTrack(xRa, yRa, th, ph);
@@ -81,7 +80,7 @@ void Recon::ckovAngle(o2::dataformats::MatchInfoHMP* match, const std::vector<o2
 
   for (int iClu = 0; iClu < clusters.size(); iClu++) { // clusters loop
 
-    o2::hmpid::Cluster cluster = clusters.at(iClu);
+    const auto& cluster = clusters.at(iClu); // ef > use const-ref
     nPads += cluster.size();
     if (iClu == index) { // this is the MIP! not a photon candidate: just store mip info
       mipX = cluster.x();
@@ -98,18 +97,40 @@ void Recon::ckovAngle(o2::dataformats::MatchInfoHMP* match, const std::vector<o2
 
 
     double thetaCer, phiCer;
-    if (findPhotCkov(cluster.x(), cluster.y(), thetaCer, phiCer)) { // find ckov angle for this  photon candidate
+    /*if (findPhotCkov(cluster.x(), cluster.y(), thetaCer, phiCer)) { // find ckov angle for this  photon candidate
       fPhotCkov[fPhotCnt] = thetaCer;                               // actual theta Cerenkov (in TRS)
       fPhotPhi[fPhotCnt] = phiCer;
       fPhotClusIndex[fPhotCnt] = iClu; // actual phi   Cerenkov (in TRS): -pi to come back to "unusual" ref system (X,Y,-Z)
       fPhotCnt++;                      // increment counter of photon candidates
-    }
+    }*/
+
+    // ef > added findPhotCkovMassHyp
+    // only accept photonas that are +- 2 sigma from theoretical value 
+    // of either of the species 
+    if (findPhotCkov(cluster.x(), cluster.y(), thetaCer, phiCer)) { // find ckov angle for this  photon candidate
+
+      // ef > added 
+      auto isCand = isPhotonHadronCand(cluster.x(), cluster.y());
+      if(isCand) {
+        fPhotCkovMassHyp[fPhotCnt] = thetaCer;
+        fPhotPhiMassHyp[fPhotCnt] = phiCer;
+        fPhotClusIndexMassHyp[fPhotCnt] = iClu;
+        fPhotCntMassHyp++;
+      } 
+
+      fPhotCkov[fPhotCnt] = thetaCer;                               // actual theta Cerenkov (in TRS)
+      fPhotPhi[fPhotCnt] = phiCer;
+      fPhotClusIndex[fPhotCnt] = iClu; // actual phi   Cerenkov (in TRS): -pi to come back to "unusual" ref system (X,Y,-Z)
+      fPhotCnt++;                      // increment counter of photon candidates
+    }    
   } // clusters loop
 
   match->setHMPIDmip(mipX, mipY, mipQ, fPhotCnt);     // store mip info in any case
   match->setIdxHMPClus(chId, index + 1000 * sizeClu); // set index of cluster
   match->setMipClusSize(sizeClu);
 
+
+  // ef > TODO set a more dynamic cut here, fx the poisson distr requirement
   if (fPhotCnt < nMinPhotAcc) {         // no reconstruction with <=3 photon candidates
     match->setHMPsignal(kNoPhotAccept); // set the appropriate flag
     return;
@@ -145,10 +166,31 @@ void Recon::ckovAngle(o2::dataformats::MatchInfoHMP* match, const std::vector<o2
   LOGP(info, "thetaC {} occupancy {}", thetaC, occupancy); // ef remove
   match->setHMPsignal(thetaC + occupancy); // store theta Cherenkov and chmaber occupancy
 
+  // > ef added these
+  float photChargeMassHyp[10] = {0x0};
+
+  int iNrecMassHyp = flagPhotMassHyp(houghResponseMassHyp(), clusters, photChargeMassHyp); // flag photons according to individual theta ckov with respect to most probable
+  match->setMassHypNumPhot(iNrecMassHyp); // ef > added field, store number of photons for massHyp
+
+  // ef > maybe do later
+  //match->setPhotCharge(photCharge);
+
+
+  double thetaCMassHyp = findRingCkovMassHyp(clusters.size()); // find the best reconstructed theta Cherenkov
+
+  // ef > added field
+  findRingGeomMassHyp(thetaCMassHyp, 2);
+  LOGP(info, "thetaCMassHyp {} occupancy {}", thetaCMassHyp, occupancy); // ef remove
+
+  // ef > added field
+  match->setHMPsignalMassHyp(thetaCMassHyp + occupancy); // store theta Cherenkov and chmaber occupancy
+
+
   // match->SetHMPIDchi2(fCkovSigma2);                                                        //store experimental ring angular resolution squared
 
   // deleteVars(); ef : in case of smart-pointers, should not be necessary?
 } // CkovAngle()
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 bool Recon::findPhotCkov(double cluX, double cluY, double& thetaCer, double& phiCer)
 {
@@ -305,6 +347,61 @@ void Recon::trs2Lors(TVector3 dirCkov, double& thetaCer, double& phiCer) const
   phiCer = dirCkovLORS.Phi();     // actual value of the phi of the photon
   thetaCer = dirCkovLORS.Theta(); // actual value of thetaCerenkov of the photon
 }
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+void Recon::findRingGeomMassHyp(double ckovAng, int level)
+{
+  // Find area covered in the PC acceptance
+  // Arguments: ckovAng - cerenkov angle
+  //            level   - precision in finding area and portion of ring accepted (multiple of 50)
+  //   Returns: area of the ring in cm^2 for given theta ckov
+
+  Int_t kN = 50 * level;
+  Int_t nPoints = 0;
+  Double_t area = 0;
+
+  Bool_t first = kFALSE;
+  TVector2 pos1;
+
+  for (Int_t i = 0; i < kN; i++) {
+    if (!first) {
+      pos1 = tracePhot(ckovAng, Double_t(TMath::TwoPi() * (i + 1) / kN)); // find a good trace for the first photon
+      if (pos1.X() == -999) {
+        continue;
+      } // no area: open ring
+      if (!fParam->isInside(pos1.X(), pos1.Y(), 0)) {
+        pos1 = intWithEdge(fMipPos, pos1); // find the very first intersection...
+      } else {
+        if (!fParam->isInDead(pos1.X(), pos1.Y())) {
+          nPoints++;
+        } // photon is accepted if not in dead zone
+      }
+      first = kTRUE;
+      continue;
+    }
+    TVector2 pos2 = tracePhot(ckovAng, Double_t(TMath::TwoPi() * (i + 1) / kN)); // trace the next photon
+    if (pos2.X() == -999) {
+      {
+        continue;
+      }
+    } // no area: open ring
+    if (!fParam->isInside(pos2.X(), pos2.Y(), 0)) {
+      pos2 = intWithEdge(fMipPos, pos2);
+    } else {
+      if (!fParam->isInDead(pos2.X(), pos2.Y())) {
+        nPoints++;
+      } // photon is accepted if not in dead zone
+    }
+    area += TMath::Abs((pos1 - fMipPos).X() * (pos2 - fMipPos).Y() - (pos1 - fMipPos).Y() * (pos2 - fMipPos).X()); // add area of the triangle...
+    pos1 = pos2;
+  }
+  //---  find area and length of the ring;
+  fRingAccMassHyp = (Double_t)nPoints / (Double_t)kN;
+  area *= 0.5;
+  fRingAreaMassHyp = area;
+
+} // FindRingGeomMassHyp()
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 void Recon::findRingGeom(double ckovAng, int level)
 {
@@ -446,10 +543,102 @@ double Recon::findRingCkov(int)
   return weightThetaCerenkov;
 
 } // FindCkovRing()
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// ef : added functions for massHyp
+
+double Recon::findRingCkovMassHyp(int)
+{
+  // Loops on all Ckov candidates and estimates the best Theta Ckov for a ring formed by those candidates. Also estimates an error for that Theat Ckov
+  // collecting errors for all single Ckov candidates thetas. (Assuming they are independent)
+  // Arguments: iNclus- total number of clusters in chamber for background estimation
+  //    Return: best estimation of track Theta ckov
+
+  Double_t wei = 0.;
+  Double_t weightThetaCerenkov = 0.;
+
+  Double_t ckovMin = 9999., ckovMax = 0.;
+  Double_t sigma2 = 0; // to collect error squared for this ring
+
+  for (Int_t i = 0; i < fPhotCntMassHyp; i++) { // candidates loop
+    if (fPhotFlagMassHyp[i] == 2) {
+      if (fPhotCkovMassHyp[i] < ckovMin) {
+        ckovMin = fPhotCkovMassHyp[i];
+      } // find max and min Theta ckov from all candidates within probable window
+      if (fPhotCkovMassHyp[i] > ckovMax) {
+        ckovMax = fPhotCkovMassHyp[i];
+      }
+      weightThetaCerenkov += fPhotCkovMassHyp[i] * fPhotWeiMassHyp[i];
+      wei += fPhotWeiMassHyp[i]; // collect weight as sum of all candidate weghts
+
+      sigma2 += 1. / fParam->sigma2(fTrkDir.Theta(), fTrkDir.Phi(), fPhotCkovMassHyp[i], fPhotPhiMassHyp[i]);
+    }
+  } // candidates loop
+
+  if (sigma2 > 0) {
+    fCkovSigma2MassHyp = 1. / sigma2;
+  } else {
+    fCkovSigma2MassHyp = 1e10;
+  }
+
+  if (wei != 0.) {
+    weightThetaCerenkov /= wei;
+  } else {
+    weightThetaCerenkov = 0.;
+  }
+  return weightThetaCerenkov;
+
+} // FindCkovRing()
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+// ef : added functions for massHyp
+//int iNrec = flagPhot(houghResponse(), clusters, photCharge); // flag photons according to
+int Recon::flagPhotMassHyp(double ckov, const std::vector<o2::hmpid::Cluster>& clusters, float* photChargeVecMassHyp)
+// int Recon::flagPhot(double ckov, const std::vector<o2::hmpid::Cluster> clusters)
+{
+  // Flag photon candidates if their individual ckov angle is inside the window around ckov angle returned by  HoughResponse()
+  // Arguments: ckov- value of most probable ckov angle for track as returned by HoughResponse()
+  //   Returns: number of photon candidates happened to be inside the window
+
+  // Photon Flag:  Flag = 0 initial set;
+  //               Flag = 1 good candidate (charge compatible with photon);
+  //               Flag = 2 photon used for the ring;
+
+  Int_t steps = (Int_t)((ckov) / fDTheta); // how many times we need to have fDTheta to fill the distance between 0  and thetaCkovHough
+
+  Double_t tmin = (Double_t)(steps - 1) * fDTheta;
+  Double_t tmax = (Double_t)(steps)*fDTheta;
+  Double_t tavg = 0.5 * (tmin + tmax);
+
+  tmin = tavg - 0.5 * fWindowWidth;
+  tmax = tavg + 0.5 * fWindowWidth;
+
+  Int_t iInsideCnt = 0;                  // count photons which Theta ckov inside the window
+  for (Int_t i = 0; i < fPhotCnt; i++) { // photon candidates loop
+    fPhotFlagMassHyp[i] = 0;
+    if (fPhotCkovMassHyp[i] >= tmin && fPhotCkovMassHyp[i] <= tmax) {
+      fPhotFlagMassHyp[i] = 2;
+
+      const auto& cluster = clusters.at(fPhotClusIndexMassHyp[i]);
+      float charge = cluster.q();
+      if (iInsideCnt < 10) {
+        photChargeVecMassHyp[iInsideCnt] = charge;
+	//fPhotCkovStored[iInsideCnt] = etaCkov;
+      } // AddObjectToFriends(pCluLst,i,pTrk);
+      iInsideCnt++;
+    }
+  }
+
+  return iInsideCnt;
+
+} // FlagPhotMassHyp()
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 //int iNrec = flagPhot(houghResponse(), clusters, photCharge); // flag photons according to
-int Recon::flagPhot(double ckov, const std::vector<o2::hmpid::Cluster> clusters, float* photChargeVec)
+int Recon::flagPhot(double ckov, const std::vector<o2::hmpid::Cluster>& clusters, float* photChargeVec)
 // int Recon::flagPhot(double ckov, const std::vector<o2::hmpid::Cluster> clusters)
 {
   // Flag photon candidates if their individual ckov angle is inside the window around ckov angle returned by  HoughResponse()
@@ -478,7 +667,7 @@ int Recon::flagPhot(double ckov, const std::vector<o2::hmpid::Cluster> clusters,
 
 
 
-      o2::hmpid::Cluster cluster = clusters.at(fPhotClusIndex[i]);
+      const auto& cluster = clusters.at(fPhotClusIndex[i]); // ef > use const-ref
       float charge = cluster.q();
       if (iInsideCnt < 10) {
         photChargeVec[iInsideCnt] = charge;
@@ -538,6 +727,80 @@ void Recon::refract(TVector3& dir, double n1, double n2) const
     dir.SetTheta(TMath::ASin(sinref));
   }
 }
+
+
+// ef : addef field for MassHyp
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+double Recon::houghResponseMassHyp()
+{
+  //    fIdxMip = mipId;
+  // Photon Flag:  Flag = 0 initial set;
+  //               Flag = 1 good candidate (charge compatible with photon);
+  //               Flag = 2 photon used for the ring;
+  Double_t kThetaMax = 0.75;
+  Int_t nChannels = (Int_t)(kThetaMax / fDTheta + 0.5);
+  TH1D* phots = new TH1D("Rphot", "phots", nChannels, 0, kThetaMax);
+  TH1D* photsw = new TH1D("RphotWeightedMassHyp", "photsw", nChannels, 0, kThetaMax);
+  TH1D* resultw = new TH1D("resultw", "resultw", nChannels, 0, kThetaMax);
+  Int_t nBin = (Int_t)(kThetaMax / fDTheta);
+  Int_t nCorrBand = (Int_t)(fWindowWidth / (2 * fDTheta));
+
+  for (Int_t i = 0; i < fPhotCntMassHyp; i++) { // photon cadidates loop
+    Double_t angle = fPhotCkovMassHyp[i];
+    if (angle < 0 || angle > kThetaMax) {
+      continue;
+    }
+    phots->Fill(angle);
+    Int_t bin = (Int_t)(0.5 + angle / (fDTheta));
+    Double_t weight = 1.;
+    if (fIsWEIGHT) {
+      Double_t lowerlimit = ((Double_t)bin) * fDTheta - 0.5 * fDTheta;
+      Double_t upperlimit = ((Double_t)bin) * fDTheta + 0.5 * fDTheta;
+      findRingGeom(lowerlimit);
+      Double_t areaLow = getRingArea();
+      findRingGeom(upperlimit);
+      Double_t areaHigh = getRingArea();
+      Double_t diffArea = areaHigh - areaLow;
+      if (diffArea > 0) {
+        weight = 1. / diffArea;
+      }
+    }
+    photsw->Fill(angle, weight);
+    fPhotWeiMassHyp[i] = weight;
+  } // photon candidates loop
+
+  for (Int_t i = 1; i <= nBin; i++) {
+    Int_t bin1 = i - nCorrBand;
+    Int_t bin2 = i + nCorrBand;
+    if (bin1 < 1) {
+      bin1 = 1;
+    }
+    if (bin2 > nBin) {
+      bin2 = nBin;
+    }
+
+    Double_t sumPhots = phots->Integral(bin1, bin2);
+
+    if (sumPhots < 3) {
+      continue;
+    } // if less then 3 photons don't trust to this ring
+    Double_t sumPhotsw = photsw->Integral(bin1, bin2);
+    if ((Double_t)((i + 0.5) * fDTheta) > 0.7) {
+      continue;
+    }
+    resultw->Fill((Double_t)((i + 0.5) * fDTheta), sumPhotsw);
+  }
+  // evaluate the "BEST" theta ckov as the maximum value of histogramm
+  Double_t* pVec = resultw->GetArray();
+  Int_t locMax = TMath::LocMax(nBin, pVec);
+  delete phots;
+  delete photsw;
+  delete resultw; // Reset and delete objects
+
+  return (Double_t)(locMax * fDTheta + 0.5 * fDTheta); // final most probable track theta ckov
+
+} // HoughResponse()
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 double Recon::houghResponse()
 {
