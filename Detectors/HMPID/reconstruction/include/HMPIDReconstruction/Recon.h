@@ -55,6 +55,7 @@ class Recon : public TNamed
             fPhotCkov(0x0),
             fPhotPhi(0x0),
             fPhotWei(0x0),
+
             fCkovSigma2(0),
             fIsWEIGHT(kFALSE),
             fDTheta(0.001),
@@ -126,6 +127,99 @@ class Recon : public TNamed
   TVector2 traceForward(TVector3 dirCkov) const;                           // tracing forward a photon from (x,y) to PC
   void lors2Trs(TVector3 dirCkov, double& thetaCer, double& phiCer) const; // LORS to TRS
   void trs2Lors(TVector3 dirCkov, double& thetaCer, double& phiCer) const; // TRS to LORS
+
+
+
+  float calcCkovFromMass(float p, float n, int pdg)
+  {
+    // Constants for particle masses (in GeV/c^2)
+    const float mass_Muon = 0.10566, mass_Pion = 0.1396, mass_Kaon = 0.4937, mass_Proton = 0.938;
+
+    float m; // variable to hold the mass
+    p = std::abs(p);
+    // Switch based on absolute value of PDG code
+    switch (std::abs(pdg)) {
+      case 13:
+        m = mass_Muon;
+        break;
+      case 211:
+        m = mass_Pion;
+        break;
+      case 321:
+        m = mass_Kaon;
+        break;
+      case 2212:
+        m = mass_Proton;
+        break;
+      default:
+        return 0; // return 0 if PDG code doesn't match any known codes
+    }
+
+    const float p_sq = p * p;
+    const float refIndexFreon = n; // Assuming n is the refractive index
+    const float cos_ckov_denom = p * refIndexFreon;
+
+    // Sanity check
+    if (p_sq + m * m < 0) {
+      return 0;
+    }
+
+    const auto cos_ckov =
+      static_cast<float>(TMath::Sqrt(p_sq + m * m) / cos_ckov_denom);
+
+    // Sanity check
+    if (cos_ckov > 1 || cos_ckov < -1) {
+      return 0;
+    }
+    const auto ckov = static_cast<float>(TMath::ACos(cos_ckov));
+    return ckov;
+  }
+
+
+
+  // ef > todo, make this in central HMP method?
+  bool isPhotonHadronCand(const o2::dataformats::MatchInfoHMP* match, double thetaCer, double phiCer)  {
+
+    double  nSigmaCutMassHyp = 2.; // ef set  this dynamicly later ?
+    auto p = match->getHmpMom();
+    auto n = match->getRefIndex();
+
+    auto ckovThPion = calcCkovFromMass(p, n, 211);
+    auto ckovThKaon = calcCkovFromMass(p, n, 321);
+    auto ckovThProton = calcCkovFromMass(p, n, 2212);
+
+
+
+    double sigma2 = fParam->sigma2(fTrkDir.Theta(), fTrkDir.Phi(), thetaCer, phiCer);
+    double sigmaRing = std::sqrt(sigma2);
+
+    // ef > saturate the sigmaRing 
+    if(sigmaRing > 0.02) 
+      sigmaRing = 0.02;
+
+
+    auto zProton = (thetaCer-ckovThProton)/sigmaRing;
+    auto zKaon = (thetaCer-ckovThKaon)/sigmaRing;
+    auto zPion = (thetaCer-ckovThPion)/sigmaRing;
+
+    Printf("isPhotonHadronCand >>> ckovThPion %.3f ckovThKaon %.3f ckovThProton %.3f sigma2 %.3f sigmaRing %.3f", ckovThPion, ckovThKaon, ckovThProton, sigma2, sigmaRing);
+
+
+    if(std::abs(zProton) < nSigmaCutMassHyp) {
+      Printf("isPhotonHadronCand >>> zProton %.3f ckovThProton %.3f sigmaRing %.3f thetaCer %.3f", zProton, ckovThProton, sigmaRing, thetaCer);
+
+      return true;
+    } if(std::abs(zKaon) < nSigmaCutMassHyp) {
+      Printf("isPhotonHadronCand >>> zKaon %.3f ckovThKaon %.3f sigmaRing %.3f thetaCer %.3f", zKaon, ckovThKaon, sigmaRing, thetaCer);
+
+      return true;
+    } if(std::abs(zPion) < nSigmaCutMassHyp) {
+      Printf("isPhotonHadronCand >>> zPion %.3f ckovThPion %.3f sigmaRing %.3f thetaCer %.3f", zPion, ckovThPion, sigmaRing, thetaCer);
+      return true;
+    }
+
+    return false;
+  }
 
   TVector2 getMip() const
   {

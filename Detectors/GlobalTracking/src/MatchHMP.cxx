@@ -940,6 +940,9 @@ void MatchHMP::doMatching()
           LOGP(info, "ckovAngle with xRa {} yRa {} xPc {} yPc {} xMip {}  yMip {}  ", xRa, yRa, xPc, yPc, testXmip, testYmip);
           LOGP(info, "matched with distance {} ", dmin);
 
+          auto ckovangleMH = matching.getHMPsignalMassHyp();
+          LOGP(info, "ckovangleMH {}", matching.getHMPsignalMassHyp());
+
           LOGP(info, "ckovangle {}", matching.getHMPsignal());
           LOGP(info, "momentum {}", matching.getHmpMom());
           LOGP(info, "occupancy {}", matching.getOccupancy());
@@ -959,9 +962,21 @@ void MatchHMP::doMatching()
           auto massFromTrack = calcCkovFromMass(matching.getHmpMom(), 1.2904, pdgTrack);
           auto massFromClu = calcCkovFromMass(matching.getHmpMom(), 1.2904, pdgCluFromChosen);
 
+
+          for (auto pdg : pdgs) {
+            auto ckov = calcCkovFromMass(matching.getHmpMom(), 1.2904, pdg);
+            std::cout << " pdg " << pdg << " MassHypckov: " << ckovangleMH;
+
+            auto ns = (ckovangleMH - ckov) / 0.01;
+            LOGP(info, "actual ckov {} th {} nSigma {}", ckovangleMH, ckov, ns);
+          }
+          auto predictedMassMH = calcMassFromCkov(matching.getHmpMom(), 1.2904, matching.getHMPsignalMassHyp());
+
+
           LOGP(info, "massFromTrack {}", massFromTrack);
           LOGP(info, "massFromClu {}", massFromClu);
 
+          LOGP(info, "predictedMassMH {}", predictedMassMH);
           LOGP(info, "predictedMass {}", predictedMass);
         } // end if mVerbose
 
@@ -1361,6 +1376,12 @@ void MatchHMP::doMatching()
           LOGP(info, "ckovAngle with xRa {} yRa {} xPc {} yPc {} xMip {}  yMip {}  ", xRa, yRa, xPc, yPc, testXmip, testYmip);
           LOGP(info, "matched with distance {} ", dmin);
 
+
+          if(std::abs(matching.getHMPsignalMassHyp() - matching.getHMPsignal()) > 0.0001) {
+            LOGP(info, "was different!!");
+          }
+
+          LOGP(info, "ckovMassHyp {}", matching.getHMPsignalMassHyp());
           LOGP(info, "ckovangle {}", matching.getHMPsignal());
           LOGP(info, "momentum {}", matching.getHmpMom());
           LOGP(info, "occupancy {}", matching.getOccupancy());
@@ -1373,9 +1394,16 @@ void MatchHMP::doMatching()
 
             auto ns = (matching.getHMPsignal() - ckov) / 0.01;
             LOGP(info, "actual ckov {} th {} nSigma {}", matching.getHMPsignal(), ckov, ns);
+
+            auto ns2 = (matching.getHMPsignalMassHyp() - ckov) / 0.01;
+
+            LOGP(info, "actual ckovMassHyp {} th {} nSigma {}", matching.getHMPsignalMassHyp(), ckov, ns2);
+
+
           }
           // pdgTrack, mcCluFromTrack
           auto predictedMass = calcMassFromCkov(matching.getHmpMom(), 1.2904, matching.getHMPsignal());
+          auto predictedMassHyp = calcMassFromCkov(matching.getHmpMom(), 1.2904, matching.getHMPsignalMassHyp());
 
           auto massFromTrack = calcCkovFromMass(matching.getHmpMom(), 1.2904, pdgTrack);
           auto massFromClu = calcCkovFromMass(matching.getHmpMom(), 1.2904, pdgCluFromChosen);
@@ -1383,7 +1411,7 @@ void MatchHMP::doMatching()
           LOGP(info, "massFromTrack {}", massFromTrack);
           LOGP(info, "massFromClu {}", massFromClu);
 
-          LOGP(info, "predictedMass {}", predictedMass);
+          LOGP(info, "predictedMass {} predictedMassHyp {}", predictedMass, predictedMassHyp);
         } // end if mVerbose
 
 
