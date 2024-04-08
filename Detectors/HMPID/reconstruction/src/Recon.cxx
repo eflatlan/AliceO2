@@ -49,7 +49,7 @@ void Recon::initVars(int n)
   //
 }
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-void Recon::ckovAngle(o2::dataformats::MatchInfoHMP* match, const std::vector<o2::hmpid::Cluster> clusters, int index, double nmean, float xRa, float yRa)
+void Recon::ckovAngle(o2::dataformats::MatchInfoHMP* match, const std::vector<o2::hmpid::Cluster>& clusters, int index, double nmean, float xRa, float yRa)
 {
   // Pattern recognition method based on Hough transform
   // Arguments:   pTrk     - track for which Ckov angle is to be found
@@ -95,6 +95,8 @@ void Recon::ckovAngle(o2::dataformats::MatchInfoHMP* match, const std::vector<o2
     if (cluster.q() > 2 * fParam->qCut() || cluster.size() > 4) {
       continue;
     }
+
+
     double thetaCer, phiCer;
     if (findPhotCkov(cluster.x(), cluster.y(), thetaCer, phiCer)) { // find ckov angle for this  photon candidate
       fPhotCkov[fPhotCnt] = thetaCer;                               // actual theta Cerenkov (in TRS)

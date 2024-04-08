@@ -44,11 +44,6 @@ class Clusterer
   Clusterer(bool useMC)
   {
     mUseMC = useMC;
-
-    // ef : TODO remove this when code is verified:
-    if (mUseMC) {
-      mcReader = std::make_unique<o2::steer::MCKinematicsReader>("collisioncontext.root");
-    }
   }
 
   ~Clusterer() = default;
@@ -58,22 +53,18 @@ class Clusterer
 
   // void process(std::vector<Digit> const& digits, std::vector<o2::hmpid::Cluster>& clusters, MCLabelContainer const* digitMCTruth);
 
-  //
   void setMCTruthContainer(o2::dataformats::MCTruthContainer<o2::MCCompLabel>* truth) { mClsLabels = truth; }
 
   // ef : added; set labels in mClsLabels
   void iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmpid::Digit> digits, const std::vector<int>& indices, MCLabelContainer const* digitMCTruth, MCLabelContainer* mClsLabels, int cluSize);
-
+  // ef : added; set form cluster and set MC labels from hits to resolved cluster
   void FormCluMC(Cluster& pClu, int pDig, gsl::span<const o2::hmpid::Digit> digs, TMatrixF& pDigMap, std::vector<int>& indicesUnresolved);
 
   void Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::hmpid::Cluster>& clus, float* pUserCut, MCLabelContainer const* digitMCTruth, bool isUnfold = kTRUE); // digits->clusters
   static void FormClu(Cluster& pClu, int pDig, gsl::span<const o2::hmpid::Digit> digs, TMatrixF& pDigMap);                                                                   // cluster formation recursive algorithm
   static int UseDig(int padX, int padY, TMatrixF& pDigMap);                                                                                                                  // use this pad's digit to form a cluster
-  inline bool IsDigSurvive(Digit* pDig) const;
+  inline bool IsDigSurvive(Digit* pDig) const;                                                                                                                               // check for sigma cut
 
-  // void setDigitTruth()
-
-  // ef FIX!                                                                                       // check for sigma cut
 
  private:
 
@@ -81,16 +72,11 @@ class Clusterer
   // > TODO : make it global Hmpid base?
   static constexpr int kMaxLocMax = 6;      // max allowed number of loc max for fitting
 
-
   int startIndexDigMC = 0; // ef : TODO find a more elegant way
   // void processChamber(std::vector<Cluster>& clusters, MCLabelContainer const* digitMCTruth);
   // void fetchMCLabels(const Digit* dig, std::array<Label, Cluster::maxLabels>& labels, int& nfilled) const;
 
-
   o2::dataformats::MCTruthContainer<o2::MCCompLabel>* mClsLabels = nullptr; // Cluster MC labels
-
-  // ef : TODO :remove this when code and pdg etc is verified
-  std::unique_ptr<o2::steer::MCKinematicsReader> mcReader;
 
   // is set in initialization
   bool mUseMC = false;

@@ -40,6 +40,27 @@ class HMPIDDigitizer
 
   // set a trigger; returns true if accepted or false if busy
   // (assuming some extern decision on this time)
+  bool setTriggerTime2(double timeNS)
+  {
+    if (mReadoutCounter == -1) {
+      // for the first trigger no busy check necessary
+      mCurrentTriggerTime = timeNS;
+      mReadoutCounter++;
+      mBc = o2::InteractionRecord::ns2bc(mCurrentTriggerTime, mOrbit);
+      return false;
+    } else {
+      if ((timeNS - mCurrentTriggerTime) > BUSYTIME) {
+        mCurrentTriggerTime = timeNS;
+        mBc = o2::InteractionRecord::ns2bc(mCurrentTriggerTime, mOrbit);
+        mReadoutCounter++;
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
+
+
   bool setTriggerTime(double timeNS)
   {
     if (mReadoutCounter == -1) {

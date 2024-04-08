@@ -45,6 +45,9 @@ simWorker=""
 # option to set the number of tpc-lanes
 tpcLanes=""
 
+
+detectorsToskip=""
+
 #
 Usage()
 {
@@ -88,7 +91,7 @@ fi
 
 [[ -z $startTime ]] && startTime=$startTimeDef
 [[ -z $runNumber ]] && runNumber=$runNumDef
-
+dosim="0"
 dosimp="0"
 dosimk="0"
 dosimpr="0"
@@ -102,16 +105,16 @@ if [ "$fromstage" == "simp" ]; then
   dodigi="1"
   dotrdtrap="1"
   doreco="1"
-elif [ "$fromstage" == "sim" ]; then
-  dosim="1"
-  dodigi="1"
-  dotrdtrap="1"
-  doreco="1"    
 elif [ "$fromstage" == "simk" ]; then
   dosimk="1"
   dodigi="1"
   dotrdtrap="1"
   doreco="1"
+elif [ "$fromstage" == "sim" ]; then
+  dosim="1"
+  dodigi="1"
+  dotrdtrap="1"
+  doreco="1"  
 elif [ "$fromstage" == "simpr" ]; then
   dosimpr="1"
   dodigi="1"
@@ -136,11 +139,12 @@ if [ "$dosim" == "1" ]; then
 
   #---------------------------------------------------
   echo "Running simulation for $nev $collSyst events with $gener generator and engine $engine and run number $runNumber"
-  taskwrapper sim.log o2-sim -n"$nev" --configKeyValues "Diamond.width[2]=6." -g "$gener" -e "$engine" $simWorker --run ${runNumber}
+  taskwrapper sim.log o2-sim -n"$nev"  -m PIPE ITS TPC FT0 HMP TRD TOF --configKeyValues "Diamond.width[2]=6." -g "$gener" -e "$engine" $simWorker --run ${runNumber}
 
   ##------ extract number of hits
   taskwrapper hitstats.log root -q -b -l ${O2_ROOT}/share/macro/analyzeHits.C
 fi
+
 
 
 if [ "$dosimp" == "1" ]; then
@@ -163,13 +167,13 @@ fi
 if [ "$dosimk" == "1" ]; then
   #---- GRP creation ------
   echo "Creating GRPs ... and publishing in local CCDB overwrite"
-  taskwrapper grp.log o2-grp-simgrp-tool createGRPs --run ${runNumber} --publishto GRP -o mcGRP
+  taskwrapper grp.log o2-grp-simgrp-tool createGRPs --run ${runNumber} --publishto GRP -o mcGRP 
 
   #---------------------------------------------------
   echo "Running Ka gun simulation for $nev  "
   #taskwrapper sim.log o2-sim -n"$nev" --configKeyValues "Diamond.width[2]=6." -g "$gener" -e "$engine" $simWorker --run ${runNumber}
 
-	o2-sim -n"$nev" -e TGeant3 -g boxgen --configKeyValues "BoxGun.pdg=321; BoxGun.phirange[0]=-5; BoxGun.phirange[1]=60; BoxGun.number=30; BoxGun.eta[0]=-0.5 ; BoxGun.eta[1]=0.5; BoxGun.prange[0]=2.8; BoxGun.prange[1]=2.83;" $simWorker --run ${runNumber}
+	o2-sim -n"$nev" -e TGeant3 -g boxgen -m PIPE ITS TPC FT0 HMP TRD TOF CTP --configKeyValues "BoxGun.pdg=321; BoxGun.phirange[0]=-5; BoxGun.phirange[1]=60; BoxGun.number=30; BoxGun.eta[0]=-0.5 ; BoxGun.eta[1]=0.5; BoxGun.prange[0]=2.8; BoxGun.prange[1]=2.83;" $simWorker --run ${runNumber}
 
 
 
@@ -200,12 +204,19 @@ if [ "$dodigi" == "1" ]; then
   echo "Running digitization for $intRate kHz interaction rate"
   intRate=$((1000*(intRate)));
   if [[ "$dotrdtrap" == "1" ]]; then trddigioption="--disable-trd-trapsim"; fi # no need to run the TRAP simulation twice
-  taskwrapper digi.log o2-sim-digitizer-workflow $gloOpt $trddigioption --interactionRate $intRate $tpcLanes --configKeyValues "HBFUtils.runNumber=${runNumber}" --early-forward-policy always --combine-devices
+  taskwrapper digi.log o2-sim-digitizer-workflow --skipDet EMC,MFT,FDD,FV0,MID,MCH,CPV,PHS,ZDC  $gloOpt $trddigioption --interactionRate $intRate $tpcLanes --configKeyValues "HBFUtils.runNumber=${runNumber}" --early-forward-policy always --combine-devices
   echo "Return status of digitization: $?"
   # existing checks
   #root -b -q O2/Detectors/ITSMFT/ITS/macros/test/CheckDigits.C+
 fi
 
+
+#add CTP, CPV, PHS, ZDC
+
+# CTP trengs av tpc
+
+# --skipDet istedet --onlyDet HMP,TOF,ITS,TPC,TRD,FT0
+#--skipDet EMC,MFT,FDD,FV0,MID,MCH 
 if [ "$dotrdtrap" == "1" ]; then
   echo "Running TRD trap simulator"
   taskwrapper trdtrap.log o2-trd-trap-sim $gloOpt
@@ -228,11 +239,11 @@ if [ "$doreco" == "1" ]; then
   # root -b -q O2/Detectors/ITSMFT/ITS/macros/test/CheckClusters.C+
   # root -b -q O2/Detectors/ITSMFT/ITS/macros/test/CheckTracks.C+
 
-  echo "Running MFT reco flow"
+  #echo "Running MFT reco flow"
   #needs MFT digitized data
-  MFTRecOpt=" --configKeyValues \"MFTTracking.forceZeroField=false;MFTTracking.LTFclsRCut=0.0100;\""
-  taskwrapper mftreco.log  o2-mft-reco-workflow  $gloOpt $MFTRecOpt
-  echo "Return status of mftreco: $?"
+  #MFTRecOpt=" --configKeyValues \"MFTTracking.forceZeroField=false;MFTTracking.LTFclsRCut=0.0100;\""
+  #taskwrapper mftreco.log  o2-mft-reco-workflow  --disable-mc $gloOpt $MFTRecOpt # provde denne .. OK
+  #echo "Return status of mftreco: $?"
 
   #echo "Running MCH reco flow"
   #taskwrapper mchreco.log o2-mch-reco-workflow $gloOpt
@@ -248,10 +259,10 @@ if [ "$doreco" == "1" ]; then
   #taskwrapper fddreco.log o2-fdd-reco-workflow --disable-mc $gloOpt
   #echo "Return status of fddreco: $?"
 
-  echo "Running FV0 reco flow"
+  #echo "Running FV0 reco flow"
   #needs FV0 digitized data
-  taskwrapper fv0reco.log o2-fv0-reco-workflow  --disable-mc $gloOpt
-  echo "Return status of fv0reco: $?"
+  #taskwrapper fv0reco.log o2-fv0-reco-workflow  --disable-mc $gloOpt
+  #echo "Return status of fv0reco: $?"
 
   #echo "Running MID reco flow"
   #needs MID digitized data

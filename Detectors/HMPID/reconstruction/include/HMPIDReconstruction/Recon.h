@@ -85,7 +85,7 @@ class Recon : public TNamed
   // void deleteVars() const; // delete variables
 
   // void     CkovAngle    (AliESDtrack *pTrk,TClonesArray *pCluLst,int index,double nmean,float xRa,float yRa );
-  void ckovAngle(o2::dataformats::MatchInfoHMP* match, const std::vector<o2::hmpid::Cluster> clusters, int index, double nmean, float xRa, float yRa); // reconstructed Theta Cerenkov
+  void ckovAngle(o2::dataformats::MatchInfoHMP* match, const std::vector<o2::hmpid::Cluster>& clusters, int index, double nmean, float xRa, float yRa); // reconstructed Theta Cerenkov
 
   bool findPhotCkov(double cluX, double cluY, double& thetaCer, double& phiCer); // find ckov angle for single photon candidate
   bool findPhotCkov2(double cluX, double cluY, double& thetaCer, double& phiCer);

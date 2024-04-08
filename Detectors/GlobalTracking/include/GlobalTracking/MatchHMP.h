@@ -133,9 +133,7 @@ class MatchHMP
     if (cos_ckov > 1 || cos_ckov < -1) {
       return 0;
     }
-
     const auto ckovAngle = static_cast<float>(TMath::ACos(cos_ckov));
-
     return ckovAngle;
   }
 
@@ -281,7 +279,6 @@ class MatchHMP
   int mNumOfTriggers; // number of HMP triggers
 
   // ef : added
-
   bool mVerbose = false;
 
   // ef : added the pParam here, to avoid doing it in intrTrkCh
@@ -302,3 +299,5 @@ class MatchHMP
 } // namespace o2
 
 #endif
+
+

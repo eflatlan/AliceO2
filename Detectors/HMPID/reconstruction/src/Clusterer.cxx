@@ -171,7 +171,6 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
 
       // recursively add all adjacent digits to the cluster
 
-
       int formedClusters = -1;
 
       const int cluSizeIn = clus.size();
@@ -206,9 +205,7 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
           //  cosnt auto& cluster = clus[i+cluSizeIn];
           //  vector<int> resolvedIndices = resolvedIndicesMap[i];
           //
-
           // map from "local" to global
-
    
           LOGP(info, "\n\n\n=======================\n=======================");
           for (const auto& resolvedIndices : resolvedIndicesMap) {
@@ -415,12 +412,9 @@ void Clusterer::iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmp
       // we fill MC-Complabel label at index lbl for headArray
       // this is the hit for a digit in the cluster
 
-      // lbl = mClsLabels->getIndexedSize()
-
       // Det ga runtime error
 
       // ef :remove
-      //LOGP(info, "eventID from clulbl {}", label.getEventID());
 
       mClsLabels->addElement(lbl, label);
       // LOGP(info, "number of labels for clu {}  : lbl", mClsLabels->getLabels(lbl).size());
@@ -569,8 +563,6 @@ void Clusterer::FormCluMC(Cluster& pClu, int pDig, gsl::span<const o2::hmpid::Di
   pClu.digAdd(&digs[pDig]); // take this digit in cluster
   indicesUnresolved.push_back(pDig);
   // ef : add index of digit to cluster
-
-  // pClu.setUnresolvedIndex(pDig);
 
 
   int cnt = 0;
