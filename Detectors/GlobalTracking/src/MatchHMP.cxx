@@ -788,6 +788,13 @@ void MatchHMP::doMatching()
 
         // matching.setMIPindex(index); // the position of the MIP in the qrray of clusters
         matching.setHMPIDtrk(xPc, yPc, theta, phi);
+        matching.setHMPIDrad(xRa, yRa); // ef added
+        
+        float testxRa, testYra;
+        matching.getHMPIDrad(testxRa, testYra); // ef added
+        Printf("testxRa %.1f testyRa %.1f", testxRa, testYra);
+        LOGP(info, "testxRa {} testyRa {}", testxRa, testYra);
+
 
         matching.setHMPsignal(pParam->kMipQdcCut);
 
@@ -851,6 +858,12 @@ void MatchHMP::doMatching()
 
             auto p = mctrk->GetP();
             auto actualP = matching.getHmpMom();
+            LOGP(info, "MC momentum = {} measured momentum = {}", p, actualP);
+
+
+            float tx, ty;
+            matching.getHMPIDrad(tx, ty);
+            std::cout<< " xrad " << tx  << std::endl;
             LOGP(info, "MC momentum = {} measured momentum = {}", p, actualP);
 
             int indexOfMip = matching.getMipclusIndex();
@@ -1214,7 +1227,7 @@ void MatchHMP::doMatching()
         matching.setMipClusCharge(bestHmpCluster->q()); // ef: set event number from cluster
 
         // matching.setMIPindex(index); // the position of the MIP in the qrray of clusters
-        matching.setHMPIDtrk(xPc, yPc, theta, phi);
+        matching.setHMPIDtrk(xRa, yRa, xPc, yPc, theta, phi);
 
         matching.setHMPsignal(pParam->kMipQdcCut);
 

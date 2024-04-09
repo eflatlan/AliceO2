@@ -202,9 +202,6 @@ class Recon : public TNamed
     auto zKaon = (thetaCer-ckovThKaon)/sigmaRing;
     auto zPion = (thetaCer-ckovThPion)/sigmaRing;
 
-    Printf("isPhotonHadronCand >>> ckovThPion %.3f ckovThKaon %.3f ckovThProton %.3f sigma2 %.3f sigmaRing %.3f", ckovThPion, ckovThKaon, ckovThProton, sigma2, sigmaRing);
-
-
     if(std::abs(zProton) < nSigmaCutMassHyp) {
       Printf("isPhotonHadronCand >>> zProton %.3f ckovThProton %.3f sigmaRing %.3f thetaCer %.3f", zProton, ckovThProton, sigmaRing, thetaCer);
 

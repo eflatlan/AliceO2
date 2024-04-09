@@ -73,14 +73,11 @@ void Recon::ckovAngle(o2::dataformats::MatchInfoHMP* match, const std::vector<o2
 
   float xPc, yPc, th, ph;
 
-  LOGP(info, "getHMPIDtrk");
-
   match->getHMPIDtrk(xPc, yPc, th, ph); // initialize this track: th and ph angles at middle of RAD
 
   setTrack(xRa, yRa, th, ph);
 
   fParam->setRefIdx(nmean);
-  LOGP(info, "setRefIdx");
 
   float mipQ = -1, mipX = -1, mipY = -1;
   int chId = -1, sizeClu = -1;
@@ -89,7 +86,6 @@ void Recon::ckovAngle(o2::dataformats::MatchInfoHMP* match, const std::vector<o2
   fPhotCntMassHyp = 0;
 
   int nPads = 0;
-  LOGP(info, "clustersLOOP");
   for (int iClu = 0; iClu < clusters.size(); iClu++) { // clusters loop
 
     const auto& cluster = clusters.at(iClu); // ef > use const-ref
@@ -119,9 +115,11 @@ void Recon::ckovAngle(o2::dataformats::MatchInfoHMP* match, const std::vector<o2
     // ef > added findPhotCkovMassHyp
     // only accept photonas that are +- 2 sigma from theoretical value 
     // of either of the species 
+    
     if (findPhotCkov(cluster.x(), cluster.y(), thetaCer, phiCer)) { // find ckov angle for this  photon candidate
 
       // ef > added 
+      // ef > add also based on mom-thresh
       auto isCand = isPhotonHadronCand(match, thetaCer, phiCer); // will call Para--sigma2(double trkTheta, double trkPhi, double ckovTh, double ckovPh)
       if(isCand) {
 
@@ -167,7 +165,6 @@ void Recon::ckovAngle(o2::dataformats::MatchInfoHMP* match, const std::vector<o2
 
   int iNrec = flagPhot(houghResponse(), clusters, photCharge); // flag photons according to individual theta ckov with respect to most probable
   // int iNrec = flagPhot(houghResponse(), clusters); // flag photons according to individual theta ckov with respect to most probable
-  LOGP(info, " setPhotCharge");
 
   match->setPhotCharge(photCharge);
   match->setHMPIDmip(mipX, mipY, mipQ, iNrec); // store mip info
@@ -185,17 +182,19 @@ void Recon::ckovAngle(o2::dataformats::MatchInfoHMP* match, const std::vector<o2
 
   // > ef added these
   float photChargeMassHyp[10] = {0x0};
-  LOGP(info, " photChargeMassHyp");
 
-  int iNrecMassHyp = flagPhotMassHyp(houghResponseMassHyp(), clusters, photChargeMassHyp); // flag photons according to individual theta ckov with respect to most probable
+
+  auto t = houghResponseMassHyp();
+
+
+
+  int iNrecMassHyp = flagPhotMassHyp(t, clusters, photChargeMassHyp); // flag photons according to individual theta ckov with respect to most probable
   
-  
+
   match->setMassHypNumPhot(iNrecMassHyp); // ef > added field, store number of photons for massHyp
 
   // ef > maybe do later
   //match->setPhotCharge(photCharge);
-  LOGP(info, "iNrecMassHyp {} iNrec {}", iNrecMassHyp, iNrec); // ef remove
-
 
   double thetaCMassHyp = findRingCkovMassHyp(clusters.size()); // find the best reconstructed theta Cherenkov
 
@@ -206,7 +205,6 @@ void Recon::ckovAngle(o2::dataformats::MatchInfoHMP* match, const std::vector<o2
 
   // ef > added field
   match->setHMPsignalMassHyp(thetaCMassHyp + occupancy); // store theta Cherenkov and chmaber occupancy
-  LOGP(info, " setHMPsignalMassHyp");
 
 
   // match->SetHMPIDchi2(fCkovSigma2);                                                        //store experimental ring angular resolution squared
@@ -628,6 +626,7 @@ int Recon::flagPhotMassHyp(double ckov, const std::vector<o2::hmpid::Cluster>& c
   //               Flag = 1 good candidate (charge compatible with photon);
   //               Flag = 2 photon used for the ring;
 
+  LOGP(info, "enter flagPhotMassHyp w {} numClu {} ", ckov, clusters.size());
   Int_t steps = (Int_t)((ckov) / fDTheta); // how many times we need to have fDTheta to fill the distance between 0  and thetaCkovHough
 
   Double_t tmin = (Double_t)(steps - 1) * fDTheta;
@@ -638,7 +637,9 @@ int Recon::flagPhotMassHyp(double ckov, const std::vector<o2::hmpid::Cluster>& c
   tmax = tavg + 0.5 * fWindowWidth;
 
   Int_t iInsideCnt = 0;                  // count photons which Theta ckov inside the window
-  for (Int_t i = 0; i < fPhotCnt; i++) { // photon candidates loop
+  for (Int_t i = 0; i < fPhotCntMassHyp; i++) { // photon candidates loop
+
+    LOGP(info, "flagPhotMassHyp it {}", i);
     fPhotFlagMassHyp[i] = 0;
     if (fPhotCkovMassHyp[i] >= tmin && fPhotCkovMassHyp[i] <= tmax) {
       fPhotFlagMassHyp[i] = 2;
@@ -767,27 +768,24 @@ double Recon::houghResponseMassHyp()
   TH1D* resultw = new TH1D("resultw", "resultw", nChannels, 0, kThetaMax);
   Int_t nBin = (Int_t)(kThetaMax / fDTheta);
   Int_t nCorrBand = (Int_t)(fWindowWidth / (2 * fDTheta));
-  LOGP(info, "houghResponseMassHyp >>> fPhotCntMassHyp {}", fPhotCntMassHyp);
   for (Int_t i = 0; i < fPhotCntMassHyp; i++) { // photon cadidates loop
     Double_t angle;// = fPhotCkovMassHyp[i];
 
-    if(!fPhotCkovMassHyp){
-      LOGP(info, "fPhotCkovMassHyp nullptr");
-    }
+
 
     try {
         angle = fPhotCkovMassHyp[i];
+
     } catch (const std::out_of_range& e) {
         std::cerr << "fPhotWeiMassHyp Out of Range error: " << e.what() << '\n';
-        // Handle the error, maybe log more information or exit gracefully
     }
 
     if (angle < 0 || angle > kThetaMax) {
       continue;
     }
-    LOGP(info, "hphots->Fill(angle)");
 
     phots->Fill(angle);
+
     Int_t bin = (Int_t)(0.5 + angle / (fDTheta));
     Double_t weight = 1.;
     if (fIsWEIGHT) {
@@ -802,6 +800,8 @@ double Recon::houghResponseMassHyp()
         weight = 1. / diffArea;
       }
     }
+
+
     photsw->Fill(angle, weight);
     //fPhotWeiMassHyp[i] = weight;
 
@@ -816,6 +816,8 @@ double Recon::houghResponseMassHyp()
 
   } // photon candidates loop
 
+
+
   for (Int_t i = 1; i <= nBin; i++) {
     Int_t bin1 = i - nCorrBand;
     Int_t bin2 = i + nCorrBand;
@@ -829,24 +831,30 @@ double Recon::houghResponseMassHyp()
     Double_t sumPhots = phots->Integral(bin1, bin2);
 
     if (sumPhots < 3) {
+
+
       continue;
     } // if less then 3 photons don't trust to this ring
     Double_t sumPhotsw = photsw->Integral(bin1, bin2);
     if ((Double_t)((i + 0.5) * fDTheta) > 0.7) {
+
       continue;
     }
     resultw->Fill((Double_t)((i + 0.5) * fDTheta), sumPhotsw);
+
   }
   // evaluate the "BEST" theta ckov as the maximum value of histogramm
   Double_t* pVec = resultw->GetArray();
+
   Int_t locMax = TMath::LocMax(nBin, pVec);
+
   delete phots;
   delete photsw;
   delete resultw; // Reset and delete objects
 
   return (Double_t)(locMax * fDTheta + 0.5 * fDTheta); // final most probable track theta ckov
 
-} // HoughResponse()
+} // houghResponseMassHyp()
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 double Recon::houghResponse()
@@ -862,9 +870,6 @@ double Recon::houghResponse()
   TH1D* resultw = new TH1D("resultw", "resultw", nChannels, 0, kThetaMax);
   Int_t nBin = (Int_t)(kThetaMax / fDTheta);
   Int_t nCorrBand = (Int_t)(fWindowWidth / (2 * fDTheta));
-
-
-  LOGP(info, "houghResponse >>> fPhotCnt {}", fPhotCnt);
 
   for (Int_t i = 0; i < fPhotCnt; i++) { // photon cadidates loop
     Double_t angle = fPhotCkov[i];
@@ -900,11 +905,7 @@ double Recon::houghResponse()
       bin2 = nBin;
     }
 
-
-
     Double_t sumPhots = phots->Integral(bin1, bin2);
-
-	
 
     if (sumPhots < 3) {
       continue;

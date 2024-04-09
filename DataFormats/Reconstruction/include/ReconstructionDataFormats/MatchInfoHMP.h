@@ -157,6 +157,19 @@ class MatchInfoHMP
     return mEvent;
   }
 
+  void getHMPIDrad(float& xRad, float& yRad) const
+  {
+    xRad = mxRa;
+    yRad = myRa;
+  }
+
+  void setHMPIDrad(float xRad, float yRad)
+  {
+    mxRa = xRad;
+    myRa = yRad;
+  }
+
+
   void getHMPIDtrk(float& xRad, float& yRad, float& xPc, float& yPc, float& th, float& ph) const
   {
     xRad = mxRa;
