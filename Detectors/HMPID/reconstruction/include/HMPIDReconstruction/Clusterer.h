@@ -43,7 +43,6 @@ class Clusterer
   {
     mUseMC = useMC;
     // ef : TODO remove this when code is verified:
-    
   }
 
   ~Clusterer() = default;
@@ -66,20 +65,16 @@ class Clusterer
   static int UseDig(int padX, int padY, TMatrixF& pDigMap);                                                                                                                  // use this pad's digit to form a cluster
   inline bool IsDigSurvive(Digit* pDig) const;
 
-
  private:
-
   // ef : taken from  Cluster::solve
   // > TODO : make it global Hmpid base?
-  static constexpr int kMaxLocMax = 6;      // max allowed number of loc max for fitting
+  static constexpr int kMaxLocMax = 6; // max allowed number of loc max for fitting
 
   int startIndexDigMC = 0; // ef : TODO find a more elegant way
   // void processChamber(std::vector<Cluster>& clusters, MCLabelContainer const* digitMCTruth);
   // void fetchMCLabels(const Digit* dig, std::array<Label, Cluster::maxLabels>& labels, int& nfilled) const;
 
   o2::dataformats::MCTruthContainer<o2::MCCompLabel>* mClsLabels = nullptr; // Cluster MC labels
-
-  
 
   // is set in initialization
   bool mUseMC = false;

@@ -9,9 +9,6 @@
 // granted to it by virtue of its status as an Intergovernmental Organization
 // or submit itself to any jurisdiction.
 
-
-
-
 #include "HMPIDWorkflow/ClustersWriterSpec.h"
 #include "DPLUtils/MakeRootTreeWriterSpec.h"
 #include "Framework/InputSpec.h"
@@ -20,8 +17,6 @@
 #include "DataFormatsHMP/Cluster.h"
 #include "SimulationDataFormat/MCTruthContainer.h"
 #include "SimulationDataFormat/MCCompLabel.h"
-
-
 
 namespace o2
 {
@@ -46,7 +41,6 @@ o2::framework::DataProcessorSpec getClusterWriterSpec(bool useMC)
                                                              (useMC ? 1 : 0), // one branch if mc labels enabled
                                                              ""})();
 }
-
 
 } // end namespace hmpid
 

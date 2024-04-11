@@ -36,40 +36,40 @@
 
 namespace o2
 {
-  namespace hmpid
-  {
+namespace hmpid
+{
 
-    class DigitsToRootTask : public framework::Task
-    {
-      public:
-        DigitsToRootTask(bool useMC) : mUseMC(useMC) {}
-        ~DigitsToRootTask() override = default;
-        void init(framework::InitContext& ic) final;
-        void run(framework::ProcessingContext& pc) final;
-        void endOfStream(framework::EndOfStreamContext& ec) override;
+class DigitsToRootTask : public framework::Task
+{
+ public:
+  DigitsToRootTask(bool useMC) : mUseMC(useMC) {}
+  ~DigitsToRootTask() override = default;
+  void init(framework::InitContext& ic) final;
+  void run(framework::ProcessingContext& pc) final;
+  void endOfStream(framework::EndOfStreamContext& ec) override;
 
-      private:
-        ExecutionTimer mExTimer;
-        std::vector<o2::hmpid::Trigger> mTriggers;
-        std::vector<o2::hmpid::Digit> mDigits;
+ private:
+  ExecutionTimer mExTimer;
+  std::vector<o2::hmpid::Trigger> mTriggers;
+  std::vector<o2::hmpid::Digit> mDigits;
 
-        // ef : added
-        std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>> mDigitLabels;
+  // ef : added
+  std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>> mDigitLabels;
 
-        // ef : added
-        bool mUseMC = false;
+  // ef : added
+  bool mUseMC = false;
 
-        std::unique_ptr<TFile> mfileOut;
-        std::unique_ptr<TTree> mDigitTree;
-        std::string mOutRootFileName;
+  std::unique_ptr<TFile> mfileOut;
+  std::unique_ptr<TTree> mDigitTree;
+  std::string mOutRootFileName;
 
-        std::string mDigitMCTruthBranchName = "HMPIDDigitMCTruth";
-    };
+  std::string mDigitMCTruthBranchName = "HMPIDDigitMCTruth";
+};
 
-    // ef add useMC
-    o2::framework::DataProcessorSpec getDigitsToRootSpec(std::string inputSpec = "HMP/DIGITS", bool useMC = false);
+// ef add useMC
+o2::framework::DataProcessorSpec getDigitsToRootSpec(std::string inputSpec = "HMP/DIGITS", bool useMC = false);
 
-  } // end namespace hmpid
+} // end namespace hmpid
 } // end namespace o2
 
 #endif

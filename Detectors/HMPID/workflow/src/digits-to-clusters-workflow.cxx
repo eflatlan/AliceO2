@@ -45,9 +45,7 @@ void customize(std::vector<ConfigParamSpec>& workflowOptions)
 {
   std::string keyvaluehelp("Semicolon separated key=value strings ...");
   workflowOptions.push_back(ConfigParamSpec{"configKeyValues", VariantType::String, "", {keyvaluehelp}});
-
   workflowOptions.push_back(ConfigParamSpec{"disable-root-input", o2::framework::VariantType::Bool, false, {"disable root-files input readers"}});
-
   workflowOptions.push_back(ConfigParamSpec{"disable-root-output", VariantType::Bool, false, {"disable root-files output writers"}});
 
   // ef : added
@@ -73,7 +71,6 @@ WorkflowSpec defineDataProcessing(const ConfigContext& configcontext)
 
   auto disableRootInp = configcontext.options().get<bool>("disable-root-input");  // read upstream by default
   auto disableRootOut = configcontext.options().get<bool>("disable-root-output"); // write upstream by default
-
 
   // ef : added
   auto useMC = !configcontext.options().get<bool>("disable-mc");

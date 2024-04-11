@@ -77,15 +77,11 @@ void DigitsToClustersTask::strToFloatsSplit(std::string s,
 void DigitsToClustersTask::init(framework::InitContext& ic)
 {
   mSigmaCutPar = ic.options().get<std::string>("sigma-cut");
-
   if (mSigmaCutPar != "") {
     strToFloatsSplit(mSigmaCutPar, ",", mSigmaCut, 7);
   }
-
   mDigitsReceived = 0, mClustersReceived = 0;
-
   mRec.reset(new o2::hmpid::Clusterer(mUseMC)); // ef: changed to smart-pointer
-
   mExTimer.start();
 }
 
@@ -98,7 +94,6 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
   std::vector<o2::hmpid::Trigger> clusterTriggers;
 
   LOG(info) << "[HMPID DClusterization - run() ] Enter ...";
-
 
   auto triggers = pc.inputs().get<gsl::span<o2::hmpid::Trigger>>("intrecord");
   auto digits = pc.inputs().get<gsl::span<o2::hmpid::Digit>>("digits");
@@ -119,18 +114,18 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
     LOGP(info, "digitlabels of objs in truthArray : {}", digitlabels->getNElements());
     LOGP(info, "digitlabels of objs in headArray : {}", digitlabels->getIndexedSize());
 
-    if (labelVector != nullptr ){
+    if (labelVector != nullptr) {
       *labelVector.get() = std::move(*digitlabels);
     } else {
       LOGP(error, "labelVector nullptr");
-      throw std::runtime_error("labelVector was nullptr");  
+      throw std::runtime_error("labelVector was nullptr");
     }
 
     if (mClsLabels != nullptr) {
       mRec->setMCTruthContainer(mClsLabels.get());
     } else {
       LOGP(error, "mClsLabels nullptr");
-      throw std::runtime_error("mClsLabels was nullptr");  
+      throw std::runtime_error("mClsLabels was nullptr");
     }
   }
 
@@ -138,7 +133,7 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
   for (const auto& trig : triggers) {
     if (trig.getNumberOfObjects()) {
 
-      LOGP(info, "[HMPID DClusterization - run() ]  trigger number {} number of digits : {} ", i , trig.getNumberOfObjects());
+      LOGP(info, "[HMPID DClusterization - run() ]  trigger number {} number of digits : {} ", i, trig.getNumberOfObjects());
 
       gsl::span<const o2::hmpid::Digit> trigDigits{
         digits.data() + trig.getFirstEntry(),
@@ -146,11 +141,6 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
       size_t clStart = clusters.size();
 
       if (mUseMC && labelVector != nullptr) {
-
-        // add protection against this ?
-        /*if(i > labelVector->size()) {
-          LOGP(info, "labelVector->size() {}", labelVector->size());
-        }*/
 
         LOGP(info, "number of objs in truthArray : {}", labelVector->getNElements());
         LOGP(info, "number of objs in headArray : {}", labelVector->getIndexedSize());
@@ -162,16 +152,14 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
         // mRec->Dig2Clu(trigDigits, clusters, mSigmaCut, &(labelVector->at(i)), true);
 
       } else {
-        // mRec.process(mReader, mClustersArray, nullptr);
         // pass nullptr for mClustersArray if useMC == false
         mRec->Dig2Clu(trigDigits, clusters, mSigmaCut, nullptr, true);
       }
 
-
       // ef > remove
       {
         auto timeA =
-            o2::InteractionRecord::bc2ns(trig.getBc(), trig.getOrbit());
+          o2::InteractionRecord::bc2ns(trig.getBc(), trig.getOrbit());
         int cnt = 0;
         int firstentry = trig.getFirstEntry();
         int lastEntry = trig.getLastEntry();
@@ -184,7 +172,6 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
       }
 
       clusterTriggers.emplace_back(trig.getIr(), clStart, clusters.size() - clStart);
-
 
       // ef > remove
       auto t = clusterTriggers.back();
@@ -218,24 +205,13 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
   mExTimer.elapseMes("Clusterization of Digits received = " + std::to_string(mDigitsReceived));
   mExTimer.elapseMes("Clusterization of Clusters received = " + std::to_string(mClustersReceived));
 
-
   // ef: added mClsLabels
   if (mUseMC) {
     if (mClsLabels) {
       pc.outputs().snapshot(o2::framework::Output{"HMP", "CLUSTERSMCTR", 0}, *mClsLabels);
-      LOGP(info, "[HMPID DigitsToCluster -  mcLabels size : headerArray {}; truthArray {}", mClsLabels->getIndexedSize(),  mClsLabels->getNElements()); 
+      LOGP(info, "[HMPID DigitsToCluster -  mcLabels size : headerArray {}; truthArray {}", mClsLabels->getIndexedSize(), mClsLabels->getNElements());
     }
   }
-
-
-
-  /* ef: should it be cleared?
-  if(mClsLabels != nullptr) {
-    LOGP(info, "mClsLabels->clear()");
-    mClsLabels->clear();
-  } else {
-    LOGP(info, "mClsLabels was nullptr");
-  }*/
 }
 
 void DigitsToClustersTask::endOfStream(framework::EndOfStreamContext& ec)
@@ -260,7 +236,7 @@ o2::framework::DataProcessorSpec
 
   // ef: added
   if (useMC) {
-    inputs.emplace_back("hmpiddigitlabels", o2::header::gDataOriginHMP, "DIGITLBL", 0, Lifetime::Timeframe); // DIGITLBL == > DIGITSMCTR?    
+    inputs.emplace_back("hmpiddigitlabels", o2::header::gDataOriginHMP, "DIGITLBL", 0, Lifetime::Timeframe); // DIGITLBL == > DIGITSMCTR?
   }
 
   // define outputs

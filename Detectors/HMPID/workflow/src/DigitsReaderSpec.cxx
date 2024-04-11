@@ -63,9 +63,7 @@ void DigitReader::init(InitContext& ic)
   mDigitsReceived = 0;
 
   if (!mFile->IsOpen()) {
-
     LOG(error) << "HMPID DigitWriterSpec::init() : Did not find any digits file " << filename.c_str() << " file !";
-
     throw std::runtime_error("cannot open input digits file");
   }
 
@@ -82,11 +80,7 @@ void DigitReader::init(InitContext& ic)
     LOG(error) << "Did not find o2hmp tree in " << filename.c_str();
     throw std::runtime_error("Did Not find Any correct Tree in HMPID Digits File");
 
-  } /*else {
-
-    LOG(info) << "HMPID DigitWriterSpec::init() : Reading From Branch  o2hmp" << File : " << filename.c_str()";
-
-  } */
+  } 
 }
 
 void DigitReader::run(ProcessingContext& pc)
@@ -110,24 +104,18 @@ void DigitReader::run(ProcessingContext& pc)
 
   if (mTreeDig->GetBranchStatus("InteractionRecords")) {
     mTreeDig->SetBranchAddress("InteractionRecords", &mTriggersFromFilePtr);
-
   } else {
-
     LOG(error)
-
       << "HMPID DigitWriterSpec::init() : Did not find  branch for Triggers";
-
     throw std::runtime_error("Did Not find Branch For triggers in HMPID Digits File");
   }
 
-
-
-  if(mUseMC) {
+  if (mUseMC) {
     if (mTreeDig->GetBranchStatus("HMPDigitLabels")) { // HMPDigitLabels ==>  HMPIDDigitMCTruth
       mTreeDig->SetBranchAddress("HMPDigitLabels", &mPlabels);
     } else if (mTreeDig->GetBranchStatus("HMPIDDigitMCTruth")) { // HMPDigitLabels ==>  HMPIDDigitMCTruth
       mTreeDig->SetBranchAddress("HMPIDDigitMCTruth", &mPlabels);
-    }  else {
+    } else {
       LOGP(error, "useMC was set, but did not find the DigitMC branch");
       throw std::runtime_error("Did Not find Branch For MC truth in HMPID Digits File");
     }
@@ -141,95 +129,79 @@ void DigitReader::run(ProcessingContext& pc)
   pc.outputs().snapshot(Output{"HMP", "INTRECORDS", 0}, mTriggersFromFile);
 
   if (mUseMC) {
-      pc.outputs().snapshot(Output{"HMP", "DIGITLBL", 0}, mLabels); // DIGITLBL == > DIGITSMCTR?
+    pc.outputs().snapshot(Output{"HMP", "DIGITLBL", 0}, mLabels); // DIGITLBL == > DIGITSMCTR?
   }
 
   if (mVerbose) {
-      int tNum = 0;
+    int tNum = 0;
 
-      for (const auto trig : mTriggersFromFile) {
+    for (const auto trig : mTriggersFromFile) {
 
-        auto timeA =
-            o2::InteractionRecord::bc2ns(trig.getBc(), trig.getOrbit());
-        const int firsEntry = trig.getFirstEntry();
-        const int lastEntry = trig.getLastEntry();
-        LOGP(info,
-             "START : trigger number {} : entries {} first {}  lasrt {}  time "
-             "{} ",
-             tNum, trig.getNumberOfObjects(), firsEntry, lastEntry,
-             timeA / 1000.0f);
+      auto timeA =
+        o2::InteractionRecord::bc2ns(trig.getBc(), trig.getOrbit());
+      const int firsEntry = trig.getFirstEntry();
+      const int lastEntry = trig.getLastEntry();
+      LOGP(info,
+           "START : trigger number {} : entries {} first {}  lasrt {}  time "
+           "{} ",
+           tNum, trig.getNumberOfObjects(), firsEntry, lastEntry,
+           timeA / 1000.0f);
 
-        LOGP(info, " bc {} orbit {} ", trig.getBc(), trig.getOrbit());
-        int cnt = 0;
-				if (mUseMC) {
-		      std::vector<int> eventLabels;
+      LOGP(info, " bc {} orbit {} ", trig.getBc(), trig.getOrbit());
+      int cnt = 0;
+      if (mUseMC) {
+        std::vector<int> eventLabels;
 
-		      for (int i = firsEntry; i <= lastEntry; i++) {
+        for (int i = firsEntry; i <= lastEntry; i++) {
 
-		        if (i < mLabels.getIndexedSize() && i < mDigitsFromFile.size()) {
+          if (i < mLabels.getIndexedSize() && i < mDigitsFromFile.size()) {
 
-		          bool isLabelEventSame = true;
-		          const auto& labels = mLabels.getLabels(i);
-		          int prevEventLabel;
-		          if(labels.size() > 0) {
-		            prevEventLabel = labels[0].getEventID();
-		            eventLabels.push_back(prevEventLabel);
-		          }
-		          for (const auto& label : labels) {
+            bool isLabelEventSame = true;
+            const auto& labels = mLabels.getLabels(i);
+            int prevEventLabel;
+            if (labels.size() > 0) {
+              prevEventLabel = labels[0].getEventID();
+              eventLabels.push_back(prevEventLabel);
+            }
 
-		            if(label.getEventID() != prevEventLabel) {
+            for (const auto& label : labels) {
+              if (label.getEventID() != prevEventLabel) {
+                eventLabels.push_back(label.getEventID());
+              }
+              prevEventLabel = label.getEventID();
+            }
+          } else {
+            LOGP(info, "out of range {} > numLabels {}", i, mLabels.getIndexedSize());
+          }
+        }
 
-		              eventLabels.push_back(label.getEventID());
-		            }
+        LOGP(info, "\ndifferent labels from eventLabels {} :::", eventLabels.size());
+        std::vector<int> sortedVec = eventLabels;
+        std::sort(sortedVec.begin(), sortedVec.end());
 
-		            prevEventLabel = label.getEventID();
-
-		          }
-		        }
-		        else {
-
-		          LOGP(info, "out of range {} > numLabels {}", i, mLabels.getIndexedSize());
-		        }
-		      }
-
-
-		      LOGP(info, "\ndifferent labels from eventLabels {} :::", eventLabels.size());
-		      std::vector<int> sortedVec = eventLabels;
-
-		      std::sort(sortedVec.begin(), sortedVec.end());
-
-		      std::cout << "eventLabels values: ";
-		      for (size_t i = 0; i < sortedVec.size(); ++i) {
-		        if (i == sortedVec.size() - 1 || sortedVec[i] != sortedVec[i + 1]) {
-		          std::cout << sortedVec[i] << " , ";
-		        }
-		      }
-				}
-
-        tNum++;
-				
+        std::cout << "eventLabels values: ";
+        for (size_t i = 0; i < sortedVec.size(); ++i) {
+          if (i == sortedVec.size() - 1 || sortedVec[i] != sortedVec[i + 1]) {
+            std::cout << sortedVec[i] << " , ";
+          }
+        }
       }
+
+      tNum++;
+    }
   }
 
   mDigitsReceived += mDigitsFromFile.size();
-
   LOG(info) << "[HMPID DigitsReader - run() ] digits  = " << mDigitsFromFile.size();
-
   if (mTreeDig->GetReadEntry() + 1 >= mTreeDig->GetEntries()) {
-
     pc.services().get<ControlService>().endOfStream();
-
     pc.services().get<ControlService>().readyToQuit(QuitRequest::Me);
-
     mExTimer.stop();
-
-    if(mUseMC) {
-
-      LOGP(info, "[HMPID DigitsReader - with useMC : mcLabels size : headerArray {}; truthArray {}",  mUseMC, mLabels.getIndexedSize(),  mLabels.getNElements());
+    if (mUseMC) {
+      LOGP(info, "[HMPID DigitsReader - with useMC : mcLabels size : headerArray {}; truthArray {}", mUseMC, mLabels.getIndexedSize(), mLabels.getNElements());
     }
 
     mExTimer.logMes("End DigitsReader !  digits = " +
-
                     std::to_string(mDigitsReceived));
   }
 }
@@ -238,9 +210,7 @@ DataProcessorSpec getDigitsReaderSpec(bool useMC, bool verbose)
 {
 
   std::vector<OutputSpec> outputs;
-
   outputs.emplace_back("HMP", "DIGITS", 0, o2::framework::Lifetime::Timeframe);
-
   outputs.emplace_back("HMP", "INTRECORDS", 0, o2::framework::Lifetime::Timeframe);
 
   if (useMC) {
@@ -248,13 +218,9 @@ DataProcessorSpec getDigitsReaderSpec(bool useMC, bool verbose)
   }
 
   return DataProcessorSpec{
-
     "HMP-DigitReader",
-
     Inputs{},
-
     outputs,
-
     AlgorithmSpec{adaptFromTask<DigitReader>(useMC, verbose)},
 
     Options{{"hmpid-digit-infile" /*"/qc-hmpid-digits"*/, VariantType::String, "hmpiddigits.root", {"Name of the input file with digits"}},
@@ -262,5 +228,4 @@ DataProcessorSpec getDigitsReaderSpec(bool useMC, bool verbose)
 }
 
 } // namespace hmpid
-
 } // namespace o2

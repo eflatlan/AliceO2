@@ -58,7 +58,6 @@ WorkflowSpec defineDataProcessing(const ConfigContext& configcontext)
 
   // ef : added
   bool useMC = !configcontext.options().get<bool>("disable-mc");
-
   bool verbose = configcontext.options().get<bool>("verbose");
 
   DataProcessorSpec consumer = o2::hmpid::getDigitsReaderSpec(useMC, verbose);

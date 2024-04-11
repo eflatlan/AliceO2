@@ -35,17 +35,16 @@ namespace hmpid
 class Digit
 {
 
-// ef > moved digit member vars to protected
-protected:
+  // ef > moved digit member vars to protected
+ protected:
   uint16_t mQ = 0;
   uint8_t mCh = 0; // 0xFF indicates invalid digit
   uint8_t mPh = 0;
   uint8_t mX = 0;
   uint8_t mY = 0;
-// ef : member variables above was public, moved to protected
+  // ef : member variables above was public, moved to protected
 
-
-public:
+ public:
   // Coordinates Conversion Functions
   static inline uint32_t abs(int ch, int pc, int x, int y) { return ch << 24 | pc << 16 | x << 8 | y; }
   static inline int ddl2C(int ddl) { return ddl >> 1; }                    // ddl -> chamber
@@ -61,7 +60,6 @@ public:
   static void pad2Photo(uint32_t pad, uint8_t* chamber, uint8_t* photo, uint8_t* x, uint8_t* y);
   static void absolute2Equipment(int Module, int x, int y, int* Equi, int* Colu, int* Dilo, int* Chan);
   static void equipment2Absolute(int Equi, int Colu, int Dilo, int Chan, int* Module, int* x, int* y);
-
 
   // Trigger time Conversion Functions
   //  static inline uint64_t orbitBcToEventId(uint32_t Orbit, uint16_t BC) { return ((Orbit << 12) | (0x0FFF & BC)); };
@@ -135,8 +133,6 @@ public:
   uint8_t getY() const { return mY; }
 
   // Members
-
-
 
   // The Pad Unique Id, code a pad inside one HMPID chamber.
   // Bit Map : 0000.0000.cccc.pppp.xxxx.xxxx.yyyy.yyyy

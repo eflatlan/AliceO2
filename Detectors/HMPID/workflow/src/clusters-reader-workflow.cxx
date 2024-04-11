@@ -76,8 +76,6 @@ WorkflowSpec defineDataProcessing(const ConfigContext& configcontext)
 
   // EF: added
   bool useMC = !configcontext.options().get<bool>("disable-mc");
-
-  // EF: added
   bool verbose = configcontext.options().get<bool>("verbose");
 
   DataProcessorSpec consumer = o2::hmpid::getClusterReaderSpec(useMC, verbose);

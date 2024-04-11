@@ -41,7 +41,6 @@ namespace hmpid
 class ClusterReaderTask : public framework::Task
 {
  public:
-
   // ef added
   ClusterReaderTask(bool useMC, bool verbose)
   {

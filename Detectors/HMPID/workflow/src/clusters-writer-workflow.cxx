@@ -57,7 +57,6 @@ void customize(std::vector<ConfigParamSpec>& workflowOptions)
                                    false,
                                    {"Do not propagate MC info"}});
 
-
   o2::raw::HBFUtilsInitializer::addConfigOption(workflowOptions);
 }
 
@@ -73,7 +72,7 @@ WorkflowSpec defineDataProcessing(const ConfigContext& configcontext)
   o2::conf::ConfigurableParam::updateFromString(
     configcontext.options().get<std::string>("configKeyValues"));
 
-  // ef : added 
+  // ef : added
   bool useMC = !configcontext.options().get<bool>("disable-mc");
   specs.push_back(hmpid::getClusterWriterSpec(useMC));
 

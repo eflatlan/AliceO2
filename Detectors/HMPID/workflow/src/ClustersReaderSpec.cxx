@@ -82,57 +82,54 @@ void ClusterReaderTask::run(ProcessingContext& pc)
 
       auto timeA = o2::InteractionRecord::bc2ns(trig.getBc(), trig.getOrbit());
       int cnt = 0;
-            
-      const int firstEntry = trig.getFirstEntry(); 
+
+      const int firstEntry = trig.getFirstEntry();
       const int lastEntry = trig.getLastEntry();
-            
-      LOGP(debug, "START : trigger number {} : entries {} first {}  lasrt {}  time {} ",tNum, trig.getNumberOfObjects(),  firstEntry, lastEntry, timeA / 1000.0f);
+
+      LOGP(debug, "START : trigger number {} : entries {} first {}  lasrt {}  time {} ", tNum, trig.getNumberOfObjects(), firstEntry, lastEntry, timeA / 1000.0f);
       LOGP(debug, " bc {} orbit {} ", trig.getBc(), trig.getOrbit());
       LOGP(debug, "end{} entries {}", tNum, trig.getNumberOfObjects());
 
+      if (mUseMC) {
+        std::vector<int> eventLabels;
 
+        for (int i = firstEntry; i <= lastEntry; i++) {
 
-      if(mUseMC) {
-		    std::vector<int> eventLabels;
+          if (i < mLabels.getIndexedSize() && i < mClustersFromFile.size()) {
+            const auto& labels = mLabels.getLabels(i);
+            int prevEventLabel = 0;
 
-		    for (int i = firstEntry; i <= lastEntry; i++) {
+            if (labels.size() > 0) {
+              prevEventLabel = labels[0].getEventID();
+              eventLabels.push_back(prevEventLabel);
+            }
 
+            for (const auto& label : labels) {
 
-		      if (i < mLabels.getIndexedSize() && i < mClustersFromFile.size()) {
-		        const auto& labels = mLabels.getLabels(i);
-		        int prevEventLabel = 0;
+              if (label.getEventID() != prevEventLabel) {
+                eventLabels.push_back(label.getEventID());
+              }
 
-		        if (labels.size() > 0) {
-		          prevEventLabel = labels[0].getEventID();
-		          eventLabels.push_back(prevEventLabel);
-		        }
+              prevEventLabel = label.getEventID();
+            }
+          }
+        }
 
-		        for (const auto& label : labels) {
+        LOGP(info, "trigger number {} : entries {}", tNum, trig.getNumberOfObjects());
 
-		          if (label.getEventID() != prevEventLabel) {
-		            eventLabels.push_back(label.getEventID());
-		          }
+        LOGP(info, "\n Different labels from eventLabels {} :::", eventLabels.size());
 
-		          prevEventLabel = label.getEventID();
-		        }
-		      }
-		    }
+        std::vector<int> sortedVec = eventLabels;
 
-		    LOGP(info, "trigger number {} : entries {}", tNum, trig.getNumberOfObjects());
+        std::sort(sortedVec.begin(), sortedVec.end());
 
-		    LOGP(info, "\n Different labels from eventLabels {} :::", eventLabels.size());
-
-		    std::vector<int> sortedVec = eventLabels;
-
-		    std::sort(sortedVec.begin(), sortedVec.end());
-
-		    std::cout << "eventLabels values: ";
-		    for (size_t i = 0; i < sortedVec.size(); ++i) {
-		      if (i == sortedVec.size() - 1 || sortedVec[i] != sortedVec[i + 1]) {
-		        std::cout << sortedVec[i] << " , ";
-		      }
-		    }
-			}
+        std::cout << "eventLabels values: ";
+        for (size_t i = 0; i < sortedVec.size(); ++i) {
+          if (i == sortedVec.size() - 1 || sortedVec[i] != sortedVec[i + 1]) {
+            std::cout << sortedVec[i] << " , ";
+          }
+        }
+      }
 
       tNum++;
     }
@@ -140,9 +137,8 @@ void ClusterReaderTask::run(ProcessingContext& pc)
 
   if (mUseMC) {
     pc.outputs().snapshot(Output{"HMP", "CLUSTERSMCTR", 0}, mLabels);
-    
-    LOGP(info, "[HMPID ClustersReader - with useMC : mcLabels size : headerArray {}; truthArray {}", mLabels.getIndexedSize(),  mLabels.getNElements());
-    
+
+    LOGP(info, "[HMPID ClustersReader - with useMC : mcLabels size : headerArray {}; truthArray {}", mLabels.getIndexedSize(), mLabels.getNElements());
   }
 
   if (mTree->GetReadEntry() + 1 >= mTree->GetEntries()) {
@@ -193,8 +189,6 @@ void ClusterReaderTask::initFileIn(const std::string& filename)
       "HMPID ClusterReaderTask::init() : Did not find Branch HMPIDClusters in clusters tree");
   }
 
-
-
   // ef: get useMC, adpted from CPV
   if (mUseMC) {
 
@@ -217,7 +211,7 @@ o2::framework::DataProcessorSpec getClusterReaderSpec(bool useMC, bool verbose)
 
   std::vector<o2::framework::OutputSpec> outputs;
   outputs.emplace_back("HMP", "CLUSTERS", 0, o2::framework::Lifetime::Timeframe);
-  
+
   outputs.emplace_back("HMP", "INTRECORDS1", 0, o2::framework::Lifetime::Timeframe);
 
   // ef: added here
