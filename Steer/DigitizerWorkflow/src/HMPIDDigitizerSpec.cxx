@@ -134,6 +134,8 @@ class HMPIDDPLDigitizerTask : public o2::base::BaseDPLDigitizer
     // send out to next stage
     pc.outputs().snapshot(Output{"HMP", "DIGITS", 0}, digitsAccum);
     pc.outputs().snapshot(Output{"HMP", "INTRECORDS", 0}, mIntRecord);
+
+    // DIGITLBL == > DIGITSMCTR?
     if (pc.outputs().isAllowed({"HMP", "DIGITLBL", 0})) {
       pc.outputs().snapshot(Output{"HMP", "DIGITLBL", 0}, labelAccum);
     }
@@ -167,7 +169,7 @@ o2::framework::DataProcessorSpec getHMPIDDigitizerSpec(int channel, bool mctruth
   outputs.emplace_back("HMP", "DIGITS", 0, Lifetime::Timeframe);
   outputs.emplace_back("HMP", "INTRECORDS", 0, Lifetime::Timeframe);
   if (mctruth) {
-    outputs.emplace_back("HMP", "DIGITLBL", 0, Lifetime::Timeframe);
+    outputs.emplace_back("HMP", "DIGITLBL", 0, Lifetime::Timeframe); // DIGITLBL == > DIGITSMCTR?
   }
   outputs.emplace_back("HMP", "ROMode", 0, Lifetime::Timeframe);
 

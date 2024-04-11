@@ -107,11 +107,11 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
   auto labelVector = std::make_shared<o2::dataformats::MCTruthContainer<o2::MCCompLabel>>();
   if (mUseMC) {
 
-
     auto digitlabels = pc.inputs().get<o2::dataformats::MCTruthContainer<o2::MCCompLabel>*>("hmpiddigitlabels");
 
     if (digitlabels == nullptr) {
-      LOGP(info, "digitlabels nullptr");
+      LOGP(error, "digitlabels nullptr");
+      throw std::runtime_error("digitlabels was nullptr");
     }
 
     LOGP(info, "triggers {} : digits : {}", triggers.size(), digits.size());
@@ -119,16 +119,18 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
     LOGP(info, "digitlabels of objs in truthArray : {}", digitlabels->getNElements());
     LOGP(info, "digitlabels of objs in headArray : {}", digitlabels->getIndexedSize());
 
-    if (digitlabels != nullptr && digitlabels != nullptr ){
+    if (labelVector != nullptr ){
       *labelVector.get() = std::move(*digitlabels);
     } else {
-      LOGP(warn, "digitlabels was nullptr");
+      LOGP(error, "labelVector nullptr");
+      throw std::runtime_error("labelVector was nullptr");  
     }
 
     if (mClsLabels != nullptr) {
       mRec->setMCTruthContainer(mClsLabels.get());
     } else {
-      LOGP(warn, "mClsLabels was nullptr");
+      LOGP(error, "mClsLabels nullptr");
+      throw std::runtime_error("mClsLabels was nullptr");  
     }
   }
 
@@ -157,7 +159,6 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
         // by : mRec->setMCTruthContainer(mClsLabels.get()
 
         mRec->Dig2Clu(trigDigits, clusters, mSigmaCut, labelVector.get(), true);
-
         // mRec->Dig2Clu(trigDigits, clusters, mSigmaCut, &(labelVector->at(i)), true);
 
       } else {
@@ -260,7 +261,7 @@ o2::framework::DataProcessorSpec
 
   // ef: added
   if (useMC) {
-    inputs.emplace_back("hmpiddigitlabels", o2::header::gDataOriginHMP, "DIGITSMCTR", 0, Lifetime::Timeframe);
+    inputs.emplace_back("hmpiddigitlabels", o2::header::gDataOriginHMP, "DIGITLBL", 0, Lifetime::Timeframe); // DIGITLBL == > DIGITSMCTR?    
   }
 
   // define outputs
