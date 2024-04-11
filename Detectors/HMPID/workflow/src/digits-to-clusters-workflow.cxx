@@ -45,10 +45,11 @@ void customize(std::vector<ConfigParamSpec>& workflowOptions)
 {
   std::string keyvaluehelp("Semicolon separated key=value strings ...");
   workflowOptions.push_back(ConfigParamSpec{"configKeyValues", VariantType::String, "", {keyvaluehelp}});
-
   workflowOptions.push_back(ConfigParamSpec{"disable-root-input", o2::framework::VariantType::Bool, false, {"disable root-files input readers"}});
-
   workflowOptions.push_back(ConfigParamSpec{"disable-root-output", VariantType::Bool, false, {"disable root-files output writers"}});
+
+  // ef : added
+  workflowOptions.push_back(ConfigParamSpec{"disable-mc", o2::framework::VariantType::Bool, false, {"disable MC propagation even if available"}});
 
   o2::raw::HBFUtilsInitializer::addConfigOption(workflowOptions);
 }
@@ -71,20 +72,22 @@ WorkflowSpec defineDataProcessing(const ConfigContext& configcontext)
   auto disableRootInp = configcontext.options().get<bool>("disable-root-input");  // read upstream by default
   auto disableRootOut = configcontext.options().get<bool>("disable-root-output"); // write upstream by default
 
-  DataProcessorSpec consumer = hmpid::getDigitsToClustersSpec();
+  // ef : added
+  auto useMC = !configcontext.options().get<bool>("disable-mc");
+  DataProcessorSpec consumer = hmpid::getDigitsToClustersSpec(useMC);
 
   specs.push_back(consumer);
 
   // Read to File; input file and dir can be specified using
   // --hmpid-digit-infile and --input-dir (from DigitsReaderSpec Class)
   if (!disableRootInp) {
-    specs.emplace_back(hmpid::getDigitsReaderSpec());
+    specs.emplace_back(hmpid::getDigitsReaderSpec(useMC, false));
   }
 
   // Write to Cluster-File; output file and dir can be specified using
   // --outfile and --output-dir (from MakeTreeRootWriter Class)
   if (!disableRootOut) {
-    specs.push_back(hmpid::getClusterWriterSpec());
+    specs.push_back(hmpid::getClusterWriterSpec(useMC));
   }
 
   return specs;

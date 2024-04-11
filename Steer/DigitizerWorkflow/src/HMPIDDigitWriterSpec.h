@@ -38,7 +38,7 @@ o2::framework::DataProcessorSpec getHMPIDDigitWriterSpec(bool mctruth = true)
                                 1,
                                 BranchDefinition<std::vector<o2::hmpid::Digit>>{InputSpec{"hmpdigitinput", "HMP", "DIGITS"}, "HMPDigit"},
                                 BranchDefinition<std::vector<o2::hmpid::Trigger>>{InputSpec{"hmpinteractionrecords", "HMP", "INTRECORDS"}, "InteractionRecords"},
-                                BranchDefinition<o2::dataformats::MCTruthContainer<o2::MCCompLabel>>{InputSpec{"hmplabelinput", "HMP", "DIGITLBL"}, "HMPDigitLabels", mctruth ? 1 : 0})();
+                                BranchDefinition<o2::dataformats::MCTruthContainer<o2::MCCompLabel>>{InputSpec{"hmplabelinput", "HMP", "DIGITLBL"}, "HMPDigitLabels", mctruth ? 1 : 0})(); // DIGITLBL == > DIGITSMCTR?
 }
 
 } // end namespace hmpid

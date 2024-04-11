@@ -38,12 +38,13 @@ void customize(std::vector<o2::framework::CallbacksPolicy>& policies)
 // we need to add workflow options before including Framework/runDataProcessing
 void customize(std::vector<o2::framework::ConfigParamSpec>& workflowOptions)
 {
-  std::string keyvaluehelp("Semicolon separated key=value strings ...");
-  workflowOptions.push_back(o2::framework::ConfigParamSpec{"configKeyValues", o2::framework::VariantType::String, "", {keyvaluehelp}});
-
+  std::vector<o2::framework::ConfigParamSpec> options{
+    {"disable-mc", o2::framework::VariantType::Bool, false, {"Do not propagate MC info"}},
+    {"verbose", o2::framework::VariantType::Bool, false, {"Print verbose digit info"}},
+    {"configKeyValues", o2::framework::VariantType::String, "", {"Semicolon separated key=value strings"}}};
+  workflowOptions.insert(workflowOptions.end(), options.begin(), options.end());
   o2::raw::HBFUtilsInitializer::addConfigOption(workflowOptions);
 }
-
 #include "Framework/runDataProcessing.h"
 #include "HMPIDWorkflow/DigitsReaderSpec.h"
 
@@ -55,7 +56,11 @@ WorkflowSpec defineDataProcessing(const ConfigContext& configcontext)
   WorkflowSpec specs;
   o2::conf::ConfigurableParam::updateFromString(configcontext.options().get<std::string>("configKeyValues"));
 
-  DataProcessorSpec consumer = o2::hmpid::getDigitsReaderSpec();
+  // ef : added
+  bool useMC = !configcontext.options().get<bool>("disable-mc");
+  bool verbose = configcontext.options().get<bool>("verbose");
+
+  DataProcessorSpec consumer = o2::hmpid::getDigitsReaderSpec(useMC, verbose);
 
   specs.push_back(consumer);
   return specs;
