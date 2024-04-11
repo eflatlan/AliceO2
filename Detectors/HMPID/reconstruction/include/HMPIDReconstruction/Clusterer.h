@@ -11,6 +11,7 @@
 
 /// \file Clusterer.h
 /// \brief Definition of the HMPID cluster finder
+
 #ifndef ALICEO2_HMPID_CLUSTERER_H
 #define ALICEO2_HMPID_CLUSTERER_H
 
@@ -24,6 +25,9 @@
 
 #include "TMatrixF.h" // ef: added
 
+// ef: added : TODO: remove once code is verified
+#include "Steer/MCKinematicsReader.h"
+
 namespace o2
 {
 
@@ -31,12 +35,22 @@ namespace hmpid
 {
 class Clusterer
 {
-  using MCLabelContainer = o2::dataformats::MCTruthContainer<o2::MCCompLabel>;
+
   using Cluster = o2::hmpid::Cluster;
   using Digit = o2::hmpid::Digit;
 
  public:
-  Clusterer() = default;
+  using MCLabelContainer = o2::dataformats::MCTruthContainer<o2::MCCompLabel>;
+
+  Clusterer(bool useMC)
+  {
+    mUseMC = useMC;
+    // ef : TODO remove this when code is verified:
+    if (mUseMC) {
+      mcReader = std::make_unique<o2::steer::MCKinematicsReader>("collisioncontext.root");
+    }
+  }
+
   ~Clusterer() = default;
 
   Clusterer(const Clusterer&) = delete;
@@ -44,18 +58,37 @@ class Clusterer
 
   // void process(std::vector<Digit> const& digits, std::vector<o2::hmpid::Cluster>& clusters, MCLabelContainer const* digitMCTruth);
 
-  // void setMCTruthContainer(o2::dataformats::MCTruthContainer<o2::MCCompLabel>* truth) { mClsLabels = truth; }
+  //
+  void setMCTruthContainer(o2::dataformats::MCTruthContainer<o2::MCCompLabel>* truth) { mClsLabels = truth; }
 
-  static void Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::hmpid::Cluster>& clus, float* pUserCut, bool isUnfold = kTRUE); // digits->clusters
-  static void FormClu(Cluster& pClu, int pDig, gsl::span<const o2::hmpid::Digit> digs, TMatrixF& pDigMap);                                    // cluster formation recursive algorithm
-  static int UseDig(int padX, int padY, TMatrixF& pDigMap);                                                                                   // use this pad's digit to form a cluster
-  inline bool IsDigSurvive(Digit* pDig) const;                                                                                                // check for sigma cut
+  // ef : added; set labels in mClsLabels
+  void addCluLabelsFromDig(const Cluster& cluster, const std::vector<int>& globalDigitIndices, MCLabelContainer const* digitMCTruth, MCLabelContainer* mClsLabels, int cluSize);
+
+  void FormCluMC(Cluster& pClu, int pDig, gsl::span<const o2::hmpid::Digit> digs, TMatrixF& pDigMap, std::vector<int>& indicesUnresolved);
+
+  void Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::hmpid::Cluster>& clus, float* pUserCut, MCLabelContainer const* digitMCTruth, bool isUnfold = kTRUE); // digits->clusters
+  static void FormClu(Cluster& pClu, int pDig, gsl::span<const o2::hmpid::Digit> digs, TMatrixF& pDigMap);                                                                   // cluster formation recursive algorithm
+  static int UseDig(int padX, int padY, TMatrixF& pDigMap);                                                                                                                  // use this pad's digit to form a cluster
+  inline bool IsDigSurvive(Digit* pDig) const;
+
 
  private:
+
+  // ef : taken from  Cluster::solve
+  // > TODO : make it global Hmpid base?
+  static constexpr int kMaxLocMax = 6;      // max allowed number of loc max for fitting
+
+  int startIndexDigMC = 0; // ef : TODO find a more elegant way
   // void processChamber(std::vector<Cluster>& clusters, MCLabelContainer const* digitMCTruth);
   // void fetchMCLabels(const Digit* dig, std::array<Label, Cluster::maxLabels>& labels, int& nfilled) const;
 
   o2::dataformats::MCTruthContainer<o2::MCCompLabel>* mClsLabels = nullptr; // Cluster MC labels
+
+  // ef : TODO :remove this when code and pdg etc is verified
+  std::unique_ptr<o2::steer::MCKinematicsReader> mcReader;
+
+  // is set in initialization
+  bool mUseMC = false;
 
   // Digit* mContributingDigit[6];    //! array of digits contributing to the cluster; this will not be stored, it is temporary to build the final cluster
   // int mNumberOfContributingDigits; //! number of digits contributing to the cluster; this will not be stored, it is temporary to build the final cluster
