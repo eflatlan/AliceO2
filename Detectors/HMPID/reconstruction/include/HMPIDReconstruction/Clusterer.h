@@ -11,6 +11,7 @@
 
 /// \file Clusterer.h
 /// \brief Definition of the HMPID cluster finder
+
 #ifndef ALICEO2_HMPID_CLUSTERER_H
 #define ALICEO2_HMPID_CLUSTERER_H
 
@@ -44,7 +45,6 @@ class Clusterer
   Clusterer(bool useMC)
   {
     mUseMC = useMC;
-
     // ef : TODO remove this when code is verified:
     if (mUseMC) {
       mcReader = std::make_unique<o2::steer::MCKinematicsReader>("collisioncontext.root");
@@ -62,7 +62,7 @@ class Clusterer
   void setMCTruthContainer(o2::dataformats::MCTruthContainer<o2::MCCompLabel>* truth) { mClsLabels = truth; }
 
   // ef : added; set labels in mClsLabels
-  void iterateMcEntries(const Cluster& cluster, gsl::span<const o2::hmpid::Digit> digits, const std::vector<int>& indices, MCLabelContainer const* digitMCTruth, MCLabelContainer* mClsLabels, int cluSize);
+  void addCluLabelsFromDig(const Cluster& cluster, const std::vector<int>& globalDigitIndices, MCLabelContainer const* digitMCTruth, MCLabelContainer* mClsLabels, int cluSize);
 
   void FormCluMC(Cluster& pClu, int pDig, gsl::span<const o2::hmpid::Digit> digs, TMatrixF& pDigMap, std::vector<int>& indicesUnresolved);
 
@@ -71,9 +71,6 @@ class Clusterer
   static int UseDig(int padX, int padY, TMatrixF& pDigMap);                                                                                                                  // use this pad's digit to form a cluster
   inline bool IsDigSurvive(Digit* pDig) const;
 
-  // void setDigitTruth()
-
-  // ef FIX!                                                                                       // check for sigma cut
 
  private:
 
@@ -81,11 +78,9 @@ class Clusterer
   // > TODO : make it global Hmpid base?
   static constexpr int kMaxLocMax = 6;      // max allowed number of loc max for fitting
 
-
   int startIndexDigMC = 0; // ef : TODO find a more elegant way
   // void processChamber(std::vector<Cluster>& clusters, MCLabelContainer const* digitMCTruth);
   // void fetchMCLabels(const Digit* dig, std::array<Label, Cluster::maxLabels>& labels, int& nfilled) const;
-
 
   o2::dataformats::MCTruthContainer<o2::MCCompLabel>* mClsLabels = nullptr; // Cluster MC labels
 
