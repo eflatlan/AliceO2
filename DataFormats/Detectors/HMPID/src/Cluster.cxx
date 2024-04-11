@@ -64,7 +64,7 @@ void Cluster::coG()
       minPadY = y;
     } // MinY
 
-    float q = (*mDigs)[iDig]->mQ; // get QDC
+    float q = (*mDigs)[iDig]->getCharge(); // get QDC
     mXX += o2::hmpid::Digit::lorsX(padId) * q;
     mYY += o2::hmpid::Digit::lorsY(padId) * q; // add digit center weighted by QDC
     mQRaw += q;                                // increment total charge
@@ -142,8 +142,8 @@ void Cluster::fitFunc(int& iNpars, double* deriv, double& chi2, double* par, int
       double fracMathi = o2::hmpid::Digit::intMathieson(par[baseOff], par[baseOff1], pClu->dig(i)->getPadID());
       dQpadMath += par[baseOff2] * fracMathi; // par[3*j+2] is charge par[3*j] is x par[3*j+1] is y of current Mathieson
     }
-    if (dQpadMath > 0 && pClu->dig(i)->mQ > 0) {
-      chi2 += std::pow((pClu->dig(i)->mQ - dQpadMath), 2.0) / pClu->dig(i)->mQ; // chi2 function to be minimized
+    if (dQpadMath > 0 && pClu->dig(i)->getCharge() > 0) {
+      chi2 += std::pow((pClu->dig(i)->getCharge() - dQpadMath), 2.0) / pClu->dig(i)->getCharge(); // chi2 function to be minimized
     }
   }
   //---calculate gradients...
@@ -171,7 +171,7 @@ void Cluster::fitFunc(int& iNpars, double* deriv, double& chi2, double* par, int
     // loop on all pads of the cluster
     for (int i = 0; i < nPads; i++) { // loop on all pads of the cluster
       int iPadId = pClu->dig(i)->getPadID();
-      double dPadmQ = pClu->dig(i)->mQ;
+      double dPadmQ = pClu->dig(i)->getCharge();
       double dQpadMath = 0.0; // pad charge collector
       double twoOverMq = 2.0 / dPadmQ;
       for (int j = 0; j < iNshape; j++) { // Mathiesons loop as all of them may contribute to this pad
@@ -815,5 +815,5 @@ void Cluster::reset()
 }
 
 } // namespace hmpid
-} // namespace o2
 
+} // namespace o2
