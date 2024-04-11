@@ -19,6 +19,7 @@
 #include <SimulationDataFormat/MCCompLabel.h>
 #include <SimulationDataFormat/MCTruthContainer.h>
 #include "ReconstructionDataFormats/MatchInfoHMP.h"
+#include "ReconstructionDataFormats/MLinfoHMP.h"
 #include "ReconstructionDataFormats/MatchingType.h"
 #include "ReconstructionDataFormats/GlobalTrackID.h"
 
@@ -35,13 +36,17 @@ namespace hmpid
 
 template <typename T>
 using BranchDefinition = MakeRootTreeWriterSpec::BranchDefinition<T>;
-using MatchInfo = std::vector<o2::dataformats::MatchInfoHMP>;
+
+using MatchInfo = std::vector<o2::dataformats::MatchInfoHMP>; // MatchHMP not invoked--> needs to be changed somewhere,
+// using MatchInfo = std::vector<o2::dataformats::MLinfoHMP>; // "unsoppurted code path?"
+
 using LabelsType = std::vector<o2::MCCompLabel>;
 using namespace o2::header;
 
 DataProcessorSpec getHMPMatchedWriterSpec(bool useMC, const char* outdef) //, bool writeTracks, int mode, bool strict)
 {
 
+  LOGP(debug, "getHMPMatchedWriterSpec : useMC {}", useMC);
   const char* taskName = "HMPMatchedWriter";
 
   return MakeRootTreeWriterSpec(taskName,

@@ -50,6 +50,8 @@
 #include "DataFormatsHMP/Cluster.h"
 #include "DataFormatsHMP/Trigger.h"
 
+#include "Steer/MCKinematicsReader.h"
+
 namespace o2
 {
 
@@ -69,6 +71,73 @@ namespace globaltracking
 
 class MatchHMP
 {
+
+  float calcMassFromCkov(float p, float n, float ckov)
+  {
+    p = std::abs(p);
+    const float refIndexFreon = n;
+
+    const float cos_ckov = std::cos(ckov);
+
+    const float term = n * p * cos_ckov;
+    float m_squared = term * term - p * p;
+
+    // Sanity check to avoid taking the square root of a negative number
+    if (m_squared < 0) {
+      return 0;
+    }
+
+    return std::sqrt(m_squared);
+  }
+
+  float calcCkovFromMass(float p, float n, int pdg)
+  {
+    // Constants for particle masses (in GeV/c^2)
+    const float mass_Muon = 0.10566, mass_Pion = 0.1396, mass_Kaon = 0.4937, mass_Proton = 0.938;
+    auto particlePDG = TDatabasePDG::Instance()->GetParticle(pdg);
+    double mass = particlePDG ? particlePDG->Mass() : 0.;
+
+    float m; // variable to hold the mass
+    p = std::abs(p);
+    // Switch based on absolute value of PDG code
+    switch (std::abs(pdg)) {
+      case 13:
+        m = mass_Muon;
+        break;
+      case 211:
+        m = mass_Pion;
+        break;
+      case 321:
+        m = mass_Kaon;
+        break;
+      case 2212:
+        m = mass_Proton;
+        break;
+      default:
+        return mass; // return 0 if PDG code doesn't match any known codes
+    }
+
+    const float p_sq = p * p;
+    const float refIndexFreon = n; // Assuming n is the refractive index
+    const float cos_ckov_denom = p * refIndexFreon;
+
+    // Sanity check
+    if (p_sq + m * m < 0) {
+      return 0;
+    }
+
+    const auto cos_ckov =
+      static_cast<float>(TMath::Sqrt(p_sq + m * m) / cos_ckov_denom);
+
+    // Sanity check
+    if (cos_ckov > 1 || cos_ckov < -1) {
+      return 0;
+    }
+
+    const auto ckovAngle = static_cast<float>(TMath::ACos(cos_ckov));
+
+    return ckovAngle;
+  }
 
   using Geo = o2::hmpid::Geo;
   using Cluster = o2::hmpid::Cluster;
@@ -119,16 +188,19 @@ class MatchHMP
   }
   unsigned long getTS() const { return mTimestamp; }
 
+  // ef : added
+  void useVerboseMode() { mVerbose = true; }
+
  private:
-  // bool prepareFITData();
+  //  bool prepareFITData();
   int prepareInteractionTimes();
   bool prepareTracks();
   bool prepareHMPClusters();
   void doFastMatching();
   void doMatching();
 
-  static int intTrkCha(o2::track::TrackParCov* pTrk, double& xPc, double& yPc, double& xRa, double& yRa, double& theta, double& phi, double bz);               // find track-PC intersection, retuns chamber ID
-  static int intTrkCha(int ch, o2::dataformats::TrackHMP* pHmpTrk, double& xPc, double& yPc, double& xRa, double& yRa, double& theta, double& phi, double bz); // find track-PC intersection, retuns chamber ID
+  static int intTrkCha(o2::track::TrackParCov* pTrk, double& xPc, double& yPc, double& xRa, double& yRa, double& theta, double& phi, double bz, const o2::hmpid::Param* pParam);               // find track-PC intersection, retuns chamber ID
+  static int intTrkCha(int ch, o2::dataformats::TrackHMP* pHmpTrk, double& xPc, double& yPc, double& xRa, double& yRa, double& theta, double& phi, double bz, const o2::hmpid::Param* pParam); // find track-PC intersection, retuns chamber ID
 
   bool intersect(Double_t pnt[3], Double_t norm[3]) const;
 
@@ -183,31 +255,42 @@ class MatchHMP
 
   ///>>>------ these are input arrays which should not be modified by the matching code
   //           since this info is provided by external device
-  gsl::span<const Cluster> mHMPClustersArray;                      ///< input HMPID clusters
-  gsl::span<const Trigger> mHMPTriggersArray;                      ///< input HMPID triggers
+  gsl::span<const Cluster> mHMPClustersArray; ///< input HMPID clusters
+  gsl::span<const Trigger> mHMPTriggersArray; ///< input HMPID triggers
 
   const o2::dataformats::MCTruthContainer<o2::MCCompLabel>* mHMPClusLabels; ///< input HMP clusters MC labels (pointer to read from tree)
 
   ///< working copy of the input tracks
   std::vector<matchTrack> mTracksWork[o2::globaltracking::MatchHMP::trackType::SIZE]; ///< track params prepared for matching + time value
   std::vector<Trigger> mHMPTriggersWork;
+
   std::vector<o2::MCCompLabel> mTracksLblWork[o2::globaltracking::MatchHMP::trackType::SIZE]; ///< track labels
 
   std::vector<int> mTracksIndexCache[o2::globaltracking::MatchHMP::trackType::SIZE]; ///< indices of track entry in mTracksWork
-  std::vector<int> mHMPTriggersIndexCache;                                           ///< indices of track entry in mHMPTriggersWork
+
+  std::vector<int> mHMPTriggersIndexCache; ///< indices of track entry in mHMPTriggersWork
 
   ///< array of matched HMPCluster with matching information
   std::vector<o2::dataformats::MatchInfoHMP> mMatchedTracks[o2::globaltracking::MatchHMP::trackType::SIZE]; // this is the output of the matching -> UNCONS, CONSTR
-  std::vector<o2::MCCompLabel> mOutHMPLabels[o2::globaltracking::MatchHMP::trackType::SIZE];                ///< HMP label of matched tracks
+
+  std::vector<o2::MCCompLabel> mOutHMPLabels[o2::globaltracking::MatchHMP::trackType::SIZE]; ///< HMP label of matched tracks
 
   std::vector<o2::dataformats::GlobalTrackID> mTrackGid[o2::globaltracking::MatchHMP::trackType::SIZE]; ///< expected times and others
   std::vector<int> mMatchedTracksIndex[o2::globaltracking::MatchHMP::trackType::SIZE];                  // vector of indexes of the tracks to be matched
 
   int mNumOfTriggers; // number of HMP triggers
 
+  // ef : added
+
+  bool mVerbose = false;
+
+  // ef : added the pParam here, to avoid doing it in intrTrkCh
+  // o2::hmpid::Param* pParam = nullptr;
+  // std::unique_ptr<o2::hmpid::Param> pParam;
+
   ///----------- aux stuff --------------///
   static constexpr float MAXSNP = 0.85; // max snp of ITS or TPC track at xRef to be matched
-
+  std::unique_ptr<o2::steer::MCKinematicsReader> mcReader;
   TStopwatch mTimerTot;
   TStopwatch mTimerMatchITSTPC;
   TStopwatch mTimerMatchTPC;
