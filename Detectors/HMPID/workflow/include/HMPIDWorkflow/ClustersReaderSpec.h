@@ -13,7 +13,7 @@
 /// \file    DatDecoderSpec.h
 /// \author  Andrea Ferrero
 ///
-/// \brief Definition of a data processor to run the raw decoding
+/// \brief Definition of a data processor to read Clusters
 ///
 
 #ifndef DETECTORS_HMPID_WORKFLOW_INCLUDE_HMPIDWORKFLOW_CLUSTERSREADERSPEC_H_
@@ -41,8 +41,14 @@ namespace hmpid
 class ClusterReaderTask : public framework::Task
 {
  public:
-  ClusterReaderTask() = default;
-  //  : mReadFile(readFile) {}
+
+  // ef added
+  ClusterReaderTask(bool useMC, bool verbose)
+  {
+    mUseMC = useMC;
+    mVerbose = verbose;
+  };
+
   ~ClusterReaderTask() override = default;
 
   void init(framework::InitContext& ic) final;
@@ -51,6 +57,12 @@ class ClusterReaderTask : public framework::Task
   // void endOfStream(framework::EndOfStreamContext& ec) override;
 
  private:
+  // ef : added
+  bool mUseMC = false;
+  bool mVerbose = false;
+
+  std::string mClusterMCTruthBranchName = "HMPIDClusterLabels";
+
   bool mReadFile = false;
   void initFileIn(const std::string& filename);
 
@@ -59,6 +71,10 @@ class ClusterReaderTask : public framework::Task
 
   std::unique_ptr<TFile> mFile; // root file with Clusters
   std::unique_ptr<TTree> mTree; // tree inside the file
+
+  // ef: add mLabels for clusteres
+  o2::dataformats::MCTruthContainer<o2::MCCompLabel> mLabels, *mLabelsPtr = &mLabels;
+
   std::vector<o2::hmpid::Trigger> mClusterTriggersFromFile, *mClusterTriggersFromFilePtr = &mClusterTriggersFromFile;
   std::vector<o2::hmpid::Cluster> mClustersFromFile, *mClustersFromFilePtr = &mClustersFromFile;
 
@@ -68,7 +84,7 @@ class ClusterReaderTask : public framework::Task
   // void strToFloatsSplit(std::string s, std::string delimiter, float* res, int maxElem = 7);
 };
 
-o2::framework::DataProcessorSpec getClusterReaderSpec();
+o2::framework::DataProcessorSpec getClusterReaderSpec(bool useMC, bool verbose = false);
 
 } // end namespace hmpid
 } // end namespace o2

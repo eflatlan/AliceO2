@@ -16,15 +16,14 @@
 #define STEER_DIGITIZERWORKFLOW_SRC_HMPCLUSTERWRITERSPEC_H_
 
 #include "Framework/DataProcessorSpec.h"
+#include "SimulationDataFormat/MCCompLabel.h"
 
 namespace o2
 {
-namespace hmpid
-{
-
-o2::framework::DataProcessorSpec getClusterWriterSpec();
-
-} // end namespace hmpid
+  namespace hmpid
+  {
+    o2::framework::DataProcessorSpec getClusterWriterSpec(bool useMc);
+  } // end namespace hmpid
 } // end namespace o2
 
 #endif /* STEER_DIGITIZERWORKFLOW_SRC_HMPCLUSTERWRITERSPEC_H_ */
