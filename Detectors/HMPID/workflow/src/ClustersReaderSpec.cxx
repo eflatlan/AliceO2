@@ -116,11 +116,9 @@ void ClusterReaderTask::run(ProcessingContext& pc)
         }
 
         LOGP(info, "trigger number {} : entries {}", tNum, trig.getNumberOfObjects());
-
         LOGP(info, "\n Different labels from eventLabels {} :::", eventLabels.size());
 
         std::vector<int> sortedVec = eventLabels;
-
         std::sort(sortedVec.begin(), sortedVec.end());
 
         std::cout << "eventLabels values: ";
@@ -130,7 +128,6 @@ void ClusterReaderTask::run(ProcessingContext& pc)
           }
         }
       }
-
       tNum++;
     }
   }
@@ -201,7 +198,6 @@ void ClusterReaderTask::initFileIn(const std::string& filename)
 
   mTree->Print("toponly");
   mTree->SetBranchAddress("InteractionRecords", &mClusterTriggersFromFilePtr);
-  mTree->Print("toponly");
 }
 
 //_________________________________________________________________________________________________
@@ -211,7 +207,6 @@ o2::framework::DataProcessorSpec getClusterReaderSpec(bool useMC, bool verbose)
 
   std::vector<o2::framework::OutputSpec> outputs;
   outputs.emplace_back("HMP", "CLUSTERS", 0, o2::framework::Lifetime::Timeframe);
-
   outputs.emplace_back("HMP", "INTRECORDS1", 0, o2::framework::Lifetime::Timeframe);
 
   // ef: added here

@@ -92,11 +92,8 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
       }
 
       digVec.clear();
-
       Cluster clu;
-
       clu.setDigits(&digVec);
-
       clu.setCh(iCh);
 
       std::vector<int> digitIndicesRawCluster;
@@ -111,7 +108,6 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
       // recursively add all adjacent digits to the cluster
 
       int formedClusters = -1;
-
       const int cluSizeIn = clus.size();
 
       if (digitMCTruth == nullptr) {

@@ -42,7 +42,6 @@ class DigitReader : public framework::Task
 {
  public:
   DigitReader(bool useMC, bool verbose) : mUseMC(useMC), mVerbose(verbose) {}
-
   ~DigitReader() override = default;
 
   void init(framework::InitContext& ic) final;

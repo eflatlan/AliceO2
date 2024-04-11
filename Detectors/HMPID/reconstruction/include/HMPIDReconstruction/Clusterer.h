@@ -27,7 +27,6 @@
 
 namespace o2
 {
-
 namespace hmpid
 {
 class Clusterer
@@ -42,7 +41,6 @@ class Clusterer
   Clusterer(bool useMC)
   {
     mUseMC = useMC;
-    // ef : TODO remove this when code is verified:
   }
 
   ~Clusterer() = default;

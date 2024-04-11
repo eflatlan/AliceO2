@@ -91,11 +91,8 @@ class Cluster
   // Setters
 
   void doCorrSin(bool doCorrSin) { fgDoCorrSin = doCorrSin; } // Set sinoidal correction
-
   void setX(float x) { mXX = x; }
-
   void setY(float y) { mYY = y; }
-
   void setQ(float q)
   {
     mQ = q;
@@ -105,7 +102,6 @@ class Cluster
   }
 
   void setQRaw(float qRaw)
-
   {
     mQRaw = qRaw;
     if (mQRaw > 4095) {
@@ -114,15 +110,10 @@ class Cluster
   }
 
   void setRawSize(int size) { mSiRaw = size; } // ef > added, size of raw cluster
-
   void setSize(int size) { mSi = size; }
-
   void setCh(int chamber) { mCh = chamber; }
-
   void setChi2(float chi2) { mChi2 = chi2; }
-
   void setStatus(int status) { mSt = status; }
-
   void findClusterSize(int i, float* pSigmaCut); // Find the clusterSize of deconvoluted clusters
 
  protected:
@@ -156,7 +147,7 @@ class Cluster
   int ch() const { return mCh; }             // chamber number
   int size() const { return mSi; }           // returns number of pads in formed cluster
   int sizeRaw() const { return mSiRaw; }     // ef > added : returns number of pads in raw cluster
-  int numLocMax() const { return mNlocMax; } // ef > added : returns number local maxima
+  int numLocMax() const { return mNlocMax; } // ef > added : returns number of local maxima
   int status() const { return mSt; }         // Status of cluster
   float qRaw() const { return mQRaw; }       // raw cluster charge in QDC channels
   float q() const { return mQ; }             // given cluster charge in QDC channels

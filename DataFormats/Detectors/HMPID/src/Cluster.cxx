@@ -478,11 +478,9 @@ int Cluster::solveMC(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut,
   }
 
   const int kMaxLocMax = 6; // max allowed number of loc max for fitting
-
   coG(); // First calculate CoG for the given cluster
 
   int iCluCnt = pCluLst->size(); // get current number of clusters already stored in the list by previous operations
-
   int rawSize = mSi; // get current raw cluster size
 
   if (rawSize > 100) {
@@ -630,22 +628,15 @@ int Cluster::solveMC(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut,
       if (mNlocMax > 1) {
         std::vector<int> indicesResolved;
         findClusterSizeMC(i, pSigmaCut, indicesResolved); // find clustersize for deconvoluted clusters
+        // after this call, fSi temporarly is the calculated size. Later is set again
+        // to its original value
+
         // add "local" indices to map of clusterNumer i
         resolvedIndicesMap[i] = indicesResolved;
         LOGP(info, "size resolvedIndicesMap[i] {}", resolvedIndicesMap[i].size());
-        /*
-        for(auto& res : resolvedIndicesMap) {
-          LOGP(info, "for resolved cluster {i} : sat the resolvedIndicesMap w
-        key {}", res.first);
-        }*/
-        //findClusterSize(i, pSigmaCut); // find clustersize for deconvoluted clusters
+        
         // after this call, fSi temporarly is the calculated size. Later is set again
-
         // to its original value
-        /*if(useMC) {
-          findDigitsForCluster(i, solve);
-
-        }*/
       }
 
       if (mSt != kAbn) {
@@ -684,7 +675,7 @@ int Cluster::solveMC(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut,
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 // Estimate of the clustersize for a deconvoluted cluster
-
+// ef > for MC add indices of resolved digits
 void Cluster::findClusterSizeMC(int i, float* pSigmaCut, std::vector<int>& indicesResolved)
 
 {
@@ -697,9 +688,7 @@ void Cluster::findClusterSizeMC(int i, float* pSigmaCut, std::vector<int>& indic
     int iCh = pDig->getCh();
     double qPad = mQ * o2::hmpid::Digit::intMathieson(x(), y(), pDig->getPadID()); // pad charge  pDig->
     //  AliDebug(1,Form("Chamber %i X %i Y %i SigmaCut %i pad %i qpadMath %8.2f qPadRaw %8.2f Qtotal %8.2f cluster n.%i",
-
     //                 iCh, o2::hmpid::Digit::a2X(pDig->getPadID()), o2::hmpid::Digit::a2Y(pDig->getPadID()),
-
     //                 pSigmaCut[iCh],iDig,qPad,pDig->getCharge(),mQRaw,i));
 
     if (qPad > pSigmaCut[iCh]) {
@@ -729,7 +718,6 @@ void Cluster::findClusterSizeMC(int i, float* pSigmaCut, std::vector<int>& indic
 // Estimate of the clustersize for a deconvoluted cluster
 
 void Cluster::findClusterSize(int i, float* pSigmaCut)
-
 {
 
   int size = 0;
@@ -794,7 +782,6 @@ void Cluster::digAdd(const Digit* pDig)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 void Cluster::reset()
-
 {
   //
   cleanPointers();
@@ -807,5 +794,4 @@ void Cluster::reset()
 }
 
 } // namespace hmpid
-
 } // namespace o2

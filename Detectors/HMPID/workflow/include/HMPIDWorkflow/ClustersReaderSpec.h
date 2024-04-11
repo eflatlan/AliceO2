@@ -51,7 +51,6 @@ class ClusterReaderTask : public framework::Task
   ~ClusterReaderTask() override = default;
 
   void init(framework::InitContext& ic) final;
-
   void run(framework::ProcessingContext& pc) final;
   // void endOfStream(framework::EndOfStreamContext& ec) override;
 

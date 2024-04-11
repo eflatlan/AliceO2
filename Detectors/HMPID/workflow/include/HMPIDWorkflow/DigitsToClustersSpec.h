@@ -34,7 +34,6 @@ namespace o2
 {
 namespace hmpid
 {
-
 class DigitsToClustersTask : public framework::Task
 {
  public:

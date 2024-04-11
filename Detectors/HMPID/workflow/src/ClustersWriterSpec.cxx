@@ -43,5 +43,4 @@ o2::framework::DataProcessorSpec getClusterWriterSpec(bool useMC)
 }
 
 } // end namespace hmpid
-
 } // end namespace o2
