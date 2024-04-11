@@ -10,89 +10,39 @@
 // or submit itself to any jurisdiction.
 
 #ifndef DETECTORS_HMPID_BASE_INCLUDE_HMPIDDATAFORMAT_CLUSTER_H_
-
 #define DETECTORS_HMPID_BASE_INCLUDE_HMPIDDATAFORMAT_CLUSTER_H_
 
 #include "CommonDataFormat/InteractionRecord.h"
-
 #include "CommonDataFormat/RangeReference.h"
-
 #include "DataFormatsHMP/Digit.h"
-
 #include "HMPIDBase/Param.h"
-
 #include "FairLogger.h"
 
 namespace o2
-
 {
-
 namespace hmpid
 
 {
-
 /// \class Cluster
-
 /// \brief HMPID cluster implementation
-
 class Cluster
-
 {
-
  public:
   enum EClusterStatus { kFrm,
-
                         kCoG,
-
                         kLo1,
-
                         kUnf,
-
                         kMax,
-
                         kNot,
-
                         kEdg,
-
                         kSi1,
-
                         kNoLoc,
-
                         kAbn,
-
                         kBig,
-
                         kEmp = -1 }; // status flags
 
  public:
-   /*float getEnergy() const { return mEnergy; }
-
-   void setEnergy(float energy) { mEnergy = energy; }
-
-   int getPDG() const { return mParticlePdg; }
-
-   void setPDG(int pdg) { mParticlePdg = pdg; }
-
-   void setEventNumberFromTrack(int eventNumberTrack) { mEventNumberTrack =
-   eventNumberTrack; }
-
-   int getEventNumberFromTrack() const { return mEventNumberTrack; }
-
-   void setEventNumber(int eventNumber) { mEventNumber = eventNumber; }
-
-   int getEventNumber() const { return mEventNumber; }
-
-   void setTrackId(int tid) { mTrackId = tid; }
-
-   int getTrackId() const { return mTrackId; }
-
-   void setMotherId(int motherTrackId) { mMotherTrackId = motherTrackId; }
-
-   int getMotherId() const { return mMotherTrackId; }
-
-   int getSourceId() const { return mSourceId; }
-
-
+   /*
    void setInfoFromDigits(const int currCluVecSize)
 
    {
@@ -286,7 +236,6 @@ class Cluster
   void findClusterSizeMC(int i, float* pSigmaCut, std::vector<int>& indicesResolved);
 
   // Getters
-
   // Setters
 
   void doCorrSin(bool doCorrSin) { fgDoCorrSin = doCorrSin; } // Set sinoidal correction
@@ -296,13 +245,9 @@ class Cluster
   void setY(float y) { mYY = y; }
 
   void setQ(float q)
-
   {
-
     mQ = q;
-
     if (mQ > 4095) {
-
       mQ = 4095;
     }
   }
@@ -310,11 +255,8 @@ class Cluster
   void setQRaw(float qRaw)
 
   {
-
     mQRaw = qRaw;
-
     if (mQRaw > 4095) {
-
       mQRaw = 4095;
     }
   }
@@ -332,7 +274,6 @@ class Cluster
 
   void findClusterSize(int i, float* pSigmaCut); // Find the clusterSize of deconvoluted clusters
 
-  // public:
 
 protected:
   // int  digsXArr[9], digsYArr[9], digsQArr[9], digsPDGArr[9];//, digsTIDArr[9], digsMIDArr[9];//.push_back(dig
@@ -342,35 +283,20 @@ protected:
 
   // ef : why do we not use uint8 for some of these? 
   int mCh; // chamber number
-
   int mSiRaw; // ef > added, size of raw cluster
-
   int mSi; // size of the formed cluster from which this cluster deduced
-
   int mSt; // flag to mark the quality of the cluster
-
   int mBox; // box contaning this cluster
-
   int mNlocMax; // number of local maxima in formed cluster
-
   int mMaxQpad; // abs pad number of a pad with the highest charge
-
   double mMaxQ; // that max charge value
-
   double mQRaw; // QDC value of the raw cluster
-
   double mQ; // QDC value of the actual cluster
-
   double mErrQ; // error on Q
-
   double mXX; // local x postion, [cm]
-
   double mErrX; // error on x postion, [cm]
-
   double mYY; // local y postion, [cm]
-
   double mErrY; // error on y postion, [cm]
-
   double mChi2; // some estimator of the fit quality
 
   std::vector<const o2::hmpid::Digit*>* mDigs = nullptr; //! list of digits forming this cluster
@@ -378,57 +304,32 @@ protected:
  public:
    // ef : added const methods
    int box() const { return mBox; } // Dimension of the cluster
-
    int ch() const { return mCh; } // chamber number
-
    int size() const { return mSi; } // returns number of pads in formed cluster
-   
    int sizeRaw() const { return mSiRaw; } // ef > added : returns number of pads in raw cluster
-
    int numLocMax() const { return mNlocMax; } // ef > added : returns number local maxima
-
    int status() const { return mSt; } // Status of cluster
-
    float qRaw() const { return mQRaw; } // raw cluster charge in QDC channels
-
    float q() const { return mQ; } // given cluster charge in QDC channels
-
    float qe() const { return mErrQ; } // Error in cluster charge in QDC channels
-
    float x() const { return mXX; } // cluster x position in LRS
-
    float xe() const { return mErrX; } // cluster charge in QDC channels
-
    float y() const { return mYY; } // cluster y position in LRS
-
    float ye() const { return mErrY; } // cluster charge in QDC channels
-
    float chi2() const { return mChi2; } // chi2 of the fit
 
    int box() { return mBox; } // Dimension of the cluster
-
-
    // ef : why do we not use uint8 for some of these? 
    int ch() { return mCh; } // chamber number
-
    int size() { return mSi; } // returns number of pads in formed cluster
-
    int status() { return mSt; } // Status of cluster
-
    float qRaw() { return mQRaw; } // raw cluster charge in QDC channels
-
    float q() { return mQ; } // given cluster charge in QDC channels
-
    float qe() { return mErrQ; } // Error in cluster charge in QDC channels
-
    float x() { return mXX; } // cluster x position in LRS
-
    float xe() { return mErrX; } // cluster charge in QDC channels
-
    float y() { return mYY; } // cluster y position in LRS
-
    float ye() { return mErrY; } // cluster charge in QDC channels
-
    float chi2() { return mChi2; } // chi2 of the fit
 
  public:
