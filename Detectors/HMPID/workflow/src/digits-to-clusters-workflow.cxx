@@ -51,7 +51,7 @@ void customize(std::vector<ConfigParamSpec>& workflowOptions)
   workflowOptions.push_back(ConfigParamSpec{"disable-root-output", VariantType::Bool, false, {"disable root-files output writers"}});
 
   // ef : added
-workflowOptions.push_back(ConfigParamSpec{"disable-mc", o2::framework::VariantType::Bool, false, {"disable MC propagation even if available"}});
+  workflowOptions.push_back(ConfigParamSpec{"disable-mc", o2::framework::VariantType::Bool, false, {"disable MC propagation even if available"}});
 
   o2::raw::HBFUtilsInitializer::addConfigOption(workflowOptions);
 }

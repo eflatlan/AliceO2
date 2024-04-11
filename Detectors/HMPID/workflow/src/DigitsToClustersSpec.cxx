@@ -98,40 +98,15 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
   std::vector<o2::hmpid::Trigger> clusterTriggers;
 
   LOG(info) << "[HMPID DClusterization - run() ] Enter ...";
-  /*clusters.clear();
-  clusterTriggers.clear();*/
 
-  // ef: added
-
-  /*if (mUseMC) {
-    mClsLabels.reset(new o2::dataformats::MCTruthContainer<o2::MCCompLabel>);
-  }*/
-
-  // bool mUseMC = false;// not yet
-
-  /*
-  auto labelVector = std::make_shared<std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>>>();
-  if (mUseMC) {
-
-    // ef FIX!
-    //mClsLabels.clear();
-
-    auto digitlabels = pc.inputs().get<std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>>*>("hmpiddigitlabels");
-    *labelVector.get() = std::move(*digitlabels);
-    //mRec->setMCTruthContainer(mClsLabels); ef do laters
-  }*/
-
-  // filled in HMPIDDigitizerSpec :
-  // o2::dataformats::MCTruthContainer<o2::MCCompLabel> mLabels; // labels which get filled
-  // std::vector<o2::hmpid::Trigger> mIntRecord;
 
   auto triggers = pc.inputs().get<gsl::span<o2::hmpid::Trigger>>("intrecord");
   auto digits = pc.inputs().get<gsl::span<o2::hmpid::Digit>>("digits");
 
+  // ef > added
   auto labelVector = std::make_shared<o2::dataformats::MCTruthContainer<o2::MCCompLabel>>();
   if (mUseMC) {
 
-    LOGP(info, "Trying to acces digitLabels");
 
     auto digitlabels = pc.inputs().get<o2::dataformats::MCTruthContainer<o2::MCCompLabel>*>("hmpiddigitlabels");
 
@@ -139,51 +114,36 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
       LOGP(info, "digitlabels nullptr");
     }
 
-    LOGP(info, "triggers {} : digits : {}", triggers.size(), digits.size());
+    LOGP(info, "triggers {} : digits : {}", triggers.size(), digits.size());
 
     LOGP(info, "digitlabels of objs in truthArray : {}", digitlabels->getNElements());
     LOGP(info, "digitlabels of objs in headArray : {}", digitlabels->getIndexedSize());
 
-    if (digitlabels != nullptr)
+    if (digitlabels != nullptr && digitlabels != nullptr ){
       *labelVector.get() = std::move(*digitlabels);
+    } else {
+      LOGP(warn, "digitlabels was nullptr");
+    }
 
     if (mClsLabels != nullptr) {
       mRec->setMCTruthContainer(mClsLabels.get());
-      LOGP(info, "mClsLabels was not nullpttr");
     } else {
-      LOGP(info, "mClsLabels was nullptr");
+      LOGP(warn, "mClsLabels was nullptr");
     }
   }
 
   int i = 0;
-  LOGP(info, "loop of triggers");
   for (const auto& trig : triggers) {
     if (trig.getNumberOfObjects()) {
 
-      LOGP(info, "[HMPID DClusterization - run() ] trig.numObjects : {} <<< for trigger number {}", trig.getNumberOfObjects(), i);
+      LOGP(info, "[HMPID DClusterization - run() ]  trigger number {} number of digits : {} ", i , trig.getNumberOfObjects());
 
       gsl::span<const o2::hmpid::Digit> trigDigits{
         digits.data() + trig.getFirstEntry(),
         size_t(trig.getNumberOfObjects())};
       size_t clStart = clusters.size();
-      LOGP(info, "[HMPID DClusterization  clStart {}", clStart);
 
       if (mUseMC && labelVector != nullptr) {
-        LOGP(info, "[HMPID DClusterization mUseMC {}", mUseMC);
-
-        // TOF mRec.process(mReader, mClustersArray, &(labelVector->at(i)));
-        /*if(labelVector==nullptr) {
-          LOGP(info, "labelVector was nullptr");
-        } else {
-          LOGP(info, "labelVector of size {}", labelVector->size());
-        }*/
-
-        /*if(digitlabels==nullptr) {
-        }*/
-
-        LOGP(info, "IP args to Dig2Clu : ");
-        LOGP(info, " clusters Size {}", clusters.size());
-        LOGP(info, " trigDigits Size {}", trigDigits.size());
 
         // add protection against this ?
         /*if(i > labelVector->size()) {
@@ -193,29 +153,21 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
         LOGP(info, "number of objs in truthArray : {}", labelVector->getNElements());
         LOGP(info, "number of objs in headArray : {}", labelVector->getIndexedSize());
 
-        // auto labelObj = labelVector->getLabels(i);
-
         // clusLabels is set to Clusterer (mRec)
         // by : mRec->setMCTruthContainer(mClsLabels.get()
 
-        // ef :should this not be vectors?
-
-        LOGP(info, "trigger number {} ", i);
         mRec->Dig2Clu(trigDigits, clusters, mSigmaCut, labelVector.get(), true);
 
         // mRec->Dig2Clu(trigDigits, clusters, mSigmaCut, &(labelVector->at(i)), true);
 
-        LOGP(info, "[HMPID DClusterization exit :: mRec->Dig2Clu");
-
       } else {
         // mRec.process(mReader, mClustersArray, nullptr);
+        // pass nullptr for mClustersArray if useMC == false
         mRec->Dig2Clu(trigDigits, clusters, mSigmaCut, nullptr, true);
       }
 
-      LOG(info) << "[HMPID DClusterization - return from dig2clu";
 
-      // if(clusters.back().dig(0) == nullptr) {Printf("DigtisToClusterSpec:: dig was nullptr!!");}
-
+      // ef > remove
       {
         auto timeA =
             o2::InteractionRecord::bc2ns(trig.getBc(), trig.getOrbit());
@@ -232,8 +184,9 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
 
       clusterTriggers.emplace_back(trig.getIr(), clStart, clusters.size() - clStart);
 
-      auto t = clusterTriggers.back();
 
+      // ef > remove
+      auto t = clusterTriggers.back();
       {
         auto timeA = o2::InteractionRecord::bc2ns(t.getBc(), t.getOrbit());
         int cnt = 0;
@@ -248,10 +201,11 @@ void DigitsToClustersTask::run(framework::ProcessingContext& pc)
       }
 
     } else {
-      LOGP(info, "[HMPID DClusterization - run() ] trig.numObjects 0 for trigger number {}", i);
+      LOGP(warn, "[HMPID DClusterization - run() ] trigger number {} had no digits", i);
     }
     i++;
   }
+
   LOGP(info, "Received {} triggers with {} digits -> {} triggers with {} clusters",
        triggers.size(), digits.size(), clusterTriggers.size(), clusters.size());
   mDigitsReceived += digits.size();

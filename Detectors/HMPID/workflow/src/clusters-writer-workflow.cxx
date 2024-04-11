@@ -50,7 +50,7 @@ void customize(std::vector<ConfigParamSpec>& workflowOptions)
                     "",
                     {keyvaluehelp}});
 
-
+  // ef : added
   workflowOptions.push_back(
     o2::framework::ConfigParamSpec{"disable-mc",
                                    o2::framework::VariantType::Bool,

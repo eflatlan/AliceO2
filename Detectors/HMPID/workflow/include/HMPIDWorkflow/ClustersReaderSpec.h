@@ -13,7 +13,7 @@
 /// \file    DatDecoderSpec.h
 /// \author  Andrea Ferrero
 ///
-/// \brief Definition of a data processor to run the raw decoding
+/// \brief Definition of a data processor to read Clusters
 ///
 
 #ifndef DETECTORS_HMPID_WORKFLOW_INCLUDE_HMPIDWORKFLOW_CLUSTERSREADERSPEC_H_
@@ -41,12 +41,14 @@ namespace hmpid
 class ClusterReaderTask : public framework::Task
 {
  public:
+
+  // ef added
   ClusterReaderTask(bool useMC, bool verbose)
   {
     mUseMC = useMC;
     mVerbose = verbose;
   };
-  //  : mReadFile(readFile) {}
+
   ~ClusterReaderTask() override = default;
 
   void init(framework::InitContext& ic) final;

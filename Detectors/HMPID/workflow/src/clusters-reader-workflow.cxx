@@ -74,7 +74,6 @@ WorkflowSpec defineDataProcessing(const ConfigContext& configcontext)
   WorkflowSpec specs;
   o2::conf::ConfigurableParam::updateFromString(configcontext.options().get<std::string>("configKeyValues"));
 
-
   // EF: added
   bool useMC = !configcontext.options().get<bool>("disable-mc");
 

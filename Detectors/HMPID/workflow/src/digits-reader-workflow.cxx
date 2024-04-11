@@ -36,7 +36,6 @@ void customize(std::vector<o2::framework::CallbacksPolicy>& policies)
 }
 
 // we need to add workflow options before including Framework/runDataProcessing
-
 void customize(std::vector<o2::framework::ConfigParamSpec>& workflowOptions)
 {
   std::vector<o2::framework::ConfigParamSpec> options{

@@ -77,28 +77,28 @@ void ClusterReaderTask::run(ProcessingContext& pc)
   LOG(info) << "[HMPID ClusterReader - run() ] clusters  = " << mClustersFromFile.size();
 
   if (mVerbose) {
-    int tnum = 0;
+    int tNum = 0;
     for (const auto trig : *mClusterTriggersFromFilePtr) {
 
       auto timeA = o2::InteractionRecord::bc2ns(trig.getBc(), trig.getOrbit());
       int cnt = 0;
-      int firstentry = trig.getFirstEntry(); int lastEntry = trig.getLastEntry();
-      LOGP(info, "START : trigger number {} : entries {} first {}  lasrt {}  time {} ",tnum, trig.getNumberOfObjects(),  firstentry, lastEntry, timeA / 1000.0f);
-
-      LOGP(info, " bc {} orbit {} ", trig.getBc(), trig.getOrbit());
-      LOGP(info, "end{} entries {}", tnum, trig.getNumberOfObjects());
+            
+      const int firstEntry = trig.getfirstEntry(); 
+      const int lastEntry = trig.getLastEntry();
+            
+      LOGP(debug, "START : trigger number {} : entries {} first {}  lasrt {}  time {} ",tNum, trig.getNumberOfObjects(),  firstEntry, lastEntry, timeA / 1000.0f);
+      LOGP(debug, " bc {} orbit {} ", trig.getBc(), trig.getOrbit());
+      LOGP(debug, "end{} entries {}", tNum, trig.getNumberOfObjects());
 
 
 
       if(mUseMC) {
 		    std::vector<int> eventLabels;
 
-		    for (int i = trig.getFirstEntry(); i <= trig.getLastEntry(); i++) {
+		    for (int i = firstEntry; i <= lastEntry; i++) {
 
-		      /*****insert from digitsreder*/ //
 
 		      if (i < mLabels.getIndexedSize() && i < mClustersFromFile.size()) {
-		        bool isLabelEventSame = true;
 		        const auto& labels = mLabels.getLabels(i);
 		        int prevEventLabel = 0;
 
@@ -106,24 +106,21 @@ void ClusterReaderTask::run(ProcessingContext& pc)
 		          prevEventLabel = labels[0].getEventID();
 		          eventLabels.push_back(prevEventLabel);
 		        }
-		        int lblNum = 0;
+
 		        for (const auto& label : labels) {
 
 		          if (label.getEventID() != prevEventLabel) {
 		            eventLabels.push_back(label.getEventID());
-		            isLabelEventSame = false;
-		            /*LOGP(info, "trigger number {} lblNum {}: event from labelEventId changed!", tnum, lblNum);
-		            LOGP(info, "digit number {}, labelEventId {} prevEventLabel {}", i, label.getEventID(), prevEventLabel);*/
 		          }
-		          lblNum++;
+
 		          prevEventLabel = label.getEventID();
 		        }
 		      }
 		    }
 
-		    LOGP(info, "trigger number {} : entries {}", tnum, trig.getNumberOfObjects());
+		    LOGP(info, "trigger number {} : entries {}", tNum, trig.getNumberOfObjects());
 
-		    LOGP(info, "\ndifferent labels from eventLabels {} :::", eventLabels.size());
+		    LOGP(info, "\n Different labels from eventLabels {} :::", eventLabels.size());
 
 		    std::vector<int> sortedVec = eventLabels;
 
@@ -135,11 +132,9 @@ void ClusterReaderTask::run(ProcessingContext& pc)
 		        std::cout << sortedVec[i] << " , ";
 		      }
 		    }
-
-		    /*****insert from digitsreder*/ //
 			}
-      LOGP(info, "end{} entries {}", tnum, trig.getNumberOfObjects());
-      tnum++;
+
+      tNum++;
     }
   }
 
