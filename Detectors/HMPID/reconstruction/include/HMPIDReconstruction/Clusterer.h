@@ -25,9 +25,6 @@
 
 #include "TMatrixF.h" // ef: added
 
-// ef: added : TODO: remove once code is verified
-#include "Steer/MCKinematicsReader.h"
-
 namespace o2
 {
 
@@ -46,9 +43,7 @@ class Clusterer
   {
     mUseMC = useMC;
     // ef : TODO remove this when code is verified:
-    if (mUseMC) {
-      mcReader = std::make_unique<o2::steer::MCKinematicsReader>("collisioncontext.root");
-    }
+    
   }
 
   ~Clusterer() = default;
@@ -84,8 +79,7 @@ class Clusterer
 
   o2::dataformats::MCTruthContainer<o2::MCCompLabel>* mClsLabels = nullptr; // Cluster MC labels
 
-  // ef : TODO :remove this when code and pdg etc is verified
-  std::unique_ptr<o2::steer::MCKinematicsReader> mcReader;
+  
 
   // is set in initialization
   bool mUseMC = false;

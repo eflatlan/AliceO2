@@ -83,7 +83,7 @@ void ClusterReaderTask::run(ProcessingContext& pc)
       auto timeA = o2::InteractionRecord::bc2ns(trig.getBc(), trig.getOrbit());
       int cnt = 0;
             
-      const int firstEntry = trig.getfirstEntry(); 
+      const int firstEntry = trig.getFirstEntry(); 
       const int lastEntry = trig.getLastEntry();
             
       LOGP(debug, "START : trigger number {} : entries {} first {}  lasrt {}  time {} ",tNum, trig.getNumberOfObjects(),  firstEntry, lastEntry, timeA / 1000.0f);
