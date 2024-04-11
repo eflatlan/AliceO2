@@ -249,7 +249,6 @@ void DigitsToClustersTask::endOfStream(framework::EndOfStreamContext& ec)
 //_______________________________________________________________________________________________
 o2::framework::DataProcessorSpec
   getDigitsToClustersSpec(bool useMC)
-
 {
 
   std::vector<o2::framework::InputSpec> inputs;
