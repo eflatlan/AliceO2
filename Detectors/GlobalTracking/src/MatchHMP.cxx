@@ -405,10 +405,14 @@ void MatchHMP::addConstrainedSeed(o2::track::TrackParCov& trc, o2::dataformats::
 
     mTrackGid[o2::globaltracking::MatchHMP::trackType::CONSTR].emplace_back(srcGID);
 
+    LOGP(info, "mMCTruthON {}", mMCTruthON);
+
     if (mMCTruthON) {
+      LOGP(info, "pushing pack MC truth");
       // ef : added
-      mTracksLblWork[o2::globaltracking::MatchHMP::trackType::CONSTR].emplace_back(mRecoCont->getTPCITSTrackMCLabel(srcGID));
       auto itstpc = mRecoCont->getTPCITSTrackMCLabel(srcGID);
+
+      mTracksLblWork[o2::globaltracking::MatchHMP::trackType::CONSTR].emplace_back(itstpc);
     }
 
     mTracksIndexCache[o2::globaltracking::MatchHMP::trackType::CONSTR].push_back(it);
@@ -450,8 +454,12 @@ void MatchHMP::addTPCSeed(const o2::tpc::TrackTPC& _tr, o2::dataformats::GlobalT
   trc.getXYZGlo(globalPos);
 
   mTracksWork[o2::globaltracking::MatchHMP::trackType::UNCONS].emplace_back(std::make_pair(trc, timeInfo));
+    LOGP(info, "mMCTruthON {}", mMCTruthON);
 
   if (mMCTruthON) {
+
+      LOGP(info, "pushing pack MC truth UNCONS");
+
     mTracksLblWork[o2::globaltracking::MatchHMP::trackType::UNCONS].emplace_back(mRecoCont->getTPCTrackMCLabel(srcGID));
     auto itstpc = mRecoCont->getTPCITSTrackMCLabel(srcGID);
   }
@@ -472,12 +480,14 @@ bool MatchHMP::prepareHMPClusters()
   if (mVerbose) {
     LOGP(info, "MatchHMP : | mMCTruthON {}", mMCTruthON);
   }
+  LOGP(info, "MatchHMP : | mMCTruthON {}", mMCTruthON);
 
   mNumOfTriggers = 0;
 
   mHMPTriggersWork.clear();
 
   int nTriggersInCurrentChunk = mHMPTriggersArray.size();
+  LOGP(info, "MatchHMP::prepareHMPClusters : numClusters {}, numMcClusters {}", mHMPClustersArray.size(), mHMPClusLabels->getIndexedSize());
 
   if (mVerbose) {
     LOGP(info, "MatchHMP::prepareHMPClusters : numClusters {}, numMcClusters {}", mHMPClustersArray.size(), mHMPClusLabels->getIndexedSize());

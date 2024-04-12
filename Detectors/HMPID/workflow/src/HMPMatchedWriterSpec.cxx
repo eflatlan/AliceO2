@@ -19,7 +19,6 @@
 #include <SimulationDataFormat/MCCompLabel.h>
 #include <SimulationDataFormat/MCTruthContainer.h>
 #include "ReconstructionDataFormats/MatchInfoHMP.h"
-#include "ReconstructionDataFormats/MLinfoHMP.h"
 #include "ReconstructionDataFormats/MatchingType.h"
 #include "ReconstructionDataFormats/GlobalTrackID.h"
 
