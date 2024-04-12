@@ -551,6 +551,16 @@ void MatchHMP::doMatching()
 
     nmean = 1.2928 - 0.0025; //  ef ; changed ti this to match CkovToolsSingle
 
+    if (mVerbose) {
+      LOGP(info, " iEvent {}", iEvent);
+      // Printf("timeUncert %.3f", timeUncert);
+      LOGP(info, "evtTime {} ", evtTime);
+    }
+
+    LOGP(info, "Track LOOP \n\n\n");
+
+    bool moveNextEntry = false;
+
     for (int itrk = 0; itrk < cacheTrk.size(); itrk++) { // tracks loop
 
       auto& trackWork = mTracksWork[type][cacheTrk[itrk]];
@@ -570,20 +580,28 @@ void MatchHMP::doMatching()
 
 
 
-      /*
-      if (mVerbose) {
+      // ef > TODO add logic to skip to next event
+      if(evtTime < minTrkTime) {
+        // skip to next event, because we have gone through all tracks that 
+        // could have matched in time
+        moveNextEntry = true;
+        LOGP(info, "we moved to next event since evtTime {} < minTrkTime {}", evtTime, minTrkTime);
+        break;
+      }
+
+      
+      /*if (mVerbose) {
         LOGP(info, "itrk {} iEvent {}", itrk, iEvent);
         // Printf("timeUncert %.3f", timeUncert);
         LOGP(info, "trkTime {} | minTrkTime {} <  evtTime {} < maxTrkTime {}", trkTime, minTrkTime, evtTime, maxTrkTime);
-      }
-
-      */
+      }*/
       ///////
       // if (evtTime < (maxTrkTime + timeFromTF) && evtTime > (minTrkTime + timeFromTF)) {
       bool shiftedTrack = false;
 
-
-      if (evtTime < maxTrkTime && evtTime > minTrkTime) {
+      LOGP(info, "\n\n\n\n\ntry not shifted track ");
+      auto skipFirst = true;
+      if (evtTime < maxTrkTime && evtTime > minTrkTime && skipFirst) {
         o2::hmpid::Trigger event;
 
         event = mHMPTriggersWork[cacheTriggerHMP[iEvent]];
@@ -614,7 +632,9 @@ void MatchHMP::doMatching()
         Int_t iCh = intTrkCha(&trefTrk, xPc, yPc, xRa, yRa, theta, phi, bz, pParam); // find the intersected chamber for this track
 
         if (iCh <= 0 || iCh >= 7) {
-          goto if2;
+          // goto if2;
+          continue;
+
         } // no intersection at all, go next track
 
         int index = -1;
@@ -650,7 +670,7 @@ void MatchHMP::doMatching()
           const auto& cluster = (o2::hmpid::Cluster&)mHMPClustersArray[j];
 
           if (cluster.ch() != iCh) {
-            goto if2;
+            continue;
           }
 
           /*if (mVerbose) {
@@ -665,7 +685,7 @@ void MatchHMP::doMatching()
 
           // ef : added check on MIP-size being less than 3)
           if (cluster.q() < 150. || cluster.size() > 10 || cluster.size() < 3) {
-            goto if2;
+            continue;
           }
 
           isOkQcut = kTRUE;
@@ -702,7 +722,7 @@ void MatchHMP::doMatching()
         if (!bestHmpCluster) {
 
           oneEventClusters.clear();
-          goto if2;
+          continue;
         }
 
         // ef :added
@@ -733,7 +753,7 @@ void MatchHMP::doMatching()
 
           oneEventClusters.clear();
 
-          goto if2;
+          continue;
         }
         LOGP(info, "shifted track. :  {}", shiftedTrack);
 
@@ -759,7 +779,7 @@ void MatchHMP::doMatching()
 
           oneEventClusters.clear();
 
-          goto if2;
+          continue;
         }
 
         float hmpMom = hmpTrkConstrained.getP() * hmpTrkConstrained.getSign();
@@ -868,12 +888,16 @@ void MatchHMP::doMatching()
 
             int indexOfMip = matching.getMipclusIndex();
 
+
+	          LOGP(info, "indexOfMip {} firstE {} lastE {}", indexOfMip, event.getFirstEntry(), event.getLastEntry());
+
             auto clusterLabelMipMC = mHMPClusLabels->getLabels(indexOfMip /*indexGlbl*/);
             auto cluterTmp = mHMPClustersArray[indexOfMip /*indexGlbl*/];
 
             // LOGP(info, "\n\n Check MC-truth for indexEvent {} evtTracks {} ", indexEvent, evtTracks);
 
             auto cluSize = cluterTmp.size();
+            LOGP(info, "shifted track. :  {}", shiftedTrack);
 
             LOGP(info, "cluSize {}", cluSize);
 
@@ -884,7 +908,6 @@ void MatchHMP::doMatching()
             }
 
             for (const auto& cluLabel : clusterLabelMipMC) {
-
               LOGP(info, "        From cluLabel | Event: {}, track: {}, source: {}", cluLabel.getEventID(), cluLabel.getTrackID(), cluLabel.getSourceID());
               eventIdClu = cluLabel.getEventID();
               if (mcReader->getTrack(cluLabel)) {
@@ -930,7 +953,7 @@ void MatchHMP::doMatching()
           //
 
           oneEventClusters.clear();
-          goto if2;
+          continue;
 
         } // If matched continue...
 
@@ -1015,8 +1038,12 @@ void MatchHMP::doMatching()
         oneEventClusters.clear();
 
       } // if matching in time
+      LOGP(info, "\n\n\n Now testing shfited track ");
+      //if2:
 
-      if2:
+
+
+
       if (evtTime < maxTrkTime && evtTime > minTrkTime) {
         o2::hmpid::Trigger event;
         // ef > prover aa legge til en paa index< remove later\1
@@ -1026,9 +1053,9 @@ void MatchHMP::doMatching()
         } else {
           event = mHMPTriggersWork[cacheTriggerHMP[iEvent]];
           shiftedTrack = false;
-
         }
         evtTracks++;
+
         /*if (mVerbose) {
           LOGP(info, "========== NEW TRACK in time =========== evtTracks {} indexEvent {}", evtTracks, indexEvent);
         }*/
@@ -1072,7 +1099,6 @@ void MatchHMP::doMatching()
         if (mVerbose) {
           /*LOGP(info, "Track Intersected :::: clusters loop {} -- {}", event.getFirstEntry(), event.getLastEntry());
           LOGP(info, "mHMPClustersArray Size  {}", mHMPClustersArray.size());
-
           LOGP(info, "==================  clusters loop ==================");*/
         }
 
@@ -1302,6 +1328,10 @@ void MatchHMP::doMatching()
 
             auto cluSize = cluterTmp.size();
 
+
+            LOGP(info, "indexOfMip {} firstE {} lastE {}", indexOfMip, event.getFirstEntry(), event.getLastEntry());
+
+
             LOGP(info, "cluSize {}", cluSize);
 
             if (iEvent - 1 > 0 && iEvent < cacheTriggerHMP.size() - 1) {
@@ -1436,6 +1466,7 @@ void MatchHMP::doMatching()
 
           auto ns = (matching.getHMPsignal() - ckov) / 0.01;
           LOGP(info, "actual ckov {} th {} nSigma {}", matching.getHMPsignal(), ckov, ns); // ef : added this field
+          LOGP(info, "shiftedTrack {} ", shiftedTrack);
 
           LOGP(info, "isMatched new track emplaced > size {}", mMatchedTracks[type].size());
           mMatchedTracks[type].push_back(matching);
@@ -1449,6 +1480,7 @@ void MatchHMP::doMatching()
         oneEventClusters.clear();
 
       } // if matching in time
+      LOGP(info, "end  shfited track \n\n\n\n\n");
 
     } // tracks loop
 
