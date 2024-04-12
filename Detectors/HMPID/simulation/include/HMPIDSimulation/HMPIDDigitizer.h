@@ -59,9 +59,11 @@ class HMPIDDigitizer
       }
     }
   }
-  // void setOrbit(double timeNS) {mOrbit = }
+
   uint32_t getOrbit() { return mOrbit; };
   uint16_t getBc() { return mBc; };
+
+  int getEventID() const { return mEventID; }
 
   void setEventID(int eventID) { mEventID = eventID; }
   void setSrcID(int sID) { mSrcID = sID; }
@@ -99,7 +101,7 @@ class HMPIDDigitizer
   std::vector<o2::hmpid::Digit> mDigits; // internal store for digits
 
   constexpr static double TRACKHOLDTIME = 1200; // defines the window for pile-up after a trigger received in nanoseconds
-  constexpr static double BUSYTIME = 40000;     // the time for which no new trigger can be received in nanoseconds
+  constexpr static double BUSYTIME = 22000;     // the time for which no new trigger can be received in nanoseconds
 
   std::map<int, int> mIndexForPad; //! logarithmic mapping of pad to digit index
 
@@ -108,7 +110,8 @@ class HMPIDDigitizer
   int mReadoutCounter = -1;
 
   // other stuff needed for digitization
-  o2::dataformats::MCTruthContainer<o2::MCCompLabel> mTmpLabelContainer;                   // temp label container as workspace
+  o2::dataformats::MCTruthContainer<o2::MCCompLabel> mTmpLabelContainer; // temp label container as workspace
+
   o2::dataformats::MCTruthContainer<o2::MCCompLabel>* mRegisteredLabelContainer = nullptr; // label container to be filled
 
   ClassDefNV(HMPIDDigitizer, 1);
