@@ -78,13 +78,14 @@ void DigitsToRootTask::init(framework::InitContext& ic)
   LOG(info) << "Create the ROOT file " << filename.Data();
   mfileOut.reset(new TFile(TString::Format("%s", filename.Data()), "RECREATE"));
 
-  // BranchDefinition<o2::dataformats::MCTruthContainer<o2::emcal::MCLabel>>{InputSpec{"emcaldigitlabels", "EMC", "DIGITSMCTR"}, "EMCALDigitMCTruth", mctruth ? 1 : 0})();
+
+// BranchDefinition<o2::dataformats::MCTruthContainer<o2::emcal::MCLabel>>{InputSpec{"emcaldigitlabels", "EMC", "DIGITSMCTR"}, "EMCALDigitMCTruth", mctruth ? 1 : 0})();
 
   mDigitTree.reset(new TTree("o2hmp", tit));
   mDigitTree->Branch("InteractionRecords", &mTriggers);
   mDigitTree->Branch("HMPIDDigits", &mDigits);
-
-  if (mUseMC) {
+  
+  if(mUseMC) {
     mDigitTree->Branch(mDigitMCTruthBranchName.c_str(), &mDigitLabels);
   }
 
@@ -98,7 +99,8 @@ void DigitsToRootTask::run(framework::ProcessingContext& pc)
   std::vector<o2::hmpid::Digit> digits;
   // std::vector<o2::hmpid::Digit> digits;
   std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>> digitLabels;
-
+  
+  
   for (auto const& ref : InputRecordWalker(pc.inputs())) {
 
     LOGP(info, "HMP CLASS DigitsToRootTask ");
@@ -113,18 +115,21 @@ void DigitsToRootTask::run(framework::ProcessingContext& pc)
       digits = pc.inputs().get<std::vector<o2::hmpid::Digit>>(ref);
       LOG(info) << "The size of the cluster-vector =" << digits.size();
     }
-
-    // // DIGITLBL == > DIGITSMCTR?
+    
+    
+    
+    //ef : we need to define the digitsMC-truth here ? 
     if (mUseMC) {
-      if (DataRefUtils::match(ref, {"check", ConcreteDataTypeMatcher{header::gDataOriginHMP, "DIGITLBL"}})) {
+      if (DataRefUtils::match(ref, {"check", ConcreteDataTypeMatcher{header::gDataOriginHMP, "DIGITSMCTR"}})) {
+        
+        //std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>> digitLabels
+        // o2::dataformats::MCTruthContainer<o2::MCCompLabel>
 
-        // std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>> digitLabels
-        //  o2::dataformats::MCTruthContainer<o2::MCCompLabel>
 
-        // we do this in the STEER?
-        // digitLabels = pc.inputs().get<std::vector<o2::hmpid::Digit>>(ref);
-        // LOG(info) << "The size of the vector =" << digitLabels.size();
-        LOGP(info, "HMP CLASS DigitsToRootTask got DIGITLBL");
+        // we do this in the STEER? 
+        //digitLabels = pc.inputs().get<std::vector<o2::hmpid::Digit>>(ref);
+        //LOG(info) << "The size of the vector =" << digitLabels.size();
+        LOGP(info, "HMP CLASS DigitsToRootTask got DIGITSMCTR");
       }
     }
 
@@ -136,15 +141,17 @@ void DigitsToRootTask::run(framework::ProcessingContext& pc)
         mDigits.push_back(digits[j]); // append the cluster
         numberOfDigits++;
 
-        // we do this in the STEER?
+
+        // we do this in the STEER? 
         // if (mUseMC)
-        // mDigitLabels.push_back(digitLabels[j]);
-        // mDigitLabels.mergeAtBack(digitLabels[j]);?
+          // mDigitLabels.push_back(digitLabels[j]);
+          // mDigitLabels.mergeAtBack(digitLabels[j]);?
       }
 
       mTriggers.push_back(triggers[i]);
       mTriggers.back().setDataRange(startDigitsIndex, numberOfDigits);
       // mDigitLabels.mergeAtBack(digitLabels);?
+
     }
   }
 
@@ -168,14 +175,20 @@ o2::framework::DataProcessorSpec getDigitsToRootSpec(std::string inputSpec, bool
 {
   std::vector<o2::framework::InputSpec> inputs;
 
+
+  // ? ef :: TODO: why is ther "clusters" here?
   // ef changed to digits
-  inputs.emplace_back("digits", o2::header::gDataOriginHMP, "DIGITS", 0, Lifetime::Timeframe); // was "clusters"
+  inputs.emplace_back("digits", o2::header::gDataOriginHMP, "DIGITS", 0, Lifetime::Timeframe);
   inputs.emplace_back("intrecord", o2::header::gDataOriginHMP, "INTRECORDS", 0, Lifetime::Timeframe);
 
-  if (useMC) {
-    inputs.emplace_back("hmpiddigitlabels", o2::header::gDataOriginHMP, "DIGITLBL", 0, Lifetime::Timeframe); // DIGITLBL == > DIGITSMCTR?
-  }                                                                                                          // ef: do as from the steer..
 
+
+  if(useMC) {
+    inputs.emplace_back("hmpiddigitlabels", o2::header::gDataOriginHMP, "DIGITSMCTR", 0, Lifetime::Timeframe);
+  } // ef: do as from the steer..
+
+
+  
   std::vector<o2::framework::OutputSpec> outputs;
 
   return DataProcessorSpec{

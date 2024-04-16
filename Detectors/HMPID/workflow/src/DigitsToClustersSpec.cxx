@@ -236,7 +236,7 @@ o2::framework::DataProcessorSpec
 
   // ef: added
   if (useMC) {
-    inputs.emplace_back("hmpiddigitlabels", o2::header::gDataOriginHMP, "DIGITLBL", 0, Lifetime::Timeframe); // DIGITLBL == > DIGITSMCTR?
+    inputs.emplace_back("hmpiddigitlabels", o2::header::gDataOriginHMP, "DIGITSMCTR", 0, Lifetime::Timeframe); // DIGITLBL == > DIGITSMCTR?
   }
 
   // define outputs
