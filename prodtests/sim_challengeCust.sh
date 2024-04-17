@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 # A simple chain of algorithms from MC to reco (and analysis)
@@ -22,7 +23,7 @@ nevPbPb=10
 
 # default interaction rates in kHz
 intRatePP=400
-intRatePbPb=2
+intRatePbPb=50
 
 # default collision system
 collSyst="pp"
@@ -139,7 +140,7 @@ if [ "$dosim" == "1" ]; then
 
   #---------------------------------------------------
   echo "Running simulation for $nev $collSyst events with $gener generator and engine $engine and run number $runNumber"
-  taskwrapper sim.log o2-sim -n"$nev"  -m PIPE ITS TPC FT0 HMP TRD TOF --configKeyValues "Diamond.width[2]=6." -g "$gener" -e "$engine" $simWorker --run ${runNumber}
+  taskwrapper sim.log o2-sim -n"$nev"  -m PIPE ITS TPC FT0 HMP TRD TOF CTP --configKeyValues "Diamond.width[2]=6." -g "$gener" -e "$engine" $simWorker --run ${runNumber}
 
   ##------ extract number of hits
   taskwrapper hitstats.log root -q -b -l ${O2_ROOT}/share/macro/analyzeHits.C
@@ -153,12 +154,10 @@ if [ "$dosimp" == "1" ]; then
   taskwrapper grp.log o2-grp-simgrp-tool createGRPs --run ${runNumber} --publishto GRP -o mcGRP
 
   #---------------------------------------------------
-  echo "Running Pion gun simulation for $nev  "
+  echo "Running Pion -211 gun simulation for $nev Events "
   #taskwrapper sim.log o2-sim -n"$nev" --configKeyValues "Diamond.width[2]=6." -g "$gener" -e "$engine" $simWorker --run ${runNumber}
 
-	o2-sim -n"$nev" -e TGeant3 -g boxgen --configKeyValues "BoxGun.pdg=211; BoxGun.phirange[0]=-5; BoxGun.phirange[1]=60; BoxGun.number=60; BoxGun.eta[0]=-0.5 ; BoxGun.eta[1]=0.5; BoxGun.prange[0]=2.8; BoxGun.prange[1]=2.83;" $simWorker --run ${runNumber}
-
-
+  o2-sim -n"$nev" -e TGeant3 -g boxgen --configKeyValues "BoxGun.pdg=-211; BoxGun.phirange[0]=-5; BoxGun.phirange[1]=60; BoxGun.number=2; BoxGun.eta[0]=-0.5 ; BoxGun.eta[1]=0.5; BoxGun.prange[0]=5.8; BoxGun.prange[1]=5.83;" $simWorker --run ${runNumber}
 
   ##------ extract number of hits
   taskwrapper hitstats.log root -q -b -l ${O2_ROOT}/share/macro/analyzeHits.C
@@ -173,9 +172,7 @@ if [ "$dosimk" == "1" ]; then
   echo "Running Ka gun simulation for $nev  "
   #taskwrapper sim.log o2-sim -n"$nev" --configKeyValues "Diamond.width[2]=6." -g "$gener" -e "$engine" $simWorker --run ${runNumber}
 
-	o2-sim -n"$nev" -e TGeant3 -g boxgen -m PIPE ITS TPC FT0 HMP TRD TOF CTP --configKeyValues "BoxGun.pdg=321; BoxGun.phirange[0]=-5; BoxGun.phirange[1]=60; BoxGun.number=30; BoxGun.eta[0]=-0.5 ; BoxGun.eta[1]=0.5; BoxGun.prange[0]=2.8; BoxGun.prange[1]=2.83;" $simWorker --run ${runNumber}
-
-
+  o2-sim -n"$nev" -e TGeant3 -g boxgen -m PIPE ITS TPC FT0 HMP TRD TOF CTP --configKeyValues "BoxGun.pdg=321; BoxGun.phirange[0]=-5; BoxGun.phirange[1]=60; BoxGun.number=2; BoxGun.eta[0]=-0.5 ; BoxGun.eta[1]=0.5; BoxGun.prange[0]=2.8; BoxGun.prange[1]=2.83;" $simWorker --run ${runNumber}
 
   ##------ extract number of hits
   taskwrapper hitstats.log root -q -b -l ${O2_ROOT}/share/macro/analyzeHits.C
@@ -192,7 +189,7 @@ if [ "$dosimpr" == "1" ]; then
   echo "Running Proton gun simulation for $nev  "
   #taskwrapper sim.log o2-sim -n"$nev" --configKeyValues "Diamond.width[2]=6." -g "$gener" -e "$engine" $simWorker --run ${runNumber}
 
-	o2-sim -n"$nev" -e TGeant3 -g boxgen --configKeyValues "BoxGun.pdg=2212; BoxGun.phirange[0]=-5; BoxGun.phirange[1]=60; BoxGun.number=60; BoxGun.eta[0]=-0.5 ; BoxGun.eta[1]=0.5; BoxGun.prange[0]=2.8; BoxGun.prange[1]=2.83;" $simWorker --run ${runNumber}
+  o2-sim -n"$nev" -e TGeant3 -g boxgen --configKeyValues "BoxGun.pdg=2212; BoxGun.phirange[0]=-5; BoxGun.phirange[1]=60; BoxGun.number=2; BoxGun.eta[0]=-0.5 ; BoxGun.eta[1]=0.5; BoxGun.prange[0]=2.8; BoxGun.prange[1]=2.83;" $simWorker --run ${runNumber}
 
 
 

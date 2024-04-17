@@ -142,9 +142,6 @@ void Recon::ckovAngle(o2::dataformats::MatchInfoHMP* match, const std::vector<o2
   match->setIdxHMPClus(chId, index + 1000 * sizeClu); // set index of cluster
   match->setMipClusSize(sizeClu);
 
-
-
-
   // ef > TODO set a more dynamic cut here, fx the poisson distr requirement
   if (fPhotCnt < nMinPhotAcc) {         // no reconstruction with <=3 photon candidates
     match->setHMPsignal(kNoPhotAccept); // set the appropriate flag
@@ -185,11 +182,11 @@ void Recon::ckovAngle(o2::dataformats::MatchInfoHMP* match, const std::vector<o2
 
 
   auto t = houghResponseMassHyp();
-
-
-
   int iNrecMassHyp = flagPhotMassHyp(t, clusters, photChargeMassHyp); // flag photons according to individual theta ckov with respect to most probable
   
+  // ef > added field, add number of Ckov photons as from MassHypothesis
+  //match->setHMPIDmipMH(mipX, mipY, mipQ, iNrecMassHyp); // store mip info
+ 
 
   match->setMassHypNumPhot(iNrecMassHyp); // ef > added field, store number of photons for massHyp
 
@@ -224,8 +221,8 @@ bool Recon::findPhotCkov(double cluX, double cluY, double& thetaCer, double& phi
   double zRad = -0.5 * fParam->radThick() - 0.5 * fParam->winThick();     // z position of middle of RAD
   TVector3 rad(fTrkPos.X(), fTrkPos.Y(), zRad);                           // impact point at middle of RAD
   TVector3 pc(cluX, cluY, 0.5 * fParam->winThick() + fParam->gapThick()); // mip at PC
-  double cluR = TMath::Sqrt((cluX - fPc.X()) * (cluX - fPc.X()) +
-                            (cluY - fPc.Y()) * (cluY - fPc.Y())); // ref. distance impact RAD-CLUSTER
+  double cluR = TMath::Sqrt((cluX - fMipPos.X()) * (cluX - fMipPos.X()) +
+                            (cluY - fMipPos.Y()) * (cluY - fMipPos.Y())); // ref. distance impact RAD-CLUSTER
   double phi = (pc - rad).Phi();                                  // phi of photon
 
   double ckov1 = 0;
@@ -239,7 +236,7 @@ bool Recon::findPhotCkov(double cluX, double cluY, double& thetaCer, double& phi
     double ckov = 0.5 * (ckov1 + ckov2);
     dirCkov.SetMagThetaPhi(1, ckov, phi);
     TVector2 posC = traceForward(dirCkov);   // trace photon with actual angles
-    double dist = cluR - (posC - fPc).Mod(); // get distance between trial point and cluster position
+    double dist = cluR - (posC - fMipPos).Mod(); // get distance between trial point and cluster position
     if (posC.X() == -999) {
       dist = -999;
     }           // total reflection problem
