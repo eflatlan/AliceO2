@@ -102,8 +102,8 @@ class Recon : public TNamed
                                                                                                    //  int flagPhot(double ckov, const std::vector<o2::hmpid::Cluster> clusters); // is photon ckov near most probable track ckov
 
 
-  // ef : added MassHyp functions > 
-  
+  // ef : added MassHyp functions >
+ 
   double houghResponseMassHyp(); // most probable track ckov angle
   int flagPhotMassHyp(double ckov, const std::vector<o2::hmpid::Cluster>& clusters, float* photChargeVecMassHyp); // is photon ckov near most probable track ckov
   double findRingCkovMassHyp(int iNclusMassHyp);                  // best ckov for ring formed by found photon candidates
@@ -193,9 +193,9 @@ class Recon : public TNamed
     double sigma2 = fParam->sigma2(fTrkDir.Theta(), fTrkDir.Phi(), thetaCer, phiCer);
     double sigmaRing = std::sqrt(sigma2);
 
-    // ef > saturate the sigmaRing 
-    if(sigmaRing > 0.02) 
-      sigmaRing = 0.02;
+    // ef > saturate the sigmaRing
+    if(sigmaRing > 0.035)
+      sigmaRing = 0.035;
 
 
     auto zProton = (thetaCer-ckovThProton)/sigmaRing;
