@@ -139,7 +139,7 @@ if [ "$dosim" == "1" ]; then
 
   #---------------------------------------------------
   echo "Running simulation for $nev $collSyst events with $gener generator and engine $engine and run number $runNumber"
-  taskwrapper sim.log o2-sim -n"$nev"  -m PIPE ITS TPC FT0 HMP TRD TOF --configKeyValues "Diamond.width[2]=6." -g "$gener" -e "$engine" $simWorker --run ${runNumber}
+  taskwrapper sim.log o2-sim -n"$nev"  -m PIPE ITS TPC FT0 HMP TRD TOF CTP --configKeyValues "Diamond.width[2]=6." -g "$gener" -e "$engine" $simWorker --run ${runNumber}
 
   ##------ extract number of hits
   taskwrapper hitstats.log root -q -b -l ${O2_ROOT}/share/macro/analyzeHits.C

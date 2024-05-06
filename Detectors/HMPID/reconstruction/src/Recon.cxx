@@ -166,6 +166,10 @@ void Recon::ckovAngle(o2::dataformats::MatchInfoHMP* match, const std::vector<o2
   int iNrec = flagPhot(houghResponse(), clusters, photCharge); // flag photons according to individual theta ckov with respect to most probable
   // int iNrec = flagPhot(houghResponse(), clusters); // flag photons according to individual theta ckov with respect to most probable
 
+  // int iNrec = flagPhot(houghResponse(), clusters, photCharge); // flag photons according to individual theta ckov with respect to most probable
+
+  match->setNPhots(iNrec);
+
   match->setPhotCharge(photCharge);
   match->setHMPIDmip(mipX, mipY, mipQ, iNrec); // store mip info
 
