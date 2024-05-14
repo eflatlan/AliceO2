@@ -165,6 +165,8 @@ void Recon::ckovAngle(o2::dataformats::MatchInfoHMP* match, const std::vector<o2
 
   match->setPhotCharge(photCharge);
   match->setHMPIDmip(mipX, mipY, mipQ, iNrec); // store mip info
+  match->setNPhots(iNrec);
+
 
   if (iNrec < nMinPhotAcc) {
     match->setHMPsignal(kNoPhotAccept); // no photon candidates are accepted
@@ -194,6 +196,16 @@ void Recon::ckovAngle(o2::dataformats::MatchInfoHMP* match, const std::vector<o2
   //match->setPhotCharge(photCharge);
 
   double thetaCMassHyp = findRingCkovMassHyp(clusters.size()); // find the best reconstructed theta Cherenkov
+
+   int   numCkovHough = match->getNPhots();
+   int  numCkovHoughMH = match->getMassHypNumPhot();
+
+    std::cout << "Recon :: Number of Cerenkov photons detected: " << numCkovHough << std::endl;
+    std::cout << "Recon :: Number of Cerenkov photons under mass hypothesis: " << numCkovHoughMH << std::endl;
+
+  // LOGP(info, "thetaCMassHyp {} occupancy {}", thetaCMassHyp, occupancy); // ef remove
+  LOGP(info, "iNrecMassHyp {}, iNrec {}", iNrecMassHyp, iNrec); // ef remove
+
 
   // ef > added field
   findRingGeomMassHyp(thetaCMassHyp, 2);
