@@ -142,6 +142,82 @@ class HMPIDDCSProcessor
     mPids.clear();
   }
 
+  void clearDataFields()
+  {
+    clearHV();
+    resetEnergyProb();
+    clearTransparencyVars();
+    clearPressures();
+    clearTemps();
+  }
+
+  void clearHV() {
+    cntHV = 0;   
+    for (auto& hv : dpVecHV) {
+      hv.clear();
+    }
+     pArrHv.reset(new TF1[24]);
+  }
+
+
+  void resetEnergyProb() {
+    sEnergProb = 0, sProb = 0; // energy probaility, probability
+    eMean = 0;   
+  }
+
+  // added
+  void clearTransparencyVars() {
+
+    for (auto& vec : waveLenVec) {
+      vec.clear();
+    }
+    
+    for (auto& vec : argonRefVec) {
+      vec.clear();
+    }
+
+    for (auto& vec : freonRefVec) {
+      vec.clear();
+    }
+
+    for (auto& vec : argonCellVec) {
+      vec.clear();
+    }
+
+    for (auto& vec : freonCellVec) {
+      vec.clear();
+    }        
+
+  }
+
+
+  // added
+  void clearPressures() {
+    cntEnvPressure = 0;
+    dpVecEnv.clear();
+
+    cntChPressure = 0;
+    for (auto& ch : dpVecCh) {
+      ch.clear();
+    }
+    pArrCh.reset(new TF1[7]);
+  }
+
+  // added
+  void clearTemps() {
+    cntTin = 0;
+    cntTOut = 0;
+
+    for (auto& tmp : dpVecTempIn) {
+      tmp.clear();
+    }
+
+    for (auto& tmp : dpVecTempOut) {
+      tmp.clear();
+    }
+  }
+
+
   int getRunNumberFromGRP()
   {
     return mRunNumberFromGRP;

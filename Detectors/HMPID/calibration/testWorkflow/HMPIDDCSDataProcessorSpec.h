@@ -179,6 +179,9 @@ class HMPIDDCSDataProcessor : public o2::framework::Task
       sendChargeThresOutput(pc.outputs());
       sendRefIndexOutput(pc.outputs());
       mProcessor->clearCCDBObjects(); // clears the vectors
+      mProcessor->clearDataFields(); // added
+      mProcessor->clearDPsInfo(); // added
+
       mProcessor->resetStartValidity();
       mProcessor->resetEndValidity();
     }
@@ -206,6 +209,9 @@ class HMPIDDCSDataProcessor : public o2::framework::Task
       sendRefIndexOutput(ec.outputs());
 
       mProcessor->clearCCDBObjects(); // clears the vectors
+      mProcessor->clearDataFields(); // added
+      mProcessor->clearDPsInfo(); // added
+
       mProcessor->resetStartValidity();
       mProcessor->resetEndValidity();
     } // <end if mLocalTest>
