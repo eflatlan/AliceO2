@@ -71,15 +71,11 @@ class HMPIDDPLDigitizerTask : public o2::base::BaseDPLDigitizer
     context->initSimChains(o2::detectors::DetID::HMP, mSimChains);
 
     auto& irecords = context->getEventRecords();
-    int i = 0;
     for (auto& record : irecords) {
-      LOG(info) << i++ << "HMPID TIME RECEIVED " << record.getTimeNS() / 1000.f << " us";
+      LOG(info) << "HMPID TIME RECEIVED " << record.getTimeNS();
     }
 
     auto& eventParts = context->getEventParts();
-
-    LOGP(info, "irecords size {} eventParts {}", irecords.size(), eventParts.size());
-
     std::vector<o2::hmpid::Digit> digitsAccum;                     // accumulator for digits
     o2::dataformats::MCTruthContainer<o2::MCCompLabel> labelAccum; // timeframe accumulator for labels
     mIntRecord.clear();
@@ -90,26 +86,15 @@ class HMPIDDPLDigitizerTask : public o2::base::BaseDPLDigitizer
       mLabels.clear();
       mDigitizer.flush(mDigits);
       LOG(info) << "HMPID flushed " << mDigits.size() << " digits at this time ";
-      LOG(info) << "NUMBER OF LABELS OBTAINED " << mLabels.getIndexedSize();
+      LOG(info) << "NUMBER OF LABEL OBTAINED " << mLabels.getNElements();
       int32_t first = digitsAccum.size(); // this is the first
       std::copy(mDigits.begin(), mDigits.end(), std::back_inserter(digitsAccum));
-
       labelAccum.mergeAtBack(mLabels);
 
       // save info for the triggers accepted
       LOG(info) << "Trigger  Orbit :" << mDigitizer.getOrbit() << "  BC:" << mDigitizer.getBc();
       mIntRecord.push_back(o2::hmpid::Trigger(o2::InteractionRecord(mDigitizer.getBc(), mDigitizer.getOrbit()), first, digitsAccum.size() - first));
-
-      LOGP(info, "current trigger {} ", mIntRecord.size() - 1); // ef :remove
-
     };
-
-    // loop over all composite collisions given from context
-    // (aka loop over all the interaction records)
-
-    std::vector<int> eventInds;
-
-
 
     // loop over all composite collisions given from context
     // (aka loop over all the interaction records)
@@ -117,63 +102,41 @@ class HMPIDDPLDigitizerTask : public o2::base::BaseDPLDigitizer
       // try to start new readout cycle by setting the trigger time
       auto triggeraccepted = mDigitizer.setTriggerTime(irecords[collID].getTimeNS());
       if (triggeraccepted) {
-        LOGP(info, "triggerAccepted"); // ef :remove
+        flushDigitsAndLabels(); // flush previous readout cycle
+      }
+      auto withinactivetime = mDigitizer.setEventTime(irecords[collID].getTimeNS());
+      if (withinactivetime) {
+        // for each collision, loop over the constituents event and source IDs
+        // (background signal merging is basically taking place here)
+        for (auto& part : eventParts[collID]) {
+          mDigitizer.setEventID(part.entryID);
+          mDigitizer.setSrcID(part.sourceID);
 
-        LOGP(info, "> flushing digits, different eventIDs "); // ef :remove
-        if (eventInds.size() > 0) {
-          for (const auto& ev : eventInds)
-            LOGP(info, " ev  {}", ev);
-          LOGP(info, "> "); // ef :remove
-        } else {
-          LOGP(info, " eventInds was none > (this means we   flushed digitis before we sat the eventIDs)"); // ef :remove
+          // get the hits for this event and this source
+          std::vector<o2::hmpid::HitType> hits;
+          context->retrieveHits(mSimChains, "HMPHit", part.sourceID, part.entryID, &hits);
+          LOG(info) << "For collision " << collID << " eventID " << part.entryID << " found HMP " << hits.size() << " hits ";
+
+          mDigitizer.setLabelContainer(&mLabels);
+          mLabels.clear();
+          mDigits.clear();
+
+          mDigitizer.process(hits, mDigits);
         }
 
-        auto withinactivetime = mDigitizer.setEventTime(irecords[collID].getTimeNS());
-        if (withinactivetime) {
-          // for each collision, loop over the constituents event and source IDs
-          // (background signal merging is basically taking place here)
-          for (auto& part : eventParts[collID]) {
-            mDigitizer.setEventID(part.entryID);
-            mDigitizer.setSrcID(part.sourceID);
-
-            // get the hits for this event and this source
-            std::vector<o2::hmpid::HitType> hits;
-            context->retrieveHits(mSimChains, "HMPHit", part.sourceID, part.entryID, &hits);
-            LOG(info) << "For collision " << collID << " eventID " << part.entryID << " found HMP " << hits.size() << " hits ";
-
-            mDigitizer.setLabelContainer(&mLabels);
-            mLabels.clear();
-            mDigits.clear();
-
-            mDigitizer.process(hits, mDigits);
-            eventInds.push_back(part.entryID);
-
-          }
-          eventInds.clear();
-
-          flushDigitsAndLabels(); // flush previous readout cycle
-        } else {
-          LOG(info) << "COLLISION " << collID << "FALLS WITHIN A DEAD TIME";
-        }
-      } {
-        LOGP(info, "trigger not Accepted"); // ef :remove
+      } else {
+        LOG(info) << "COLLISION " << collID << "FALLS WITHIN A DEAD TIME";
       }
     }
-
-
-
-
-
+    // final flushing step; getting everything not yet written out
+    flushDigitsAndLabels();
 
     // send out to next stage
     pc.outputs().snapshot(Output{"HMP", "DIGITS", 0}, digitsAccum);
     pc.outputs().snapshot(Output{"HMP", "INTRECORDS", 0}, mIntRecord);
-    
-    // ef : use DIGITSMCTR instead of DIGITLBL
-    if (pc.outputs().isAllowed({"HMP", "DIGITSMCTR", 0})) {
-      pc.outputs().snapshot(Output{"HMP", "DIGITSMCTR", 0}, labelAccum);
+    if (pc.outputs().isAllowed({"HMP", "DIGITLBL", 0})) {
+      pc.outputs().snapshot(Output{"HMP", "DIGITLBL", 0}, labelAccum);
     }
-
     LOG(info) << "HMP: Sending ROMode= " << mROMode << " to GRPUpdater";
     pc.outputs().snapshot(Output{"HMP", "ROMode", 0}, mROMode);
 
@@ -203,11 +166,8 @@ o2::framework::DataProcessorSpec getHMPIDDigitizerSpec(int channel, bool mctruth
   std::vector<OutputSpec> outputs;
   outputs.emplace_back("HMP", "DIGITS", 0, Lifetime::Timeframe);
   outputs.emplace_back("HMP", "INTRECORDS", 0, Lifetime::Timeframe);
-
-  
-  // ef : use DIGITSMCTR instead of DIGITLBL
-  if (mctruth) { 
-    outputs.emplace_back("HMP", "DIGITSMCTR", 0, Lifetime::Timeframe);
+  if (mctruth) {
+    outputs.emplace_back("HMP", "DIGITLBL", 0, Lifetime::Timeframe);
   }
   outputs.emplace_back("HMP", "ROMode", 0, Lifetime::Timeframe);
 
