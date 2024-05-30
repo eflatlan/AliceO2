@@ -61,7 +61,7 @@ class DigitsToClustersTask : public framework::Task
   std::unique_ptr<o2::hmpid::Clusterer> mRec; // ef: changed to smart-pointer
   long mDigitsReceived;
   long mClustersReceived;
-  bool mUseMC = false; // is set in init
+  bool mUseMC = false; // ef : is set in init
 
   void initFileIn(const std::string& fileName);
 

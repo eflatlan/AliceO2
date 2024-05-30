@@ -295,14 +295,13 @@ void DataRequest::requestMCHClusters(bool mc)
 
 void DataRequest::requestHMPClusters(bool mc)
 {
-  if (mc) { // RS: remove this once labels will be available
-    LOG(warn) << "HMP clusters do not support MC lables, disabling";
-    mc = false;
-  }
+
   addInput({"hmpidcluster", "HMP", "CLUSTERS", 0, Lifetime::Timeframe});
   addInput({"hmpidtriggers", "HMP", "INTRECORDS1", 0, Lifetime::Timeframe});
   if (mc) {
+    // addInput({"hmpidclusterlabel", "HMP", "MCLABELS", 0, Lifetime::Timeframe});
     addInput({"hmpidclusterlabel", "HMP", "CLUSTERSMCTR", 0, Lifetime::Timeframe});
+
   }
   requestMap["clusHMP"] = mc;
 }

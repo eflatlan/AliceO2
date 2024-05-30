@@ -9,7 +9,7 @@
 // granted to it by virtue of its status as an Intergovernmental Organization
 // or submit itself to any jurisdiction.
 
-/// @file   HMPMatcherSpec.h // ef ; change to hmp
+/// @file   HMPMatcherSpec.h 
 
 #ifndef O2_HMP_MATCHER_SPEC // hmp
 #define O2_HMP_MATCHER_SPEC //
@@ -25,7 +25,7 @@ namespace globaltracking
 {
 
 /// create a processor spec
-framework::DataProcessorSpec getHMPMatcherSpec(o2::dataformats::GlobalTrackID::mask_t src, bool useMC, float extratolerancetrd, float extratolerancetof);
+framework::DataProcessorSpec getHMPMatcherSpec(o2::dataformats::GlobalTrackID::mask_t src, bool useMC, float extratolerancetrd, float extratolerancetof, bool verbose = false);
 
 } // namespace globaltracking
 } // namespace o2

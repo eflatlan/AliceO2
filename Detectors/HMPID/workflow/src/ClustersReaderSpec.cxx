@@ -76,6 +76,8 @@ void ClusterReaderTask::run(ProcessingContext& pc)
   mClustersReceived += mClustersFromFile.size();
   LOG(info) << "[HMPID ClusterReader - run() ] clusters  = " << mClustersFromFile.size();
 
+
+  //ef : for debugging, check how many different evendIDs for the same HMPID trigger
   if (mVerbose) {
     int tNum = 0;
     for (const auto trig : *mClusterTriggersFromFilePtr) {
@@ -86,9 +88,7 @@ void ClusterReaderTask::run(ProcessingContext& pc)
       const int firstEntry = trig.getFirstEntry();
       const int lastEntry = trig.getLastEntry();
 
-      LOGP(debug, "START : trigger number {} : entries {} first {}  lasrt {}  time {} ", tNum, trig.getNumberOfObjects(), firstEntry, lastEntry, timeA / 1000.0f);
-      LOGP(debug, " bc {} orbit {} ", trig.getBc(), trig.getOrbit());
-      LOGP(debug, "end{} entries {}", tNum, trig.getNumberOfObjects());
+
 
       if (mUseMC) {
         std::vector<int> eventLabels;
@@ -115,7 +115,9 @@ void ClusterReaderTask::run(ProcessingContext& pc)
           }
         }
 
-        LOGP(info, "trigger number {} : entries {}", tNum, trig.getNumberOfObjects());
+
+
+        LOGP(info, "Trigger number {} : entries {}", tNum, trig.getNumberOfObjects());
         LOGP(info, "\n Different labels from eventLabels {} :::", eventLabels.size());
 
         std::vector<int> sortedVec = eventLabels;
@@ -134,8 +136,6 @@ void ClusterReaderTask::run(ProcessingContext& pc)
 
   if (mUseMC) {
     pc.outputs().snapshot(Output{"HMP", "CLUSTERSMCTR", 0}, mLabels);
-
-    LOGP(info, "[HMPID ClustersReader - with useMC : mcLabels size : headerArray {}; truthArray {}", mLabels.getIndexedSize(), mLabels.getNElements());
   }
 
   if (mTree->GetReadEntry() + 1 >= mTree->GetEntries()) {

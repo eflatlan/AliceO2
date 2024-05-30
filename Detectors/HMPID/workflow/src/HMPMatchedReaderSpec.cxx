@@ -49,6 +49,7 @@ void HMPMatchedReader::connectTree(const std::string& filename)
   mTree.reset((TTree*)mFile->Get(mInTreeName.c_str()));
   assert(mTree);
   mTree->SetBranchAddress("HMPMatchInfo", &mMatchesPtr);
+
   if (mUseMC) {
     mTree->SetBranchAddress("MatchHMPMCTruth", &mLabelHMPPtr);
   }
@@ -65,6 +66,7 @@ void HMPMatchedReader::run(ProcessingContext& pc)
   pc.outputs().snapshot(Output{o2::header::gDataOriginHMP, "MATCHES", 0}, mMatches);
   if (mUseMC) {
     pc.outputs().snapshot(Output{o2::header::gDataOriginHMP, "MCLABELS", 0}, mLabelHMP);
+
   }
 
   if (mTree->GetReadEntry() + 1 >= mTree->GetEntries()) {

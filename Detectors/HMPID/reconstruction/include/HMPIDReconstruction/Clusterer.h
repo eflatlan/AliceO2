@@ -55,7 +55,6 @@ class Clusterer
 
   // ef : added; set labels in mClsLabels
   void addCluLabelsFromDig(const Cluster& cluster, const std::vector<int>& globalDigitIndices, MCLabelContainer const* digitMCTruth, MCLabelContainer* mClsLabels, int cluSize);
-
   void FormCluMC(Cluster& pClu, int pDig, gsl::span<const o2::hmpid::Digit> digs, TMatrixF& pDigMap, std::vector<int>& indicesUnresolved);
 
   void Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::hmpid::Cluster>& clus, float* pUserCut, MCLabelContainer const* digitMCTruth, bool isUnfold = kTRUE); // digits->clusters
@@ -65,7 +64,7 @@ class Clusterer
 
  private:
   // ef : taken from  Cluster::solve
-  // > TODO : make it global Hmpid base?
+  // TODO : make it global Hmpid base?
   static constexpr int kMaxLocMax = 6; // max allowed number of loc max for fitting
 
   int startIndexDigMC = 0; // ef : TODO find a more elegant way

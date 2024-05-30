@@ -349,7 +349,7 @@ int Cluster::solve(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut, b
       mNlocMax++;
 
     } // if this pad is local maximum
-  } // first digits loop
+  }   // first digits loop
 
   // Phase 2. Fit loc max number of Mathiesons or add this current cluster to the list
 
@@ -478,10 +478,10 @@ int Cluster::solveMC(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut,
   }
 
   const int kMaxLocMax = 6; // max allowed number of loc max for fitting
-  coG(); // First calculate CoG for the given cluster
+  coG();                    // First calculate CoG for the given cluster
 
   int iCluCnt = pCluLst->size(); // get current number of clusters already stored in the list by previous operations
-  int rawSize = mSi; // get current raw cluster size
+  int rawSize = mSi;             // get current raw cluster size
 
   if (rawSize > 100) {
     mSt = kBig;
@@ -562,7 +562,6 @@ int Cluster::solveMC(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut,
 
   // case 1 -> no loc max found
   if (mNlocMax == 0) { // case of no local maxima found: pads with same charge...
-    LOGP(info, "mNlocMax {} number of digits for cluster {}", mNlocMax, mDigs->size());
     mNlocMax = 1;
     mSt = kNoLoc;
     // setClusterParams(mXX, mYY, mCh); //need to fill the AliCluster3D part
@@ -574,8 +573,7 @@ int Cluster::solveMC(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut,
 
   // case 2 -> loc max found. Check # of loc maxima
   if (mNlocMax >= kMaxLocMax) {
-    LOGP(info, "mNlocMax {} number of digits for cluster {}", mNlocMax, mDigs->size());
-    LOGP(info, "mNlocMax {} >= kMaxLocMax {}", mNlocMax, kMaxLocMax);
+
     // setClusterParams(mXX, mYY, mCh); // if # of local maxima exceeds kMaxLocMax...
 
     mSt = kMax;
@@ -633,8 +631,8 @@ int Cluster::solveMC(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut,
 
         // add "local" indices to map of clusterNumer i
         resolvedIndicesMap[i] = indicesResolved;
-        LOGP(info, "size resolvedIndicesMap[i] {}", resolvedIndicesMap[i].size());
-        
+        //LOGP(info, "size resolvedIndicesMap[i] {}", resolvedIndicesMap[i].size());
+
         // after this call, fSi temporarly is the calculated size. Later is set again
         // to its original value
       }
@@ -656,7 +654,7 @@ int Cluster::solveMC(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut,
 
       // setClusterParams(mXX, mYY, mCh); //need to fill the AliCluster3D part
       // Printf("********************loc. max. = %i, X= %f, Y = %f, Q = %f**************************",i,mXX,mYY,mQ);
-      LOGP(info, "cluNumber {} mNlocMax {} number of digits for cluster {} | unresolved, {}", i, mNlocMax, this->size(), mDigs->size());
+      //LOGP(info, "cluNumber {} mNlocMax {} number of digits for cluster {} | unresolved, {}", i, mNlocMax, this->size(), mDigs->size());
       pCluLst->push_back(o2::hmpid::Cluster(*this)); // add new unfolded cluster
       // pass indices to MC labeling : resolvedIndicesMap[i]
       // pCluLst->back().setMC();
@@ -677,12 +675,10 @@ int Cluster::solveMC(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut,
 // Estimate of the clustersize for a deconvoluted cluster
 // ef > for MC add indices of resolved digits
 void Cluster::findClusterSizeMC(int i, float* pSigmaCut, std::vector<int>& indicesResolved)
-
 {
   // std::vector<int> indexResolved;
   // auto indexUnresolved = getUnresolvedIndexes();
   int size = 0;
-  LOGP(info, " findClusterSizeMC : total digits for unresolved {}", mSi);
   for (int iDig = 0; iDig < mSi; iDig++) { // digits loop
     const auto pDig = dig(iDig);           // take digit
     int iCh = pDig->getCh();
@@ -693,23 +689,19 @@ void Cluster::findClusterSizeMC(int i, float* pSigmaCut, std::vector<int>& indic
 
     if (qPad > pSigmaCut[iCh]) {
       indicesResolved.push_back(iDig); // ef : added to track indexes of resolved clusters
-      LOGP(info, "findClusterSizeMC :: added local iDig {} ", iDig);
       size++;
     }
   }
 
-  LOGP(info, "findClusterSizeMC {}", size);
   //  AliDebug(1,Form(" Calculated size %i",size));
 
   if (size > 0) {
     setSize(size); // in case of size == 0, original raw clustersize used
   } else if (size == 0) {
 
-    LOGP(info, "size==0: using raw size {}", mSi);
     // we use raw-size; and we set for all the labels
     for (int iDig = 0; iDig < mSi; iDig++) {
       indicesResolved.push_back(iDig); // ef : added to track indexes of resolved clusters
-      LOGP(info, "findClusterSizeMC :: added raw local iDig {} ", iDig);
     }
   }
 }
@@ -780,7 +772,6 @@ void Cluster::digAdd(const Digit* pDig)
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 void Cluster::reset()
 {
   //

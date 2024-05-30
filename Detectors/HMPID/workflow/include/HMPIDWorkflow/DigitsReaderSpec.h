@@ -71,7 +71,7 @@ class DigitReader : public framework::Task
   // void strToFloatsSplit(std::string s, std::string delimiter, float* res, int maxElem = 7);
 };
 
-framework::DataProcessorSpec getDigitsReaderSpec(bool useMC, bool verbose = false); // default initializer for verbose
+framework::DataProcessorSpec getDigitsReaderSpec(bool useMC, bool verbose = false); // ef : default initializer for verbose
 
 } // end namespace hmpid
 } // end namespace o2
