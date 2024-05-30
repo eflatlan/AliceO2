@@ -671,9 +671,8 @@ int Cluster::solveMC(std::vector<o2::hmpid::Cluster>* pCluLst, float* pSigmaCut,
 } // Solve()
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 // Estimate of the clustersize for a deconvoluted cluster
-// ef > for MC add indices of resolved digits
+// ef : for MC add indices of resolved digits
 void Cluster::findClusterSizeMC(int i, float* pSigmaCut, std::vector<int>& indicesResolved)
 {
   // std::vector<int> indexResolved;
@@ -698,7 +697,6 @@ void Cluster::findClusterSizeMC(int i, float* pSigmaCut, std::vector<int>& indic
   if (size > 0) {
     setSize(size); // in case of size == 0, original raw clustersize used
   } else if (size == 0) {
-
     // we use raw-size; and we set for all the labels
     for (int iDig = 0; iDig < mSi; iDig++) {
       indicesResolved.push_back(iDig); // ef : added to track indexes of resolved clusters
@@ -708,7 +706,6 @@ void Cluster::findClusterSizeMC(int i, float* pSigmaCut, std::vector<int>& indic
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Estimate of the clustersize for a deconvoluted cluster
-
 void Cluster::findClusterSize(int i, float* pSigmaCut)
 {
 

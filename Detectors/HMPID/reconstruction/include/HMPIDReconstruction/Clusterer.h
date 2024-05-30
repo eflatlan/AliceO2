@@ -50,7 +50,7 @@ class Clusterer
 
   // void process(std::vector<Digit> const& digits, std::vector<o2::hmpid::Cluster>& clusters, MCLabelContainer const* digitMCTruth);
 
-  //
+  // set the MC truth container, done in HMPdig2clu
   void setMCTruthContainer(o2::dataformats::MCTruthContainer<o2::MCCompLabel>* truth) { mClsLabels = truth; }
 
   // ef : added; set labels in mClsLabels

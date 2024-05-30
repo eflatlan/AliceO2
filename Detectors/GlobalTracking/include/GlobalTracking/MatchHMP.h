@@ -67,10 +67,8 @@ class MCTruthContainer;
 
 namespace globaltracking
 {
-
 class MatchHMP
 {
-
 
   using Geo = o2::hmpid::Geo;
   using Cluster = o2::hmpid::Cluster;
@@ -112,7 +110,6 @@ class MatchHMP
                             SIZEALL };
 
   std::vector<o2::dataformats::MatchInfoHMP>& getMatchedTrackVector(o2::globaltracking::MatchHMP::trackType index) { return mMatchedTracks[index]; }
-
   std::vector<o2::MCCompLabel>& getMatchedHMPLabelsVector(o2::globaltracking::MatchHMP::trackType index) { return mOutHMPLabels[index]; } ///< get vector of HMP label of matched tracks
 
   void setTS(unsigned long creationTime)
@@ -196,16 +193,13 @@ class MatchHMP
   ///< working copy of the input tracks
   std::vector<matchTrack> mTracksWork[o2::globaltracking::MatchHMP::trackType::SIZE]; ///< track params prepared for matching + time value
   std::vector<Trigger> mHMPTriggersWork;
-
   std::vector<o2::MCCompLabel> mTracksLblWork[o2::globaltracking::MatchHMP::trackType::SIZE]; ///< track labels
 
   std::vector<int> mTracksIndexCache[o2::globaltracking::MatchHMP::trackType::SIZE]; ///< indices of track entry in mTracksWork
-
   std::vector<int> mHMPTriggersIndexCache; ///< indices of track entry in mHMPTriggersWork
 
   ///< array of matched HMPCluster with matching information
   std::vector<o2::dataformats::MatchInfoHMP> mMatchedTracks[o2::globaltracking::MatchHMP::trackType::SIZE]; // this is the output of the matching -> UNCONS, CONSTR
-
   std::vector<o2::MCCompLabel> mOutHMPLabels[o2::globaltracking::MatchHMP::trackType::SIZE]; ///< HMP label of matched tracks
 
   std::vector<o2::dataformats::GlobalTrackID> mTrackGid[o2::globaltracking::MatchHMP::trackType::SIZE]; ///< expected times and others

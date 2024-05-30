@@ -87,7 +87,7 @@ class MatchInfoHMP
   int getMipClusEvent() const { return mMipCluEvent; }
   */
 
-  // ef > added
+  // ef : added
   void setEventNumberFromTrack(int eventNumberTrack) { mEventNumberTrack = eventNumberTrack; }
   int getEventNumberFromTrack() const { return mEventNumberTrack; }
 
@@ -120,7 +120,8 @@ class MatchInfoHMP
   }
 
 
-  /* 
+  /*
+  // ef : to be removed
   void setRefIndex(float refIndex)
   {
     mRefIndex = refIndex;
@@ -131,8 +132,7 @@ class MatchInfoHMP
     return mRefIndex;
   }*/
 
-
-  // ef : to be removed 
+  // ef : to be removed
   void setChamber(int iChamber)
   {
     miCh = iChamber;
@@ -142,8 +142,7 @@ class MatchInfoHMP
   {
     return miCh;
   }
-  /* 
-  */
+
 
   void setHMPIDmip(float x, float y, int q, int nph = 0)
   {
@@ -175,19 +174,18 @@ class MatchInfoHMP
 
   void print() const;
 
-  // ef > added
+  // ef : added, to be removed?
   void setMatchTrue() { isMatched = true; }
   bool getMatchStatus() const { return isMatched; }
 
  private:
 
-	// ef > added
+	// ef : added
   bool isMatched = false;
   int miCh;
   int mEventNumberTrack = -1;
 
  protected:
-
 
   int mIdxHMPClus;    // Idx for HMP cluster
   GTrackID mIdxTrack; // Idx for track

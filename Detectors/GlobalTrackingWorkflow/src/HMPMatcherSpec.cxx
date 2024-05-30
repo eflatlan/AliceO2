@@ -73,11 +73,8 @@ class HMPMatcherSpec : public Task
   bool mUseFIT = false;
   bool mDoTPCRefit = false;
   bool mStrict = false;
-
   TStopwatch mTimer;
-
-  bool mVerbose = false; // ef remove
-
+  bool mVerbose = false;
   MatchHMP mMatcher; ///< Cluster finder
 };
 

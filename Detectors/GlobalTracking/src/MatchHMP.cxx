@@ -210,7 +210,6 @@ void MatchHMP::addITSTPCSeed(const o2::dataformats::TrackTPCITS& _tr, o2::datafo
 //______________________________________________
 void MatchHMP::addTRDSeed(const o2::trd::TrackTRD& _tr, o2::dataformats::GlobalTrackID srcGID, float time0, float terr)
 {
-
   if (srcGID.getSource() == o2::dataformats::GlobalTrackID::TPCTRD) {
     mIsTPCTRDused = true;
   } else if (srcGID.getSource() == o2::dataformats::GlobalTrackID::ITSTPCTRD) {
@@ -235,7 +234,6 @@ void MatchHMP::addTRDSeed(const o2::trd::TrackTRD& _tr, o2::dataformats::GlobalT
 //______________________________________________
 void MatchHMP::addTPCTOFSeed(const o2::dataformats::TrackTPCTOF& _tr, o2::dataformats::GlobalTrackID srcGID, float time0, float terr)
 {
-
   if (srcGID.getSource() == o2::dataformats::GlobalTrackID::TPCTOF) {
     mIsTPCTOFused = true;
   } else if (srcGID.getSource() == o2::dataformats::GlobalTrackID::TPCTRDTOF) {
@@ -324,7 +322,6 @@ void MatchHMP::addTPCSeed(const o2::tpc::TrackTPC& _tr, o2::dataformats::GlobalT
 //==================================================================================================================================================
 bool MatchHMP::prepareHMPClusters()
 {
-
   mHMPClustersArray = mRecoCont->getHMPClusters();
   mHMPTriggersArray = mRecoCont->getHMPClusterTriggers();
   mHMPClusLabels = mRecoCont->getHMPClustersMCLabels();
@@ -384,13 +381,10 @@ bool MatchHMP::prepareHMPClusters()
 
 void MatchHMP::doMatching()
 {
-  // ef : do this here :
-  // pParam = std::make_unique<>
 
   const o2::hmpid::Param* pParam = o2::hmpid::Param::instance();
 
   o2::globaltracking::MatchHMP::trackType type = o2::globaltracking::MatchHMP::trackType::CONSTR;
-
   o2::base::Propagator::MatCorrType matCorr = o2::base::Propagator::MatCorrType::USEMatCorrLUT; // material correction method
 
   std::unique_ptr<Recon> recon;
@@ -446,7 +440,7 @@ void MatchHMP::doMatching()
 
         event = mHMPTriggersWork[cacheTriggerHMP[iEvent]];
 
-        // ef : used for debugging simualtions when there was an error in digitization shifting the events
+        // ef : used for debugging simualtions when there was an error in digitization, which led to  shifting the events
         /*if (iEvent + 1 < cacheTriggerHMP.size()) {
           event = mHMPTriggersWork[cacheTriggerHMP[iEvent + 1]];
           LOGP(info, "shifted track.. ");
@@ -489,8 +483,7 @@ void MatchHMP::doMatching()
         int indexGlbl = 0;
         for (int j = event.getFirstEntry(); j <= event.getLastEntry(); j++) { // event clusters loops
 
-          // ef : added const
-          const auto& cluster = (o2::hmpid::Cluster&)mHMPClustersArray[j];
+          const auto& cluster = (o2::hmpid::Cluster&)mHMPClustersArray[j];	// ef : const
 
           if (cluster.ch() != iCh) {
             continue;
@@ -519,7 +512,7 @@ void MatchHMP::doMatching()
 
           if (dist < dmin) {
             dmin = dist;
-            
+
             // index =  i;
             index = oneEventClusters.size() - 1;
             // index = oneEventClusters.size() - 1; // not valid w resize/

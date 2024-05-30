@@ -35,7 +35,7 @@ namespace hmpid
 
 template <typename T>
 using BranchDefinition = MakeRootTreeWriterSpec::BranchDefinition<T>;
-using MatchInfo = std::vector<o2::dataformats::MatchInfoHMP>; // MatchHMP not invoked--> needs to be changed somewhere,
+using MatchInfo = std::vector<o2::dataformats::MatchInfoHMP>;
 using LabelsType = std::vector<o2::MCCompLabel>;
 using namespace o2::header;
 

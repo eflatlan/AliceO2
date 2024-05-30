@@ -66,7 +66,6 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
   std::vector<Pad> vPad;
   std::vector<const Digit*> digVec;
   for (int iCh = Param::kMinCh; iCh <= Param::kMaxCh; iCh++)
-
   { // chambers loop
 
     padMap = (Float_t)-1; // reset map to -1 (means no digit for this pad)
@@ -74,16 +73,13 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
     for (size_t iDig = 0; iDig < digs.size(); iDig++) {
       o2::hmpid::Digit::pad2Absolute(digs[iDig].getPadID(), &module, &padChX, &padChY);
       vPad.push_back({padChX, padChY, module});
-
       if (module == iCh) {
         padMap(padChX, padChY) = iDig; // fill the map for the given chamber, (padx,pady) cell takes digit index
       }
-
     } // digits loop for current chamber
 
 
     for (size_t iDig = 0; iDig < digs.size(); iDig++) { // digits loop for current chamber
-
       if (vPad.at(iDig).m != iCh || (pUsedDig = UseDig(vPad.at(iDig).x, vPad.at(iDig).y, padMap)) == -1) { // this digit is from other module or already taken in FormClu(), go after next digit
         continue;
       }
@@ -94,13 +90,13 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
       clu.setCh(iCh);
 
       std::vector<int> digitIndicesRawCluster;
-      // ef : added, for MC > digit indices of raw cluster (before solving)      
-      
-      // if using MC 
+      // ef : added, for MC > digit indices of raw cluster (before solving)
+
+      // if using MC
       if (digitMCTruth != nullptr) {
         // pass indices by reference, keep track of indices of digits used in cluster
         FormCluMC(clu, pUsedDig, digs, padMap, digitIndicesRawCluster); // form cluster starting from this digit by recursion
-      } 
+      }
       // not using MC
       else {
         FormClu(clu, pUsedDig, digs, padMap); // form cluster starting from this digit by recursion
@@ -140,8 +136,6 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
           //
           // map from "local" to global
 
-
-
           // loop over all the resolved clusters
           // resolvedDigIndices is the (int, vector) combination
           //  resolvedDigIndices.first is the index of the resolved cluster
@@ -165,7 +159,6 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
             std::vector<int> resolvedDigIndsVec = resolvedDigIndices.second;
             // get all the digits, and all the MC-labels from them
 
-
             // iterate over the local to map to global and fidn selected
             // store the global indicwes of the resolved digits for the current resolved cluster
             std::vector<int> globalIndResolvedDigits;
@@ -175,16 +168,14 @@ void Clusterer::Dig2Clu(gsl::span<const o2::hmpid::Digit> digs, std::vector<o2::
 
             if (mClsLabels) {
               addCluLabelsFromDig(cluster, globalIndResolvedDigits, digitMCTruth, mClsLabels, clus.size());
-
             }
           }
 
 
         } // end if (formedClusters > 1 && formedClusters < 6) {
 
-        // in this case, only 1 cluster is formed
-        // because kMaxLocMax was exceeded
-        // in this case we use the raw cluster
+        // in this case, only 1 cluster is formed, because kMaxLocMax was exceeded.
+        // In this case we use the raw cluster
         else if (formedClusters == 1 || formedClusters >= kMaxLocMax) { // 6 is max allowed value kMaxLocMax
 
           //  const auto& cluster = clus[i+cluSizeIn];
@@ -233,7 +224,6 @@ void Clusterer::addCluLabelsFromDig(const Cluster& cluster, const std::vector<in
     // all MC-hits from the specific digit
     gsl::span<const o2::MCCompLabel> mcArray = digitMCTruth->getLabels(digitLabel);
 
-
     for (int j = 0; j < static_cast<int>(mcArray.size()); j++) {
 
       const auto& currentIndex = digitMCTruth->getMCTruthHeader(digitLabel).index + j;
@@ -254,17 +244,13 @@ void Clusterer::addCluLabelsFromDig(const Cluster& cluster, const std::vector<in
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 void Clusterer::FormClu(Cluster& pClu, int pDig, gsl::span<const o2::hmpid::Digit> digs, TMatrixF& pDigMap)
-
 {
-
   // Forms the initial cluster as a combination of all adjascent digits. Starts from the given digit then calls itself recursevly  for all neighbours.
   // Arguments: pClu - pointer to cluster being formed
   //   Returns: none
   //   void digAdd(const o2::hmpid::Digit* pDig);                                         // add new digit to the cluster
 
   pClu.digAdd(&digs[pDig]); // take this digit in cluster
-
-
 
   int cnt = 0;
   int cx[4];
@@ -299,9 +285,7 @@ void Clusterer::FormClu(Cluster& pClu, int pDig, gsl::span<const o2::hmpid::Digi
     if (pDig != -1) {
       FormClu(pClu, pDig, digs, pDigMap);
     } // check if this neighbour pad fired and mark it as taken
-
   } // neighbours loop
-
 } // FormClu()
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -355,9 +339,7 @@ void Clusterer::FormCluMC(Cluster& pClu, int pDig, gsl::span<const o2::hmpid::Di
 } // FormCluMC()
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 int Clusterer::UseDig(int padX, int padY, TMatrixF& pPadMap)
-
 {
   // Digit map contains a matrix if digit numbers.
   // Main operation in forming initial cluster is done here. Requested digit pointer is returned and this digit marked as taken.
@@ -372,9 +354,7 @@ int Clusterer::UseDig(int padX, int padY, TMatrixF& pPadMap)
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 // bool Clusterer::IsDigSurvive(Int_t *pUserCut, Digit *pDig)const
-
 bool Clusterer::IsDigSurvive(Digit* pDig) const
 {
   // Check if the current digit survive to a riapllied sigma cut
