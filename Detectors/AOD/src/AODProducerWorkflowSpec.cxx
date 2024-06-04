@@ -321,6 +321,13 @@ void AODProducerWorkflowDPL::addToTracksTable(TracksCursorType& tracksCursor, Tr
 template <typename TracksExtraCursorType>
 void AODProducerWorkflowDPL::addToTracksExtraTable(TracksExtraCursorType& tracksExtraCursor, TrackExtraInfo& extraInfoHolder)
 {
+  // In case of TPC-only tracks, do not truncate the time error since we encapsulate there a special encoding of
+  // the deltaFwd/Bwd times
+  auto trackTimeRes = extraInfoHolder.trackTimeRes;
+  if (!extraInfoHolder.isTPConly) {
+    trackTimeRes = truncateFloatFraction(trackTimeRes, mTrackTimeError);
+  }
+
   // extra
   tracksExtraCursor(truncateFloatFraction(extraInfoHolder.tpcInnerParam, mTrack1Pt),
                     extraInfoHolder.flags,
@@ -341,7 +348,7 @@ void AODProducerWorkflowDPL::addToTracksExtraTable(TracksExtraCursorType& tracks
                     truncateFloatFraction(extraInfoHolder.trackEtaEMCAL, mTrackPosEMCAL),
                     truncateFloatFraction(extraInfoHolder.trackPhiEMCAL, mTrackPosEMCAL),
                     truncateFloatFraction(extraInfoHolder.trackTime, mTrackTime),
-                    truncateFloatFraction(extraInfoHolder.trackTimeRes, mTrackTimeError));
+                    trackTimeRes);
 }
 
 template <typename TracksQACursorType>
@@ -377,7 +384,7 @@ void AODProducerWorkflowDPL::addToMFTTracksTable(mftTracksCursorType& mftTracksC
   int bcSlice[2] = {-1, -1};
   const auto& track = data.getMFTTrack(trackID);
   const auto& rof = data.getMFTTracksROFRecords()[mMFTROFs[trackID.getIndex()]];
-  float trackTime = rof.getBCData().differenceInBC(mStartIR) * o2::constants::lhc::LHCBunchSpacingNS + mMFTROFrameHalfLengthNS;
+  float trackTime = rof.getBCData().differenceInBC(mStartIR) * o2::constants::lhc::LHCBunchSpacingNS + mMFTROFrameHalfLengthNS + mMFTROFBiasNS;
   float trackTimeRes = mMFTROFrameHalfLengthNS;
   bool needBCSlice = collisionID < 0;
   std::uint64_t bcOfTimeRef;
@@ -486,7 +493,7 @@ void AODProducerWorkflowDPL::fillTrackTablesPerCollision(int collisionID,
             }
           }
 
-          if (extraInfoHolder.trackTimeRes < 0.f) { // failed or rejected?
+          if (!extraInfoHolder.isTPConly && extraInfoHolder.trackTimeRes < 0.f) { // failed or rejected?
             LOG(warning) << "Barrel track " << trackIndex << " has no time set, rejection is not expected : time=" << extraInfoHolder.trackTime
                          << " timeErr=" << extraInfoHolder.trackTimeRes << " BCSlice: " << extraInfoHolder.bcSlice[0] << ":" << extraInfoHolder.bcSlice[1];
             continue;
@@ -1781,15 +1788,6 @@ void AODProducerWorkflowDPL::run(ProcessingContext& pc)
   auto fwdTracksCursor = createTableCursor<o2::aod::StoredFwdTracks>(pc);
   auto fwdTracksCovCursor = createTableCursor<o2::aod::StoredFwdTracksCov>(pc);
   auto fwdTrkClsCursor = createTableCursor<o2::aod::FwdTrkCls>(pc);
-  auto mcColLabelsCursor = createTableCursor<o2::aod::McCollisionLabels>(pc);
-  auto mcCollisionsCursor = createTableCursor<o2::aod::McCollisions>(pc);
-  auto hepmcXSectionsCursor = createTableCursor<o2::aod::HepMCXSections>(pc);
-  auto hepmcPdfInfosCursor = createTableCursor<o2::aod::HepMCPdfInfos>(pc);
-  auto hepmcHeavyIonsCursor = createTableCursor<o2::aod::HepMCHeavyIons>(pc);
-  auto mcMFTTrackLabelCursor = createTableCursor<o2::aod::McMFTTrackLabels>(pc);
-  auto mcFwdTrackLabelCursor = createTableCursor<o2::aod::McFwdTrackLabels>(pc);
-  auto mcParticlesCursor = createTableCursor<o2::aod::StoredMcParticles_001>(pc);
-  auto mcTrackLabelCursor = createTableCursor<o2::aod::McTrackLabels>(pc);
   auto mftTracksCursor = createTableCursor<o2::aod::StoredMFTTracks>(pc);
   auto tracksCursor = createTableCursor<o2::aod::StoredTracksIU>(pc);
   auto tracksCovCursor = createTableCursor<o2::aod::StoredTracksCovIU>(pc);
@@ -1803,9 +1801,32 @@ void AODProducerWorkflowDPL::run(ProcessingContext& pc)
   auto hmpCursor = createTableCursor<o2::aod::HMPIDs>(pc);
   auto caloCellsCursor = createTableCursor<o2::aod::Calos>(pc);
   auto caloCellsTRGTableCursor = createTableCursor<o2::aod::CaloTriggers>(pc);
-  auto mcCaloLabelsCursor = createTableCursor<o2::aod::McCaloLabels_001>(pc);
   auto cpvClustersCursor = createTableCursor<o2::aod::CPVClusters>(pc);
   auto originCursor = createTableCursor<o2::aod::Origins>(pc);
+
+  // Declare MC cursors type without adding the output for a table
+  o2::framework::Produces<o2::aod::McCollisionLabels> mcColLabelsCursor;
+  o2::framework::Produces<o2::aod::McCollisions> mcCollisionsCursor;
+  o2::framework::Produces<o2::aod::HepMCXSections> hepmcXSectionsCursor;
+  o2::framework::Produces<o2::aod::HepMCPdfInfos> hepmcPdfInfosCursor;
+  o2::framework::Produces<o2::aod::HepMCHeavyIons> hepmcHeavyIonsCursor;
+  o2::framework::Produces<o2::aod::McMFTTrackLabels> mcMFTTrackLabelCursor;
+  o2::framework::Produces<o2::aod::McFwdTrackLabels> mcFwdTrackLabelCursor;
+  o2::framework::Produces<o2::aod::StoredMcParticles_001> mcParticlesCursor;
+  o2::framework::Produces<o2::aod::McTrackLabels> mcTrackLabelCursor;
+  o2::framework::Produces<o2::aod::McCaloLabels_001> mcCaloLabelsCursor;
+  if (mUseMC) { // This creates the actual writercursor
+    mcColLabelsCursor = createTableCursor<o2::aod::McCollisionLabels>(pc);
+    mcCollisionsCursor = createTableCursor<o2::aod::McCollisions>(pc);
+    hepmcXSectionsCursor = createTableCursor<o2::aod::HepMCXSections>(pc);
+    hepmcPdfInfosCursor = createTableCursor<o2::aod::HepMCPdfInfos>(pc);
+    hepmcHeavyIonsCursor = createTableCursor<o2::aod::HepMCHeavyIons>(pc);
+    mcMFTTrackLabelCursor = createTableCursor<o2::aod::McMFTTrackLabels>(pc);
+    mcFwdTrackLabelCursor = createTableCursor<o2::aod::McFwdTrackLabels>(pc);
+    mcParticlesCursor = createTableCursor<o2::aod::StoredMcParticles_001>(pc);
+    mcTrackLabelCursor = createTableCursor<o2::aod::McTrackLabels>(pc);
+    mcCaloLabelsCursor = createTableCursor<o2::aod::McCaloLabels_001>(pc);
+  }
 
   std::unique_ptr<o2::steer::MCKinematicsReader> mcReader;
   if (mUseMC) {
@@ -1916,7 +1937,7 @@ void AODProducerWorkflowDPL::run(ProcessingContext& pc)
     mcCollisionsCursor.reserve(totalNParts);
 
     for (int iCol = 0; iCol < nMCCollisions; iCol++) {
-      auto time = mcRecords[iCol].getTimeNS();
+      const auto time = mcRecords[iCol].getTimeOffsetWrtBC();
       auto globalBC = mcRecords[iCol].toLong();
       auto item = bcsMap.find(globalBC);
       int bcID = -1;
@@ -2422,7 +2443,7 @@ AODProducerWorkflowDPL::TrackExtraInfo AODProducerWorkflowDPL::processBarrelTrac
     extraInfoHolder.itsClusterSizes = itsTrack.getClusterSizes();
     if (src == GIndex::ITS) { // standalone ITS track should set its time from the ROF
       const auto& rof = data.getITSTracksROFRecords()[mITSROFs[trackIndex.getIndex()]];
-      double t = rof.getBCData().differenceInBC(mStartIR) * o2::constants::lhc::LHCBunchSpacingNS + mITSROFrameHalfLengthNS;
+      double t = rof.getBCData().differenceInBC(mStartIR) * o2::constants::lhc::LHCBunchSpacingNS + mITSROFrameHalfLengthNS + mITSROFBiasNS;
       setTrackTime(t, mITSROFrameHalfLengthNS, false);
     }
   } else if (contributorsGID[GIndex::Source::ITSAB].isIndexSet()) { // this is an ITS-TPC afterburner contributor
@@ -2438,11 +2459,21 @@ AODProducerWorkflowDPL::TrackExtraInfo AODProducerWorkflowDPL::processBarrelTrac
     extraInfoHolder.tpcNClsFindableMinusFound = tpcOrig.getNClusters() - tpcClData.found;
     extraInfoHolder.tpcNClsFindableMinusCrossedRows = tpcOrig.getNClusters() - tpcClData.crossed;
     extraInfoHolder.tpcNClsShared = tpcClData.shared;
-    if (src == GIndex::TPC) {                                                                                // standalone TPC track should set its time from their timebins range
-      double terr = 0.5 * (tpcOrig.getDeltaTFwd() + tpcOrig.getDeltaTBwd()) * mTPCBinNS;                     // half-span of the interval
-      double t = (tpcOrig.getTime0() + 0.5 * (tpcOrig.getDeltaTFwd() - tpcOrig.getDeltaTBwd())) * mTPCBinNS; // central value
-      LOG(debug) << "TPC tracks t0:" << tpcOrig.getTime0() << " tbwd: " << tpcOrig.getDeltaTBwd() << " tfwd: " << tpcOrig.getDeltaTFwd() << " t: " << t << " te: " << terr;
-      setTrackTime(t, terr, false);
+    if (src == GIndex::TPC) { // standalone TPC track should set its time from their timebins range
+      if (needBCSlice) {
+        double t = (tpcOrig.getTime0() + 0.5 * (tpcOrig.getDeltaTFwd() - tpcOrig.getDeltaTBwd())) * mTPCBinNS; // central value
+        double terr = 0.5 * (tpcOrig.getDeltaTFwd() + tpcOrig.getDeltaTBwd()) * mTPCBinNS;
+        double err = mTimeMarginTrackTime + terr;
+        bcOfTimeRef = fillBCSlice(extraInfoHolder.bcSlice, t - err, t + err, bcsMap);
+      }
+      aod::track::extensions::TPCTimeErrEncoding p;
+      p.setDeltaTFwd(tpcOrig.getDeltaTFwd());
+      p.setDeltaTBwd(tpcOrig.getDeltaTBwd());
+      extraInfoHolder.trackTimeRes = p.getTimeErr();
+      extraInfoHolder.trackTime = float(tpcOrig.getTime0() * mTPCBinNS - bcOfTimeRef * o2::constants::lhc::LHCBunchSpacingNS);
+      extraInfoHolder.diffBCRef = int(bcOfTimeRef);
+      extraInfoHolder.isTPConly = true; // no truncation
+      extraInfoHolder.flags |= o2::aod::track::TrackTimeAsym;
     } else if (src == GIndex::ITSTPC) { // its-tpc matched tracks have gaussian time error and the time was not set above
       const auto& trITSTPC = data.getTPCITSTrack(trackIndex);
       auto ts = trITSTPC.getTimeMUS();
@@ -2652,9 +2683,10 @@ void AODProducerWorkflowDPL::updateTimeDependentParams(ProcessingContext& pc)
 
     const auto& alpParamsITS = o2::itsmft::DPLAlpideParam<o2::detectors::DetID::ITS>::Instance();
     mITSROFrameHalfLengthNS = 0.5 * (grpECS->isDetContinuousReadOut(o2::detectors::DetID::ITS) ? alpParamsITS.roFrameLengthInBC * o2::constants::lhc::LHCBunchSpacingNS : alpParamsITS.roFrameLengthTrig);
-
+    mITSROFBiasNS = o2::itsmft::DPLAlpideParam<o2::detectors::DetID::ITS>::Instance().roFrameBiasInBC * o2::constants::lhc::LHCBunchSpacingNS;
     const auto& alpParamsMFT = o2::itsmft::DPLAlpideParam<o2::detectors::DetID::MFT>::Instance();
     mMFTROFrameHalfLengthNS = 0.5 * (grpECS->isDetContinuousReadOut(o2::detectors::DetID::MFT) ? alpParamsMFT.roFrameLengthInBC * o2::constants::lhc::LHCBunchSpacingNS : alpParamsMFT.roFrameLengthTrig);
+    mMFTROFBiasNS = o2::itsmft::DPLAlpideParam<o2::detectors::DetID::MFT>::Instance().roFrameBiasInBC * o2::constants::lhc::LHCBunchSpacingNS;
 
     // RS FIXME: this is not yet fetched from the CCDB
     auto& elParam = o2::tpc::ParameterElectronics::Instance();
@@ -2851,7 +2883,7 @@ DataProcessorSpec getAODProducerWorkflowSpec(GID::mask_t src, bool enableSV, boo
   dataRequest->inputs.emplace_back("ctpconfig", "CTP", "CTPCONFIG", 0, Lifetime::Condition, ccdbParamSpec("CTP/Config/Config", CTPConfigPerRun));
 
   dataRequest->requestTracks(src, useMC);
-  dataRequest->requestPrimaryVertertices(useMC);
+  dataRequest->requestPrimaryVertices(useMC);
   if (src[GID::CTP]) {
     dataRequest->requestCTPDigits(useMC);
   }
@@ -2908,14 +2940,6 @@ DataProcessorSpec getAODProducerWorkflowSpec(GID::mask_t src, bool enableSV, boo
     OutputForTable<FV0As>::spec(),
     OutputForTable<StoredFwdTracks>::spec(),
     OutputForTable<StoredFwdTracksCov>::spec(),
-    OutputForTable<McCollisions>::spec(),
-    OutputForTable<HepMCXSections>::spec(),
-    OutputForTable<HepMCPdfInfos>::spec(),
-    OutputForTable<HepMCHeavyIons>::spec(),
-    OutputForTable<McMFTTrackLabels>::spec(),
-    OutputForTable<McFwdTrackLabels>::spec(),
-    OutputForTable<StoredMcParticles_001>::spec(),
-    OutputForTable<McTrackLabels>::spec(),
     OutputForTable<StoredMFTTracks>::spec(),
     OutputForTable<StoredTracksIU>::spec(),
     OutputForTable<StoredTracksCovIU>::spec(),
@@ -2934,17 +2958,29 @@ DataProcessorSpec getAODProducerWorkflowSpec(GID::mask_t src, bool enableSV, boo
     OutputForTable<Calos>::spec(),
     OutputForTable<CaloTriggers>::spec(),
     OutputForTable<CPVClusters>::spec(),
-    OutputForTable<McCaloLabels_001>::spec(),
     OutputForTable<Origin>::spec(),
-    // todo: use addTableToOuput helper?
-    //  currently the description is MCCOLLISLABEL, so
-    //  the name in AO2D would be O2mccollislabel
-    // addTableToOutput<McCollisionLabels>(outputs);
-    {OutputLabel{"McCollisionLabels"}, "AOD", "MCCOLLISIONLABEL", 0, Lifetime::Timeframe},
     OutputSpec{"TFN", "TFNumber"},
     OutputSpec{"TFF", "TFFilename"},
     OutputSpec{"AMD", "AODMetadataKeys"},
     OutputSpec{"AMD", "AODMetadataVals"}};
+
+  if (useMC) {
+    outputs.insert(outputs.end(),
+                   {OutputForTable<McCollisions>::spec(),
+                    OutputForTable<HepMCXSections>::spec(),
+                    OutputForTable<HepMCPdfInfos>::spec(),
+                    OutputForTable<HepMCHeavyIons>::spec(),
+                    OutputForTable<McMFTTrackLabels>::spec(),
+                    OutputForTable<McFwdTrackLabels>::spec(),
+                    OutputForTable<StoredMcParticles_001>::spec(),
+                    OutputForTable<McTrackLabels>::spec(),
+                    OutputForTable<McCaloLabels_001>::spec(),
+                    // todo: use addTableToOuput helper?
+                    //  currently the description is MCCOLLISLABEL, so
+                    //  the name in AO2D would be O2mccollislabel
+                    // addTableToOutput<McCollisionLabels>(outputs);
+                    {OutputLabel{"McCollisionLabels"}, "AOD", "MCCOLLISIONLABEL", 0, Lifetime::Timeframe}});
+  }
 
   return DataProcessorSpec{
     "aod-producer-workflow",

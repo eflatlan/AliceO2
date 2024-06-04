@@ -186,7 +186,7 @@ void TPCTrackStudySpec::process(o2::globaltracking::RecoContainer& recoData)
   }
 
   mTPCRefitter = std::make_unique<o2::gpu::GPUO2InterfaceRefit>(mTPCClusterIdxStruct, &mTPCCorrMapsLoader, prop->getNominalBz(), mTPCTrackClusIdx.data(), 0, mTPCRefitterShMap.data(), mTPCRefitterOccMap.data(), mTPCRefitterOccMap.size(), nullptr, o2::base::Propagator::Instance());
-
+  mTPCRefitter->setTrackReferenceX(900);                                                                                 // disable propagation after refit by setting reference to value > 500
   float vdriftTB = mTPCVDriftHelper.getVDriftObject().getVDrift() * o2::tpc::ParameterElectronics::Instance().ZbinWidth; // VDrift expressed in cm/TimeBin
   float tpcTBBias = mTPCVDriftHelper.getVDriftObject().getTimeOffset() / (8 * o2::constants::lhc::LHCBunchSpacingMUS);
   std::vector<short> clSector, clRow;
@@ -263,7 +263,6 @@ void TPCTrackStudySpec::process(o2::globaltracking::RecoContainer& recoData)
       clY.clear();
       clZ.clear();
       int count = tr.getNClusters();
-      const auto* corrMap = this->mTPCCorrMapsLoader.getCorrMap();
       const o2::tpc::ClusterNative* cl = nullptr;
       for (int ic = count; ic--;) {
         uint8_t sector, row;
@@ -271,7 +270,7 @@ void TPCTrackStudySpec::process(o2::globaltracking::RecoContainer& recoData)
         clSector.push_back(sector);
         clRow.push_back(row);
         float x, y, z;
-        corrMap->Transform(sector, row, cl->getPad(), cl->getTime(), x, y, z, t); // nominal time of the track
+        mTPCCorrMapsLoader.Transform(sector, row, cl->getPad(), cl->getTime(), x, y, z, t); // nominal time of the track
         clX.push_back(x);
         clY.push_back(y);
         clZ.push_back(z);

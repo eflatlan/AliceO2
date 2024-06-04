@@ -57,6 +57,10 @@ void VDriftHelper::accountLaserCalibration(const LtrCalibData* calib, long fallB
   if (!calib || mForceParamDrift) { // laser may set only DriftParam (the offset is 0)
     return;
   }
+  if (!calib->isValid()) {
+    LOGP(warn, "Ignoring invalid laser calibration (corrections: A-side={}, C-side={}, NTracks: A-side={} C-side={})", calib->dvCorrectionA, calib->dvCorrectionC, calib->nTracksA, calib->nTracksC);
+    return;
+  }
   // old entries of laser calib have no update time assigned
   long updateTS = calib->creationTime > 0 ? calib->creationTime : fallBackTimeStamp;
   LOG(info) << "accountLaserCalibration " << calib->refVDrift << " / " << calib->getDriftVCorrection() << " t " << updateTS << " vs " << mVDLaser.creationTime;
@@ -149,6 +153,7 @@ void VDriftHelper::extractCCDBInputs(ProcessingContext& pc, bool laser, bool its
     mSource = mVDTPCITSTgl.creationTime < mVDLaser.creationTime ? Source::Laser : Source::ITSTPCTgl;
     auto loseCTime = loserVD.creationTime;
     loserVD = mVD; // override alternative VD to avoid normalization problems later
+    loserVD.creationTime = loseCTime;
     std::string rep = fmt::format("Prefer TPC Drift from {} with time {} to {} with time {}",
                                   SourceNames[int(mSource)], mVD.creationTime, mSource == Source::Laser ? SourceNames[int(Source::ITSTPCTgl)] : SourceNames[int(Source::Laser)],
                                   mSource == Source::Laser ? mVDTPCITSTgl.creationTime : mVDLaser.creationTime);

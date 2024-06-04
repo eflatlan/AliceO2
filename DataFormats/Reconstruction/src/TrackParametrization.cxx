@@ -522,6 +522,40 @@ GPUd() typename TrackParametrization<value_T>::value_t TrackParametrization<valu
 
 //______________________________________________________________
 template <typename value_T>
+GPUd() typename TrackParametrization<value_T>::value_t TrackParametrization<value_T>::getPhiAt(value_t xk, value_t b) const
+{
+  ///< this method is just an alias for obtaining phi @ X in the tree->Draw()
+  value_t dx = xk - getX();
+  if (gpu::CAMath::Abs(dx) < constants::math::Almost0) {
+    return getPhi();
+  }
+  value_t crv = (gpu::CAMath::Abs(b) < constants::math::Almost0) ? 0.f : getCurvature(b);
+  value_t x2r = crv * dx;
+  value_t snp = mP[kSnp] + x2r;
+  value_t phi = 999.;
+  if (gpu::CAMath::Abs(snp) < constants::math::Almost1) {
+    phi = gpu::CAMath::ASin(snp) + getAlpha();
+    math_utils::detail::bringTo02Pi<value_t>(phi);
+  }
+  return phi;
+}
+
+//______________________________________________________________
+template <typename value_T>
+GPUd() typename TrackParametrization<value_T>::value_t TrackParametrization<value_T>::getPhiPosAt(value_t xk, value_t b) const
+{
+  ///< this method is just an alias for obtaining phiPos @ X in the tree->Draw()
+  value_t phi = 999.;
+  auto y = getYAt(xk, b);
+  if (y > -9998.) {
+    phi = gpu::CAMath::ATan2(y, xk) + getAlpha();
+    math_utils::detail::bringTo02Pi<value_t>(phi);
+  }
+  return phi;
+}
+
+//______________________________________________________________
+template <typename value_T>
 GPUd() typename TrackParametrization<value_T>::value_t TrackParametrization<value_T>::getSnpAt(value_t alpha, value_t xk, value_t b) const
 {
   ///< this method is just an alias for obtaining snp @ alpha, X in the tree->Draw()
@@ -589,15 +623,9 @@ GPUd() void TrackParametrization<value_T>::printParam() const
   // print parameters
 #ifndef GPUCA_ALIGPUCODE
   printf("%s\n", asString().c_str());
-#else
+#elif !defined(GPUCA_GPUCODE_DEVICE) || (!defined(__OPENCL__) && defined(GPUCA_GPU_DEBUG_PRINT))
   printf("X:%+.4e Alp:%+.3e Par: %+.4e %+.4e %+.4e %+.4e %+.4e |Q|:%d %s",
-         getX(), getAlpha(), getY(), getZ(), getSnp(), getTgl(), getQ2Pt(), getAbsCharge(),
-#if !defined(__OPENCL__) && defined(GPUCA_GPU_DEBUG_PRINT)
-         getPID().getName()
-#else
-         ""
-#endif
-  );
+         getX(), getAlpha(), getY(), getZ(), getSnp(), getTgl(), getQ2Pt(), getAbsCharge(), getPID().getName());
 #endif
 }
 
@@ -608,7 +636,7 @@ GPUd() void TrackParametrization<value_T>::printParamHexadecimal()
   // print parameters
 #ifndef GPUCA_ALIGPUCODE
   printf("%s\n", asStringHexadecimal().c_str());
-#else
+#elif !defined(GPUCA_GPUCODE_DEVICE) || (!defined(__OPENCL__) && defined(GPUCA_GPU_DEBUG_PRINT))
   printf("X:%x Alp:%x Par: %x %x %x %x %x |Q|:%x %s",
          gpu::CAMath::Float2UIntReint(getX()),
          gpu::CAMath::Float2UIntReint(getAlpha()),
@@ -618,12 +646,7 @@ GPUd() void TrackParametrization<value_T>::printParamHexadecimal()
          gpu::CAMath::Float2UIntReint(getTgl()),
          gpu::CAMath::Float2UIntReint(getQ2Pt()),
          gpu::CAMath::Float2UIntReint(getAbsCharge()),
-#if !defined(__OPENCL__) && defined(GPUCA_GPU_DEBUG_PRINT)
-         getPID().getName()
-#else
-         ""
-#endif
-  );
+         getPID().getName());
 #endif
 }
 
@@ -911,6 +934,24 @@ GPUd() typename o2::track::TrackParametrization<value_T>::yzerr_t TrackParametri
   value_t dsxysncs = 2. * v.getSigmaXY() * sncs;
   return {{/*v.getX()*cs-v.getY()*sn,*/ v.getX() * sn + v.getY() * cs, v.getZ()},
           {v.getSigmaX2() * sn2 + dsxysncs + v.getSigmaY2() * cs2, (sn + cs) * v.getSigmaYZ(), v.getSigmaZ2()}};
+}
+
+//______________________________________________
+template <typename value_T>
+GPUd() typename TrackParametrization<value_T>::value_t TrackParametrization<value_T>::getDCAYtoMV(value_t b, value_t xmv, value_t ymv, value_t zmv) const
+{
+  auto ttmp = *this;
+  dim2_t dca;
+  return ttmp.propagateParamToDCA({xmv, ymv, zmv}, b, &dca) ? dca[0] : -9999.;
+}
+
+//______________________________________________
+template <typename value_T>
+GPUd() typename TrackParametrization<value_T>::value_t TrackParametrization<value_T>::getDCAZtoMV(value_t b, value_t xmv, value_t ymv, value_t zmv) const
+{
+  auto ttmp = *this;
+  dim2_t dca;
+  return ttmp.propagateParamToDCA({xmv, ymv, zmv}, b, &dca) ? dca[1] : -9999.;
 }
 
 namespace o2::track

@@ -379,7 +379,7 @@ void DataRequest::requestCoscmicTracks(bool mc)
   requestMap["Cosmics"] = mc;
 }
 
-void DataRequest::requestPrimaryVertertices(bool mc)
+void DataRequest::requestPrimaryVertices(bool mc)
 {
   addInput({"pvtx", "GLO", "PVTX", 0, Lifetime::Timeframe});
   addInput({"pvtx_trmtc", "GLO", "PVTX_TRMTC", 0, Lifetime::Timeframe});    // global ids of associated tracks
@@ -390,7 +390,7 @@ void DataRequest::requestPrimaryVertertices(bool mc)
   requestMap["PVertex"] = mc;
 }
 
-void DataRequest::requestPrimaryVerterticesTMP(bool mc) // primary vertices before global vertex-track matching
+void DataRequest::requestPrimaryVerticesTMP(bool mc) // primary vertices before global vertex-track matching
 {
   addInput({"pvtx", "GLO", "PVTX", 0, Lifetime::Timeframe});
   addInput({"pvtx_cont", "GLO", "PVTX_CONTID", 0, Lifetime::Timeframe});        // global ids of contributors
@@ -1490,8 +1490,8 @@ void RecoContainer::getTrackTimeITSTPCTRDTOF(GTrackID gid, float& t, float& tErr
 {
   const auto& match = getITSTPCTRDTOFMatches()[gid];
   auto gidx = match.getTrackRef(); // this should be corresponding ITS-TPC-TRD track
-  const auto& tofCl = getTOFClusters()[match.getTOFClIndex()];
-  t = (tofCl.getTime() - match.getLTIntegralOut().getTOF(o2::track::PID::Pion)) * PS2MUS; // tof time in \mus, FIXME: account for time of flight to R TOF
+  //  const auto& tofCl = getTOFClusters()[match.getTOFClIndex()];
+  t = (match.getSignal() - match.getLTIntegralOut().getTOF(o2::track::PID::Pion)) * PS2MUS; // tof time in \mus, FIXME: account for time of flight to R TOF
   tErr = 0.010f;
 }
 
@@ -1500,8 +1500,8 @@ void RecoContainer::getTrackTimeTPCTRDTOF(GTrackID gid, float& t, float& tErr) c
 {
   const auto& match = getTPCTRDTOFMatches()[gid];
   auto gidx = match.getTrackRef(); // this should be corresponding ITS-TPC-TRD track
-  const auto& tofCl = getTOFClusters()[match.getTOFClIndex()];
-  t = (tofCl.getTime() - match.getLTIntegralOut().getTOF(o2::track::PID::Pion)) * PS2MUS; // tof time in \mus, FIXME: account for time of flight to R TOF
+  //  const auto& tofCl = getTOFClusters()[match.getTOFClIndex()];
+  t = (match.getSignal() - match.getLTIntegralOut().getTOF(o2::track::PID::Pion)) * PS2MUS; // tof time in \mus, FIXME: account for time of flight to R TOF
   tErr = 0.010f;
 }
 
@@ -1510,8 +1510,8 @@ void RecoContainer::getTrackTimeITSTPCTOF(GTrackID gid, float& t, float& tErr) c
 {
   const auto& match = getITSTPCTOFMatches()[gid];
   auto gidx = match.getTrackRef(); // this should be corresponding ITS-TPC track
-  const auto& tofCl = getTOFClusters()[match.getTOFClIndex()];
-  t = (tofCl.getTime() - match.getLTIntegralOut().getTOF(o2::track::PID::Pion)) * PS2MUS; // tof time in \mus, FIXME: account for time of flight to R TOF
+  //  const auto& tofCl = getTOFClusters()[match.getTOFClIndex()];
+  t = (match.getSignal() - match.getLTIntegralOut().getTOF(o2::track::PID::Pion)) * PS2MUS; // tof time in \mus, FIXME: account for time of flight to R TOF
   tErr = 0.010f;
 }
 
