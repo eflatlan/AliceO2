@@ -25,6 +25,8 @@
 #include "Framework/DataProcessorSpec.h"
 #include "Framework/Task.h"
 
+#include "SimulationDataFormat/MCCompLabel.h"
+#include "SimulationDataFormat/MCTruthContainer.h"
 #include "HMPIDBase/Common.h"
 #include "DataFormatsHMP/Digit.h"
 #include "DataFormatsHMP/Trigger.h"
@@ -40,7 +42,7 @@ namespace hmpid
 class DigitsToRootTask : public framework::Task
 {
  public:
-  DigitsToRootTask() = default;
+  DigitsToRootTask(bool useMC) : mUseMC(useMC) {}
   ~DigitsToRootTask() override = default;
   void init(framework::InitContext& ic) final;
   void run(framework::ProcessingContext& pc) final;
@@ -50,12 +52,22 @@ class DigitsToRootTask : public framework::Task
   ExecutionTimer mExTimer;
   std::vector<o2::hmpid::Trigger> mTriggers;
   std::vector<o2::hmpid::Digit> mDigits;
-  TFile* mfileOut;
-  TTree* mTheTree;
+
+  // ef : added
+  std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>> mDigitLabels;
+
+  // ef : added
+  bool mUseMC = false;
+
+  std::unique_ptr<TFile> mfileOut;
+  std::unique_ptr<TTree> mDigitTree;
   std::string mOutRootFileName;
+
+  std::string mDigitMCTruthBranchName = "HMPIDDigitMCTruth";
 };
 
-o2::framework::DataProcessorSpec getDigitsToRootSpec(std::string inputSpec = "HMP/DIGITS");
+// ef add useMC
+o2::framework::DataProcessorSpec getDigitsToRootSpec(std::string inputSpec = "HMP/DIGITS", bool useMC = false);
 
 } // end namespace hmpid
 } // end namespace o2

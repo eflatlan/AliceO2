@@ -76,11 +76,18 @@ void DigitsToRootTask::init(framework::InitContext& ic)
   TString tit = TString::Format("HMPID Digits File Decoding");
 
   LOG(info) << "Create the ROOT file " << filename.Data();
-  mfileOut = new TFile(TString::Format("%s", filename.Data()), "RECREATE");
+  mfileOut.reset(new TFile(TString::Format("%s", filename.Data()), "RECREATE"));
 
-  mTheTree = new TTree("o2hmp", tit);
-  mTheTree->Branch("InteractionRecords", &mTriggers);
-  mTheTree->Branch("HMPIDDigits", &mDigits);
+
+// BranchDefinition<o2::dataformats::MCTruthContainer<o2::emcal::MCLabel>>{InputSpec{"emcaldigitlabels", "EMC", "DIGITSMCTR"}, "EMCALDigitMCTruth", mctruth ? 1 : 0})();
+
+  mDigitTree.reset(new TTree("o2hmp", tit));
+  mDigitTree->Branch("InteractionRecords", &mTriggers);
+  mDigitTree->Branch("HMPIDDigits", &mDigits);
+  
+  if(mUseMC) {
+    mDigitTree->Branch(mDigitMCTruthBranchName.c_str(), &mDigitLabels);
+  }
 
   mExTimer.start();
   return;
@@ -90,15 +97,40 @@ void DigitsToRootTask::run(framework::ProcessingContext& pc)
 {
   std::vector<o2::hmpid::Trigger> triggers;
   std::vector<o2::hmpid::Digit> digits;
-
+  // std::vector<o2::hmpid::Digit> digits;
+  std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>> digitLabels;
+  
+  
   for (auto const& ref : InputRecordWalker(pc.inputs())) {
+
+    LOGP(info, "HMP CLASS DigitsToRootTask ");
+    /*
+     And what about MCLabels?
+    */
     if (DataRefUtils::match(ref, {"check", ConcreteDataTypeMatcher{header::gDataOriginHMP, "INTRECORDS"}})) {
       triggers = pc.inputs().get<std::vector<o2::hmpid::Trigger>>(ref);
       LOG(info) << "We receive triggers =" << triggers.size();
     }
     if (DataRefUtils::match(ref, {"check", ConcreteDataTypeMatcher{header::gDataOriginHMP, "DIGITS"}})) {
       digits = pc.inputs().get<std::vector<o2::hmpid::Digit>>(ref);
-      LOG(info) << "The size of the vector =" << digits.size();
+      LOG(info) << "The size of the cluster-vector =" << digits.size();
+    }
+    
+    
+    
+    //ef : we need to define the digitsMC-truth here ? 
+    if (mUseMC) {
+      if (DataRefUtils::match(ref, {"check", ConcreteDataTypeMatcher{header::gDataOriginHMP, "DIGITSMCTR"}})) {
+        
+        //std::vector<o2::dataformats::MCTruthContainer<o2::MCCompLabel>> digitLabels
+        // o2::dataformats::MCTruthContainer<o2::MCCompLabel>
+
+
+        // we do this in the STEER? 
+        //digitLabels = pc.inputs().get<std::vector<o2::hmpid::Digit>>(ref);
+        //LOG(info) << "The size of the vector =" << digitLabels.size();
+        LOGP(info, "HMP CLASS DigitsToRootTask got DIGITSMCTR");
+      }
     }
 
     for (int i = 0; i < triggers.size(); i++) {
@@ -108,11 +140,21 @@ void DigitsToRootTask::run(framework::ProcessingContext& pc)
       for (int j = triggers[i].getFirstEntry(); j <= triggers[i].getLastEntry(); j++) {
         mDigits.push_back(digits[j]); // append the cluster
         numberOfDigits++;
+
+
+        // we do this in the STEER? 
+        // if (mUseMC)
+          // mDigitLabels.push_back(digitLabels[j]);
+          // mDigitLabels.mergeAtBack(digitLabels[j]);?
       }
+
       mTriggers.push_back(triggers[i]);
       mTriggers.back().setDataRange(startDigitsIndex, numberOfDigits);
+      // mDigitLabels.mergeAtBack(digitLabels);?
+
     }
   }
+
   mExTimer.stop();
   return;
 }
@@ -121,27 +163,39 @@ void DigitsToRootTask::endOfStream(framework::EndOfStreamContext& ec)
 {
   mExTimer.logMes("Received an End Of Stream !");
   LOG(info) << "The size of digits vector =" << mDigits.size();
-  mTheTree->Fill();
-  mTheTree->Write();
+  mDigitTree->Fill();
+  mDigitTree->Write();
   mfileOut->Close();
   mExTimer.logMes("Register Tree ! ");
   return;
 }
 
 //_________________________________________________________________________________________________
-o2::framework::DataProcessorSpec getDigitsToRootSpec(std::string inputSpec)
+o2::framework::DataProcessorSpec getDigitsToRootSpec(std::string inputSpec, bool useMC)
 {
   std::vector<o2::framework::InputSpec> inputs;
-  inputs.emplace_back("clusters", o2::header::gDataOriginHMP, "DIGITS", 0, Lifetime::Timeframe);
+
+
+  // ? ef :: TODO: why is ther "clusters" here?
+  // ef changed to digits
+  inputs.emplace_back("digits", o2::header::gDataOriginHMP, "DIGITS", 0, Lifetime::Timeframe);
   inputs.emplace_back("intrecord", o2::header::gDataOriginHMP, "INTRECORDS", 0, Lifetime::Timeframe);
 
+
+
+  if(useMC) {
+    inputs.emplace_back("hmpiddigitlabels", o2::header::gDataOriginHMP, "DIGITSMCTR", 0, Lifetime::Timeframe);
+  } // ef: do as from the steer..
+
+
+  
   std::vector<o2::framework::OutputSpec> outputs;
 
   return DataProcessorSpec{
     "HMP-DigitsToRoot",
     inputs,
     outputs,
-    AlgorithmSpec{adaptFromTask<DigitsToRootTask>()},
+    AlgorithmSpec{adaptFromTask<DigitsToRootTask>(useMC)},
     Options{{"out-file", VariantType::String, "hmpDigits.root", {"name of the output file"}}}};
 }
 

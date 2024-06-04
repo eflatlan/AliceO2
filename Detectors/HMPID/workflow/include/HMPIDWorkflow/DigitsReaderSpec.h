@@ -25,6 +25,8 @@
 
 #include "Framework/DataProcessorSpec.h"
 #include "Framework/Task.h"
+#include "SimulationDataFormat/MCTruthContainer.h"
+#include "SimulationDataFormat/MCCompLabel.h"
 
 #include "HMPIDBase/Common.h"
 #include "DataFormatsHMP/Digit.h"
@@ -39,8 +41,7 @@ namespace hmpid
 class DigitReader : public framework::Task
 {
  public:
-  DigitReader() = default;
-  //  : mReadFile(readFile) {}
+  DigitReader(bool useMC, bool verbose) : mUseMC(useMC), mVerbose(verbose) {}
   ~DigitReader() override = default;
 
   void init(framework::InitContext& ic) final;
@@ -49,14 +50,20 @@ class DigitReader : public framework::Task
   // void endOfStream(framework::EndOfStreamContext& ec) override;
 
  private:
+  // ef : added
+  bool mUseMC = false;
+  bool mVerbose = false;
+
+  o2::dataformats::MCTruthContainer<o2::MCCompLabel> mLabels, *mPlabels = &mLabels;
+
   bool mReadFile = false;
   void initFileIn(const std::string& filename);
 
   long mDigitsReceived;
   ExecutionTimer mExTimer;
 
-  std::unique_ptr<TFile> mFile; // root file with digits
-  std::unique_ptr<TTree> mTree; // tree inside the file
+  std::unique_ptr<TFile> mFile;    // root file with digits
+  std::unique_ptr<TTree> mTreeDig; // tree inside the file
 
   unsigned long mNumberOfEntries = 0; // number of entries from TTree
   unsigned long mCurrentEntry = 0;    // index of current entry
@@ -64,7 +71,7 @@ class DigitReader : public framework::Task
   // void strToFloatsSplit(std::string s, std::string delimiter, float* res, int maxElem = 7);
 };
 
-o2::framework::DataProcessorSpec getDigitsReaderSpec();
+framework::DataProcessorSpec getDigitsReaderSpec(bool useMC, bool verbose = false); // ef : default initializer for verbose
 
 } // end namespace hmpid
 } // end namespace o2

@@ -76,6 +76,68 @@ void ClusterReaderTask::run(ProcessingContext& pc)
   mClustersReceived += mClustersFromFile.size();
   LOG(info) << "[HMPID ClusterReader - run() ] clusters  = " << mClustersFromFile.size();
 
+
+  //ef : for debugging, check how many different evendIDs for the same HMPID trigger
+  if (mVerbose) {
+    int tNum = 0;
+    for (const auto trig : *mClusterTriggersFromFilePtr) {
+
+      auto timeA = o2::InteractionRecord::bc2ns(trig.getBc(), trig.getOrbit());
+      int cnt = 0;
+
+      const int firstEntry = trig.getFirstEntry();
+      const int lastEntry = trig.getLastEntry();
+
+
+
+      if (mUseMC) {
+        std::vector<int> eventLabels;
+
+        for (int i = firstEntry; i <= lastEntry; i++) {
+
+          if (i < mLabels.getIndexedSize() && i < mClustersFromFile.size()) {
+            const auto& labels = mLabels.getLabels(i);
+            int prevEventLabel = 0;
+
+            if (labels.size() > 0) {
+              prevEventLabel = labels[0].getEventID();
+              eventLabels.push_back(prevEventLabel);
+            }
+
+            for (const auto& label : labels) {
+
+              if (label.getEventID() != prevEventLabel) {
+                eventLabels.push_back(label.getEventID());
+              }
+
+              prevEventLabel = label.getEventID();
+            }
+          }
+        }
+
+
+
+        LOGP(info, "Trigger number {} : entries {}", tNum, trig.getNumberOfObjects());
+        LOGP(info, "\n Different labels from eventLabels {} :::", eventLabels.size());
+
+        std::vector<int> sortedVec = eventLabels;
+        std::sort(sortedVec.begin(), sortedVec.end());
+
+        std::cout << "eventLabels values: ";
+        for (size_t i = 0; i < sortedVec.size(); ++i) {
+          if (i == sortedVec.size() - 1 || sortedVec[i] != sortedVec[i + 1]) {
+            std::cout << sortedVec[i] << " , ";
+          }
+        }
+      }
+      tNum++;
+    }
+  }
+
+  if (mUseMC) {
+    pc.outputs().snapshot(Output{"HMP", "CLUSTERSMCTR", 0}, mLabels);
+  }
+
   if (mTree->GetReadEntry() + 1 >= mTree->GetEntries()) {
     pc.services().get<ControlService>().endOfStream();
     pc.services().get<ControlService>().readyToQuit(QuitRequest::Me);
@@ -124,24 +186,39 @@ void ClusterReaderTask::initFileIn(const std::string& filename)
       "HMPID ClusterReaderTask::init() : Did not find Branch HMPIDClusters in clusters tree");
   }
 
-  mTree->SetBranchAddress("InteractionRecords", &mClusterTriggersFromFilePtr);
+  // ef: get useMC, adpted from CPV
+  if (mUseMC) {
+
+    if (mTree->GetBranch(mClusterMCTruthBranchName.c_str())) {
+      mTree->SetBranchAddress(mClusterMCTruthBranchName.c_str(), &mLabelsPtr);
+    } else {
+      LOG(warning) << "MC-truth is missing, message will be empty";
+    }
+  }
+
   mTree->Print("toponly");
+  mTree->SetBranchAddress("InteractionRecords", &mClusterTriggersFromFilePtr);
 }
 
 //_________________________________________________________________________________________________
 
-o2::framework::DataProcessorSpec getClusterReaderSpec()
+o2::framework::DataProcessorSpec getClusterReaderSpec(bool useMC, bool verbose)
 {
 
   std::vector<o2::framework::OutputSpec> outputs;
   outputs.emplace_back("HMP", "CLUSTERS", 0, o2::framework::Lifetime::Timeframe);
   outputs.emplace_back("HMP", "INTRECORDS1", 0, o2::framework::Lifetime::Timeframe);
 
+  // ef: added here
+  if (useMC) {
+    outputs.emplace_back("HMP", "CLUSTERSMCTR", 0, Lifetime::Timeframe);
+  }
+
   return DataProcessorSpec{
     "HMP-ClusterReader",
     Inputs{},
     outputs,
-    AlgorithmSpec{adaptFromTask<ClusterReaderTask>()},
+    AlgorithmSpec{adaptFromTask<ClusterReaderTask>(useMC, verbose)},
     Options{{"hmpid-cluster-infile" /*"qc-hmpid-clusters"*/, VariantType::String, "hmpidclusters.root", {"Name of the input file with clusters"}},
             {"input-dir", VariantType::String, "./", {"Input directory"}}}};
 }

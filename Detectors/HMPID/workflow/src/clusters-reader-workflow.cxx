@@ -46,6 +46,19 @@ void customize(std::vector<o2::framework::ConfigParamSpec>& workflowOptions)
                                    o2::framework::VariantType::Bool,
                                    false,
                                    {"read upstream by default"}}); */
+  // ef added
+  workflowOptions.push_back(
+    o2::framework::ConfigParamSpec{"disable-mc",
+                                   o2::framework::VariantType::Bool,
+                                   false,
+                                   {"Do not propagate MC info"}});
+
+  // ef added
+  workflowOptions.push_back(
+    o2::framework::ConfigParamSpec{"verbose",
+                                   o2::framework::VariantType::Bool,
+                                   false,
+                                   {"Print cluster information"}});
 
   o2::raw::HBFUtilsInitializer::addConfigOption(workflowOptions);
 }
@@ -61,7 +74,11 @@ WorkflowSpec defineDataProcessing(const ConfigContext& configcontext)
   WorkflowSpec specs;
   o2::conf::ConfigurableParam::updateFromString(configcontext.options().get<std::string>("configKeyValues"));
 
-  DataProcessorSpec consumer = o2::hmpid::getClusterReaderSpec();
+  // EF: added
+  bool useMC = !configcontext.options().get<bool>("disable-mc");
+  bool verbose = configcontext.options().get<bool>("verbose");
+
+  DataProcessorSpec consumer = o2::hmpid::getClusterReaderSpec(useMC, verbose);
 
   specs.push_back(consumer);
   return specs;

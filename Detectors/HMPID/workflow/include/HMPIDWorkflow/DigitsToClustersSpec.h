@@ -25,7 +25,8 @@
 #include "DataFormatsHMP/Digit.h"
 #include "DataFormatsHMP/Trigger.h"
 #include "HMPIDBase/Geo.h"
-
+#include "SimulationDataFormat/MCCompLabel.h"
+#include "SimulationDataFormat/MCTruthContainer.h"
 #include "TFile.h"
 #include "TTree.h"
 
@@ -33,12 +34,18 @@ namespace o2
 {
 namespace hmpid
 {
-
 class DigitsToClustersTask : public framework::Task
 {
  public:
-  DigitsToClustersTask() = default;
+  DigitsToClustersTask(bool useMC) : mUseMC(useMC)
+  {
+    if (useMC) {
+      mClsLabels.reset(new o2::dataformats::MCTruthContainer<o2::MCCompLabel>);
+    }
+  }
+
   ~DigitsToClustersTask() override = default;
+
   void init(framework::InitContext& ic) final;
   void run(framework::ProcessingContext& pc) final;
   void endOfStream(framework::EndOfStreamContext& ec) override;
@@ -54,8 +61,12 @@ class DigitsToClustersTask : public framework::Task
   std::unique_ptr<o2::hmpid::Clusterer> mRec; // ef: changed to smart-pointer
   long mDigitsReceived;
   long mClustersReceived;
+  bool mUseMC = false; // ef : is set in init
 
   void initFileIn(const std::string& fileName);
+
+  std::unique_ptr<o2::dataformats::MCTruthContainer<o2::MCCompLabel>> mClsLabels; // ef added
+  // MCLabelContainer mClsLabels;
 
   ExecutionTimer mExTimer;
   void strToFloatsSplit(std::string s, std::string delimiter, float* res,
@@ -64,7 +75,7 @@ class DigitsToClustersTask : public framework::Task
 
 // ef : read from stream by default:
 o2::framework::DataProcessorSpec
-  getDigitsToClustersSpec();
+  getDigitsToClustersSpec(bool useMC);
 
 } // end namespace hmpid
 } // end namespace o2
