@@ -41,7 +41,6 @@ using namespace o2::header;
 
 DataProcessorSpec getHMPMatchedWriterSpec(bool useMC, const char* outdef) //, bool writeTracks, int mode, bool strict)
 {
-
   const char* taskName = "HMPMatchedWriter";
 
   return MakeRootTreeWriterSpec(taskName,

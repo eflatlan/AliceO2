@@ -57,7 +57,9 @@ namespace globaltracking
 class HMPMatcherSpec : public Task
 {
  public:
-  HMPMatcherSpec(std::shared_ptr<DataRequest> dr, std::shared_ptr<o2::base::GRPGeomRequest> gr, bool useMC) : mDataRequest(dr), mGGCCDBRequest(gr), mUseMC(useMC) {}
+  HMPMatcherSpec(std::shared_ptr<DataRequest> dr, std::shared_ptr<o2::base::GRPGeomRequest> gr, bool useMC, bool verbose = false) : mDataRequest(dr), mGGCCDBRequest(gr), mUseMC(useMC), mVerbose(verbose)
+  {
+  }
   ~HMPMatcherSpec() override = default;
   void init(InitContext& ic) final;
   void run(ProcessingContext& pc) final;
@@ -67,12 +69,13 @@ class HMPMatcherSpec : public Task
  private:
   std::shared_ptr<DataRequest> mDataRequest;
   std::shared_ptr<o2::base::GRPGeomRequest> mGGCCDBRequest;
-  bool mUseMC = false; // true
+  bool mUseMC = true; // true
   bool mUseFIT = false;
   bool mDoTPCRefit = false;
   bool mStrict = false;
-  MatchHMP mMatcher; ///< Cluster finder
   TStopwatch mTimer;
+  bool mVerbose = false;
+  MatchHMP mMatcher; ///< Cluster finder
 };
 
 void HMPMatcherSpec::init(InitContext& ic)
@@ -126,10 +129,16 @@ void HMPMatcherSpec::run(ProcessingContext& pc)
   bool isITSTPCTRDTOFused = recoData.isTrackSourceLoaded(o2::dataformats::GlobalTrackID::Source::ITSTPCTRDTOF);
   //  uint32_t ss = o2::globaltracking::getSubSpec(mStrict ? o2::globaltracking::MatchingType::Strict : o2::globaltracking::MatchingType::Standard);
 
+  if (mVerbose) {
+    mMatcher.useVerboseMode();
+  }
+
   mMatcher.run(recoData);
 
   pc.outputs().snapshot(Output{o2::header::gDataOriginHMP, "MATCHES", 0}, mMatcher.getMatchedTrackVector(o2::globaltracking::MatchHMP::trackType::CONSTR));
   if (mUseMC) {
+
+    LOGP(info, "HMMatcherSpec: useMC = {}", mUseMC);
     pc.outputs().snapshot(Output{o2::header::gDataOriginHMP, "MCLABELS", 0}, mMatcher.getMatchedHMPLabelsVector(o2::globaltracking::MatchHMP::trackType::CONSTR));
   }
 
@@ -142,7 +151,7 @@ void HMPMatcherSpec::endOfStream(EndOfStreamContext& ec)
        mTimer.CpuTime(), mTimer.RealTime(), mTimer.Counter() - 1);
 }
 
-DataProcessorSpec getHMPMatcherSpec(GID::mask_t src, bool useMC, float extratolerancetrd, float extratolerancetof)
+DataProcessorSpec getHMPMatcherSpec(GID::mask_t src, bool useMC, float extratolerancetrd, float extratolerancetof, bool verbose)
 {
   // uint32_t ss = o2::globaltracking::getSubSpec(strict ? o2::globaltracking::MatchingType::Strict : o2::globaltracking::MatchingType::Standard);
   auto dataRequest = std::make_shared<DataRequest>();
@@ -173,7 +182,7 @@ DataProcessorSpec getHMPMatcherSpec(GID::mask_t src, bool useMC, float extratole
     "hmp-matcher",
     dataRequest->inputs,
     outputs,
-    AlgorithmSpec{adaptFromTask<HMPMatcherSpec>(dataRequest, ggRequest, useMC)},
+    AlgorithmSpec{adaptFromTask<HMPMatcherSpec>(dataRequest, ggRequest, useMC, verbose)},
     Options{}};
 }
 

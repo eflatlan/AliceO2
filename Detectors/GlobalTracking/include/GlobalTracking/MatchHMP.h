@@ -50,6 +50,7 @@
 #include "DataFormatsHMP/Cluster.h"
 #include "DataFormatsHMP/Trigger.h"
 
+
 namespace o2
 {
 
@@ -66,7 +67,6 @@ class MCTruthContainer;
 
 namespace globaltracking
 {
-
 class MatchHMP
 {
 
@@ -110,7 +110,6 @@ class MatchHMP
                             SIZEALL };
 
   std::vector<o2::dataformats::MatchInfoHMP>& getMatchedTrackVector(o2::globaltracking::MatchHMP::trackType index) { return mMatchedTracks[index]; }
-
   std::vector<o2::MCCompLabel>& getMatchedHMPLabelsVector(o2::globaltracking::MatchHMP::trackType index) { return mOutHMPLabels[index]; } ///< get vector of HMP label of matched tracks
 
   void setTS(unsigned long creationTime)
@@ -119,16 +118,19 @@ class MatchHMP
   }
   unsigned long getTS() const { return mTimestamp; }
 
+  // ef : added
+  void useVerboseMode() { mVerbose = true; }
+
  private:
-  // bool prepareFITData();
+  //  bool prepareFITData();
   int prepareInteractionTimes();
   bool prepareTracks();
   bool prepareHMPClusters();
   void doFastMatching();
   void doMatching();
 
-  static int intTrkCha(o2::track::TrackParCov* pTrk, double& xPc, double& yPc, double& xRa, double& yRa, double& theta, double& phi, double bz);               // find track-PC intersection, retuns chamber ID
-  static int intTrkCha(int ch, o2::dataformats::TrackHMP* pHmpTrk, double& xPc, double& yPc, double& xRa, double& yRa, double& theta, double& phi, double bz); // find track-PC intersection, retuns chamber ID
+  static int intTrkCha(o2::track::TrackParCov* pTrk, double& xPc, double& yPc, double& xRa, double& yRa, double& theta, double& phi, double bz, const o2::hmpid::Param* pParam);               // find track-PC intersection, retuns chamber ID
+  static int intTrkCha(int ch, o2::dataformats::TrackHMP* pHmpTrk, double& xPc, double& yPc, double& xRa, double& yRa, double& theta, double& phi, double bz, const o2::hmpid::Param* pParam); // find track-PC intersection, retuns chamber ID
 
   bool intersect(Double_t pnt[3], Double_t norm[3]) const;
 
@@ -183,8 +185,8 @@ class MatchHMP
 
   ///>>>------ these are input arrays which should not be modified by the matching code
   //           since this info is provided by external device
-  gsl::span<const Cluster> mHMPClustersArray;                      ///< input HMPID clusters
-  gsl::span<const Trigger> mHMPTriggersArray;                      ///< input HMPID triggers
+  gsl::span<const Cluster> mHMPClustersArray; ///< input HMPID clusters
+  gsl::span<const Trigger> mHMPTriggersArray; ///< input HMPID triggers
 
   const o2::dataformats::MCTruthContainer<o2::MCCompLabel>* mHMPClusLabels; ///< input HMP clusters MC labels (pointer to read from tree)
 
@@ -194,20 +196,23 @@ class MatchHMP
   std::vector<o2::MCCompLabel> mTracksLblWork[o2::globaltracking::MatchHMP::trackType::SIZE]; ///< track labels
 
   std::vector<int> mTracksIndexCache[o2::globaltracking::MatchHMP::trackType::SIZE]; ///< indices of track entry in mTracksWork
-  std::vector<int> mHMPTriggersIndexCache;                                           ///< indices of track entry in mHMPTriggersWork
+  std::vector<int> mHMPTriggersIndexCache; ///< indices of track entry in mHMPTriggersWork
 
   ///< array of matched HMPCluster with matching information
   std::vector<o2::dataformats::MatchInfoHMP> mMatchedTracks[o2::globaltracking::MatchHMP::trackType::SIZE]; // this is the output of the matching -> UNCONS, CONSTR
-  std::vector<o2::MCCompLabel> mOutHMPLabels[o2::globaltracking::MatchHMP::trackType::SIZE];                ///< HMP label of matched tracks
+  std::vector<o2::MCCompLabel> mOutHMPLabels[o2::globaltracking::MatchHMP::trackType::SIZE]; ///< HMP label of matched tracks
 
   std::vector<o2::dataformats::GlobalTrackID> mTrackGid[o2::globaltracking::MatchHMP::trackType::SIZE]; ///< expected times and others
   std::vector<int> mMatchedTracksIndex[o2::globaltracking::MatchHMP::trackType::SIZE];                  // vector of indexes of the tracks to be matched
 
   int mNumOfTriggers; // number of HMP triggers
 
+  // ef : added
+  bool mVerbose = false;
+
+
   ///----------- aux stuff --------------///
   static constexpr float MAXSNP = 0.85; // max snp of ITS or TPC track at xRef to be matched
-
   TStopwatch mTimerTot;
   TStopwatch mTimerMatchITSTPC;
   TStopwatch mTimerMatchTPC;

@@ -18,6 +18,7 @@
 #include "ReconstructionDataFormats/TrackLTIntegral.h"
 #include "ReconstructionDataFormats/GlobalTrackID.h"
 #include "CommonDataFormat/EvIndex.h"
+#include <TVector2.h>
 
 namespace o2
 {
@@ -41,6 +42,10 @@ class MatchInfoHMP
 
   void setIdxTrack(GTrackID index) { mIdxTrack = index; }
   int getTrackIndex() const { return mIdxTrack.getIndex(); }
+
+  void setMipclusIndex(int index) { mipIndex = index; } // ef : remove these three
+  int getMipclusIndex() const { return mipIndex; }
+  int mipIndex = -1;
 
   GTrackID getTrackRef() const { return mIdxTrack; }
 
@@ -66,6 +71,26 @@ class MatchInfoHMP
     }
   }
 
+
+  /*
+  void setDistCut(float dist, float distThre)
+  {
+    mDist = dist;
+    mDistThre = distThre;
+  }
+  void getDistCut(float& dist, float& distThre) const
+  {
+    dist = mDist;
+    distThre = mDistThre;
+  }
+  void setMipClusEvent(int event) { mMipCluEvent = event; }
+  int getMipClusEvent() const { return mMipCluEvent; }
+  */
+
+  // ef : added
+  void setEventNumberFromTrack(int eventNumberTrack) { mEventNumberTrack = eventNumberTrack; }
+  int getEventNumberFromTrack() const { return mEventNumberTrack; }
+
   void setMipClusSize(int size) { mMipCluSize = size; }
   int getMipClusSize() const { return mMipCluSize; }
 
@@ -85,13 +110,39 @@ class MatchInfoHMP
     mTrkPhi = ph;
   }
 
-  void getHMPIDtrk(float& x, float& y, float& th, float& ph) const
+  void getHMPIDtrk(float& xPc, float& yPc, float& th, float& ph) const
   {
-    x = mTrkX;
-    y = mTrkY;
+
+    xPc = mTrkX;
+    yPc = mTrkY;
     th = mTrkTheta;
     ph = mTrkPhi;
   }
+
+
+  /*
+  // ef : to be removed
+  void setRefIndex(float refIndex)
+  {
+    mRefIndex = refIndex;
+  }
+
+  double getRefIndex() const
+  {
+    return mRefIndex;
+  }*/
+
+  // ef : to be removed
+  void setChamber(int iChamber)
+  {
+    miCh = iChamber;
+  }
+
+  int getChamber() const
+  {
+    return miCh;
+  }
+
 
   void setHMPIDmip(float x, float y, int q, int nph = 0)
   {
@@ -108,6 +159,7 @@ class MatchInfoHMP
     nph = mHMPqn / 1000000;
   }
 
+
   void setHmpMom(float p) { mHmpMom = p; }
   float getHmpMom() const { return mHmpMom; }
 
@@ -122,21 +174,33 @@ class MatchInfoHMP
 
   void print() const;
 
+  // ef : added, to be removed?
+  void setMatchTrue() { isMatched = true; }
+  bool getMatchStatus() const { return isMatched; }
+
  private:
-  int mIdxHMPClus;       // Idx for HMP cluster
-  GTrackID mIdxTrack;    // Idx for track
-  float mMipX;           // local x coordinate of macthed cluster
-  float mMipY;           // local y coordinate of macthed cluster
-  float mTrkX;           // local x coordinate of extrapolated track intersection point
-  float mTrkY;           // local y coordinate of extrapolated track intersection point
-  float mTrkTheta;       // theta track
-  float mTrkPhi;         // phi track
-  float mCkovAngle;      // emission angle value
-  int mMipCluSize = 0.0; // MIP cluster size
-  int mNPhots = 0.0;     // number of candidate photo-electrons
-  int mIdxPhotClus;      // index of the first photo
-  int mHMPqn;            // 1000000*number of photon clusters + QDC
-  float mHmpMom;         // track momentum at HMPID chambers
+
+	// ef : added
+  bool isMatched = false;
+  int miCh;
+  int mEventNumberTrack = -1;
+
+ protected:
+
+  int mIdxHMPClus;    // Idx for HMP cluster
+  GTrackID mIdxTrack; // Idx for track
+  float mMipX;        // local x coordinate of macthed cluster
+  float mMipY;        // local y coordinate of macthed cluster
+  float mTrkX;        // local x coordinate of extrapolated track intersection point
+  float mTrkY;        // local y coordinate of extrapolated track intersection point
+  float mTrkTheta;    // theta track
+  float mTrkPhi;      // phi track
+  float mCkovAngle;   // emission angle value
+  int mMipCluSize;    // MIP cluster size
+  int mNPhots;        // number of candidate photo-electrons
+  int mIdxPhotClus;   // index of the first photo
+  int mHMPqn;         // 1000000*number of photon clusters + QDC
+  float mHmpMom;      // track momentum at HMPID chambers
   float mPhotCharge[10] = {};
 
   ClassDefNV(MatchInfoHMP, 2);
