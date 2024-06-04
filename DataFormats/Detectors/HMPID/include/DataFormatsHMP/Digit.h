@@ -34,6 +34,16 @@ namespace hmpid
 /// \brief HMPID Digit declaration
 class Digit
 {
+
+  // ef > moved digit member vars to protected
+ protected:
+  uint16_t mQ = 0;
+  uint8_t mCh = 0; // 0xFF indicates invalid digit
+  uint8_t mPh = 0;
+  uint8_t mX = 0;
+  uint8_t mY = 0;
+  // ef : member variables above was public, moved to protected
+
  public:
   // Coordinates Conversion Functions
   static inline uint32_t abs(int ch, int pc, int x, int y) { return ch << 24 | pc << 16 | x << 8 | y; }
@@ -70,9 +80,10 @@ class Digit
 
   friend std::ostream& operator<<(std::ostream& os, const Digit& d);
 
- public:
   Digit() = default;
+
   Digit(int pad, uint16_t charge);
+
   Digit(int chamber, int photo, int x, int y, uint16_t charge);
   Digit(uint16_t charge, int equipment, int column, int dilogic, int channel);
   Digit(uint16_t charge, int module, int x, int y);
@@ -121,13 +132,7 @@ class Digit
   uint8_t getX() const { return mX; }
   uint8_t getY() const { return mY; }
 
- public:
   // Members
-  uint16_t mQ = 0;
-  uint8_t mCh = 0; // 0xFF indicates invalid digit
-  uint8_t mPh = 0;
-  uint8_t mX = 0;
-  uint8_t mY = 0;
 
   // The Pad Unique Id, code a pad inside one HMPID chamber.
   // Bit Map : 0000.0000.cccc.pppp.xxxx.xxxx.yyyy.yyyy
